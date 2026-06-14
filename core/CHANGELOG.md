@@ -1,6 +1,12 @@
 # CHANGELOG
 
 ## [Unreleased]
+### Added
+- **GUI Layout Overhaul:** Reorganized the Dashboard for better space utilization and clarity.
+- **Top Settings Dropdown:** API, Model configuration, and provider stats are now housed in a top-center dropdown menu (only accessible during idle).
+- **Dynamic Center Stack:** The central screen area now automatically toggles between the DB Browser (when idle) and the LLM Terminal View (during active runs).
+- **Neon Progress Border:** Implemented a glowing, animated progress line running along the screen edge during active sync processes.
+- **Streamlined Sidebars:** Consolidated all statistics and diagnostics to the right sidebar, while keeping the left sidebar focused exclusively on workflow controls.
 
 ## [0.13.0a] - 2026-06-06
 ### Added

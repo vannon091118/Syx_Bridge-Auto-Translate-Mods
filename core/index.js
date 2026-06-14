@@ -550,6 +550,31 @@ async function main() {
     console.log('[INIT] Starte Dashboard-Komponenten...');
     global.guiServer = new GuiServer({ port: 3000, config: CONFIG });
         
+    // Initiale DB-Statistiken laden ("Echte Daten" beim Start)
+    setTimeout(async () => {
+      try {
+        const totalTrans = await dbGet('SELECT COUNT(*) as c FROM translations').then(r => r ? r.c : 0).catch(() => 0);
+        const flagged = await dbGet('SELECT COUNT(*) as c FROM translations WHERE flagged = 1').then(r => r ? r.c : 0).catch(() => 0);
+        const scanned = await dbGet('SELECT COUNT(*) as c FROM processed_files').then(r => r ? r.c : 0).catch(() => 0);
+        
+        if (global.guiServer && !global.guiServer.lastStats) {
+          global.guiServer.updateStatus({
+            activePhase: 'Idle',
+            currentMod: 'Local DB',
+            filesScanned: scanned,
+            totalFiles: scanned,
+            cacheHits: totalTrans,
+            newTranslations: totalTrans,
+            qaFailures: flagged,
+            activeThreads: 0,
+            isRunning: false
+          });
+        }
+      } catch (e) {
+        // Ignorieren falls DB noch nicht bereit
+      }
+    }, 1500);
+
     global.guiServer.on('get-health', async (callback) => {
       try {
         const argos = isArgosInstalled();

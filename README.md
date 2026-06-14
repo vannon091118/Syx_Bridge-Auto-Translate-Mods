@@ -20,9 +20,26 @@ To prevent future "dependency chain" vulnerabilities and automatic, unverified u
 
 ![Preview](preview.webp)
 
-### 🚀 Recent Hotfixes (v0.14.1)
-- **Patch Mode Architecture:** Fixed an issue where "Patch Mode" flattened directory structures. Translated files now perfectly mimic their original mod's folder structure within `BridgeCore`, allowing seamless overlaying by the game engine.
-- **GUI Stability (No Freezes):** Actions like "Werkseinstellung (Reset)", "Integritäts-Check", and "Steam Upload" now correctly interface with the backend in GUI mode without waiting for hidden console prompts or crashing the node server.
+### 📸 Dashboard Showcase (v0.14.2 GUI Overhaul & Features in Gamer-Ton 🎮)
+
+#### 1. 🛠️ The Setup (Idle & DB Browser) - *screenshot_idle.png*
+> **DE:** Kein Bock auf Code-Wüsten? Kein Ding! Im **Idle-Zustand** verwandelt sich die Mitte des Dashboards direkt in einen mächtigen **Datenbank-Browser**. Suchbegriff reinballern, Übersetzung anklicken, direkt umschreiben und speichern. Oben in der Mitte wartet der **"API & EINSTELLUNGEN"**-Button. Ein Klick und die Configs (Bridge-Mode, Live-Config und Provider-Stats) klappen clean als Dropdown auf, damit das HUD sauber bleibt.
+> **EN:** No dev-skills required! When idle, the center panel transforms into a full-blown **Database Browser**. Filter for strings, click to edit, save, and done. The "API & EINSTELLUNGEN" dropdown at the top hides away the clutter (Bridge-Mode, Live-Config, Provider-Stats) until you actually need it.
+
+#### 2. ⚡ The Action (Live Translation & Terminal) - *screenshot_run.png*
+> **DE:** Sobald du auf **'SYNC'** oder **'DRY-RUN'** klickst, switcht das Interface automatisch in den **Terminal-Modus**. Hier streamt die Engine die LLM-Anfragen und -Antworten live durch – Zero Blindflug! In der linken Sidebar fängt der neonfarbene Fortschrittsbalken an zu laden und zeigt dir präzise an, welche Mod-Datei gerade übersetzt wird, wie viele Threads aktiv sind und in welcher Phase sich das System befindet.
+> **EN:** Hits the fan when you press 'SYNC'. The interface auto-switches to **Terminal View**, streaming LLM prompts and responses live to your screen. The left sidebar starts glowing with a neon progress bar, showing active threads, current phase, and the exact mod file currently being processed.
+
+#### 3. 🧪 The Diagnostics & DB Stream - *screenshot_diagnostics.png*
+> **DE:** Mit einem Klick auf **DEEP POLISH** scheucht die Engine die KI noch mal durch die bereits übersetzten Texte (Stufe Draft/Verified), um maximale Qualität herauszukitzeln. Rechts siehst du den **DB Translation Stream**, der neu erstellte Übersetzungen in Echtzeit anzeigt. Direkt darunter sitzt die Sektion **Bridge Diagnostics** mit Systemauslastung und genauer Statistik (Gelesen, Cache-Hits, Neu übersetzt, Fehler) – damit du genau siehst, wie viel API-Budget du gespart hast!
+> **EN:** Unleash the **DEEP POLISH** action to force-audit up to 100 translations (Draft/Verified) and upgrade them to premium Polished state. The **DB Translation Stream** lists fresh database updates in real-time, while **Bridge Diagnostics** tracks CPU/RAM health and API stats (read, cached, new, failed) to prove how much API-budget was saved.
+
+### 🚀 Recent Changelog (Since Git Init)
+- **GUI Layout Overhaul (v0.14.2):** Moved configuration panels into a collapsible settings overlay, cleaned up the main layout, and integrated the Database Browser natively into the idle screen.
+- **Improved Progress & Heartbeat:** Enhanced visibility of the progress indicator, added active thread counts, phase tracking, and resolved UI state restore issues on page reloads.
+- **Mod Directory Structure in Patches:** Fixed path generation for "Patch Mode" so translated files preserve the correct mod subdirectory structure inside `BridgeCore`.
+- **Strict Versioning Policy:** Enforced exact version pins across dependencies in `package.json` to shield against upstream supply chain exploits.
+- **Refactoring & Helpers:** Added `rewrite.py` and `rewrite.js` to handle HTML modifications and cleaned up core process exits for workshop exports.
 
 ### 🚀 Key Features & V71 Optimization (EN)
 - **V71 Native Support:** Optimized for the latest *Songs of Syx* V71 update. The engine now handles new text structures and mod formats natively.

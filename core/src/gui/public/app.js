@@ -121,31 +121,29 @@ function tick(now) {
       uiProgress.style.backgroundImage = ''; // Restore CSS default
       uiProgress.style.background = 'linear-gradient(90deg, var(--accent), #ffb961)';
     }
+
+    // Neon progress line update
+    const neonRect = document.getElementById('neon-rect');
+    if (neonRect) {
+      if (liveStats.isRunning) {
+        // Fades from 0.2 to 1.0 depending on progress
+        neonRect.style.opacity = Math.max(0.2, percent / 100);
+      } else {
+        neonRect.style.opacity = '0';
+      }
+    }
   }
 
-  // View Switching
-  const dbBrowserView = document.getElementById('db-browser-view');
-  const terminalView = document.getElementById('terminal-view');
-  const settingsBtn = document.getElementById('settings-toggle-btn');
-  
-  if (liveStats.isRunning) {
-    if (dbBrowserView) dbBrowserView.style.display = 'none';
-    if (terminalView) terminalView.style.display = 'flex';
-    if (settingsBtn) {
-      settingsBtn.style.opacity = '0.5';
-      settingsBtn.style.cursor = 'not-allowed';
-      settingsBtn.textContent = '🔒 LÄUFT...';
-    }
-    // Auto-close settings if open
-    const dropdown = document.getElementById('settings-dropdown');
-    if (dropdown && dropdown.style.display === 'block') toggleSettings();
-  } else {
-    if (dbBrowserView) dbBrowserView.style.display = 'flex';
-    if (terminalView) terminalView.style.display = 'none';
-    if (settingsBtn) {
-      settingsBtn.style.opacity = '1';
-      settingsBtn.style.cursor = 'pointer';
-      settingsBtn.textContent = '⚙️ API & EINSTELLUNGEN';
+  // Center View Toggle
+  const termView = document.getElementById('terminal-view-container');
+  const dbView = document.getElementById('db-browser-container');
+  if (termView && dbView) {
+    if (liveStats.isRunning) {
+      termView.style.display = 'flex';
+      dbView.style.display = 'none';
+    } else {
+      termView.style.display = 'none';
+      dbView.style.display = 'flex';
     }
   }
 
@@ -214,22 +212,6 @@ async function toggleBridge() {
     if (logContainer) logContainer.innerHTML = '';
   }
   await triggerAction(action);
-}
-
-function toggleSettings() {
-  if (liveStats.isRunning) return; // Prevent opening during run
-  
-  const dropdown = document.getElementById('settings-dropdown');
-  const overlay = document.getElementById('settings-overlay');
-  if (!dropdown || !overlay) return;
-  
-  if (dropdown.style.display === 'none' || !dropdown.style.display) {
-    dropdown.style.display = 'block';
-    overlay.style.display = 'block';
-  } else {
-    dropdown.style.display = 'none';
-    overlay.style.display = 'none';
-  }
 }
 
 async function toggleMode() {
@@ -485,15 +467,7 @@ async function saveKeysFromModal() {
 }
 
 // DB Browser Logic
-function openDbBrowser() {
-  // DB Browser is now integrated in the main view when idle.
-  // We just trigger a search to refresh it.
-  if (!liveStats.isRunning) searchDb();
-}
-
-function closeDbBrowser() {
-  // Left for compatibility with old buttons if any exist
-}
+// Now handled automatically via tick() based on liveStats.isRunning
 
 async function searchDb() {
   const query = document.getElementById('db-search').value;
@@ -658,6 +632,7 @@ fetchHealth();
 fetchProviderStatus();
 requestAnimationFrame(tick);
 loadInitialConfig();
+searchDb(); // Initial DB Load
 
 // Keep session alive
 setInterval(() => {

@@ -117,10 +117,10 @@
         .pipeline-connector { flex: 1; height: 2px; background: var(--border); margin: 0 -5px; position: relative; z-index: 1; }
         .pipeline-connector.active { background: var(--accent); }
 
-        /* LLM Interaction Terminal */
-        .center-stack { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
+        /* Center Stack */
+        .center-stack { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); padding: 15px; gap: 15px; position: relative;}
         
-        .interaction-viewer { height: 28%; display: grid; grid-template-rows: 1fr 1fr; gap: 6px; padding: 10px; overflow: hidden; }
+        .interaction-viewer { flex: 1; display: grid; grid-template-rows: 1fr 1fr; gap: 15px; overflow: hidden; }
         .terminal-box { 
             background: #050505; 
             border: 1px solid #222; 
@@ -130,23 +130,23 @@
             overflow: hidden;
         }
         
-        .terminal-header { background: #111; padding: 3px 8px; font-size: 0.65rem; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
-        .terminal-content { flex: 1; padding: 6px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.75rem; overflow-y: auto; white-space: pre-wrap; color: #ccc; }
+        .terminal-header { background: #111; padding: 5px 10px; font-size: 0.75rem; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .terminal-content { flex: 1; padding: 10px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.85rem; overflow-y: auto; white-space: pre-wrap; color: #ccc; }
         
-        .log-panel { flex: 1; border-top: 1px solid var(--border); background: #000; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.75rem; color: var(--muted); }
+        .log-panel { height: 35%; border: 1px solid var(--border); border-radius: 4px; background: #000; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.75rem; color: var(--muted); }
 
         /* DB Browser Styles */
-        .db-table-container { max-height: 400px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); }
-        .db-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        .db-table th { background: #111; color: var(--accent); padding: 8px; text-align: left; position: sticky; top: 0; }
-        .db-table td { border-bottom: 1px solid var(--border); padding: 6px; }
+        .db-table-container { overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); flex: 1; }
+        .db-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .db-table th { background: #111; color: var(--accent); padding: 10px; text-align: left; position: sticky; top: 0; }
+        .db-table td { border-bottom: 1px solid var(--border); padding: 8px; }
         .db-table tr:hover { background: rgba(255,255,255,0.02); }
-        .db-edit-input { background: transparent; border: 1px solid transparent; color: var(--text); width: 100%; padding: 4px; }
+        .db-edit-input { background: transparent; border: 1px solid transparent; color: var(--text); width: 100%; padding: 4px; font-family: inherit; }
         .db-edit-input:focus { background: #000; border-color: var(--accent); outline: none; }
 
         /* DB Sample Stream */
         .right-sidebar { background: var(--panel-bg); display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
-        .sample-list { display: flex; flex-direction: column; gap: 8px; }
+        .sample-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
         .sample-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-size: 0.8rem; }
         .sample-source { color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-bottom: 4px; font-style: italic; }
         .sample-target { color: var(--success); font-weight: 500; }
@@ -155,6 +155,7 @@
         button { background: var(--accent); color: #000; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%; transition: all 0.2s; position: relative; overflow: hidden; }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         button:active { transform: translateY(0); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         button.secondary { background: #332d29; color: var(--text); border: 1px solid #444; }
         button.stop-btn { background: var(--danger); color: #fff; }
         
@@ -210,75 +211,80 @@
             50% { opacity: 1; }
             100% { opacity: 0.4; }
         }
+        
+        @keyframes dash-run {
+            to { stroke-dashoffset: -1000; }
+        }
     </style>
 </head>
 <body>
-    <div id="settings-overlay" onclick="toggleSettings()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999;"></div>
+    <!-- Neon Progress Border -->
+    <svg id="neon-svg" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999;">
+        <rect id="neon-rect" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="20 40" style="filter: drop-shadow(0 0 8px var(--accent)); animation: dash-run 5s linear infinite; opacity: 0; transition: opacity 0.5s ease;" />
+    </svg>
+
     <header>
         <div class="brand">SONGS OF SYX <span style="color:white">AI BRIDGE</span> <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; color: #ef6b60; margin-left: 10px; text-transform: none; text-shadow: 0 0 5px rgba(239, 107, 96, 0.3);">by Vannon</span></div>
         
-        <div id="top-settings-container" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1001;">
-            <button id="settings-toggle-btn" onclick="toggleSettings()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent); font-size: 0.8rem; padding: 6px 20px; color: var(--accent); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.3s;">⚙️ API & EINSTELLUNGEN</button>
-            <div id="settings-dropdown" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 8px; z-index: 1000; width: 500px; box-shadow: 0 10px 50px rgba(0,0,0,0.9); max-height: 80vh; overflow-y: auto;">
-                <div class="panel">
-                <h3>Bridge Mode</h3>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <button id="mode-toggle-btn" onclick="toggleMode()" style="flex:1;">Wechsle zu NATIVE</button>
-                </div>
-                <div id="mode-status" class="stat-label" style="text-align:center; font-weight:bold;">Aktuell: PATCH MODE</div>
-            </div>
-
-            
-<div class="panel">
-                <h3>Live Config</h3>
-                <label class="stat-label">Primärer Provider</label>
-                <select id="cfg-provider" onchange="onProviderChange()">
-                    <option value="ollama">Ollama (Lokal)</option>
-                    <option value="gemini">Gemini (Cloud)</option>
-                    <option value="groq">Groq (Fast Cloud)</option>
-                    <option value="openrouter">OpenRouter (Free/Paid)</option>
-                </select>
-
-                <label class="stat-label">Aktives Modell</label>
-                <select id="cfg-model">
-                    <option value="">Lade Modelle...</option>
-                </select>
-                
-                <div style="margin-bottom:10px;">
-                    <label class="stat-label">Batch Größe (Rec: <span id="batch-rec" style="color:var(--accent)">-</span>)</label>
-                    <input type="number" id="cfg-batch-size" value="24" min="1" max="100" style="margin:0;">
+        <!-- TOP SETTINGS DROPDOWN -->
+        <div id="top-settings-container" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1001; top: 12px;">
+            <button id="settings-toggle-btn" onclick="toggleSettings()" style="background: rgba(0,0,0,0.8); border: 1px solid var(--accent); font-size: 0.75rem; padding: 6px 25px; color: var(--accent); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.3s; width: auto; box-shadow: 0 0 10px rgba(0,0,0,0.5);">⚙️ API & EINSTELLUNGEN</button>
+            <div id="settings-dropdown" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 8px; z-index: 1000; width: 450px; box-shadow: 0 10px 50px rgba(0,0,0,0.9); max-height: 80vh; overflow-y: auto;">
+                <div class="panel" style="margin-bottom: 10px;">
+                    <h3>Bridge Mode</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <button id="mode-toggle-btn" onclick="toggleMode()" style="flex:1;">Wechsle zu NATIVE</button>
+                    </div>
+                    <div id="mode-status" class="stat-label" style="text-align:center; font-weight:bold;">Aktuell: PATCH MODE</div>
                 </div>
 
-                <button onclick="openKeyModal()" style="margin-bottom: 5px; background: #332d29; border: 1px solid #444; color: var(--text); font-size: 0.7rem;">Manage API Keys</button>
-                <label class="stat-label">Zielsprache <span style="font-size: 0.5rem; background: var(--accent); color: #000; padding: 1px 3px; border-radius: 2px; font-weight: bold; margin-left: 5px;">BETA</span></label>
-                <select id="cfg-lang" style="margin-bottom: 5px;">
-                    <option value="German">German</option>
-                    <option value="French">French</option>
-                    <option value="Spanish">Spanish</option>
-                    <option value="Polish">Polish</option>
-                    <option value="Russian">Russian</option>
-                    <option value="Italian">Italian</option>
-                    <option value="Portuguese">Portuguese</option>
-                    <option value="Chinese">Chinese</option>
-                    <option value="Japanese">Japanese</option>
-                    <option value="Korean">Korean</option>
-                    <option value="Ukrainian">Ukrainian</option>
-                    <option value="Turkish">Turkish</option>
-                    <option value="Dutch">Dutch</option>
-                    <option value="Swedish">Swedish</option>
-                </select>
-                <button onclick="saveConfig()">Apply Changes</button>
-            </div>
+                <div class="panel" style="margin-bottom: 10px;">
+                    <h3>Live Config</h3>
+                    <label class="stat-label">Primärer Provider</label>
+                    <select id="cfg-provider" onchange="onProviderChange()">
+                        <option value="ollama">Ollama (Lokal)</option>
+                        <option value="gemini">Gemini (Cloud)</option>
+                        <option value="groq">Groq (Fast Cloud)</option>
+                        <option value="openrouter">OpenRouter (Free/Paid)</option>
+                    </select>
 
-            
-<div class="panel">
-                <h3>Provider Stats</h3>
-                <div id="provider-stats-container" style="font-size: 0.7rem; font-family: monospace;">
-                    <!-- Dynamic Stats -->
+                    <label class="stat-label">Aktives Modell</label>
+                    <select id="cfg-model">
+                        <option value="">Lade Modelle...</option>
+                    </select>
+                    
+                    <div style="margin-bottom:10px;">
+                        <label class="stat-label">Batch Größe (Rec: <span id="batch-rec" style="color:var(--accent)">-</span>)</label>
+                        <input type="number" id="cfg-batch-size" value="24" min="1" max="100" style="margin:0;">
+                    </div>
+
+                    <button onclick="openKeyModal()" style="margin-bottom: 5px; background: #332d29; border: 1px solid #444; color: var(--text); font-size: 0.7rem;">Manage API Keys</button>
+                    <label class="stat-label">Zielsprache <span style="font-size: 0.5rem; background: var(--accent); color: #000; padding: 1px 3px; border-radius: 2px; font-weight: bold; margin-left: 5px;">BETA</span></label>
+                    <select id="cfg-lang" style="margin-bottom: 5px;">
+                        <option value="German">German</option>
+                        <option value="French">French</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="Polish">Polish</option>
+                        <option value="Russian">Russian</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Portuguese">Portuguese</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="Korean">Korean</option>
+                        <option value="Ukrainian">Ukrainian</option>
+                        <option value="Turkish">Turkish</option>
+                        <option value="Dutch">Dutch</option>
+                        <option value="Swedish">Swedish</option>
+                    </select>
+                    <button onclick="saveConfig()">Apply Changes</button>
                 </div>
-            </div>
 
-            
+                <div class="panel" style="margin-bottom: 0;">
+                    <h3>Provider Stats</h3>
+                    <div id="provider-stats-container" style="font-size: 0.7rem; font-family: monospace;">
+                        <!-- Dynamic Stats -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -315,7 +321,8 @@
                     <div id="ui-progress-text" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; z-index: 2;">BEREIT</div>
                 </div>
             </div>
-<div class="panel">
+
+            <div class="panel">
                 <h3>Pipeline</h3>
                 <div class="pipeline-container">
                     <div id="stage-scan" class="pipeline-stage">SCAN</div>
@@ -328,8 +335,7 @@
                 </div>
             </div>
 
-            
-<div class="panel">
+            <div class="panel">
                 <h3>Aktionen</h3>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <!-- Haupt-Workflow -->
@@ -342,8 +348,7 @@
                     <!-- Wartung & Qualität -->
                     <div style="background: rgba(216, 151, 60, 0.05); padding: 8px; border-radius: 4px; border: 1px solid rgba(216, 151, 60, 0.1);">
                         <div class="stat-label" style="margin-bottom:5px; color:var(--accent)">Datenbank & Qualitaet</div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                            <button onclick="openDbBrowser()" class="secondary" style="border-color:var(--accent); color:var(--accent); font-size: 0.65rem;">BROWSER</button>
+                        <div style="display:grid; grid-template-columns:1fr; gap:5px;">
                             <button onclick="triggerAction('check-db')" class="secondary" style="border-color:var(--accent); color:var(--accent); font-size: 0.65rem;">DEEP POLISH</button>
                         </div>
                         <button onclick="triggerAction('audit-integrity')" class="secondary" style="margin-top: 5px; font-size: 0.65rem;">INTEGRITAETS-CHECK</button>
@@ -358,17 +363,13 @@
                     <button onclick="triggerAction('full_reset')" style="background: #4a1a1a; color: #ff9999; margin-top: 10px; font-size:0.65rem; border: 1px solid #632525;">WERKSEINSTELLUNG (RESET)</button>
                 </div>
             </div>
-        
         </div>
-<!-- KEY MODAL -->
+
+        <!-- KEY MODAL -->
         <div id="key-modal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
             <div class="modal-content panel" style="width: 600px; max-height: 80vh; overflow-y: auto; background: var(--panel-bg);">
                 <h3>API Keys Verwalten</h3>
-                
-                <div id="key-sections">
-                    <!-- Dynamic Sections -->
-                </div>
-
+                <div id="key-sections"></div>
                 <div style="display:flex; gap:10px; margin-top: 20px;">
                     <button onclick="closeKeyModal()" class="secondary">Schließen</button>
                     <button onclick="saveKeysFromModal()">Änderungen Übernehmen</button>
@@ -376,90 +377,61 @@
             </div>
         </div>
 
-        
-                
-                <div class="db-table-container">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%;">Original</th>
-                                <th style="width: 40%;">Übersetzung</th>
-                                <th style="width: 10%;">Sprache</th>
-                                <th style="width: 10%;">Aktion</th>
-                            </tr>
-                        </thead>
-                        <tbody id="db-table-body">
-                            <!-- Rows via JS -->
-                        </tbody>
-                    </table>
+        <!-- CENTER: LLM INTERACTION, DB BROWSER & LOGS -->
+        <div class="center-stack">
+            <!-- TERMINAL VIEW (Active during Run) -->
+            <div id="terminal-view-container" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+                <div class="panel" style="display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0; flex: 1;">
+                    <h3 style="font-size: 0.9rem; margin: 0 0 10px 0;">LLM Kommunikation (Terminal)</h3>
+                    <div class="interaction-viewer">
+                        <div class="terminal-box">
+                            <div class="terminal-header"><span>LETZTER LLM REQUEST</span><span id="req-provider" style="color:var(--accent)">-</span></div>
+                            <div id="term-req" class="terminal-content">Warte auf Daten...</div>
+                        </div>
+                        <div class="terminal-box">
+                            <div class="terminal-header"><span>LETZTE LLM ANTWORT</span><span id="res-time">-</span></div>
+                            <div id="term-res" class="terminal-content" style="color: var(--success);">...</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style="margin-top: 15px; font-size: 0.7rem; color: var(--muted); display:flex; justify-content:space-between;">
-                    <div>Klicke auf eine Übersetzung zum Editieren. Änderungen werden beim Speichern übernommen.</div>
-                    <div id="db-count">0 Einträge</div>
+                <div id="log" class="log-panel" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- DB BROWSER VIEW (Active during Idle) -->
+            <div id="db-browser-container" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+                <div class="panel" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                        <h3 style="margin:0;">Datenbank Browser</h3>
+                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()">
+                    </div>
+                    <div class="db-table-container">
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%;">Original</th>
+                                    <th style="width: 40%;">Übersetzung</th>
+                                    <th style="width: 10%;">Sprache</th>
+                                    <th style="width: 10%;">Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="db-table-body">
+                                <!-- Rows via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--muted); display:flex; justify-content:space-between;">
+                        <div>Klicke auf eine Übersetzung zum Editieren. Änderungen werden beim Speichern übernommen.</div>
+                        <div id="db-count" style="font-weight: bold; color: var(--accent);">0 Einträge</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- CENTER: LLM INTERACTION & LOGS -->
-        <div class="center-stack">
-            <!-- DB BROWSER VIEW (IDLE) -->
-            <div id="db-browser-view" style="display: flex; flex: 1; flex-direction: column; padding: 15px; overflow: hidden; background: #0a0a0a;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>Datenbank Browser</h3>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()">
-                        
-                    </div>
-                </div>
-                
-                <div class="db-table-container">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%;">Original</th>
-                                <th style="width: 40%;">Übersetzung</th>
-                                <th style="width: 10%;">Sprache</th>
-                                <th style="width: 10%;">Aktion</th>
-                            </tr>
-                        </thead>
-                        <tbody id="db-table-body">
-                            <!-- Rows via JS -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div style="margin-top: 15px; font-size: 0.7rem; color: var(--muted); display:flex; justify-content:space-between;">
-                    <div>Klicke auf eine Übersetzung zum Editieren. Änderungen werden beim Speichern übernommen.</div>
-                    <div id="db-count">0 Einträge</div>
-                </div>
-            </div>
-            
-            <!-- TERMINAL VIEW (RUNNING) -->
-            <div id="terminal-view" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
-                <div class="interaction-viewer">
-                <div class="terminal-box">
-                    <div class="terminal-header"><span>LETZTER LLM REQUEST</span><span id="req-provider" style="color:var(--accent)">-</span></div>
-                    <div id="term-req" class="terminal-content">Warte auf Daten...</div>
-                </div>
-                <div class="terminal-box">
-                    <div class="terminal-header"><span>LETZTE LLM ANTWORT</span><span id="res-time">-</span></div>
-                    <div id="term-res" class="terminal-content" style="color: var(--success);">...</div>
-                </div>
-            </div>
-            <div id="log" class="log-panel"></div>
-            </div>
-        </div>
-        <!-- RIGHT SIDEBAR: DB SAMPLES -->
+        <!-- RIGHT SIDEBAR: STATS, DIAGNOSTICS & DB SAMPLES -->
         <div class="right-sidebar">
-            <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                <h3>DB Translation Stream</h3>
-                <div id="db-samples" class="sample-list" style="overflow-y: auto; flex: 1;">
-                    <div class="stat-label" style="text-align:center; padding: 20px;">Noch keine neuen Übersetzungen in dieser Sitzung.</div>
             <div class="panel">
-                <h3>Bridge Diagnostics</h3>
-                <div class="stat-label">System Health: <span id="sys-load">Normal</span><div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
-                <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 0.8rem;">Statistiken</h4>
+                <h3>Statistiken</h3>
                 <div class="stat-grid">
                     <div class="stat-item"><div class="stat-label">Gelesen</div><div id="stat-scanned" class="stat-value">0</div></div>
                     <div class="stat-item"><div class="stat-label">Cache</div><div id="stat-cached" class="stat-value">0</div></div>
@@ -468,14 +440,17 @@
                 </div>
             </div>
 
-            
-            </div>
-        </div>
-    </div>
             <div class="panel">
                 <h3>Bridge Diagnostics</h3>
                 <div class="stat-label">System Health: <span id="sys-load">Normal</span></div>
                 <div class="stat-label">DB Einträge: <span id="stat-db-total">-</span></div>
+            </div>
+
+            <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0;">
+                <h3>DB Translation Stream</h3>
+                <div id="db-samples" class="sample-list" style="overflow-y: auto; flex: 1;">
+                    <div class="stat-label" style="text-align:center; padding: 20px;">Noch keine neuen Übersetzungen in dieser Sitzung.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -486,5 +461,17 @@
     </footer>
 
     <script src="/public/app.js"></script>
+    <script>
+        function toggleSettings() {
+            // Need to wait until liveStats exists in window or access from app.js context. 
+            // In app.js, liveStats is top-level. 
+            if (window.liveStats && window.liveStats.isRunning) {
+                alert("Einstellungen können während eines aktiven Laufs nicht geändert werden!");
+                return;
+            }
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
