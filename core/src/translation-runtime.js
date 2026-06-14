@@ -941,6 +941,7 @@ except Exception as e:
           if (global.guiServer && reusedCacheCount % 5 === 0) { // Throttle cache hits
             global.guiServer.broadcastDbSample(t, data.translation);
           }
+          if (options.onProgress) options.onProgress({ cacheHits: 1, filesScanned: translations.size });
         } else if (!isSafe && !needsRefresh) {
           console.log(`[INTEGRITY] Cache-Eintrag fuer "${t.substring(0, 30)}..." verworfen (Integritaets-Fehler).`);
         }
@@ -997,6 +998,10 @@ except Exception as e:
         processedCount++;
       }
       if (currentBatch.length === 0) break;
+      
+      if (options.onProgress) {
+        options.onProgress({ newTranslations: currentBatch.length, filesScanned: translations.size + currentBatch.length });
+      }
             
       try {
         const result = await translateBatchWithRouting(currentBatch);

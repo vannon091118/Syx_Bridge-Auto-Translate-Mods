@@ -168,6 +168,11 @@ function createRuntimeOps(options) {
       relativePath: job.relativePath,
       modName
     })));
+    
+    if (options.onProgress) {
+      options.onProgress({ totalFiles: allTexts.length, filesScanned: 0 });
+    }
+    
     const translations = await ensureTranslations(allTexts, options);
     const translationStats = translations.__stats || {};
         

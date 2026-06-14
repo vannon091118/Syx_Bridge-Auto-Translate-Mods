@@ -123,6 +123,32 @@ function tick(now) {
     }
   }
 
+  // View Switching
+  const dbBrowserView = document.getElementById('db-browser-view');
+  const terminalView = document.getElementById('terminal-view');
+  const settingsBtn = document.getElementById('settings-toggle-btn');
+  
+  if (liveStats.isRunning) {
+    if (dbBrowserView) dbBrowserView.style.display = 'none';
+    if (terminalView) terminalView.style.display = 'flex';
+    if (settingsBtn) {
+      settingsBtn.style.opacity = '0.5';
+      settingsBtn.style.cursor = 'not-allowed';
+      settingsBtn.textContent = '🔒 LÄUFT...';
+    }
+    // Auto-close settings if open
+    const dropdown = document.getElementById('settings-dropdown');
+    if (dropdown && dropdown.style.display === 'block') toggleSettings();
+  } else {
+    if (dbBrowserView) dbBrowserView.style.display = 'flex';
+    if (terminalView) terminalView.style.display = 'none';
+    if (settingsBtn) {
+      settingsBtn.style.opacity = '1';
+      settingsBtn.style.cursor = 'pointer';
+      settingsBtn.textContent = '⚙️ API & EINSTELLUNGEN';
+    }
+  }
+
   // Sequential Sample Rotation
   if (now - lastSampleRotation > 5000) {
     const samples = dbSamplesContainer.querySelectorAll('.sample-card');
@@ -188,6 +214,22 @@ async function toggleBridge() {
     if (logContainer) logContainer.innerHTML = '';
   }
   await triggerAction(action);
+}
+
+function toggleSettings() {
+  if (liveStats.isRunning) return; // Prevent opening during run
+  
+  const dropdown = document.getElementById('settings-dropdown');
+  const overlay = document.getElementById('settings-overlay');
+  if (!dropdown || !overlay) return;
+  
+  if (dropdown.style.display === 'none' || !dropdown.style.display) {
+    dropdown.style.display = 'block';
+    overlay.style.display = 'block';
+  } else {
+    dropdown.style.display = 'none';
+    overlay.style.display = 'none';
+  }
 }
 
 async function toggleMode() {
@@ -444,16 +486,13 @@ async function saveKeysFromModal() {
 
 // DB Browser Logic
 function openDbBrowser() {
-  const modal = document.getElementById('db-modal');
-  if (modal) {
-    modal.style.display = 'flex';
-    searchDb();
-  }
+  // DB Browser is now integrated in the main view when idle.
+  // We just trigger a search to refresh it.
+  if (!liveStats.isRunning) searchDb();
 }
 
 function closeDbBrowser() {
-  const modal = document.getElementById('db-modal');
-  if (modal) modal.style.display = 'none';
+  // Left for compatibility with old buttons if any exist
 }
 
 async function searchDb() {

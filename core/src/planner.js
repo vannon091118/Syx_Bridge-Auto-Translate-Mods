@@ -116,13 +116,20 @@ class Planner {
     console.log(`\n>>> Processing: ${mod.id}`);
 
     if (this.hooks.translateMod) {
-      const result = await this.hooks.translateMod(mod, { ...options, mode, dryRun: this.dryRun });
+      const result = await this.hooks.translateMod(mod, { 
+        ...options, 
+        mode, 
+        dryRun: this.dryRun,
+        onProgress: (delta) => {
+          if (delta.filesScanned !== undefined) this.stats.filesScanned = delta.filesScanned;
+          if (delta.totalFiles !== undefined) this.stats.totalFiles = delta.totalFiles;
+          if (delta.cacheHits) this.stats.cacheHits += delta.cacheHits;
+          if (delta.newTranslations) this.stats.newTranslations += delta.newTranslations;
+          if (delta.qaFailures) this.stats.qaFailures += delta.qaFailures;
+        }
+      });
       if (result && typeof result === 'object') {
-        this.stats.filesScanned += Number(result.filesScanned || 0);
         this.stats.stringsExtracted += Number(result.stringsExtracted || 0);
-        this.stats.cacheHits += Number(result.cacheHits || 0);
-        this.stats.newTranslations += Number(result.newTranslations || 0);
-        this.stats.qaFailures += Number(result.qaFailures || 0);
       }
       return;
     }

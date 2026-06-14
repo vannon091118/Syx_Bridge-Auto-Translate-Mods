@@ -213,43 +213,14 @@
     </style>
 </head>
 <body>
+    <div id="settings-overlay" onclick="toggleSettings()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999;"></div>
     <header>
         <div class="brand">SONGS OF SYX <span style="color:white">AI BRIDGE</span> <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; color: #ef6b60; margin-left: 10px; text-transform: none; text-shadow: 0 0 5px rgba(239, 107, 96, 0.3);">by Vannon</span></div>
-        <div style="display: flex; flex-direction: column; align-items: flex-end;">
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <div id="bridge-status-badge" class="status-badge">Idle</div>
-                <div id="health-argos" class="stat-label"><span class="status-dot" id="dot-argos"></span>Argos</div>
-                <div id="health-ollama" class="stat-label"><span class="status-dot" id="dot-ollama"></span>Ollama</div>
-            </div>
-            <div id="mode-warning" style="font-size: 0.6rem; color: var(--accent); margin-top: 4px; letter-spacing: 0.5px; font-weight: bold;">
-                AKTUELL GETESTET: <span style="color:var(--success)">NATIV</span> | EXPERIMENTELL: <span style="color:var(--danger)">PATCH</span>
-            </div>
-        </div>
-    </header>
-
-    <div class="main-layout">
-
-        <!-- LEFT SIDEBAR: CONFIG & ACTIONS -->
-        <div class="sidebar">
-            <div class="panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h3 style="margin:0;">System-Status</h3>
-                    <div id="run-control-box">
-                        <button id="main-run-btn" onclick="toggleBridge()" style="padding: 4px 12px; font-size: 0.7rem; width: auto;">START</button>
-                    </div>
-                </div>
-                <div class="stat-grid">
-                    <div class="stat-item"><div class="stat-label">Phase</div><div id="ui-phase" class="stat-value" style="font-size: 0.85rem; color: var(--accent);">Idle</div></div>
-                    <div class="stat-item"><div class="stat-label">Threads</div><div id="ui-threads" class="stat-value">0</div></div>
-                </div>
-                <div id="ui-mod-name" class="stat-label" style="margin-top: 10px; color: var(--success); font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bereit</div>
-                <div class="progress-bar">
-                    <div id="ui-progress" class="progress-fill"></div>
-                    <div id="ui-progress-text" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; z-index: 2;">BEREIT</div>
-                </div>
-            </div>
-
-            <div class="panel">
+        
+        <div id="top-settings-container" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1001;">
+            <button id="settings-toggle-btn" onclick="toggleSettings()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent); font-size: 0.8rem; padding: 6px 20px; color: var(--accent); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.3s;">⚙️ API & EINSTELLUNGEN</button>
+            <div id="settings-dropdown" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 8px; z-index: 1000; width: 500px; box-shadow: 0 10px 50px rgba(0,0,0,0.9); max-height: 80vh; overflow-y: auto;">
+                <div class="panel">
                 <h3>Bridge Mode</h3>
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
                     <button id="mode-toggle-btn" onclick="toggleMode()" style="flex:1;">Wechsle zu NATIVE</button>
@@ -257,7 +228,8 @@
                 <div id="mode-status" class="stat-label" style="text-align:center; font-weight:bold;">Aktuell: PATCH MODE</div>
             </div>
 
-            <div class="panel">
+            
+<div class="panel">
                 <h3>Live Config</h3>
                 <label class="stat-label">Primärer Provider</label>
                 <select id="cfg-provider" onchange="onProviderChange()">
@@ -298,14 +270,52 @@
                 <button onclick="saveConfig()">Apply Changes</button>
             </div>
 
-            <div class="panel">
+            
+<div class="panel">
                 <h3>Provider Stats</h3>
                 <div id="provider-stats-container" style="font-size: 0.7rem; font-family: monospace;">
                     <!-- Dynamic Stats -->
                 </div>
             </div>
 
+            
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div id="bridge-status-badge" class="status-badge">Idle</div>
+                <div id="health-argos" class="stat-label"><span class="status-dot" id="dot-argos"></span>Argos</div>
+                <div id="health-ollama" class="stat-label"><span class="status-dot" id="dot-ollama"></span>Ollama</div>
+            </div>
+            <div id="mode-warning" style="font-size: 0.6rem; color: var(--accent); margin-top: 4px; letter-spacing: 0.5px; font-weight: bold;">
+                AKTUELL GETESTET: <span style="color:var(--success)">NATIV</span> | EXPERIMENTELL: <span style="color:var(--danger)">PATCH</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+
+        <!-- LEFT SIDEBAR: CONFIG & ACTIONS -->
+        <div class="sidebar">
             <div class="panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0;">System-Status</h3>
+                    <div id="run-control-box">
+                        <button id="main-run-btn" onclick="toggleBridge()" style="padding: 4px 12px; font-size: 0.7rem; width: auto;">START</button>
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">Phase</div><div id="ui-phase" class="stat-value" style="font-size: 0.85rem; color: var(--accent);">Idle</div></div>
+                    <div class="stat-item"><div class="stat-label">Threads</div><div id="ui-threads" class="stat-value">0</div></div>
+                </div>
+                <div id="ui-mod-name" class="stat-label" style="margin-top: 10px; color: var(--success); font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bereit</div>
+                <div class="progress-bar">
+                    <div id="ui-progress" class="progress-fill"></div>
+                    <div id="ui-progress-text" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; z-index: 2;">BEREIT</div>
+                </div>
+            </div>
+<div class="panel">
                 <h3>Pipeline</h3>
                 <div class="pipeline-container">
                     <div id="stage-scan" class="pipeline-stage">SCAN</div>
@@ -318,17 +328,8 @@
                 </div>
             </div>
 
-            <div class="panel">
-                <h3>Statistiken</h3>
-                <div class="stat-grid">
-                    <div class="stat-item"><div class="stat-label">Gelesen</div><div id="stat-scanned" class="stat-value">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Cache</div><div id="stat-cached" class="stat-value">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Neu</div><div id="stat-translated" class="stat-value">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Fehler</div><div id="stat-failed" class="stat-value">0</div></div>
-                </div>
-            </div>
-
-            <div class="panel">
+            
+<div class="panel">
                 <h3>Aktionen</h3>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <!-- Haupt-Workflow -->
@@ -357,9 +358,9 @@
                     <button onclick="triggerAction('full_reset')" style="background: #4a1a1a; color: #ff9999; margin-top: 10px; font-size:0.65rem; border: 1px solid #632525;">WERKSEINSTELLUNG (RESET)</button>
                 </div>
             </div>
+        
         </div>
-
-        <!-- KEY MODAL -->
+<!-- KEY MODAL -->
         <div id="key-modal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
             <div class="modal-content panel" style="width: 600px; max-height: 80vh; overflow-y: auto; background: var(--panel-bg);">
                 <h3>API Keys Verwalten</h3>
@@ -375,16 +376,7 @@
             </div>
         </div>
 
-        <!-- DB BROWSER MODAL -->
-        <div id="db-modal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
-            <div class="modal-content panel" style="width: 90%; max-height: 90vh; background: var(--panel-bg); display: flex; flex-direction: column;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>Datenbank Browser</h3>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()">
-                        <button onclick="closeDbBrowser()" class="secondary" style="width: auto; padding: 4px 15px;">Schließen</button>
-                    </div>
-                </div>
+        
                 
                 <div class="db-table-container">
                     <table class="db-table">
@@ -411,7 +403,41 @@
 
         <!-- CENTER: LLM INTERACTION & LOGS -->
         <div class="center-stack">
-            <div class="interaction-viewer">
+            <!-- DB BROWSER VIEW (IDLE) -->
+            <div id="db-browser-view" style="display: flex; flex: 1; flex-direction: column; padding: 15px; overflow: hidden; background: #0a0a0a;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Datenbank Browser</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()">
+                        
+                    </div>
+                </div>
+                
+                <div class="db-table-container">
+                    <table class="db-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Original</th>
+                                <th style="width: 40%;">Übersetzung</th>
+                                <th style="width: 10%;">Sprache</th>
+                                <th style="width: 10%;">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="db-table-body">
+                            <!-- Rows via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 15px; font-size: 0.7rem; color: var(--muted); display:flex; justify-content:space-between;">
+                    <div>Klicke auf eine Übersetzung zum Editieren. Änderungen werden beim Speichern übernommen.</div>
+                    <div id="db-count">0 Einträge</div>
+                </div>
+            </div>
+            
+            <!-- TERMINAL VIEW (RUNNING) -->
+            <div id="terminal-view" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+                <div class="interaction-viewer">
                 <div class="terminal-box">
                     <div class="terminal-header"><span>LETZTER LLM REQUEST</span><span id="req-provider" style="color:var(--accent)">-</span></div>
                     <div id="term-req" class="terminal-content">Warte auf Daten...</div>
@@ -422,16 +448,30 @@
                 </div>
             </div>
             <div id="log" class="log-panel"></div>
+            </div>
         </div>
-
         <!-- RIGHT SIDEBAR: DB SAMPLES -->
         <div class="right-sidebar">
             <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
                 <h3>DB Translation Stream</h3>
                 <div id="db-samples" class="sample-list" style="overflow-y: auto; flex: 1;">
                     <div class="stat-label" style="text-align:center; padding: 20px;">Noch keine neuen Übersetzungen in dieser Sitzung.</div>
+            <div class="panel">
+                <h3>Bridge Diagnostics</h3>
+                <div class="stat-label">System Health: <span id="sys-load">Normal</span><div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
+                <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 0.8rem;">Statistiken</h4>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">Gelesen</div><div id="stat-scanned" class="stat-value">0</div></div>
+                    <div class="stat-item"><div class="stat-label">Cache</div><div id="stat-cached" class="stat-value">0</div></div>
+                    <div class="stat-item"><div class="stat-label">Neu</div><div id="stat-translated" class="stat-value">0</div></div>
+                    <div class="stat-item"><div class="stat-label">Fehler</div><div id="stat-failed" class="stat-value">0</div></div>
                 </div>
             </div>
+
+            
+            </div>
+        </div>
+    </div>
             <div class="panel">
                 <h3>Bridge Diagnostics</h3>
                 <div class="stat-label">System Health: <span id="sys-load">Normal</span></div>
