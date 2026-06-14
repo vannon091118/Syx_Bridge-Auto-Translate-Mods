@@ -18,40 +18,23 @@ To prevent future "dependency chain" vulnerabilities and automatic, unverified u
 
 ## 📢 Project Status: The Current Reality (v0.14.1)
 
-![Preview](preview.webp)
-
 ### 📸 Dashboard Showcase (v0.14.2 GUI Overhaul & Features in Gamer-Ton 🎮)
 
 Here is a visual walk-through of the UI, featuring the newly minted v0.14.2 setup. No boring corporate stuff here—just raw power, ready to translate your favorite mods!
 
 ---
 
-#### 1. 🛠️ The Setup (Idle & DB Browser) - `screenshot_idle.png`
-![Idle Setup](screenshot_idle.png)
-> **DE:** **Der "Kein-Bock-auf-Code"-Modus.** Wenn die Engine idlet, schläft sie nicht, sondern serviert dir direkt den Datenbank-Browser. Hier kannst du Übersetzungen filtern, anklicken und direkt korrigieren. Keine nervigen SQL-Befehle, einfach reinklicken und umschreiben.
-> **EN:** **The Lazy Modder's Dream.** When the engine is idle, it displays the Database Browser directly in the center stack. Search, click, edit, save—no SQL degree required.
+#### 1. 🔍 Inline Database Inspector & Home - `Screenshot 2026-06-14 060657.png`
+![Inline DB Inspector](Screenshot%202026-06-14%20060657.png)
+> **DE:** **Der "Kein-Bock-auf-Code"-Modus.** Wenn die Engine idlet, schläft sie nicht, sondern serviert dir direkt den Datenbank-Browser. Suchbegriffe eintippen und die DB filtert in Echtzeit. Ideal, um fehlerhafte Übersetzungen aufzuspüren, bevor sie ins Spiel gerollt werden.
+> **EN:** **The Microscope of Truth / Lazy Modder's Dream.** When the engine is idle, it displays the Database Browser directly in the center stack. Search, click, edit, save—no SQL degree required. Type search queries and watch the DB filter lines on the fly.
 
 #### 2. ⚙️ Settings Dropdown Overlay - `Screenshot 2026-06-14 060726.png`
 ![Settings Dropdown](Screenshot%202026-06-14%20060726.png)
 > **DE:** **Das versteckte Arsenal.** Ein Klick auf "API & EINSTELLUNGEN" und die Configs (Bridge-Mode, API Keys, Provider-Auswahl) klappen clean herunter. Das HUD bleibt sauber, bis du die Regler für maximale AI-Power aufdrehen willst.
 > **EN:** **The Hidden Arsenal.** Click "API & EINSTELLUNGEN" and watch the configuration drawer drop down like a tactical supply package. API Keys, Bridge-modes, and models, all tucked away until you need them.
 
-#### 3. ⚡ Live Sync & The Terminal Mode - `screenshot_run.png`
-![Active Run](screenshot_run.png)
-> **DE:** **Hyper-Speed Live-Action.** Drückst du auf "SYNC", switcht das Dashboard sofort in die Matrix-Ansicht. Die linke Sidebar leuchtet im neonfarbenen Ladebalken auf, zeigt dir aktive Threads, und in der Mitte streamen die LLM-Prompts in Echtzeit durch. Kein Blindflug mehr!
-> **EN:** **Enter the Matrix.** Trigger "SYNC" and witness the UI transform into a live combat terminal. The left border glows with neon progress fills, and the center console logs real-time LLM operations so you can watch the magic happen.
-
-#### 4. 🧪 Translation Stream & Diagnostics - `screenshot_diagnostics.png`
-![Diagnostics](screenshot_diagnostics.png)
-> **DE:** **Die Einsatzzentrale.** In der rechten Sidebar siehst du den Live-Stream der frisch in die Datenbank fliegenden Texte. Direkt darunter behält das Diagnostics-Panel die CPU/RAM-Auslastung im Auge. Hier siehst du auch den Zähler für die Cache-Hits – jeder Hit spart echtes Geld!
-> **EN:** **Mission Control.** The right sidebar hosts the "DB Translation Stream," displaying freshly imported lines in real time, while the "Bridge Diagnostics" monitor tracks your system health and counts API Cache-Hits (saving you actual cash).
-
-#### 5. 🔍 Inline Database Inspector - `Screenshot 2026-06-14 060657.png`
-![Inline DB Inspector](Screenshot%202026-06-14%20060657.png)
-> **DE:** **Der "Lupe des Schreckens"-Modus.** Suchbegriffe eintippen und die DB filtert in Echtzeit. Ideal, um fehlerhafte Übersetzungen aufzuspüren, bevor sie ins Spiel gerollt werden.
-> **EN:** **The Microscope of Truth.** Type search queries and watch the DB filter lines on the fly. Find and destroy bad translations before they hit your game core.
-
-#### 6. 📝 Database Entry Detail Editor - `Screenshot 2026-06-14 060738.png`
+#### 3. 📝 Database Entry Detail Editor - `Screenshot 2026-06-14 060738.png`
 ![Entry Editor](Screenshot%202026-06-14%20060738.png)
 > **DE:** **Der Text-Changer.** Klicke auf eine Zeile und bearbeite direkt den Inhalt. Bestätigen, speichern und die Übersetzung ist live geupdatet. Simpel, direkt, effektiv.
 > **EN:** **The Text Manipulator.** Just click on any table row to modify the translation. Hit save, and it's instantly patched in the database. Boom. Done.
