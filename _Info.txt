@@ -1,7 +1,0 @@
-VERSION: "0.15.0-alpha",
-GAME_VERSION_MAJOR: 71,
-GAME_VERSION_MINOR: 0,
-NAME: "Syx-Bridge AI Translator",
-DESC: "Ein mächtiges KI-Tool zur automatischen Übersetzung von Mods. Startet das Dashboard via start.bat.",
-AUTHOR: "Vannon",
-INFO: "ANLEITUNG: Starte die 'start.bat' im Mod-Ordner, um das Web-Interface zu öffnen. Wähle dort deine Sprache und die zu übersetzenden Mods aus.",

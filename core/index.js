@@ -418,25 +418,23 @@ async function restoreBackup(backupDir, targetDir) {
     await fsp.copyFile(file.filePath, targetFilePath);
   }
   
-  // 2. Scan targetDir and delete any .txt files that are not in backupDir
+  // 2. Scan targetDir and delete any files that are not in backupDir
   if (fs.existsSync(targetDir)) {
     const targetFiles = await collectAllFiles(targetDir);
     const backupFileSet = new Set(backupFiles.map(f => f.relativePath));
     for (const file of targetFiles) {
       if (!backupFileSet.has(file.relativePath)) {
-        if (file.name.endsWith('.txt') || file.name === '_Info.txt') {
-          await fsp.rm(file.filePath, { force: true });
-          
-          // Clean up parent directories if empty
-          let parent = path.dirname(file.filePath);
-          while (parent !== targetDir) {
-            const files = await fsp.readdir(parent);
-            if (files.length === 0) {
-              await fsp.rmdir(parent);
-              parent = path.dirname(parent);
-            } else {
-              break;
-            }
+        await fsp.rm(file.filePath, { force: true });
+        
+        // Clean up parent directories if empty
+        let parent = path.dirname(file.filePath);
+        while (parent !== targetDir) {
+          const files = await fsp.readdir(parent);
+          if (files.length === 0) {
+            await fsp.rmdir(parent);
+            parent = path.dirname(parent);
+          } else {
+            break;
           }
         }
       }
@@ -773,6 +771,7 @@ async function main() {
         
         console.log(`[INFO] Restoriere Backup für Mod: ${modId} nach ${targetDir}...`);
         await restoreBackup(backupDir, targetDir);
+        await fsp.rm(backupDir, { recursive: true, force: true });
         console.log(`[INFO] Backup für Mod ${modId} erfolgreich restoriert.`);
         
         // Clear processed_files entries for this mod

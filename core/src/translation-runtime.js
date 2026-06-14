@@ -14,6 +14,7 @@ function createTranslationRuntime(options) {
   const {
     axios,
     config,
+    configRuntime,
     routingEngine,
     logPayload,
     withRetry,
@@ -645,6 +646,13 @@ except Exception as e:
   async function translateBatch(items, provider = config.PRIMARY_PROVIDER, modelOverride = '') {
     if (isAborting()) throw new Error('ABORTED');
     const entries = await enrichWithContext(items);
+    
+    // M1 Fix: Konsolidiertes Shielding direkt in den Entries
+    entries.forEach(entry => {
+      const shield = protectPlaceholders(entry.source);
+      entry.protectedText = shield.protectedText;
+      entry.placeholders = shield.placeholders;
+    });
         
     // Smart Routing: Override provider if batch is entirely low risk
     let activeProvider = provider;
@@ -656,7 +664,6 @@ except Exception as e:
     }
 
     const texts = entries.map(entry => entry.source);
-    const protectedItems = texts.map(text => ({ source: text, ...protectPlaceholders(text) }));
     const preview = texts.map(t => t.length > 25 ? t.substring(0, 22) + '...' : t).join(' | ');
     console.log(`[BATCH] (${activeProvider}) [${texts.length} Texte]: ${preview}`);
 
@@ -665,9 +672,9 @@ except Exception as e:
     else if (activeProvider === 'groq') rawTranslations = await callGroqBatch(entries, modelOverride);
     else if (activeProvider === 'openrouter') rawTranslations = await callOpenRouterBatch(entries, modelOverride);
     else if (activeProvider === 'ollama') rawTranslations = await callOllamaBatch(entries, modelOverride);
-    else if (activeProvider === 'argos') rawTranslations = await callArgosBatch(protectedItems.map(item => item.protectedText));
+    else if (activeProvider === 'argos') rawTranslations = await callArgosBatch(entries.map(e => e.protectedText));
     else if (activeProvider === 'player2') rawTranslations = await callPlayer2Batch(entries, modelOverride);
-    else if (activeProvider === 'google_free') rawTranslations = await callGoogleTranslateFree(protectedItems.map(item => item.protectedText));
+    else if (activeProvider === 'google_free') rawTranslations = await callGoogleTranslateFree(entries.map(e => e.protectedText));
 
     if (!rawTranslations || rawTranslations.length !== texts.length) {
       throw new Error(`Batch-Antwort von ${activeProvider} hat falsche Anzahl an Zeilen (${rawTranslations ? rawTranslations.length : 0}/${texts.length}).`);
@@ -675,7 +682,7 @@ except Exception as e:
 
     let unchangedCount = 0;
     const finalizedResults = rawTranslations.map((translation, index) => {
-      const item = protectedItems[index];
+      const item = entries[index];
       const finalized = restoreAndValidateTranslation(item.source, translation, item.placeholders);
       if (!finalized.valid) {
         console.warn(`[WARN] Placeholder/Tags/Quotes korrupt bei "${item.source.substring(0, 30)}" (${activeProvider}) -> Fallback auf Original.`);

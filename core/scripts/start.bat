@@ -36,7 +36,7 @@ if not exist .env (
         echo POLISHER_PROVIDER="openrouter" >> .env
         echo POLISHER_MODEL="openrouter/free" >> .env
         echo TARGET_LANG="German" >> .env
-        echo NATIVE_MODE="false" >> .env
+        echo NATIVE_MODE="true" >> .env
         echo GRAMMAR_CHECK="true" >> .env
     )
     echo [INFO] Bitte trage deine Konfiguration in die .env Datei ein.

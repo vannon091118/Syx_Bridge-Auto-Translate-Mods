@@ -2,8 +2,6 @@ const path = require('path');
 const db = require('./db');
 const scanner = require('./scanner');
 const extractor = require('./extractor');
-const validator = require('./validator');
-const exporter = require('./exporter');
 const { logRun } = require('./logger');
 
 /**

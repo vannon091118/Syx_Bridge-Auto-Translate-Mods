@@ -85,7 +85,7 @@ function createRuntimeOps(options) {
     const modName = info.NAME || path.basename(modDir);
     console.log(`\n>>> Uebersetze: ${modName}${dryRun ? ' [DRY RUN]' : ''}`);
 
-    if (config.NATIVE_MODE && !getHasConfirmedNative() && !dryRun) {
+    if (config.NATIVE_MODE && !getHasConfirmedNative() && !dryRun && !process.argv.includes('--gui')) {
       // ... (Native mode confirmation logic stays same)
       console.log('\n[INFO] Native Mode aktiv: Originaldateien werden überschrieben.');
 
@@ -131,8 +131,12 @@ function createRuntimeOps(options) {
       await fsp.mkdir(config.BACKUP_ROOT, { recursive: true });
       const backupId = path.basename(modDir).replace(/[^a-z0-9_.-]/gi, '_');
       const backupPath = path.join(config.BACKUP_ROOT, `.backup_${backupId}_ORIGINAL`);
-      if (!fs.existsSync(backupPath)) {
+      if (!fs.existsSync(backupPath) || !fs.existsSync(path.join(backupPath, '.backup_info.json'))) {
         console.log('[INFO] Erstelle Sicherheits-Backup...');
+        if (fs.existsSync(backupPath)) {
+          await fsp.rm(backupPath, { recursive: true, force: true });
+        }
+        await fsp.mkdir(backupPath, { recursive: true });
         await fsp.cp(modDir, backupPath, { recursive: true });
         await fsp.writeFile(
           path.join(backupPath, '.backup_info.json'),

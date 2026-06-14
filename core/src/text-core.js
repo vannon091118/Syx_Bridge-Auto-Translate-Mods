@@ -144,11 +144,11 @@ function parseBatchResponse(text, options = {}) {
 
   if (results.length === 0) {
     results = clean.split(/\r?\n/)
-      .map(line => line.replace(/^\s*\d+[).:-]\s*/, '').trim())
+      .map(line => line.replace(/^\s*\d+[).:-]\s*/, '').trim().replace(/^"|"$/g, ''))
       .filter(Boolean);
   }
 
-  return results.map(entry => String(entry || '').trim().replace(/^"|"$/g, ''));
+  return results.map(entry => String(entry || '').trim());
 }
 
 function buildBatchPrompt(items, targetLang, grammarContext = '', strictTerms = []) {
@@ -156,11 +156,17 @@ function buildBatchPrompt(items, targetLang, grammarContext = '', strictTerms = 
   const shieldMaps = [];
   const protectedItems = items.map(item => {
     const normalized = normalizePromptItem(item);
-    const { protectedText, placeholders } = protectPlaceholders(normalized.source);
-    shieldMaps.push(placeholders);
+    let pt = item.protectedText;
+    let ph = item.placeholders;
+    if (pt === undefined || ph === undefined) {
+      const shield = protectPlaceholders(normalized.source);
+      pt = shield.protectedText;
+      ph = shield.placeholders;
+    }
+    shieldMaps.push(ph);
     return {
       ...normalized,
-      protectedText
+      protectedText: pt
     };
   });
 
@@ -212,11 +218,17 @@ function buildProofreadPrompt(items, targetLang = 'German', grammarContext = '',
   const shieldMaps = [];
   const protectedItems = items.map(item => {
     const normalized = normalizePromptItem(item);
-    const { protectedText, placeholders } = protectPlaceholders(normalized.source);
-    shieldMaps.push(placeholders);
+    let pt = item.protectedText;
+    let ph = item.placeholders;
+    if (pt === undefined || ph === undefined) {
+      const shield = protectPlaceholders(normalized.source);
+      pt = shield.protectedText;
+      ph = shield.placeholders;
+    }
+    shieldMaps.push(ph);
     return {
       ...normalized,
-      protectedText,
+      protectedText: pt,
       originalSource: item.originalSource || ''
     };
   });
@@ -298,7 +310,10 @@ function restoreAndValidateTranslation(source, rawTranslation, placeholders) {
   // Clean up potential encoding artifacts often seen as '￢ﾀﾞ' (UTF-8 bytes misread)
   clean = clean.replace(/\uFFFD/g, ''); // Replacement character
   
-  clean = clean.replace(/^"|"$/g, '');
+  const sourceHasQuotes = source && source.startsWith('"') && source.endsWith('"');
+  if (!sourceHasQuotes) {
+    clean = clean.replace(/^"|"$/g, '');
+  }
   
   const restored = restorePlaceholders(clean, placeholders);
   return {
