@@ -29,15 +29,15 @@ Here is a visual walk-through of the UI, featuring the newly minted v0.14.2 setu
 > **DE:** **Die Action-Phase live im Run.** Sobald das System arbeitet, erwacht das Terminal zum Leben. Hier siehst du die Live-Anfragen an die LLM-Modelle, aktive Threads und den animierten Fortschrittsbalken mit Neon-Border. Zero Blindflug!
 > **EN:** **The Action Phase live in Run.** As soon as the sync starts, the terminal comes alive. Watch LLM requests stream in real-time, monitor active threads, and follow the animated neon progress border. No guess work here!
 
-#### 2. 📊 Live-Statistiken & Diagnostics (Live Stats Hub) - `Screenshot 2026-06-14 060726.png`
-![Live Stats](Screenshot%202026-06-14%20060726.png)
-> **DE:** **Die Live-Stats-Zentrale.** Hier siehst du die echten Leistungsdaten: Gelesene Dateien, Cache-Hits (sparen dir bares API-Budget!), neu übersetzte Zeilen und Systemauslastung (System Health) auf einen Blick.
-> **EN:** **The Live Stats Hub.** Get real-time feedback on your performance: Files read, Cache hits (saving your actual wallet from API charges), new translations, and System Health.
-
-#### 3. ⚙️ API & Einstellungen / DB Browser (Setup & Database) - `Screenshot 2026-06-14 060738.png`
+#### 2. ⚙️ API & Einstellungen / DB Browser (Setup & Database) - `Screenshot 2026-06-14 060738.png`
 ![Settings and DB](Screenshot%202026-06-14%20060738.png)
 > **DE:** **Das Kontrollzentrum.** Über den Top-Button klappst du das Einstellungs-Dropdown für API-Keys und Bridge-Modes aus. Wenn das System idlet, dient die Mitte als DB-Browser zum direkten Editieren von Übersetzungen.
 > **EN:** **The Control Room.** Expand the Settings Dropdown via the top header button to configure API keys and Bridge modes. When idle, the center panel serves as your DB Browser to modify translations directly.
+
+#### 3. 📊 Live-Statistiken & Diagnostics (Live Stats Hub) - `Screenshot 2026-06-14 060726.png`
+![Live Stats](Screenshot%202026-06-14%20060726.png)
+> **DE:** **Die Live-Stats-Zentrale.** Hier siehst du die echten Leistungsdaten: Gelesene Dateien, Cache-Hits (sparen dir bares API-Budget!), neu übersetzte Zeilen und Systemauslastung (System Health) auf einen Blick.
+> **EN:** **The Live Stats Hub.** Get real-time feedback on your performance: Files read, Cache hits (saving your actual wallet from API charges), new translations, and System Health.
 
 ---
 
