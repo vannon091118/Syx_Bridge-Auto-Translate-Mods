@@ -147,6 +147,37 @@ class GuiServer extends EventEmitter {
         return;
       }
 
+      // API: Backups list
+      if (url.pathname === '/api/backups' && req.method === 'GET') {
+        let handled = false;
+        this.emit('get-backups', (backups) => {
+          if (handled) return;
+          handled = true;
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(backups));
+        });
+        return;
+      }
+
+      // API: Restore specific backup
+      if (url.pathname === '/api/backups/restore' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            this.emit('restore-backup', data.modId, (success, message) => {
+              res.writeHead(success ? 200 : 500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ success, message }));
+            });
+          } catch (e) {
+            res.writeHead(400);
+            res.end('Invalid JSON');
+          }
+        });
+        return;
+      }
+
       // API: DB Browser Search
       if (url.pathname === '/api/db/search' && req.method === 'GET') {
         const query = url.searchParams.get('q') || '';

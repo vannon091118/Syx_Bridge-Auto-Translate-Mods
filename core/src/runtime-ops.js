@@ -58,7 +58,7 @@ function createRuntimeOps(options) {
       GAME_VERSION_MAJOR: majorVersion,
       GAME_VERSION_MINOR: 0,
       NAME: 'AI Bridge Core',
-      DESC: 'Zentraler Mod-Manager fuer KI-Uebersetzungen (v0.15.0-alpha).',
+      DESC: 'Zentraler Mod-Manager fuer KI-Uebersetzungen (v0.15.0a).',
       AUTHOR: 'Vannon / AI Bridge',
       INFO: 'ANLEITUNG: Diese Mod muss im Launcher AKTIVIERT sein, damit Uebersetzungen funktionieren. Die Bridge bündelt alle Patches hier. Falls Texte fehlen, starte die syx-bridge.exe erneut.'
     };
@@ -87,18 +87,14 @@ function createRuntimeOps(options) {
 
     if (config.NATIVE_MODE && !getHasConfirmedNative() && !dryRun) {
       // ... (Native mode confirmation logic stays same)
-      console.log('\n' + '!'.repeat(50));
-      console.log('  WARNUNG: NATIVE MODE AKTIVIERT');
-      console.log('  Originaldateien werden ueberschrieben!');
-      console.log('  Steam-Updates koennten dies rueckgaengig machen.');
-      console.log('!'.repeat(50));
+      console.log('\n[INFO] Native Mode aktiv: Originaldateien werden überschrieben.');
 
       const confirm = await inquirer.prompt([
         {
           type: 'confirm',
           name: 'proceed',
-          message: 'Moechtest du wirklich fortfahren? (Backup wird erstellt)',
-          default: false
+          message: 'Möchtest du fortfahren? (Sicherheits-Backup wird angelegt)',
+          default: true
         }
       ]);
 
@@ -138,6 +134,11 @@ function createRuntimeOps(options) {
       if (!fs.existsSync(backupPath)) {
         console.log('[INFO] Erstelle Sicherheits-Backup...');
         await fsp.cp(modDir, backupPath, { recursive: true });
+        await fsp.writeFile(
+          path.join(backupPath, '.backup_info.json'),
+          JSON.stringify({ originalPath: modDir, created: new Date().toISOString() }, null, 2),
+          'utf-8'
+        );
         console.log(`[INFO] Backup gespeichert: ${backupPath}`);
       }
     }

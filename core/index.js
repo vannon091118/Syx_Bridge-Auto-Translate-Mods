@@ -88,7 +88,7 @@ let CONFIG = {
   PATCH_ROOT: path.join(__dirname, 'patches'),
   BACKUP_ROOT: path.join(__dirname, 'backups'),
   TARGET_LANG: process.env.TARGET_LANG || 'German',
-  NATIVE_MODE: process.env.NATIVE_MODE === 'true',
+  NATIVE_MODE: parseEnvFlag(process.env.NATIVE_MODE, true),
   GRAMMAR_CHECK: process.env.GRAMMAR_CHECK === 'true',
   GRAMMAR_PROMPT_FILE: 'grammar_context.txt',
     
@@ -205,7 +205,7 @@ function applyEnvToConfig() {
 }
 
 async function persistConfig(config) {
-  const envPath = path.join(__dirname, '.env');
+  const envPath = path.join(process.cwd(), '.env');
   const rows = [
     ['PRIMARY_PROVIDER', config.PRIMARY_PROVIDER],
     ['PRIMARY_MODEL', config.PRIMARY_MODEL],
@@ -395,6 +395,105 @@ async function managePatches() {
   await syncLauncherSettings({ activePatchesCount: selected.length, targetLang: CONFIG.TARGET_LANG, nativeMode: CONFIG.NATIVE_MODE });
 }
 
+async function collectAllFiles(dir, baseDir = dir) {
+  if (!fs.existsSync(dir)) return [];
+  const entries = await fsp.readdir(dir, { withFileTypes: true });
+  const results = await Promise.all(entries.map(async (entry) => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) return collectAllFiles(fullPath, baseDir);
+    return [{ filePath: fullPath, relativePath: path.relative(baseDir, fullPath), name: entry.name }];
+  }));
+  return results.flat();
+}
+
+async function restoreBackup(backupDir, targetDir) {
+  if (!fs.existsSync(backupDir)) return;
+  
+  // 1. Copy all files from backupDir to targetDir
+  const backupFiles = await collectAllFiles(backupDir);
+  for (const file of backupFiles) {
+    if (file.name === '.backup_info.json') continue;
+    const targetFilePath = path.join(targetDir, file.relativePath);
+    await fsp.mkdir(path.dirname(targetFilePath), { recursive: true });
+    await fsp.copyFile(file.filePath, targetFilePath);
+  }
+  
+  // 2. Scan targetDir and delete any .txt files that are not in backupDir
+  if (fs.existsSync(targetDir)) {
+    const targetFiles = await collectAllFiles(targetDir);
+    const backupFileSet = new Set(backupFiles.map(f => f.relativePath));
+    for (const file of targetFiles) {
+      if (!backupFileSet.has(file.relativePath)) {
+        if (file.name.endsWith('.txt') || file.name === '_Info.txt') {
+          await fsp.rm(file.filePath, { force: true });
+          
+          // Clean up parent directories if empty
+          let parent = path.dirname(file.filePath);
+          while (parent !== targetDir) {
+            const files = await fsp.readdir(parent);
+            if (files.length === 0) {
+              await fsp.rmdir(parent);
+              parent = path.dirname(parent);
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function readDisplayName(dirPath) {
+  const infoPath = path.join(dirPath, '_Info.txt');
+  if (fs.existsSync(infoPath)) {
+    try {
+      const content = fs.readFileSync(infoPath, 'utf-8');
+      const match = content.match(/^\s*NAME:\s*"?(.*?)"?,?\s*$/im);
+      if (match) return match[1].trim();
+    } catch (e) {}
+  }
+  return path.basename(dirPath);
+}
+
+async function restoreAllBackups() {
+  if (!fs.existsSync(CONFIG.BACKUP_ROOT)) return;
+  const entries = await fsp.readdir(CONFIG.BACKUP_ROOT, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory() && entry.name.startsWith('.backup_') && entry.name.endsWith('_ORIGINAL')) {
+      const backupDir = path.join(CONFIG.BACKUP_ROOT, entry.name);
+      
+      // Determine original path
+      let originalPath = null;
+      const infoJsonPath = path.join(backupDir, '.backup_info.json');
+      if (fs.existsSync(infoJsonPath)) {
+        try {
+          const info = JSON.parse(await fsp.readFile(infoJsonPath, 'utf-8'));
+          if (info && info.originalPath) {
+            originalPath = info.originalPath;
+          }
+        } catch (e) {
+          console.warn(`[WARN] Fehler beim Lesen von .backup_info.json in ${entry.name}: ${e.message}`);
+        }
+      }
+      
+      // Fallback: reconstruct from backupId
+      if (!originalPath) {
+        const match = entry.name.match(/^\.backup_(.+?)_ORIGINAL$/);
+        if (match) {
+          const backupId = match[1];
+          originalPath = path.join(CONFIG.MOD_ROOT, backupId);
+        }
+      }
+      
+      if (originalPath) {
+        console.log(`[INFO] Restoriere Backup für Mod: ${path.basename(originalPath)} nach ${originalPath}...`);
+        await restoreBackup(backupDir, originalPath);
+      }
+    }
+  }
+}
+
 async function fullReset() {
   printHeader('Vollständiger Reset');
   let isSure = false;
@@ -406,6 +505,9 @@ async function fullReset() {
   }
   if (!isSure) return;
   try {
+    console.log('[INFO] Stelle alle Originaldateien aus Backups wieder her...');
+    await restoreAllBackups();
+
     if (fs.existsSync(CONFIG.GAME_MOD_ROOT)) {
       const mods = await fsp.readdir(CONFIG.GAME_MOD_ROOT, { withFileTypes: true });
       for (const m of mods) {
@@ -589,6 +691,97 @@ async function main() {
         callback({ argos, ollama, dbTotal: dbStats.total });
       } catch (e) {
         callback({ argos: false, ollama: false, dbTotal: 0 });
+      }
+    });
+
+    global.guiServer.on('get-backups', async (callback) => {
+      try {
+        const modsList = [];
+        const processedIds = new Set();
+        
+        const scanDir = async (dirRoot) => {
+          if (!dirRoot || !fs.existsSync(dirRoot)) return;
+          const entries = await fsp.readdir(dirRoot, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.isDirectory() && !entry.name.startsWith('.backup_')) {
+              // Exclude active patches or BridgeCore in GAME_MOD_ROOT
+              if (dirRoot === CONFIG.GAME_MOD_ROOT) {
+                if (entry.name.endsWith(`_${CONFIG.TARGET_LANG}`) || entry.name === 'BridgeCore') {
+                  continue;
+                }
+              }
+              const modPath = path.join(dirRoot, entry.name);
+              if (fs.existsSync(path.join(modPath, '_Info.txt'))) {
+                const backupId = entry.name.replace(/[^a-z0-9_.-]/gi, '_');
+                if (processedIds.has(backupId)) continue;
+                processedIds.add(backupId);
+                
+                const backupPath = path.join(CONFIG.BACKUP_ROOT, `.backup_${backupId}_ORIGINAL`);
+                const backupExists = fs.existsSync(backupPath);
+                const displayName = readDisplayName(modPath);
+                
+                modsList.push({
+                  id: entry.name,
+                  displayName,
+                  backupExists,
+                  backupPath: backupExists ? backupPath : null
+                });
+              }
+            }
+          }
+        };
+
+        await scanDir(CONFIG.MOD_ROOT);
+        await scanDir(CONFIG.GAME_MOD_ROOT);
+        
+        callback(modsList);
+      } catch (e) {
+        console.error(`[!] Fehler bei get-backups: ${e.message}`);
+        callback([]);
+      }
+    });
+
+    global.guiServer.on('restore-backup', async (modId, callback) => {
+      try {
+        const backupId = modId.replace(/[^a-z0-9_.-]/gi, '_');
+        const backupDir = path.join(CONFIG.BACKUP_ROOT, `.backup_${backupId}_ORIGINAL`);
+        
+        if (!fs.existsSync(backupDir)) {
+          return callback(false, 'Backup-Ordner existiert nicht.');
+        }
+
+        let targetDir = null;
+        const infoJsonPath = path.join(backupDir, '.backup_info.json');
+        if (fs.existsSync(infoJsonPath)) {
+          try {
+            const info = JSON.parse(await fsp.readFile(infoJsonPath, 'utf-8'));
+            if (info && info.originalPath) {
+              targetDir = info.originalPath;
+            }
+          } catch (e) {
+            console.warn(`[WARN] Fehler beim Lesen von .backup_info.json in ${backupId}: ${e.message}`);
+          }
+        }
+        
+        if (!targetDir) {
+          targetDir = path.join(CONFIG.MOD_ROOT, modId);
+        }
+        
+        if (!fs.existsSync(targetDir)) {
+          return callback(false, 'Originaler Mod-Ordner existiert nicht.');
+        }
+        
+        console.log(`[INFO] Restoriere Backup für Mod: ${modId} nach ${targetDir}...`);
+        await restoreBackup(backupDir, targetDir);
+        console.log(`[INFO] Backup für Mod ${modId} erfolgreich restoriert.`);
+        
+        // Clear processed_files entries for this mod
+        await dbRun('DELETE FROM processed_files WHERE source_path LIKE ?', [`${targetDir}%`]);
+        
+        callback(true, 'Backup erfolgreich wiederhergestellt.');
+      } catch (e) {
+        console.error(`[!] Fehler bei restore-backup: ${e.message}`);
+        callback(false, `Fehler beim Wiederherstellen: ${e.message}`);
       }
     });
 

@@ -231,7 +231,7 @@ function updateModeUI() {
     if (btn) btn.textContent = 'Wechsle zu PATCH';
     if (status) {
       status.textContent = 'Aktuell: NATIVE MODE (Inplace)';
-      status.style.color = 'var(--danger)';
+      status.style.color = 'var(--accent)';
     }
   } else {
     document.body.classList.add('mode-patch');
@@ -641,3 +641,65 @@ setInterval(() => {
     body: JSON.stringify({ sessionId })
   }).catch(() => {});
 }, 30000);
+
+async function loadBackups() {
+  const container = document.getElementById('backup-list');
+  if (!container) return;
+  try {
+    const res = await fetch('/api/backups');
+    if (!res.ok) throw new Error('Failed to fetch backups');
+    const mods = await res.json();
+    
+    if (mods.length === 0) {
+      container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 10px;">Keine Mods gefunden</div>';
+      return;
+    }
+    
+    container.innerHTML = mods.map(mod => `
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--border);">
+        <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;">
+          <span style="font-weight: 500; color: var(--text);" title="${mod.displayName}">${mod.displayName}</span>
+          <div style="font-size: 0.65rem; color: var(--muted);">ID: ${mod.id}</div>
+        </div>
+        <div>
+          ${mod.backupExists ? 
+            `<button onclick="restoreBackup('${mod.id}')" style="background: rgba(100, 213, 196, 0.15); color: var(--success); border: 1px solid rgba(100, 213, 196, 0.3); font-size: 0.65rem; padding: 3px 8px; width: auto;">Restore</button>` : 
+            `<span style="font-size: 0.65rem; color: var(--muted); padding: 3px 8px; border: 1px solid transparent; display: inline-block;">Kein Backup</span>`
+          }
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="color: var(--danger); text-align: center; padding: 10px;">Fehler beim Laden</div>';
+  }
+}
+
+async function restoreBackup(modId) {
+  if (!confirm(`Möchtest du das Backup für die Mod "${modId}" wirklich wiederherstellen? Dies überschreibt die aktuellen Übersetzungen dieser Mod.`)) {
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/backups/restore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modId })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert(result.message || 'Wiederherstellung erfolgreich!');
+      loadBackups();
+    } else {
+      alert('Fehler: ' + (result.message || 'Unbekannter Fehler'));
+    }
+  } catch (e) {
+    alert('Fehler bei der Wiederherstellung: ' + e.message);
+  }
+}
+
+// Global exposure
+window.restoreBackup = restoreBackup;
+
+// Initialize backups loading
+loadBackups();
+setInterval(loadBackups, 10000);
