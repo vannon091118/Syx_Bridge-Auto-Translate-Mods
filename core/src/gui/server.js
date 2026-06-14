@@ -14,6 +14,7 @@ class GuiServer extends EventEmitter {
     this.server = null;
     this.shutdownTimer = null;
     this.logWatcher = null;
+    this.lastStats = null;
   }
 
   start() {
@@ -225,8 +226,11 @@ class GuiServer extends EventEmitter {
         const client = { res };
         this.clients.add(client);
 
-        // Send initial last 50 lines
+        // Send initial last 50 lines and current status
         try {
+          if (this.lastStats) {
+            res.write(`data: ${JSON.stringify({ type: 'status', stats: this.lastStats })}\n\n`);
+          }
           if (fs.existsSync(this.logFile)) {
             const content = fs.readFileSync(this.logFile, 'utf-8');
             const lines = content.split('\n').slice(-50);
@@ -444,6 +448,7 @@ class GuiServer extends EventEmitter {
   }
 
   updateStatus(stats) {
+    this.lastStats = stats;
     this.broadcast({ type: 'status', stats });
   }
 }

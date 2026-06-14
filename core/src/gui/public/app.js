@@ -102,11 +102,24 @@ function tick(now) {
     const percent = Math.min(100, (current / total) * 100);
     uiProgress.style.width = percent + '%';
         
+    const progressText = document.getElementById('ui-progress-text');
+    if (progressText) {
+      if (!liveStats.isRunning && current === 0) {
+        progressText.textContent = 'BEREIT';
+      } else {
+        progressText.textContent = `${Math.round(percent)}% (${current} / ${liveStats.totalFiles || 0})`;
+      }
+    }
+
     // Hide animation if idle
     if (!liveStats.isRunning) {
       uiProgress.style.backgroundImage = 'none';
+      if (uiProgress.style.background !== 'var(--success)' && percent < 100) {
+        uiProgress.style.background = 'var(--muted)';
+      }
     } else {
       uiProgress.style.backgroundImage = ''; // Restore CSS default
+      uiProgress.style.background = 'linear-gradient(90deg, var(--accent), #ffb961)';
     }
   }
 
