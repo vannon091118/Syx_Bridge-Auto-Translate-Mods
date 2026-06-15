@@ -55,6 +55,8 @@ let _fps = 60;
 let lastFrameTime = performance.now();
 let frameCount = 0;
 let lastSampleRotation = 0;
+let displayPercent = 0;    // Progress-bar smoothing: animierter Zielwert
+let lastTickTarget = 0;    // Letzter berechneter Ziel-Prozentwert
 
 const sessionId = `gui-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -96,26 +98,39 @@ function tick(now) {
     runBtn.className = liveStats.isRunning ? 'stop-btn' : '';
   }
 
-  // Accurate Progress
+  // Accurate Progress — mit Smoothing gegen Springen
   if (uiProgress) {
     const total = liveStats.totalFiles || 1;
     const current = liveStats.filesScanned || 0;
-    const percent = Math.min(100, (current / total) * 100);
-    uiProgress.style.width = percent + '%';
+    const targetPercent = Math.min(100, (current / total) * 100);
+    
+    // Smoothing: während Run sanft interpolieren (~0.12/Framerate), im Idle sofort setzen
+    if (liveStats.isRunning) {
+      if (Math.abs(displayPercent - targetPercent) > 0.5) {
+        displayPercent += (targetPercent - displayPercent) * 0.12;
+      } else {
+        displayPercent = targetPercent; // Snap bei <0.5% Differenz
+      }
+    } else {
+      displayPercent = targetPercent; // Idle: sofort
+    }
+    lastTickTarget = targetPercent;
+    
+    uiProgress.style.width = displayPercent + '%';
         
     const progressText = document.getElementById('ui-progress-text');
     if (progressText) {
       if (!liveStats.isRunning && current === 0) {
         progressText.textContent = 'BEREIT';
       } else {
-        progressText.textContent = `${Math.round(percent)}% (${current} / ${liveStats.totalFiles || 0})`;
+        progressText.textContent = `${Math.round(displayPercent)}% (${current} / ${liveStats.totalFiles || 0})`;
       }
     }
 
     // Hide animation if idle
     if (!liveStats.isRunning) {
       uiProgress.style.backgroundImage = 'none';
-      if (uiProgress.style.background !== 'var(--success)' && percent < 100) {
+      if (uiProgress.style.background !== 'var(--success)' && displayPercent < 100) {
         uiProgress.style.background = 'var(--muted)';
       }
     } else {
@@ -128,7 +143,7 @@ function tick(now) {
     if (neonRect) {
       if (liveStats.isRunning) {
         // Fades from 0.2 to 1.0 depending on progress
-        neonRect.style.opacity = Math.max(0.2, percent / 100);
+        neonRect.style.opacity = Math.max(0.2, displayPercent / 100);
       } else {
         neonRect.style.opacity = '0';
       }
@@ -164,7 +179,12 @@ function tick(now) {
 
   renderProviderStats();
   updateBackgroundStatus();
-  requestAnimationFrame(tick);
+  // Idle-Detection: Reduziere Tick-Rate im Leerlauf auf ~4fps
+  if (liveStats.isRunning || Math.abs(displayPercent - lastTickTarget) > 0.5) {
+    requestAnimationFrame(tick);
+  } else {
+    setTimeout(tick, 250, performance.now()); // ~4fps im Idle
+  }
 }
 
 function setBackgroundState(state, duration = null) {
@@ -628,19 +648,33 @@ function renderDbTable() {
   const count = document.getElementById('db-count');
   if (!body) return;
     
-  body.innerHTML = dbSearchResults.map((row, idx) => `
+  body.innerHTML = dbSearchResults.map((row, idx) => {
+    const escapedTrans = row.translation.replace(/"/g, '&quot;');
+    return `
         <tr>
             <td title="${row.source_text}">${row.source_text.substring(0, 100)}${row.source_text.length > 100 ? '...' : ''}</td>
             <td>
-                <input type="text" class="db-edit-input" value="${row.translation.replace(/"/g, '&quot;')}" 
-                       id="db-edit-${idx}" onchange="saveDbEntry(${idx})">
+                <textarea class="db-edit-textarea" id="db-edit-${idx}"
+                    title="${escapedTrans}"
+                    oninput="this.style.height='auto'; this.style.height=Math.min(this.scrollHeight, 300)+'px'"
+                    onchange="saveDbEntry(${idx})"
+                    rows="1">${escapedTrans}</textarea>
             </td>
             <td>${row.target_lang}</td>
             <td>
                 <button onclick="saveDbEntry(${idx})" style="padding: 2px 6px; font-size: 0.6rem; width: auto;">Save</button>
             </td>
         </tr>
-    `).join('');
+    `;
+  }).join('');
+    
+  // Auto-resize all textareas after render
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.db-edit-textarea').forEach(ta => {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 300) + 'px';
+    });
+  });
     
   if (count) count.textContent = `${dbSearchResults.length} Einträge`;
 }
