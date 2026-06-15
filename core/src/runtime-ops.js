@@ -16,15 +16,28 @@ function createRuntimeOps(options) {
     setHasConfirmedNative
   } = options;
 
+  // Songs of Syx _Info.txt format: key-value pairs with quoted string values.
+  // Required fields: NAME, VERSION, GAME_VERSION_MAJOR, GAME_VERSION_MINOR, AUTHOR
+  // Optional but recommended: DESC, INFO
   function formatModInfo(infoObj) {
+    // Ensure all required Songs of Syx fields are present with sensible defaults
+    const info = {
+      GAME_VERSION_MAJOR: 71,
+      GAME_VERSION_MINOR: 0,
+      VERSION: '1.0.0',
+      NAME: 'BridgePatch',
+      AUTHOR: 'Vannon / SyxBridge',
+      ...infoObj
+    };
     const lines = [];
-    if (infoObj.VERSION) lines.push(`VERSION: "${infoObj.VERSION}",`);
-    if (infoObj.GAME_VERSION_MAJOR) lines.push(`GAME_VERSION_MAJOR: ${infoObj.GAME_VERSION_MAJOR},`);
-    if (infoObj.GAME_VERSION_MINOR !== undefined) lines.push(`GAME_VERSION_MINOR: ${infoObj.GAME_VERSION_MINOR},`);
-    if (infoObj.NAME) lines.push(`NAME: "${infoObj.NAME}",`);
-    if (infoObj.DESC) lines.push(`DESC: "${infoObj.DESC}",`);
-    if (infoObj.AUTHOR) lines.push(`AUTHOR: "${infoObj.AUTHOR}",`);
-    if (infoObj.INFO) lines.push(`INFO: "${infoObj.INFO}",`);
+    // Field order matters for Songs of Syx parser: VERSION first, then GAME_VERSION, then NAME
+    if (info.VERSION) lines.push(`VERSION: "${info.VERSION}",`);
+    if (info.GAME_VERSION_MAJOR !== undefined) lines.push(`GAME_VERSION_MAJOR: ${info.GAME_VERSION_MAJOR},`);
+    if (info.GAME_VERSION_MINOR !== undefined) lines.push(`GAME_VERSION_MINOR: ${info.GAME_VERSION_MINOR},`);
+    if (info.NAME) lines.push(`NAME: "${info.NAME}",`);
+    if (info.DESC) lines.push(`DESC: "${info.DESC}",`);
+    if (info.AUTHOR) lines.push(`AUTHOR: "${info.AUTHOR}",`);
+    if (info.INFO) lines.push(`INFO: "${info.INFO}",`);
     return lines.join('\n') + '\n';
   }
 
@@ -58,9 +71,9 @@ function createRuntimeOps(options) {
       GAME_VERSION_MAJOR: majorVersion,
       GAME_VERSION_MINOR: 0,
       NAME: 'AI Bridge Core',
-      DESC: 'Zentraler Mod-Manager fuer KI-Uebersetzungen (v0.15.0a).',
-      AUTHOR: 'Vannon / AI Bridge',
-      INFO: 'ANLEITUNG: Diese Mod muss im Launcher AKTIVIERT sein, damit Uebersetzungen funktionieren. Die Bridge bündelt alle Patches hier. Falls Texte fehlen, starte die syx-bridge.exe erneut.'
+      DESC: 'SyxBridge Translation Core (v0.19a). Enthaelt alle KI-uebersetzten Texte fuer Mods. Diese Mod MUSS im Launcher aktiviert sein. Falls Texte fehlen: SyxBridge neu starten und VOLL-AUTO SYNC ausfuehren.',
+      AUTHOR: 'Vannon / SyxBridge',
+      INFO: 'ANLEITUNG: 1) BridgeCore im SoS-Launcher aktivieren. 2) Nur SyxBridge aendert diese Mod - nicht manuell editieren. 3) Bei fehlenden Uebersetzungen: SyxBridge Dashboard oeffnen -> VOLL-AUTO SYNC.'
     };
 
     await fsp.mkdir(coreModPath, { recursive: true });

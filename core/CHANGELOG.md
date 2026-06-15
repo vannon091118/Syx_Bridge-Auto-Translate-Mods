@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.19.0-alpha] - 2026-06-15
+
+### Added
+- **[P1] Provider Capability Matrix:** `PROVIDER_CAPABILITIES` definiert `translate/audit/polish/compare/review` pro Provider. `supportsRole()` checkt Fähigkeit. `buildRoutePlan()` filtert `google_free`/`argos` aus audit/polish Route-Plans.
+- **[P1] Lokale Modelle Opt-in (Hardware-Schutz):** `LOCAL_MODELS_ENABLED=false` (Default) sperrt Ollama/Player2. Argos immer verfügbar. GUI Toggle-Switch mit Warnhinweis.
+- **[P1] OpenRouter/Groq JSON-Retry:** Bei Parse-Failure einmaliger Retry mit strikterem System-Prompt (`CRITICAL: Respond ONLY with a raw JSON array`). Guarded terminology bleibt erhalten.
+- **Technical Review Report:** Vollständiger Audit (`TECHNICAL_REVIEW_2026-06-15.md`) mit STATUS/PRIORITY/EFFORT/RISK-Ratings für alle 15 Prüfpunkte + Top-10-Listen.
+
 ## [0.16.0] - 2026-06-15
 
 ### Added

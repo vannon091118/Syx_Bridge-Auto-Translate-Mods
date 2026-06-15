@@ -34,57 +34,78 @@ function createDispatcher(options) {
     });
   }
 
-  function resolveBestRouteForBatch(stage, items) {
-    const preferred = resolveProviderModel(stage);
-
-    // Analyze batch characteristics
+  /**
+   * Single source of truth for translate-stage routing decisions.
+   * Analyzes batch characteristics and returns a structured route decision.
+   * Handles ALL risk tiers: UI-strings, low-risk, ambiguous (stress test),
+   * medium-risk, and high-risk.
+   *
+   * @returns {{ provider: string, model: string, reason: string, stressTestRequired: boolean }}
+   */
+  function resolveTranslateRoute(items) {
+    const preferred = resolveProviderModel('translate');
     const totalRisk = items.reduce((sum, item) => sum + (item.riskScore || 0), 0);
     const avgRisk = items.length > 0 ? totalRisk / items.length : 0;
     const hasLongText = items.some(item => item.type === 'LONG_TEXT' || (item.source && item.source.length > 300));
 
-    // SPECIAL CASE: ui_string optimization
-    // If the batch consists mainly of UI strings (labels, menu items), route to cheap providers.
+    // ── Tier 1: UI-String optimization ──────────────────────────────────────
     const uiStringCount = items.filter(item => classifyPath(item.relativePath) === 'ui_string').length;
-    if (uiStringCount >= items.length * 0.8 && stage === 'translate') {
-      // Prefer Google Free or Argos for UI labels
+    if (uiStringCount >= items.length * 0.8) {
       const cheapProviders = ['google_free', 'argos'];
       for (const p of cheapProviders) {
         if (routingEngine.isAvailable(p)) {
-          console.log(`[DISPATCH] UI-String Batch erkannt (${uiStringCount}/${items.length}). Nutze kostenlose Route: ${p}`);
-          return { provider: p, model: p === 'google_free' ? 'google-translate-free' : 'argos-translate-local' };
+          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${p}`);
+          return { provider: p, model: p === 'google_free' ? 'google-translate-free' : 'argos-translate-local', reason: 'ui_strings', stressTestRequired: false };
         }
       }
     }
 
-    // If high risk or long text, prefer high-quality models (if configured)
-    if ((avgRisk >= 4 || hasLongText) && stage === 'translate') {
-      // For high risk translations, we might want to override to a 'polish' level model if it's better
+    // ── Tier 2: Low-risk -> cheap/fast providers ────────────────────────────
+    if (avgRisk < 1.5) {
+      if (routingEngine.isAvailable('argos')) {
+        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> argos`);
+        return { provider: 'argos', model: 'argos-translate-local', reason: 'low_risk', stressTestRequired: false };
+      }
+      if (routingEngine.isAvailable('google_free')) {
+        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> google_free`);
+        return { provider: 'google_free', model: 'google-translate-free', reason: 'low_risk', stressTestRequired: false };
+      }
+    }
+
+    // ── Tier 3: Ambiguous risk -> stress test required ──────────────────────
+    if (avgRisk >= 1.5 && avgRisk < 4.0) {
+      console.log(`[DISPATCH] Ambiguous-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> Stress-Test erforderlich`);
+      return { provider: preferred.provider, model: preferred.model, reason: 'ambiguous_risk', stressTestRequired: true };
+    }
+
+    // ── Tier 4: High-risk -> quality model ──────────────────────────────────
+    if (avgRisk >= 4 || hasLongText) {
       const qualityRoute = resolveProviderModel('polish');
-            
-      // CRITICAL: Only override if the quality provider is actually available and healthy
       if (routingEngine.isAvailable(qualityRoute.provider)) {
-        const qualityPlan = routingEngine.buildRoutePlan(stage, {
+        const qualityPlan = routingEngine.buildRoutePlan('translate', {
           preferredProvider: qualityRoute.provider,
           preferredModel: qualityRoute.model
         });
-                
-        if (
-          qualityPlan.length > 0 &&
-                    (qualityRoute.provider !== preferred.provider || qualityRoute.model !== preferred.model)
-        ) {
-          console.log(`[DISPATCH] High-Risk Batch erkannt (AvgRisk: ${avgRisk.toFixed(1)}). Nutze Qualitaets-Modell: ${qualityRoute.provider}`);
-          return qualityRoute;
+        if (qualityPlan.length > 0 &&
+            (qualityRoute.provider !== preferred.provider || qualityRoute.model !== preferred.model)) {
+          console.log(`[DISPATCH] High-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${qualityRoute.provider} (Qualitaets-Modell)`);
+          return { provider: qualityRoute.provider, model: qualityRoute.model, reason: 'high_risk', stressTestRequired: false };
         }
       } else {
-        console.log(`[DISPATCH] High-Risk Batch, aber Qualitaets-Modell ${qualityRoute.provider} ist nicht erreichbar. Bleibe bei Primary.`);
+        console.log(`[DISPATCH] High-Risk, aber Qualitaets-Modell ${qualityRoute.provider} nicht erreichbar. Nutze Primary.`);
       }
     }
-        
-    return preferred;
+
+    // ── Default: use user-configured primary provider ───────────────────────
+    return { provider: preferred.provider, model: preferred.model, reason: 'default', stressTestRequired: false };
   }
 
   async function runRoute(stage, executor, items = []) {
-    const preferred = items.length > 0 ? resolveBestRouteForBatch(stage, items) : resolveProviderModel(stage);
+    // Only use translate-specific routing (stress test, UI-string, low-risk)
+    // for the translate stage. Polish/audit always use their configured provider.
+    const preferred = (items.length > 0 && stage === 'translate')
+      ? resolveTranslateRoute(items)
+      : resolveProviderModel(stage);
     const routePlan = routingEngine.buildRoutePlan(stage, {
       preferredProvider: preferred.provider,
       preferredModel: preferred.model
@@ -113,6 +134,7 @@ function createDispatcher(options) {
   return {
     resolveProviderModel,
     buildStageRoutePlan,
+    resolveTranslateRoute,
     runRoute
   };
 }

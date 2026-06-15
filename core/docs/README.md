@@ -2,13 +2,13 @@
 
 ## Handshake-Vermerk
 
-Version: `0.16.0`
+Version: `0.19.0-alpha`
 
 > 📋 **Doku-Vermerk (15.06.2026):** Der vollständige Technical Review mit 12 Prüfpunkten liegt unter **[TECHNICAL_REVIEW_2026-06-15.md](../../TECHNICAL_REVIEW_2026-06-15.md)**. Beide P1-Bugs behoben: Provider-Capability-Matrix ✅ + Lokale-Modelle-Opt-in ✅. Nächster P1: OpenRouter JSON-Retry.
 
 Diese Dokumentation beschreibt den produktiven Stand der Bridge. Das System nutzt eine modulare Architektur mit Web-GUI (Dashboard) und CLI-Modus.
 
-## Produktiver Stand In `0.16.0`
+## Produktiver Stand In `0.19.0-alpha`
 
 - `index.js`: Operativer Einstiegspunkt und Starter für CLI/GUI.
 - `src/gui/`: Web-Dashboard Kern (Express + Socket.io).
@@ -21,7 +21,7 @@ Diese Dokumentation beschreibt den produktiven Stand der Bridge. Das System nutz
 - `planner.js`: Steuert die produktiven `single`- und `sync`-Läufe.
 - `exporter.js`: Dateiausgabe und Bündelung (Native vs. Patch Mode).
 
-## Routing-Pipeline (0.16.0)
+## Routing-Pipeline (0.19.0)
 
 Der Dispatcher ist jetzt die zentrale Routing-Instanz für alle Translate-Stage-Entscheidungen.
 
