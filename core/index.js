@@ -49,6 +49,7 @@ const {
 const GuiServer = require('./src/gui/server');
 
 const { isArgosInstalled, ensureArgos } = require('./scripts/check_argos');
+const cleanupZombies = require('./scripts/cleanup_zombies');
 const { checkOllama, startOllama } = require('./scripts/start_ollama');
 
 // Constants & Defaults
@@ -854,6 +855,20 @@ async function main() {
       }
       else if (type === 'install-argos') await ensureArgos();
       else if (type === 'start-ollama') await startOllama();
+      else if (type === 'kill-all') {
+        console.log('[GUI] Beende ALLE Bridge-Prozesse (auch alte Instanzen)...');
+        isAborting = true;
+        await stopOllama();
+        if (global.guiServer) {
+          try { await global.guiServer.stop(); } catch (e) {}
+        }
+        // Doppelt hält besser: cleanup_zombies killt alte node.exe-Prozesse
+        try { cleanupZombies(); } catch (e) {
+          console.error(`[!] Cleanup-Fehler: ${e.message}`);
+        }
+        console.log('[GUI] Bridge-Prozesse beendet. Dieser Prozess wird jetzt terminiert.');
+        process.exit(0);
+      }
       else if (type === 'reload_config') {
         require('dotenv').config({ path: path.join(process.cwd(), '.env'), override: true });
         applyEnvToConfig();

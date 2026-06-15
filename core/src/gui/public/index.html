@@ -380,6 +380,8 @@
                         <button onclick="triggerAction('workshop')" class="secondary" style="font-size:0.6rem; border-color:#5a9fd4; color:#5a9fd4;">STEAM UPLOAD</button>
                     </div>
 
+                    <button onclick="if(confirm('⚠️ WIRKLICH ALLE BRIDGE-PROZESSE BEENDEN?\n\nDies beendet:\n• Aktuelle Übersetzungs-Aufgaben\n• Den GUI-Server\n• Alle alten/hängenden Bridge-Prozesse\n\nDanach musst du das Dashboard neu starten.')) triggerAction('kill-all')" style="background: #3d0a0a; color: #ff6666; margin-top: 5px; font-size:0.65rem; border: 1px solid #8a1f1f;">🧨 ALLE PROZESSE KILLEN</button>
+
                     <button onclick="triggerAction('full_reset')" style="background: #4a1a1a; color: #ff9999; margin-top: 10px; font-size:0.65rem; border: 1px solid #632525;">WERKSEINSTELLUNG (RESET)</button>
                 </div>
             </div>
