@@ -1,3 +1,16 @@
+// ─── Provider Capability Matrix ──────────────────────────────────────────────
+// Definiert welche Stages ein Provider unterstützt.
+// google_free + argos können NUR übersetzen, nicht auditieren/polish/vergleichen.
+const PROVIDER_CAPABILITIES = {
+  google_free:  { translate: true,  audit: false, polish: false, compare: false, review: false },
+  argos:        { translate: true,  audit: false, polish: false, compare: false, review: false },
+  ollama:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
+  openrouter:   { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
+  groq:         { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
+  gemini:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
+  player2:      { translate: true,  audit: true,  polish: true,  compare: true,  review: true  }
+};
+
 // ─── Free-model detection ─────────────────────────────────────────────────────
 function isFreeModel(model) {
   const name = String(model || '').toLowerCase();
@@ -67,9 +80,14 @@ class Router {
 
   hasAccess(id) {
     if (id === 'google_free') return true;
-    if (id === 'ollama') return true;
     if (id === 'argos') return this.helpers.isArgosInstalled();
-    if (id === 'player2') return isEnabledFlag(this.config.PLAYER2_ENABLED, false);
+    // Lokale LLM-Modelle (Ollama, Player2) nur mit explizitem Opt-in
+    // (Hardware-Schutz: lokale LLMs können GPU/CPU überlasten)
+    if (id === 'ollama' || id === 'player2') {
+      if (!isEnabledFlag(this.config.LOCAL_MODELS_ENABLED, false)) return false;
+      if (id === 'player2') return isEnabledFlag(this.config.PLAYER2_ENABLED, false);
+      return true;
+    }
     return !!this.helpers.getApiKey(id);
   }
 
@@ -133,6 +151,16 @@ class Router {
       };
     }
     return statuses;
+  }
+
+  /**
+   * Prüft ob ein Provider eine bestimmte Stage-Rolle unterstützt.
+   * Unbekannte Provider gelten als vollständig fähig (fail-open).
+   */
+  supportsRole(provider, role) {
+    const caps = PROVIDER_CAPABILITIES[provider];
+    if (!caps) return true; // Unbekannte Provider: assume capable
+    return caps[role] !== false;
   }
 
   buildRoutePlan(role = 'translate', options = {}) {
@@ -203,6 +231,10 @@ class Router {
 
       // Hard-skip only if truly inaccessible (no key / user-disabled)
       if (!this.hasAccess(providerId) || providerStatus.enabled === false) continue;
+
+      // Capability gate: skip providers that don't support this role
+      // (e.g. google_free kann nicht auditieren/polishen)
+      if (!this.supportsRole(providerId, role)) continue;
 
       seen.add(key);
       plan.push({

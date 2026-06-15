@@ -1,6 +1,8 @@
 # SyxBridge Live – Audit & Relaunch Report
 **Letztes Update:** 2026-06-15 | **Ziel-Sprache:** Deutsch | **Status:** Alle `node --check` grün ✅
 
+> 📋 **Doku-Vermerk (15.06.2026):** Der vollständige Technical Review mit 12 Prüfpunkten, Top-10-Listen und priorisierten Empfehlungen liegt unter **[TECHNICAL_REVIEW_2026-06-15.md](../TECHNICAL_REVIEW_2026-06-15.md)**. Dieser Report deckt Provider-Capability-Lücken (P1 — **behoben**), OpenRouter-JSON-Parsing (P1), fehlendes Revision-System (P2) und 9 weitere Befunde ab.
+
 Dieses Dokument dient als persistente Dokumentation des Code-Audits, der durchgeführten Fixes, erwarteten Ergebnisse und Testläufe von SyxBridge Live.
 
 ---
@@ -15,7 +17,8 @@ Dieses Dokument dient als persistente Dokumentation des Code-Audits, der durchge
 | **BUG-5** | 🔴 P0 | Native Mode: Backup nur beim Erstlauf, kein Polish, _Info.txt überschrieben | `runtime-ops.js`, `translation-runtime.js` | **Behoben** ✅ |
 | **WARN-1**| 🟠 P1 | Zwei separate `persistConfig`-Implementierungen | `index.js`, `config-runtime.js` | **Behoben** ✅ |
 | **BUG-2** | 🟡 P2 | Irreführender Kommentar-Stub in `runtime-ops` | `runtime-ops.js` | **Behoben** ✅ |
-| **BUG-3** | 🟡 P2 | String-Level-Planung Platzhalter in `planner` | `planner.js` | **Behoben** ✅ |
+| **BUG-8** | 🔴 P1 | Provider Capability fehlt — google_free/argos in audit/polish Route-Plans | `router.js` | **Behoben** ✅ |
+| **BUG-9** | 🟠 P1 | Lokale LLM-Modelle (Ollama/Player2) ohne Opt-in nutzbar — Hardware-Risiko | `router.js`, `index.js`, `config-runtime.js`, `gui/` | **Behoben** ✅ |
 
 ---
 
@@ -52,6 +55,24 @@ Dieses Dokument dient als persistente Dokumentation des Code-Audits, der durchge
   * Ollama-Aufruf um korrekte Context-Übergabe erweitert.
 * **Erwartetes Ergebnis:** Lektorat (Polishing) und Auditierungen können nahtlos und absturzfrei über lokale Ollama-Modelle oder kompatible Player2-Endpunkte ausgeführt werden.
 
+### [BUG-8] Provider Capability Matrix — google_free/argos in falschen Route-Plans
+* **Problem:** `google_free` und `argos` erschienen als Kandidaten in audit- und polish-Route-Plans, obwohl sie diese Tasks nicht unterstützen (nur Übersetzung, keine Qualitätsprüfung).
+* **Fix:**
+  * `router.js`: `PROVIDER_CAPABILITIES`-Matrix definiert Fähigkeiten pro Provider.
+  * `router.js`: `supportsRole(provider, role)`-Methode mit fail-open für unbekannte Provider.
+  * `router.js`: Capability-Gate in `buildRoutePlan()`-Filter — Provider ohne Stage-Fähigkeit werden übersprungen.
+* **Erwartetes Ergebnis:** Audit/Polish nutzen nur noch echte LLM-Provider (OpenRouter, Groq, Gemini, Ollama, Player2). Translate-Stage unverändert — google_free/argos weiterhin für UI-Strings und Low-Risk nutzbar.
+
+### [BUG-9] Lokale LLM-Modelle Opt-in (Hardware-Schutz)
+* **Problem:** Lokale LLM-Modelle (Ollama, Player2) waren standardmäßig im Router verfügbar und konnten automatisch als Fallback aktiviert werden — ohne dass der User dem zustimmt. Lokale LLMs können GPU/CPU überlasten und Hardware beschädigen.
+* **Fix:**
+  * `router.js`: `hasAccess()` blockt ollama/player2 wenn `LOCAL_MODELS_ENABLED=false` (Default). **Argos bleibt immer verfügbar** (Offline-Fallback, Multi-Language).
+  * `index.js`: `LOCAL_MODELS_ENABLED` in CONFIG + `applyEnvToConfig()` + `parseEnvFlag`.
+  * `config-runtime.js`: Flag in `persistConfigToEnv()` persistiert.
+  * `gui/index.html`: Toggle-Switch mit Warnhinweis und CSS im Settings-Dropdown.
+  * `gui/app.js`: `_toggleLocalModels()`-Handler, `updateLocalModelsUI()`, `saveConfig()` liest Checkbox.
+* **Erwartetes Ergebnis:** Ollama/Player2 nur nach explizitem Opt-in des Users verfügbar. GUI zeigt roten Warnhinweis wenn aktiv.
+
 ---
 
 ## 🧪 Dokumentation der Testläufe (Mod: Extended Boostables)
@@ -80,3 +101,16 @@ Mit gelöschtem Cache wurde der Testlauf wiederholt:
 ## 📋 Changelog-Historie
 
 → Vollständiges Changelog siehe **[core/CHANGELOG.md](core/CHANGELOG.md)** (Single Source of Truth). Hier nur Zusammenfassung der Audit-Relevanz.
+
+---
+
+## 🔬 Technical Review (15.06.2026)
+
+→ Vollständiger Report: **[TECHNICAL_REVIEW_2026-06-15.md](../TECHNICAL_REVIEW_2026-06-15.md)**
+
+**Kernergebnisse:**
+- **2 × FAIL → 1 × FAIL:** ~~Provider Capability System~~ → **Behoben** ✅, Revision System (P2)
+- **7 × PARTIAL → 5 × PARTIAL:** OpenRouter JSON-Parsing (P1), Risk Routing (P2), Deep Polish (P3), ~~Ollama Config~~ → **Behoben** ✅, GUI-Terminal Sync (P3), Terminal UX (P3), Visuelle Überarbeitung (P4)
+- **3 × PASS:** Fortschrittsbalken, Platzhalter-Schutz, DB Read-Only
+- **Behobene P1-Bugs:** Provider Capability Matrix ✅, Lokale Modelle Opt-in ✅
+- **Top Quick Win:** Dynamic Risk integrieren (~1h)

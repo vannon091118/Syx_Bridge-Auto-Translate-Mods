@@ -225,6 +225,41 @@
             50% { opacity: 1; }
             100% { opacity: 0.4; }
         }
+
+        /* Toggle Switch (Lokale Modelle Opt-in) */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; margin: 0; }
+        .toggle-slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            border-radius: 26px;
+            transition: 0.3s;
+            border: 1px solid var(--border);
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px; width: 20px;
+            left: 2px; bottom: 2px;
+            background-color: var(--muted);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: rgba(239, 107, 96, 0.3);
+            border-color: var(--danger);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(22px);
+            background-color: var(--danger);
+        }
         
         @keyframes dash-run {
             to { stroke-dashoffset: -1000; }
@@ -242,12 +277,12 @@
         
         <!-- TOP SETTINGS DROPDOWN -->
         <div id="top-settings-container" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1001; top: 12px;">
-            <button id="settings-toggle-btn" onclick="toggleSettings()" style="background: rgba(0,0,0,0.8); border: 1px solid var(--accent); font-size: 0.75rem; padding: 6px 25px; color: var(--accent); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.3s; width: auto; box-shadow: 0 0 10px rgba(0,0,0,0.5);">⚙️ API & EINSTELLUNGEN</button>
+            <button id="settings-toggle-btn" onclick="toggleSettings()" title="API-Konfiguration, Bridge-Mode, Provider-Statistiken und Kontrollfeld öffnen" style="background: rgba(0,0,0,0.8); border: 1px solid var(--accent); font-size: 0.75rem; padding: 6px 25px; color: var(--accent); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.3s; width: auto; box-shadow: 0 0 10px rgba(0,0,0,0.5);">⚙️ API & EINSTELLUNGEN</button>
             <div id="settings-dropdown" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 8px; z-index: 1000; width: 450px; box-shadow: 0 10px 50px rgba(0,0,0,0.9); max-height: 80vh; overflow-y: auto;">
                 <div class="panel" style="margin-bottom: 10px;">
                     <h3>Bridge Mode <span id="patch-badge-header" style="font-size:0.6rem; font-weight:normal; color:var(--muted);">⛔ DEAKTIVIERT (Standard)</span></h3>
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <button id="mode-toggle-btn" onclick="toggleMode()" style="flex:1;">Wechsle zu PATCH</button>
+                        <button id="mode-toggle-btn" onclick="toggleMode()" title="Zwischen NATIVE (Inplace-Übersetzung) und PATCH (separater Mod-Ordner) wechseln" style="flex:1;">Wechsle zu PATCH</button>
                     </div>
                     <div id="mode-status" class="stat-label" style="text-align:center; font-weight:bold;">Aktuell: NATIVE MODE (Inplace)</div>
                 </div>
@@ -263,7 +298,7 @@
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span class="stat-label">Status: <span id="patch-override-active" style="color:var(--muted);">⛔ DEAKTIVIERT (Standard)</span></span>
-                        <button id="patch-toggle-kf" onclick="togglePatchOverride()" style="width: auto; padding: 6px 16px; font-size: 0.7rem; background: transparent; border: 1px solid var(--danger); color: var(--danger);">PATCH MODE AKTIVIEREN</button>
+                        <button id="patch-toggle-kf" onclick="togglePatchOverride()" title="Patch-Mode nur für Testzwecke aktivieren — funktioniert derzeit nicht zuverlässig!" style="width: auto; padding: 6px 16px; font-size: 0.7rem; background: transparent; border: 1px solid var(--danger); color: var(--danger);">PATCH MODE AKTIVIEREN</button>
                     </div>
                 </div>
 
@@ -288,7 +323,7 @@
                         <input type="number" id="cfg-batch-size" value="24" min="1" max="100" style="margin:0;">
                     </div>
 
-                    <button onclick="openKeyModal()" style="margin-bottom: 5px; background: #332d29; border: 1px solid #444; color: var(--text); font-size: 0.7rem;">Manage API Keys</button>
+                    <button onclick="openKeyModal()" title="API-Keys für alle Provider verwalten: Gemini, Groq, OpenRouter, Ollama, Player2" style="margin-bottom: 5px; background: #332d29; border: 1px solid #444; color: var(--text); font-size: 0.7rem;">Manage API Keys</button>
                     <label class="stat-label">Zielsprache <span style="font-size: 0.5rem; background: var(--accent); color: #000; padding: 1px 3px; border-radius: 2px; font-weight: bold; margin-left: 5px;">BETA</span></label>
                     <select id="cfg-lang" style="margin-bottom: 5px;">
                         <option value="German">German</option>
@@ -306,7 +341,22 @@
                         <option value="Dutch">Dutch</option>
                         <option value="Swedish">Swedish</option>
                     </select>
-                    <button onclick="saveConfig()">Apply Changes</button>
+                    <button onclick="saveConfig()" title="Alle Konfig-Änderungen speichern: Provider, Modell, Sprache, Batch-Größe">Apply Changes</button>
+
+                    <!-- Lokale Modelle Opt-in (Hardware-Schutz) -->
+                    <div style="margin-top: 10px; padding: 8px; background: rgba(239, 107, 96, 0.05); border: 1px solid rgba(239, 107, 96, 0.2); border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <label class="stat-label" style="margin: 0; color: var(--danger);">⚠️ Lokale LLM-Modelle</label>
+                                <div style="font-size: 0.6rem; color: var(--muted); margin-top: 2px;">Ollama / Player2 können Hardware überlasten</div>
+                            </div>
+                            <label class="toggle-switch" title="Opt-in für lokale LLM-Modelle. AUS = nur Cloud + Argos. AN = auch Ollama/Player2 verfügbar.">
+                                <input type="checkbox" id="cfg-local-models" onchange="toggleLocalModels()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div id="local-models-status" style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">⛔ Lokale LLMs gesperrt (Hardware-Schutz)</div>
+                    </div>
                 </div>
 
                 <div class="panel" style="margin-bottom: 0;">
@@ -320,11 +370,11 @@
 
         <div style="display: flex; flex-direction: column; align-items: flex-end;">
             <div style="display: flex; gap: 20px; align-items: center;">
-                <div id="bridge-status-badge" class="status-badge">Idle</div>
-                <div id="health-argos" class="stat-label"><span class="status-dot" id="dot-argos"></span>Argos</div>
-                <div id="health-ollama" class="stat-label"><span class="status-dot" id="dot-ollama"></span>Ollama</div>
+                <div id="bridge-status-badge" class="status-badge" title="Aktueller Bridge-Status: Idle = bereit, Running = Übersetzung läuft">Idle</div>
+                <div id="health-argos" class="stat-label" title="Argos Translate (lokale Offline-Übersetzung) — Grün = verfügbar"><span class="status-dot" id="dot-argos"></span>Argos</div>
+                <div id="health-ollama" class="stat-label" title="Ollama (lokale KI-Modelle) — Grün = läuft"><span class="status-dot" id="dot-ollama"></span>Ollama</div>
             </div>
-            <div id="mode-warning" style="font-size: 0.6rem; color: var(--accent); margin-top: 4px; letter-spacing: 0.5px; font-weight: bold;">
+            <div id="mode-warning" style="font-size: 0.6rem; color: var(--accent); margin-top: 4px; letter-spacing: 0.5px; font-weight: bold;" title="Bridge-Mode: NATIV überschreibt Originale, PATCH erstellt separaten Mod-Ordner">
                 NATIV: <span style="color:var(--success)">AKTIV</span> | PATCH: <span style="color:var(--danger)">DEAKTIVIERT</span>
             </div>
         </div>
@@ -338,7 +388,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <h3 style="margin:0;">System-Status</h3>
                     <div id="run-control-box">
-                        <button id="main-run-btn" onclick="toggleBridge()" style="padding: 4px 12px; font-size: 0.7rem; width: auto;">START</button>
+                        <button id="main-run-btn" onclick="toggleBridge()" title="START = Übersetzung aller aktiven Mods starten | STOP = laufende Aufgaben abbrechen" style="padding: 4px 12px; font-size: 0.7rem; width: auto;">START</button>
                     </div>
                 </div>
                 <div class="stat-grid">
@@ -355,13 +405,13 @@
             <div class="panel">
                 <h3>Pipeline</h3>
                 <div class="pipeline-container">
-                    <div id="stage-scan" class="pipeline-stage">SCAN</div>
+                    <div id="stage-scan" class="pipeline-stage" title="Phase 1: Durchsucht Mod-Ordner nach neuen/geänderten Text-Dateien">SCAN</div>
                     <div id="conn-1" class="pipeline-connector"></div>
-                    <div id="stage-trans" class="pipeline-stage">LLM</div>
+                    <div id="stage-trans" class="pipeline-stage" title="Phase 2: Übersetzt Texte mit dem ausgewählten KI-Modell">LLM</div>
                     <div id="conn-2" class="pipeline-connector"></div>
-                    <div id="stage-polish" class="pipeline-stage">QA</div>
+                    <div id="stage-polish" class="pipeline-stage" title="Phase 3: Qualitätskontrolle und Grammatik-Prüfung der Übersetzung">QA</div>
                     <div id="conn-3" class="pipeline-connector"></div>
-                    <div id="stage-export" class="pipeline-stage">SAVE</div>
+                    <div id="stage-export" class="pipeline-stage" title="Phase 4: Speichert übersetzte Dateien und aktualisiert den Mod-Ordner">SAVE</div>
                 </div>
             </div>
 
@@ -371,28 +421,28 @@
                     <!-- Haupt-Workflow -->
                     <div style="background: rgba(100, 213, 196, 0.05); padding: 8px; border-radius: 4px; border: 1px solid rgba(100, 213, 196, 0.1);">
                         <div class="stat-label" style="margin-bottom:5px; color:var(--success)">Workflow</div>
-                        <button onclick="triggerAction('sync')" style="background: var(--success); color: #000; font-weight: bold;">VOLL-AUTO SYNC</button>
-                        <button onclick="triggerAction('dry-run')" class="secondary" style="margin-top: 5px; font-size: 0.7rem;">SIMULATION (DRY RUN)</button>
+                        <button onclick="triggerAction('sync')" title="Alle aktiven Mods automatisch übersetzen — Scan → LLM → QA → Speichern" style="background: var(--success); color: #000; font-weight: bold;">VOLL-AUTO SYNC</button>
+                        <button onclick="triggerAction('dry-run')" class="secondary" style="margin-top: 5px; font-size: 0.7rem;" title="Testlauf ohne Dateien zu speichern — zeigt an, was übersetzt würde">SIMULATION (DRY RUN)</button>
                     </div>
 
                     <!-- Wartung & Qualität -->
                     <div style="background: rgba(216, 151, 60, 0.05); padding: 8px; border-radius: 4px; border: 1px solid rgba(216, 151, 60, 0.1);">
                         <div class="stat-label" style="margin-bottom:5px; color:var(--accent)">Datenbank & Qualitaet</div>
                         <div style="display:grid; grid-template-columns:1fr; gap:5px;">
-                            <button onclick="triggerAction('check-db')" class="secondary" style="border-color:var(--accent); color:var(--accent); font-size: 0.65rem;">DEEP POLISH</button>
+                            <button onclick="triggerAction('check-db')" class="secondary" style="border-color:var(--accent); color:var(--accent); font-size: 0.65rem;" title="Qualitäts-Check: Findet und repariert schlechte Übersetzungen in der Datenbank">DEEP POLISH</button>
                         </div>
-                        <button onclick="triggerAction('audit-integrity')" class="secondary" style="margin-top: 5px; font-size: 0.65rem;">INTEGRITAETS-CHECK</button>
+                        <button onclick="triggerAction('audit-integrity')" class="secondary" style="margin-top: 5px; font-size: 0.65rem;" title="Prüft Datenbank auf korrupte Einträge und repariert sie automatisch">INTEGRITAETS-CHECK</button>
                     </div>
 
                     <!-- Spezial-Aktionen -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                        <button onclick="triggerAction('manage-patches')" class="secondary" style="font-size:0.6rem;">MERGE CORE</button>
-                        <button onclick="triggerAction('workshop')" class="secondary" style="font-size:0.6rem; border-color:#5a9fd4; color:#5a9fd4;">STEAM UPLOAD</button>
+                        <button onclick="triggerAction('manage-patches')" class="secondary" style="font-size:0.6rem;" title="Alle Patches in BridgeCore mergen — für Steam Workshop Export">MERGE CORE</button>
+                        <button onclick="triggerAction('workshop')" class="secondary" style="font-size:0.6rem; border-color:#5a9fd4; color:#5a9fd4;" title="Übersetzungs-Patch direkt in den Steam Workshop hochladen">STEAM UPLOAD</button>
                     </div>
 
-                    <button onclick="if(confirm('⚠️ WIRKLICH ALLE BRIDGE-PROZESSE BEENDEN?\n\nDies beendet:\n• Aktuelle Übersetzungs-Aufgaben\n• Den GUI-Server\n• Alle alten/hängenden Bridge-Prozesse\n\nDanach musst du das Dashboard neu starten.')) triggerAction('kill-all')" style="background: #3d0a0a; color: #ff6666; margin-top: 5px; font-size:0.65rem; border: 1px solid #8a1f1f;">🧨 ALLE PROZESSE KILLEN</button>
+                    <button onclick="if(confirm('⚠️ WIRKLICH ALLE BRIDGE-PROZESSE BEENDEN?\n\nDies beendet:\n• Aktuelle Übersetzungs-Aufgaben\n• Den GUI-Server\n• Alle alten/hängenden Bridge-Prozesse\n\nDanach musst du das Dashboard neu starten.')) triggerAction('kill-all')" title="⚠️ Beendet ALLE Bridge-Prozesse sofort — auch alte/hängende Instanzen. Dashboard muss neu gestartet werden!" style="background: #3d0a0a; color: #ff6666; margin-top: 5px; font-size:0.65rem; border: 1px solid #8a1f1f;">🧨 ALLE PROZESSE KILLEN</button>
 
-                    <button onclick="triggerAction('full_reset')" style="background: #4a1a1a; color: #ff9999; margin-top: 10px; font-size:0.65rem; border: 1px solid #632525;">WERKSEINSTELLUNG (RESET)</button>
+                    <button onclick="triggerAction('full_reset')" title="Setzt alles zurück: löscht Patches, Backups und processed_files — Originale werden aus Backups wiederhergestellt" style="background: #4a1a1a; color: #ff9999; margin-top: 10px; font-size:0.65rem; border: 1px solid #632525;">WERKSEINSTELLUNG (RESET)</button>
                 </div>
             </div>
         </div>
@@ -410,8 +460,8 @@
                 </div>
                 <div id="key-sections"></div>
                 <div style="display:flex; gap:10px; margin-top: 20px;">
-                    <button onclick="closeKeyModal()" class="secondary">Schließen</button>
-                    <button onclick="saveKeysFromModal()">Änderungen Übernehmen</button>
+                    <button onclick="closeKeyModal()" class="secondary" title="Schließen ohne zu speichern">Schließen</button>
+                    <button onclick="saveKeysFromModal()" title="API-Keys speichern und Modal schließen">Änderungen Übernehmen</button>
                 </div>
             </div>
         </div>
@@ -442,7 +492,7 @@
                 <div class="panel" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                         <h3 style="margin:0;">Datenbank Browser</h3>
-                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()">
+                        <input type="text" id="db-search" placeholder="Suchen..." style="width: 250px; margin:0;" oninput="searchDb()" title="Durchsucht Quelltexte und Übersetzungen — Echtzeit-Filter">
                     </div>
                     <div class="db-table-container">
                         <table class="db-table">
@@ -460,7 +510,7 @@
                         </table>
                     </div>
                     <div style="margin-top: 15px; font-size: 0.8rem; color: var(--muted); display:flex; justify-content:space-between;">
-                        <div>Klicke auf eine Übersetzung zum Editieren. Änderungen werden beim Speichern übernommen.</div>
+                        <div title="Klicke in das Textfeld zum Editieren. Mehrzeilige Eingabe möglich. Speichern mit Save-Button.">✏️ Klicke auf eine Übersetzung zum Editieren. Mehrzeilen-Text möglich.</div>
                         <div id="db-count" style="font-weight: bold; color: var(--accent);">0 Einträge</div>
                     </div>
                 </div>
@@ -502,8 +552,8 @@
     </div>
 
     <footer style="background: rgba(0,0,0,0.8); padding: 5px 20px; font-size: 0.7rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--muted); z-index: 100;">
-        <div>Syx-Bridge v0.15.0a - V71 Ready</div>
-        <div>Kontakt & Bug-Reports: <span style="color: var(--accent);">vannon858@gmail.com</span></div>
+        <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon">Syx-Bridge v0.15.0a - V71 Ready</div>
+        <div title="Fehler oder Feedback bitte per E-Mail melden">Kontakt & Bug-Reports: <span style="color: var(--accent);">vannon858@gmail.com</span></div>
     </footer>
 
     <script src="/public/app.js"></script>

@@ -3,16 +3,26 @@
 ## [0.16.0] - 2026-06-15
 
 ### Added
+- **[DOCS] Technical Review Report:** Vollständiger technischer Audit mit 12 Prüfpunkten, Top-10-Bugs/Quick-Wins/UX/Architektur. Gespeichert unter `TECHNICAL_REVIEW_2026-06-15.md`. Kritischste Befunde: Provider-Capability-Lücke (P1), OpenRouter-JSON-Parsing ohne Retry (P1), fehlendes Revision-System (P2). `AUDIT_REPORT.md` und `core/docs/README.md` mit Doku-Vermerk und Referenz aktualisiert.
+- **[P1] Provider Capability Matrix:** `PROVIDER_CAPABILITIES` definiert Fähigkeiten pro Provider (translate/audit/polish/compare/review). `supportsRole()` in `Router` prüft Stage-Fähigkeit. Capability-Gate in `buildRoutePlan()` filtert google_free und argos aus audit/polish Route-Plans — diese Provider können nur übersetzen, nicht auditieren/polishen. Betroffene Datei: `router.js`.
+- **[P1] Lokale Modelle Opt-in (Hardware-Schutz):** `LOCAL_MODELS_ENABLED=false` (Default) sperrt Ollama und Player2 im Router via `hasAccess()`. Erst nach explizitem Opt-in des Users (GUI Toggle-Switch) werden lokale LLMs freigegeben. Argos bleibt immer verfügbar (leichtgewichtig, Offline-Fallback). GUI zeigt roten Warnhinweis wenn aktiv. Betroffene Dateien: `router.js`, `index.js`, `config-runtime.js`, `gui/index.html`, `gui/app.js`.
 - **[P3] Dynamisches Risiko-Scoring mit Google Free Stress-Test:** `googleFreePreflight()` testet ambiguous-risk Batches (AvgRisk 1.5-4.0) via Google Translate Free als Pre-Flight. Bei >70% Pass-Rate werden Google-Free-Ergebnisse direkt verwendet (Placeholder-Restoration inklusive). Bei marginalen Ergebnissen werden dynamische Risk-Scores an die Entries angehängt und die Batch eskaliert zum Qualitäts-Modell. DB-Persistierung via `stress_test_passed` + `stress_tested_at` Spalten für Kalibrierung über Runs hinweg. Betroffene Dateien: `context-packets.js`, `translation-runtime.js`, `db.js`.
+- **[ROUTING] Einheitliche Routing-Pipeline:** `resolveTranslateRoute()` im Dispatcher als Single Source of Truth für alle Translate-Stage-Routing-Entscheidungen. Ersetzt die doppelte Logik in `translateBatch()` und `resolveBestRouteForBatch()`. Behandelt alle Risk-Tiers: UI-Strings, Low-Risk (Argos/Google Free), Ambiguous (Stress-Test), High-Risk (Qualitäts-Modell). Stage-gated: nur für `translate`, nicht für `polish`/`audit`.
+- **[STRESS-TEST] saveStressTestResult():** Persistiert Stress-Test-Ergebnisse in `translations.stress_test_passed` + `stress_tested_at`. Wird in beiden Pfaden aufgerufen (Erfolg + marginal). Technische Spec für dedizierte `stress_test_results`-Tabelle unter `docs/STRESS_TEST_SPEC.md`.
+- **[KEY-ROTATION] Per-Key-Cooldown:** `markKeyCooldown(provider, keyIndex, cooldownMs)` in `ConfigRuntime`. `rotateApiKey()` überspringt Keys mit aktivem Cooldown und cleaned up abgelaufene Einträge. 60s Cooldown bei proaktivem Quota-Warn (`handleRateLimits`), 30s bei 429-Fehler (Catch-Blocks). Verhindert Rotation zurück zu gerade gesperrten Keys.
+- **UI Tooltips (GUI):** Umfassende deutsche Tooltip-Texte für alle Buttons, Status-Indikatoren, Pipeline-Stages, Provider-Stats und Aktionen im Dashboard.
 
 ### Changed
 - **[WARN-1] persistConfig konsolidiert:** `persistConfigToEnv` als Shared-Funktion in `config-runtime.js` — sowohl CLI (`index.js`) als auch GUI-Wizard (`ConfigRuntime.configure()`) delegieren jetzt dorthin. Keine Divergenz mehr zwischen den Persistenz-Pfaden.
 - **[BUG-2] Kommentar-Stub in `runtime-ops.js`:** Irreführender Kommentar durch klaren Kommentar ersetzt.
 - **[BUG-3] Platzhalter-Kommentar in `planner.js`:** Durch beschreibenden Kommentar ersetzt.
 - **ESLint Cleanup:** 0 Errors, 0 Warnings. Catch-Parameter und leere Catch-Blöcke via ESLint-Config akzeptiert. Ungenutzte Variablen/Imports mit `_`-Präfix versehen.
+- **[ROUTING] translateBatch() vereinfacht:** Delegiert jetzt komplett an den Dispatcher. Akzeptiert optionales `routeOverride` für korrekte Fallback-Kette bei Provider-Wechsel via `runRoute()`.
 
 ### Fixed
 - **[BUG-5] Native Mode: Backup, Polish, _Info.txt:** Backup jetzt bei **jedem** Native-Mode-Lauf frisch. `forcePolish: true` immer an `ensureTranslations` übergeben. `_Info.txt` im Workshop-Original bleibt unberührt.
+- **[BUG-6] callArgosBatch() stiller Fehler:** Argos Translate wirft jetzt Exception bei Fehlschlag statt still Originaltexte zurückzugeben. Ermöglicht Dispatcher-Fallback auf nächste Route.
+- **[BUG-7] Stale activeProvider-Referenz:** Unbenutzte Variable `activeProvider` im Stress-Test-Block von `translateBatch()` entfernt.
 
 ## [0.15.4-patch] - 2026-06-15
 

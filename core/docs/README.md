@@ -2,76 +2,110 @@
 
 ## Handshake-Vermerk
 
-Version: `0.13.0a`
+Version: `0.16.0`
 
-Diese Dokumentation beschreibt den produktiven Stand der Bridge nach dem "Deep Polish" Release. Das System wurde von einem monolithischen Ansatz in eine modulare Architektur überführt, die nun auch eine flüssige Web-GUI (Dashboard) beinhaltet.
+> 📋 **Doku-Vermerk (15.06.2026):** Der vollständige Technical Review mit 12 Prüfpunkten liegt unter **[TECHNICAL_REVIEW_2026-06-15.md](../../TECHNICAL_REVIEW_2026-06-15.md)**. Beide P1-Bugs behoben: Provider-Capability-Matrix ✅ + Lokale-Modelle-Opt-in ✅. Nächster P1: OpenRouter JSON-Retry.
 
-## Produktiver Stand In `0.13.0a`
+Diese Dokumentation beschreibt den produktiven Stand der Bridge. Das System nutzt eine modulare Architektur mit Web-GUI (Dashboard) und CLI-Modus.
+
+## Produktiver Stand In `0.16.0`
 
 - `index.js`: Operativer Einstiegspunkt und Starter für CLI/GUI.
-- `src/gui/`: Neuer Web-Dashboard Kern (Express + Socket.io).
+- `src/gui/`: Web-Dashboard Kern (Express + Socket.io).
 - `runtime-ops.js`: Mod-Laufoperationen, `_Info.txt`-Pflege und BridgeCore-Ausgabe.
-- `translation-runtime.js`: Batch-Uebersetzung, Audit, Polish, Cache und Glossar-Lernen.
+- `translation-runtime.js`: Batch-Übersetzung, Audit, Polish, Cache, Glossar-Lernen und Stress-Test-Integration.
 - `text-core.js`: Zentrale Textlogik für Shielding, Promptbau, Parsing und Replacement.
-- `context-packets.js`: Risiko-Scores und Prompt-Kontext.
-- `dispatcher.js`: Harmonisiert Stage-Entscheidungen (translate, audit, polish).
+- `context-packets.js`: Statische und dynamische Risiko-Scores, Prompt-Kontext.
+- `dispatcher.js`: Einheitliche Routing-Pipeline mit `resolveTranslateRoute()` als Single Source of Truth.
+- `config-runtime.js`: Provider-Konfiguration, Key-Rotation mit Per-Key-Cooldown, Modell-Discovery.
 - `planner.js`: Steuert die produktiven `single`- und `sync`-Läufe.
 - `exporter.js`: Dateiausgabe und Bündelung (Native vs. Patch Mode).
 
-## Was Der Dispatcher Vorbereitet
+## Routing-Pipeline (0.16.0)
 
-Der Dispatcher ist in `0.9.6 Beta` als echte Laufzeit-Harmonisierung eingebaut, aber noch nicht als Vollorchestrator ueberfrachtet.
+Der Dispatcher ist jetzt die zentrale Routing-Instanz für alle Translate-Stage-Entscheidungen.
 
-Er erledigt aktuell:
+### Provider Capability Matrix (NEU)
 
-- Aufloesung der aktiven Stage-Ziele fuer `translate`, `audit` und `polish`
-- Vereinheitlichte Nutzung des Routers fuer Stage-Routen
-- Gemeinsame Route-Ausfuehrung fuer Audit- und Polish-Aufrufe
-- Gemeinsame Fehlerbehandlung und Health-Rueckmeldung an den Router
+`PROVIDER_CAPABILITIES` in `router.js` definiert welche Stages ein Provider unterstützt:
 
-Er bereitet spaeter vor:
+| Provider | translate | audit | polish |
+|----------|-----------|-------|--------|
+| google_free | ✅ | ❌ | ❌ |
+| argos | ✅ | ❌ | ❌ |
+| ollama | ✅ | ✅ | ✅ |
+| openrouter | ✅ | ✅ | ✅ |
+| groq | ✅ | ✅ | ✅ |
+| gemini | ✅ | ✅ | ✅ |
+| player2 | ✅ | ✅ | ✅ |
 
-- strengere filetype- oder risikobasierte Modellwahl
-- modprofilbasierte Dispatch-Regeln
-- dateiweite oder modweite Audit-Kaskaden
-- zusaetzliche Export- oder Workshop-Stages
+`buildRoutePlan()` filtert Provider jetzt auch nach Stage-Fähigkeit — google_free und argos erscheinen nicht mehr in audit/polish Route-Plans.
 
-## Builder-Architektur
+### Lokale Modelle Opt-in (NEU)
 
-Der aktuelle Aufbau trennt Verantwortlichkeiten so:
+`LOCAL_MODELS_ENABLED=false` (Default) sperrt Ollama und Player2 im Router. Erst nach explizitem Opt-in des Users (GUI Toggle) werden lokale LLMs freigegeben. **Argos bleibt immer verfügbar** (leichtgewichtig, Offline-Fallback, Multi-Language).
 
-- `db.js`: Datenbankzugriff, Migrationen und Glossar-Tabelle
+### Risk Routing
+
+1. **UI-Strings** (>80%): → Google Free / Argos (kostenlos)
+2. **Low-Risk** (AvgRisk < 1.5): → Argos / Google Free (schnell)
+3. **Ambiguous** (1.5-4.0): → Stress-Test via Google Free Pre-Flight, dann ggf. Eskalation
+4. **High-Risk** (≥4.0 oder Long Text): → Qualitäts-Modell (Polish-Provider)
+5. **Default**: → User-konfigurierter Primary Provider
+
+Die Routing-Entscheidung ist stage-gated: Nur `translate` nutzt diese Logik. `polish` und `audit` verwenden ihre konfigurierten Provider direkt.
+
+`translateBatch()` delegiert komplett an den Dispatcher und akzeptiert optionales `routeOverride` für korrekte Fallback-Kette.
+
+## Key-Rotation mit Per-Key-Cooldown
+
+`ConfigRuntime.rotateApiKey()` rotiert durch API-Keys mit Cooldown-Awareness:
+
+- Keys mit aktivem 429-Cooldown werden übersprungen
+- 60s Cooldown bei proaktivem Quota-Warn (`handleRateLimits`)
+- 30s Cooldown bei 429-Fehler (Catch-Blocks)
+- Abgelaufene Cooldowns werden automatisch aufgeräumt
+
+## Stress-Test-System
+
+`googleFreePreflight()` testet ambiguous-risk Batches via Google Translate Free:
+
+- Bei >70% Pass-Rate: Google Free wird direkt verwendet
+- Bei marginalen Ergebnissen: Dynamische Risk-Scores werden angepasst, Batch eskaliert zum Qualitäts-Modell
+- Ergebnisse werden in `translations.stress_test_passed` + `stress_tested_at` persistiert
+- Technische Spec für dedizierte `stress_test_results`-Tabelle: `docs/STRESS_TEST_SPEC.md`
+
+## Architektur
+
+- `db.js`: Datenbankzugriff, Migrationen (translations, glossary_terms, stress_test_results)
 - `scanner.js`: Mod- und Dateierkennung
 - `extractor.js`: String-Extraktion und Hashing
 - `text-core.js`: Textlogik und Prompt-/Parse-Kern
-- `context-packets.js`: Risiko- und Kontextaufbereitung
-- `glossary.js`: Terminologie-Memory
-- `router.js`: Provider- und Fallback-Logik
-- `dispatcher.js`: Stage-Harmonisierung
-- `translation-runtime.js`: Uebersetzungs- und Polish-Laufzeit
+- `context-packets.js`: Statische + dynamische Risiko-Scores, Prompt-Kontext
+- `glossary.js`: Terminologie-Memory mit Guarded Terms
+- `router.js`: Provider- und Fallback-Logik mit Cost-Class-Sortierung
+- `dispatcher.js`: Einheitliche Routing-Pipeline (`resolveTranslateRoute`)
+- `config-runtime.js`: Provider-Konfiguration, Key-Rotation mit Per-Key-Cooldown, Modell-Discovery
+- `translation-runtime.js`: Batch-Übersetzung, Stress-Test, Audit, Polish, Cache
 - `runtime-ops.js`: Mod-Laufoperationen
 - `planner.js`: Laufplanung und Orchestrierung
-- `exporter.js`: Dateiausgabe und Buendelung
+- `exporter.js`: Dateiausgabe und Bündelung
 - `validator.js`: QA-Validierung
 - `logger.js`: Datei- und DB-Logging
 - `ui.js`: Interaktive Menues
+- `gui/`: Web-Dashboard (Express + Socket.io)
 
-## Neue Inhalte In `0.9.6 Beta`
+## Geplant (nächste Sessionen)
 
-- Risiko-Scores beeinflussen, welche Texte tiefer poliert werden.
-- Kontextpakete gehen jetzt bis in Uebersetzungs- und Proofread-Prompts.
-- `glossary_terms` haelt wiederkehrende Terminologie persistiert.
-- Dispatcher entkoppelt Stage-Entscheidungen und Stage-Ausfuehrung von Einzelpfad-Logik in `translation-runtime`.
-- Der Beta-Release wird separat gebaut, damit fruehere Public-Pakete stabil bleiben.
-- Die Doku trennt jetzt klar zwischen produktiv, vorbereitet und spaeter geplant.
-
-## Geplante Inhalte Nach `0.9.6 Beta`
-
-- echte Hash-Dedup-Entscheidungen im Planner produktiv vollziehen
+- **P1 — OpenRouter JSON-Retry:** Bei Parse-Failure mit strikterem Prompt wiederholen (Spec: Technical Review 15.06.2026)
+- **P2 — Dynamic Risk integrieren:** `scoreDynamicRisk()` in `enrichWithContext()` aufrufen (Spec: Technical Review 15.06.2026)
+- Dedizierte `stress_test_results`-Tabelle + `getStressTestHistory()` für `scoreDynamicRisk()` (Spec: `docs/STRESS_TEST_SPEC.md`)
+- **P2 — Revision System:** `translation_revisions`-Tabelle mit `is_active`/`is_reference` Flags (Spec: Technical Review 15.06.2026)
+- Model Validation Engine: `model_registry.js` + Argos-Sprachmodell-Prüfung (Plan: `docs/MULTI_LANGUAGE_MODEL_PLAN.md`)
+- Per-Key-Health-Tracking: Laufendes Monitoring statt nur Start-Check
+- Dynamische Batch-Größe bei Fallback-Provider-Wechsel
 - Dispatcher mit Modprofilen und Dateitypen koppeln
-- Konsistenz- und Terminologie-Audit ueber Datei- und Modgrenzen hinweg
 - Workshop-/Exporter-Pfade weiter aus `index.js` herausziehen
-- DB staerker fuer Lern- und Entscheidungsdaten nutzen statt nur fuer Cache und Laufstatus
 
 ## Diagnose
 

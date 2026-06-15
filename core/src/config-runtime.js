@@ -81,6 +81,8 @@ class ConfigRuntime {
     this.providerHealth = {};
     // Dynamically populated from key config; no provider hard-wired here.
     this.providerStats = {};
+    // Per-key cooldown tracking: { provider: { keyIndex: cooldownUntilMs } }
+    this.keyCooldowns = {};
   }
 
   setRouter(router) {
@@ -143,15 +145,45 @@ class ConfigRuntime {
     }
   }
 
+  /**
+   * Mark a specific key as rate-limited so rotateApiKey() skips it.
+   */
+  markKeyCooldown(provider, keyIndex, cooldownMs = 30000) {
+    if (!this.keyCooldowns[provider]) this.keyCooldowns[provider] = {};
+    this.keyCooldowns[provider][keyIndex] = Date.now() + cooldownMs;
+  }
+
   rotateApiKey(provider) {
     const keys = this.config[`${provider.toUpperCase()}_KEYS`];
-    if (keys && keys.length > 1) {
-      this.config.KEY_INDICES[provider] = (this.config.KEY_INDICES[provider] || 0) + 1;
-      const newIndex = this.config.KEY_INDICES[provider] % keys.length;
-      console.log(`[AUTH] Key-Rotation fuer ${provider}: Versuche Key #${newIndex + 1}/${keys.length}`);
+    if (!keys || keys.length <= 1) return false;
+
+    const now = Date.now();
+    const cooldowns = this.keyCooldowns[provider] || {};
+    const currentIndex = this.config.KEY_INDICES[provider] || 0;
+
+    // Clean up expired cooldown entries
+    for (const idx of Object.keys(cooldowns)) {
+      if (cooldowns[idx] <= now) delete cooldowns[idx];
+    }
+
+    // Try each key starting from the next one, skip keys with active cooldown
+    for (let attempt = 1; attempt < keys.length; attempt++) {
+      const candidateIndex = (currentIndex + attempt) % keys.length;
+      const cooldownUntil = cooldowns[candidateIndex] || 0;
+      if (cooldownUntil > now) {
+        console.log(`[AUTH] Key #${candidateIndex + 1}/${keys.length} fuer ${provider} im Cooldown bis ${new Date(cooldownUntil).toISOString()}, ueberspringe.`);
+        continue;
+      }
+      this.config.KEY_INDICES[provider] = candidateIndex;
+      console.log(`[AUTH] Key-Rotation fuer ${provider}: Wechsle zu Key #${candidateIndex + 1}/${keys.length}`);
       return true;
     }
-    return false;
+
+    // All keys in cooldown — rotate anyway to the next key (best effort)
+    const fallbackIndex = (currentIndex + 1) % keys.length;
+    this.config.KEY_INDICES[provider] = fallbackIndex;
+    console.warn(`[AUTH] Alle Keys fuer ${provider} im Cooldown. Fallback auf Key #${fallbackIndex + 1}/${keys.length}`);
+    return true;
   }
 
   markProviderDegraded(provider, reason) {
@@ -649,6 +681,7 @@ async function persistConfigToEnv(config) {
     ['TARGET_LANG', firstDefined(config.TARGET_LANG)],
     ['NATIVE_MODE', String(!!config.NATIVE_MODE)],
     ['GRAMMAR_CHECK', String(!!config.GRAMMAR_CHECK)],
+    ['LOCAL_MODELS_ENABLED', String(!!config.LOCAL_MODELS_ENABLED)],
     ['PRIMARY_PROVIDER', firstDefined(config.PRIMARY_PROVIDER)],
     ['PRIMARY_MODEL', firstDefined(config.PRIMARY_MODEL)],
     ['POLISHER_PROVIDER', firstDefined(config.POLISHER_PROVIDER)],

@@ -48,7 +48,8 @@ function createTranslationRuntime(options) {
   const dispatcher = createDispatcher({
     config,
     routingEngine,
-    extractErrorMessage
+    extractErrorMessage,
+    isArgosInstalled
   });
 
   function parseBatchResponseWithMaps(text, expectedCount, shieldMaps = []) {
@@ -358,6 +359,18 @@ function createTranslationRuntime(options) {
     ]);
   }
 
+  async function saveStressTestResult(sourceText, passed) {
+    try {
+      await dbRun(
+        `UPDATE translations SET stress_test_passed = ?, stress_tested_at = CURRENT_TIMESTAMP
+         WHERE source_text = ? AND target_lang = ?`,
+        [passed ? 1 : 0, sourceText, config.TARGET_LANG]
+      );
+    } catch (e) {
+      // Non-critical: stress test metadata is best-effort
+    }
+  }
+
   function handleRateLimits(provider, headers) {
     if (!headers) return;
     const remainingTokens = parseInt(headers['x-ratelimit-remaining-tokens'] || headers['ratelimit-remaining-tokens'] || '999999', 10);
@@ -370,6 +383,11 @@ function createTranslationRuntime(options) {
 
     if (remainingTokens < 2000 || remainingRequests < 2) {
       console.log(`[QUOTA] ${provider} Limit fast erreicht (Tokens: ${remainingTokens}, Req: ${remainingRequests}). Rotiere Key...`);
+      // Mark current key as rate-limited so rotation skips it
+      const currentIndex = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
+      if (configRuntime && configRuntime.markKeyCooldown) {
+        configRuntime.markKeyCooldown(provider, currentIndex, 60000);
+      }
       rotateApiKey(provider);
     }
   }
@@ -393,7 +411,12 @@ function createTranslationRuntime(options) {
     } catch (e) {
       const status = e.response ? e.response.status : 0;
       if (status === 401 || status === 403) if (configRuntime) configRuntime.markKeyStatus('gemini', false);
-      if (status === 429) if (configRuntime) configRuntime.updateProviderRateLimit('gemini', true);
+      if (status === 429) {
+        if (configRuntime) configRuntime.updateProviderRateLimit('gemini', true);
+        // Mark this key as cooled so rotateApiKey() skips it
+        const ci = (config.KEY_INDICES && config.KEY_INDICES.gemini) || 0;
+        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('gemini', ci, 30000);
+      }
       
       // Only rotate if we haven't tried all keys yet
       if ((status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey('gemini')) {
@@ -429,11 +452,45 @@ function createTranslationRuntime(options) {
       const raw = response.data.choices?.[0]?.message?.content ?? null;
       if (!raw) throw new Error('Groq returned no message content.');
       logPayload('groq', 'RESPONSE', raw);
-      return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+      let parsed = parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+
+      // JSON-Retry: Groq free models sometimes return markdown or truncated JSON.
+      // Retry once with a stricter prompt before accepting wrong count.
+      if (parsed.length !== items.length) {
+        console.warn(`[GROQ] JSON-Parsing: ${parsed.length}/${items.length} Eintraege. Retry mit strikterem Prompt...`);
+        const strictPrompt = await buildBatchPromptForCurrentConfig(items);
+        const strictPayload = {
+          model,
+          messages: [
+            { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders unchanged. CRITICAL: Respond ONLY with a raw JSON array of strings. NO markdown, NO code fences, NO explanation. Just: ["result 1", "result 2"]` },
+            { role: 'user', content: strictPrompt.prompt }
+          ],
+          temperature: 0.1
+        };
+        try {
+          const retryResp = await withRetry('Groq Batch (JSON-Retry)', () => axios.post('https://api.groq.com/openai/v1/chat/completions', strictPayload, {
+            headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+            timeout: 60000
+          }));
+          const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
+          if (retryRaw) {
+            logPayload('groq', 'RESPONSE (Retry)', retryRaw);
+            parsed = parseBatchResponseWithMaps(retryRaw, items.length, strictPrompt.shieldMaps);
+            console.log(`[GROQ] JSON-Retry: ${parsed.length}/${items.length} Eintraege.`);
+          }
+        } catch (retryErr) {
+          console.warn(`[GROQ] JSON-Retry fehlgeschlagen: ${retryErr.message}. Nutze Original-Ergebnis.`);
+        }
+      }
+      return parsed;
     } catch (e) {
       const status = e.response ? e.response.status : 0;
       if (status === 401 || status === 403) if (configRuntime) configRuntime.markKeyStatus('groq', false);
-      if (status === 429) if (configRuntime) configRuntime.updateProviderRateLimit('groq', true);
+      if (status === 429) {
+        if (configRuntime) configRuntime.updateProviderRateLimit('groq', true);
+        const ci = (config.KEY_INDICES && config.KEY_INDICES.groq) || 0;
+        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('groq', ci, 30000);
+      }
       if ((status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey('groq')) {
         return callGroqBatch(items, modelOverride, attemptCount + 1);
       }
@@ -470,11 +527,43 @@ function createTranslationRuntime(options) {
       const raw = response.data.choices?.[0]?.message?.content ?? null;
       if (!raw) throw new Error('OpenRouter returned no message content.');
       logPayload('openrouter', 'RESPONSE', raw);
-      return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+      let parsed = parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+
+      // JSON-Retry: OpenRouter free models sometimes return markdown or truncated JSON.
+      // Retry once with a stricter prompt before accepting wrong count.
+      if (parsed.length !== items.length) {
+        console.warn(`[OPENROUTER] JSON-Parsing: ${parsed.length}/${items.length} Eintraege. Retry mit strikterem Prompt...`);
+        const strictPrompt = await buildBatchPromptForCurrentConfig(items);
+        try {
+          const retryResp = await withRetry('OpenRouter Batch (JSON-Retry)', () => axios.post('https://openrouter.ai/api/v1/chat/completions', {
+            model,
+            messages: [
+              { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders unchanged. CRITICAL: Respond ONLY with a raw JSON array of strings. NO markdown, NO code fences, NO explanation. Just: ["result 1", "result 2"]` },
+              { role: 'user', content: strictPrompt.prompt }
+            ]
+          }, {
+            headers: { Authorization: `Bearer ${key}`, 'HTTP-Referer': 'https://github.com/vannon/syx-bridge', 'Content-Type': 'application/json' },
+            timeout: 60000
+          }));
+          const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
+          if (retryRaw) {
+            logPayload('openrouter', 'RESPONSE (Retry)', retryRaw);
+            parsed = parseBatchResponseWithMaps(retryRaw, items.length, strictPrompt.shieldMaps);
+            console.log(`[OPENROUTER] JSON-Retry: ${parsed.length}/${items.length} Eintraege.`);
+          }
+        } catch (retryErr) {
+          console.warn(`[OPENROUTER] JSON-Retry fehlgeschlagen: ${retryErr.message}. Nutze Original-Ergebnis.`);
+        }
+      }
+      return parsed;
     } catch (e) {
       const status = e.response ? e.response.status : 0;
       if (status === 401 || status === 403) if (configRuntime) configRuntime.markKeyStatus('openrouter', false);
-      if (status === 429) if (configRuntime) configRuntime.updateProviderRateLimit('openrouter', true);
+      if (status === 429) {
+        if (configRuntime) configRuntime.updateProviderRateLimit('openrouter', true);
+        const ci = (config.KEY_INDICES && config.KEY_INDICES.openrouter) || 0;
+        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('openrouter', ci, 30000);
+      }
       if ((status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey('openrouter')) {
         return callOpenRouterBatch(items, modelOverride, attemptCount + 1);
       }
@@ -525,7 +614,7 @@ except Exception as e:
       return results;
     } catch (e) {
       console.warn(`[!] Argos Translate Batch fehlgeschlagen: ${e.message}`);
-      return texts.map(t => t); // Fallback to original
+      throw new Error(`Argos Translate fehlgeschlagen: ${e.message}`, { cause: e });
     }
   }
 
@@ -742,7 +831,7 @@ except Exception as e:
     }
   }
 
-  async function translateBatch(items, provider = config.PRIMARY_PROVIDER, modelOverride = '') {
+  async function translateBatch(items, routeOverride) {
     if (isAborting()) throw new Error('ABORTED');
     const entries = await enrichWithContext(items);
     
@@ -753,75 +842,65 @@ except Exception as e:
       entry.placeholders = shield.placeholders;
     });
         
-    // Smart Routing: Dynamic Risk with Google Free Stress Test
-    let activeProvider = provider;
-    const avgRisk = entries.reduce((sum, e) => sum + (e.riskScore || 0), 0) / entries.length;
-    
-    if (avgRisk < 1.5 && provider !== 'argos' && provider !== 'ollama' && provider !== 'player2') {
-      // Low-Risk: Route directly to cheap providers
-      if (isArgosInstalled && isArgosInstalled()) activeProvider = 'argos';
-      else activeProvider = 'google_free';
-      console.log(`[DISPATCH] Low-Risk Batch erkannt (AvgRisk: ${avgRisk.toFixed(1)}). Nutze schnellen Provider: ${activeProvider}`);
-    } else if (avgRisk >= 1.5 && avgRisk < 4.0 && provider !== 'argos' && provider !== 'ollama' && provider !== 'player2' && provider !== 'google_free') {
-      // Ambiguous-Risk (1.5-4.0): Google Free Stress Test as pre-flight
-      console.log(`[DISPATCH] Ambiguous-Risk Batch (AvgRisk: ${avgRisk.toFixed(1)}). Starte Google Free Stress-Test...`);
+    // ── Unified routing via dispatcher (single source of truth) ────────
+    // Use routeOverride from runRoute fallback chain if provided, otherwise resolve fresh
+    const resolvedRoute = routeOverride || dispatcher.resolveTranslateRoute(entries);
+
+    // Stress test: dispatcher flagged ambiguous risk -> pre-flight with Google Free
+    if (resolvedRoute.stressTestRequired) {
       if (isAborting()) throw new Error('ABORTED');
       let stressResult;
       try {
         stressResult = await googleFreePreflight(entries);
       } catch (e) {
         console.warn(`[DISPATCH] Stress-Test fehlgeschlagen: ${e.message}. Fallback auf normale LLM-Route.`);
-        // Fall through to normal LLM routing without dynamic risk scores
       }
-      
+
       if (stressResult && stressResult.overallPassRate > 0.7) {
-        // >70% pass rate: Google Free output is good enough -> use it directly
-        console.log(`[DISPATCH] Stress-Test bestanden (${(stressResult.overallPassRate*100).toFixed(0)}%). Nutze Google Free direkt.`);
-        // Restore placeholders in Google Free output and return
-        const stressTranslations = entries.map((entry) => {
+        console.log(`[DISPATCH] Stress-Test bestanden (${(stressResult.overallPassRate * 100).toFixed(0)}%). Nutze Google Free direkt.`);
+        // Persist stress test results for future dynamic risk scoring
+        for (const [source, result] of stressResult.stressResults) {
+          saveStressTestResult(source, result.passed).catch(() => {});
+        }
+        return entries.map((entry) => {
           const translated = stressResult.translations.get(entry.source);
           if (translated) {
-            const restored = restorePlaceholders(translated, entry.placeholders);
-            // eslint-disable-next-line no-undef
-            saveStressTestResult(entry.source, true).catch(() => {});
-            return restored;
+            return restorePlaceholders(translated, entry.placeholders);
           }
-          // eslint-disable-next-line no-undef
-          saveStressTestResult(entry.source, false).catch(() => {});
           return entry.source;
         });
-        return stressTranslations;
       }
-      
+
       if (stressResult) {
-        // Stress test failed or marginal: escalate to quality model with dynamic risk scores
-        console.log(`[DISPATCH] Stress-Test marginal (${(stressResult.overallPassRate*100).toFixed(0)}%). Eskaliere zu Qualitaets-Modell mit dynamischen Risk-Scores.`);
+        console.log(`[DISPATCH] Stress-Test marginal (${(stressResult.overallPassRate * 100).toFixed(0)}%). Eskaliere zu Qualitaets-Modell.`);
         const entryBySource = new Map(entries.map(e => [e.source, e]));
         for (const [source, result] of stressResult.stressResults) {
           const entry = entryBySource.get(source);
-          if (entry) {
-            entry.riskScore = result.dynamicRisk;            // eslint-disable-next-line no-undef
-            saveStressTestResult(source, result.passed).catch(() => {});
-          }
+          if (entry) entry.riskScore = result.dynamicRisk;
+          saveStressTestResult(source, result.passed).catch(() => {});
         }
-      } // end if(stressResult)
+        // Re-resolve route with updated risk scores -> may escalate to quality model
+        const escalated = dispatcher.resolveTranslateRoute(entries);
+        resolvedRoute.provider = escalated.provider;
+        resolvedRoute.model = escalated.model;
+      }
     }
 
     const texts = entries.map(entry => entry.source);
     const preview = texts.map(t => t.length > 25 ? t.substring(0, 22) + '...' : t).join(' | ');
-    console.log(`[BATCH] (${activeProvider}) [${texts.length} Texte]: ${preview}`);
+    console.log(`[BATCH] (${resolvedRoute.provider}/${resolvedRoute.model || 'default'}) [${texts.length} Texte]: ${preview}`);
 
     let rawTranslations;
-    if (activeProvider === 'gemini') rawTranslations = await callGeminiBatch(entries, modelOverride);
-    else if (activeProvider === 'groq') rawTranslations = await callGroqBatch(entries, modelOverride);
-    else if (activeProvider === 'openrouter') rawTranslations = await callOpenRouterBatch(entries, modelOverride);
-    else if (activeProvider === 'ollama') rawTranslations = await callOllamaBatch(entries, modelOverride);
-    else if (activeProvider === 'argos') rawTranslations = await callArgosBatch(entries.map(e => e.protectedText));
-    else if (activeProvider === 'player2') rawTranslations = await callPlayer2Batch(entries, modelOverride);
-    else if (activeProvider === 'google_free') rawTranslations = await callGoogleTranslateFree(entries.map(e => e.protectedText));
+    if (resolvedRoute.provider === 'gemini') rawTranslations = await callGeminiBatch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'groq') rawTranslations = await callGroqBatch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'openrouter') rawTranslations = await callOpenRouterBatch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'ollama') rawTranslations = await callOllamaBatch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'argos') rawTranslations = await callArgosBatch(entries.map(e => e.protectedText));
+    else if (resolvedRoute.provider === 'player2') rawTranslations = await callPlayer2Batch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'google_free') rawTranslations = await callGoogleTranslateFree(entries.map(e => e.protectedText));
 
     if (!rawTranslations || rawTranslations.length !== texts.length) {
-      throw new Error(`Batch-Antwort von ${activeProvider} hat falsche Anzahl an Zeilen (${rawTranslations ? rawTranslations.length : 0}/${texts.length}).`);
+      throw new Error(`Batch-Antwort von ${resolvedRoute.provider} hat falsche Anzahl an Zeilen (${rawTranslations ? rawTranslations.length : 0}/${texts.length}).`);
     }
 
     let unchangedCount = 0;
@@ -829,7 +908,7 @@ except Exception as e:
       const item = entries[index];
       const finalized = restoreAndValidateTranslation(item.source, translation, item.placeholders);
       if (!finalized.valid) {
-        console.warn(`[WARN] Placeholder/Tags/Quotes korrupt bei "${item.source.substring(0, 30)}" (${activeProvider}) -> Fallback auf Original.`);
+        console.warn(`[WARN] Placeholder/Tags/Quotes korrupt bei "${item.source.substring(0, 30)}" (${resolvedRoute.provider}) -> Fallback auf Original.`);
         unchangedCount++;
         return item.source;
       }
@@ -839,7 +918,7 @@ except Exception as e:
       return finalized.restored;
     });
     if (unchangedCount === texts.length && texts.some(text => shouldTranslate(text) && !isLikelyTargetLanguageText(text))) {
-      throw new Error(`Provider ${activeProvider} lieferte keine brauchbaren Uebersetzungen.`);
+      throw new Error(`Provider ${resolvedRoute.provider} lieferte keine brauchbaren Uebersetzungen.`);
     }
     return finalizedResults;
   }
@@ -848,7 +927,7 @@ except Exception as e:
     return dispatcher.runRoute('translate', async (route) => ({
       provider: route.provider,
       model: route.model,
-      translations: await translateBatch(items, route.provider, route.model)
+      translations: await translateBatch(items, route)
     }), items);
   }
 
@@ -1141,6 +1220,7 @@ except Exception as e:
       let currentBatch = [];
       let currentBatchChars = 0;
       const preferredRoute = dispatcher.buildStageRoutePlan('translate')[0] || dispatcher.resolveProviderModel('translate');
+      // Recalculate batch profile per iteration to adapt to fallback provider changes
       const batchProfile = getBatchProfile(preferredRoute.provider, preferredRoute.model, 'translate');
       const limit = Math.max(1, options.batchSize || batchProfile.maxItems);
       while (processedCount < missing.length && currentBatch.length < limit) {

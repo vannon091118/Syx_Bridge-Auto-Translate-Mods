@@ -385,15 +385,23 @@ function renderProviderStats() {
     const limitLabel = api.rateLimited ? '<span style="color:var(--danger)">[429 LIMIT]</span>' : '';
     const statusColor = api.rateLimited ? 'var(--danger)' : (api.total > 0 && api.valid === 0 ? 'var(--warning)' : 'var(--success)');
 
+    const providerLabels = {
+      openrouter: 'OpenRouter — Cloud-API mit vielen Modellen (Free/Paid). Grün = Key gültig.',
+      gemini: 'Google Gemini — Texterkennung & Übersetzung. Rate-Limit bei 429.',
+      groq: 'Groq Cloud — schnelle Inferenz mit Llama-Modellen. Kostenlos mit Account.',
+      ollama: 'Ollama — Lokale KI-Modelle. Kein Cloud-Key nötig.',
+      player2: 'Player2 — Lokaler KI-Client auf dem Desktop (optional).'
+    };
+
     html += `
-            <div style="margin-bottom:10px; padding:6px; background: rgba(255,255,255,0.02); border-radius:4px;">
+            <div style="margin-bottom:10px; padding:6px; background: rgba(255,255,255,0.02); border-radius:4px;" title="${providerLabels[provider] || `Provider: ${provider} — ${keyLabel}`}">
                 <div style="display:flex; justify-content:space-between; font-size:0.65rem; margin-bottom:4px;">
                     <span style="font-weight:bold;">${provider.toUpperCase()}</span>
                     <span>${limitLabel} <span style="color:${statusColor}">${keyLabel}</span></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:var(--muted);">
                     <span>Erfolgsrate: ${successRate}%</span>
-                    <span>OK: ${reqs.pass} | ERR: ${reqs.fail}</span>
+                    <span title="${api.rateLimited ? 'Aktuell ratelimited (429) — Bridge wechselt automatisch den Key' : 'Anfragen: OK = erfolgreich, ERR = fehlgeschlagen'}">OK: ${reqs.pass} | ERR: ${reqs.fail}</span>
                 </div>
                 <div class="progress-bar" style="height:2px; margin-top:4px;">
                     <div class="progress-fill" style="width:${successRate}%; background:${successRate > 80 ? 'var(--success)' : (successRate > 40 ? 'var(--warning)' : 'var(--danger)')}"></div>
@@ -711,7 +719,22 @@ async function _saveDbEntry(idx) {
   }
 }
 
-// Config Management
+async function _toggleLocalModels() {
+  currentConfig.LOCAL_MODELS_ENABLED = !currentConfig.LOCAL_MODELS_ENABLED;
+  updateLocalModelsUI();
+  await saveConfig(true);
+}
+
+function updateLocalModelsUI() {
+  const status = document.getElementById('local-models-status');
+  const toggle = document.getElementById('cfg-local-models');
+  const enabled = !!currentConfig.LOCAL_MODELS_ENABLED;
+  if (toggle) toggle.checked = enabled;
+  if (status) {
+    status.textContent = enabled ? '⚠️ Lokale LLMs freigegeben — Hardware kann heiss werden!' : '⛔ Lokale LLMs gesperrt (Hardware-Schutz)';
+    status.style.color = enabled ? 'var(--danger)' : 'var(--muted)';
+  }
+}
 async function onProviderChange() {
   updateBatchRecommendation();
   const provider = document.getElementById('cfg-provider').value;
@@ -740,6 +763,9 @@ async function saveConfig(silent = false) {
   currentConfig.PRIMARY_MODEL = document.getElementById('cfg-model').value;
   currentConfig.TARGET_LANG = document.getElementById('cfg-lang').value;
   currentConfig.BATCH_SIZE = parseInt(document.getElementById('cfg-batch-size').value, 10) || 24;
+  // Lokale Modelle Toggle explizit auslesen (Sicherheit: falls onchange nicht gefeuert hat)
+  const localToggle = document.getElementById('cfg-local-models');
+  if (localToggle) currentConfig.LOCAL_MODELS_ENABLED = localToggle.checked;
 
   try {
     await fetch('/api/config', {
@@ -781,6 +807,13 @@ async function loadInitialConfig() {
     }
     if (document.getElementById('cfg-lang')) document.getElementById('cfg-lang').value = currentConfig.TARGET_LANG || 'German';
     if (document.getElementById('cfg-batch-size')) document.getElementById('cfg-batch-size').value = currentConfig.BATCH_SIZE || 24;
+
+    // Lokale Modelle Opt-in Toggle
+    const localToggle = document.getElementById('cfg-local-models');
+    if (localToggle) {
+      localToggle.checked = !!currentConfig.LOCAL_MODELS_ENABLED;
+      updateLocalModelsUI();
+    }
 
     // Check if keys are missing
     const hasKeys = (currentConfig.GEMINI_KEYS?.length > 0) || 
@@ -852,7 +885,7 @@ async function loadBackups() {
         </div>
         <div>
           ${mod.backupExists ? 
-    `<button onclick="restoreBackup('${mod.id}')" style="background: rgba(100, 213, 196, 0.15); color: var(--success); border: 1px solid rgba(100, 213, 196, 0.3); font-size: 0.65rem; padding: 3px 8px; width: auto;">Restore</button>` : 
+    `<button onclick="restoreBackup('${mod.id}')" title="Originaldateien aus dem Sicherungs-Backup wiederherstellen — überschreibt aktuelle Übersetzungen" style="background: rgba(100, 213, 196, 0.15); color: var(--success); border: 1px solid rgba(100, 213, 196, 0.3); font-size: 0.65rem; padding: 3px 8px; width: auto;">Restore</button>` : 
     '<span style="font-size: 0.65rem; color: var(--muted); padding: 3px 8px; border: 1px solid transparent; display: inline-block;">Kein Backup</span>'
 }
         </div>
@@ -894,6 +927,7 @@ window.toggleBridge = _toggleBridge;
 window.saveDbEntry = _saveDbEntry;
 window.addKeyRow = _addKeyRow;
 window.saveKeysFromModal = _saveKeysFromModal;
+window.toggleLocalModels = _toggleLocalModels;
 
 // Initialize backups loading
 loadBackups();
