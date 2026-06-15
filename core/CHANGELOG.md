@@ -1,6 +1,37 @@
 # CHANGELOG
 
+## [0.15.4-patch] - 2026-06-15
+
+### Fixed
+- **[BUG-5] Native Mode: Backup, Polish, _Info.txt:** Backup wird jetzt bei **jedem** Native-Mode-Lauf frisch erstellt (nicht nur beim Erstlauf). `forcePolish: true` wird immer an `ensureTranslations` übergeben — Polish läuft auch ohne `GRAMMAR_CHECK=true`. `_Info.txt` im Workshop-Originalordner wird nicht mehr modifiziert. Betroffene Dateien: `runtime-ops.js`, `translation-runtime.js`.
+
+## [0.15.3-patch] - 2026-06-14
+
+### Fixed
+- **[WARN-2] Ollama/Player2 in Stage-Requests:** `executeStageRequest` unterstützt jetzt `player2` und `ollama` als `POLISHER_PROVIDER` oder `AUDITOR_PROVIDER`. API-Keys für `player2` werden nun korrekt übergeben, und automatische Key-Rotation sowie Rate-Limit Retries greifen wie bei anderen API-Providern.
+
+## [0.15.2-patch] - 2026-06-14
+
+### Fixed
+- **[BUG-1] PLAYER2_KEYS Datenverlust behoben:** `PLAYER2_KEYS` jetzt vollständig im CONFIG-Objekt definiert, in `persistConfig()` (index.js) in die `.env` geschrieben, und in `applyEnvToConfig()` beim Hot-Reload wieder eingelesen.
+- **[BUG-4] persistConfig-Divergenz behoben:** `config-runtime.js:persistConfig` schreibt jetzt ebenfalls `OLLAMA_KEY` und `PLAYER2_KEY` — CLI-Wizard und GUI-Update erzeugen ab sofort identische `.env`-Dateien.
+
+## [0.15.1-patch] - 2026-06-14
+
+### Fixed
+- **[M1] Shielding Konsolidierung:** Doppeltes Placeholder-Shielding in `translateBatch` entfernt. Round-1-Maps werden jetzt korrekt direkt in den Entries gespeichert (`entry.protectedText`, `entry.placeholders`), statt doppelt in `translateBatch` und `text-core` berechnet zu werden.
+- **[M2] Quote Preservation:** `parseBatchResponse` wurde angepasst, damit legitime Anführungszeichen in Dialog-Texten erhalten bleiben. Outer-Quote-Strip findet jetzt nur statt, wenn der Quelltext selbst keine Quotes hat.
+- **[M3] Text-Core Cleanup:** `applyTranslations` optimiert, `replacements`-Parameter konsistent genutzt. Redundante Quote-Strips entfernt.
+- **[M6] Architecture Cleanup:** Tote Imports (`validator`, `exporter`) aus `planner.js` entfernt.
+- **[Task-4] System-Prompt Konsistenz:** OpenRouter-Batch-Prompt auf `Keep placeholders unchanged. Output only JSON.` vereinheitlicht (war zuvor kürzer als Groq/Ollama/Player2).
+
+### Identified (Audit 2026-06-14, fix folgt in v0.15.2)
+- **[BUG-1] PLAYER2_KEYS Datenverlust:** Im GUI eingetragene Player2-Keys werden nicht in `.env` persistiert → gehen bei Neustart verloren.
+- **[BUG-4] persistConfig-Divergenz:** `index.js` und `config-runtime.js` haben separate `persistConfig`-Implementierungen, die auseinanderlaufen (`OLLAMA_KEY`, `GRAMMAR_CHECK` fehlen in CLI-Version).
+- **[WARN-2] Ollama/Player2 in Stage-Requests:** `executeStageRequest` unterstützt Ollama und Player2 nicht als `POLISHER_PROVIDER`/`AUDITOR_PROVIDER` → Absturz bei entsprechender Config.
+
 ## [0.15.0-alpha] - 2026-06-14
+
 
 ### Added
 - **GUI Layout Overhaul:** Reorganized the Dashboard for better space utilization and clarity.

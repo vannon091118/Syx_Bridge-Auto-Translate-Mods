@@ -132,13 +132,30 @@ function createTranslationRuntime(options) {
 
   function getBatchProfile(provider, model, mode = 'translate') {
     const name = String(model || '').toLowerCase();
-    const isFree = name.includes('free');
+    const isFree  = name.includes('free') || name.endsWith(':free') || name === 'openrouter/free';
+    const isLite  = name.includes('lite') || name.includes('flash') || name.includes('instant') || name.includes('8b') || name.includes('3b');
+    const isLarge = name.includes('70b') || name.includes('pro') || name.includes('sonnet') || name.includes('opus') || name.includes('405b');
 
-    if (provider === 'google_free') return { maxItems: 8, maxChars: 1200 };
-    if (provider === 'ollama') return { maxItems: mode === 'polish' ? 8 : 12, maxChars: 1800 };
-    if (provider === 'openrouter' && isFree) return { maxItems: mode === 'polish' ? 10 : 15, maxChars: 2200 };
-    if (provider === 'gemini') return { maxItems: mode === 'polish' ? 18 : 24, maxChars: 3200 };
-    if (provider === 'groq') return { maxItems: mode === 'polish' ? 16 : 22, maxChars: 2800 };
+    if (provider === 'google_free') return { maxItems: 8,  maxChars: 1200 };
+    if (provider === 'ollama')      return { maxItems: mode === 'polish' ? 8  : 12, maxChars: 1800 };
+    if (provider === 'argos')       return { maxItems: 10, maxChars: 1500 };
+
+    // OpenRouter: free tier is heavily rate-limited → conservative batches
+    if (provider === 'openrouter' && isFree)  return { maxItems: mode === 'polish' ? 6  : 10, maxChars: 1600 };
+    if (provider === 'openrouter' && isLarge) return { maxItems: mode === 'polish' ? 20 : 28, maxChars: 3600 };
+    if (provider === 'openrouter')            return { maxItems: mode === 'polish' ? 14 : 20, maxChars: 2800 };
+
+    // Groq: very fast but token-per-minute limited → scale by model size
+    if (provider === 'groq' && isLarge) return { maxItems: mode === 'polish' ? 20 : 28, maxChars: 3200 };
+    if (provider === 'groq' && isLite)  return { maxItems: mode === 'polish' ? 16 : 22, maxChars: 2800 };
+    if (provider === 'groq')            return { maxItems: mode === 'polish' ? 14 : 20, maxChars: 2600 };
+
+    // Gemini: large context window
+    if (provider === 'gemini' && isLite)  return { maxItems: mode === 'polish' ? 18 : 24, maxChars: 3200 };
+    if (provider === 'gemini' && isLarge) return { maxItems: mode === 'polish' ? 24 : 36, maxChars: 5000 };
+    if (provider === 'gemini')            return { maxItems: mode === 'polish' ? 20 : 28, maxChars: 3600 };
+
+    // Generic paid provider
     return { maxItems: mode === 'polish' ? 14 : 20, maxChars: 2600 };
   }
 
@@ -377,7 +394,7 @@ function createTranslationRuntime(options) {
     const payload = {
       model,
       messages: [
-        { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders. Output only JSON.` },
+        { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders unchanged. Output only JSON.` },
         { role: 'user', content: prompt }
       ]
     };
@@ -508,20 +525,31 @@ except Exception as e:
     }
   }
 
-  async function callPlayer2Batch(items, modelOverride = '') {
+  async function callPlayer2Batch(items, modelOverride = '', attemptCount = 0) {
+    const keys = config.PLAYER2_KEYS || [];
+    const key = getApiKey('player2');
+    const headers = key ? { Authorization: `Bearer ${key}` } : {};
     const model = getModelForProvider('player2', modelOverride) || config.PRIMARY_MODEL;
     const { prompt, shieldMaps } = await buildBatchPromptForCurrentConfig(items);
-    const response = await withRetry('Player2 Batch', () => axios.post(`${config.PLAYER2_URL}/chat/completions`, {
-      model,
-      messages: [
-        { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders unchanged. Output only JSON.` },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1
-    }, { timeout: 60000 }));
-    const raw = response.data.choices?.[0]?.message?.content ?? null;
-    if (!raw) throw new Error('Player2 returned no message content.');
-    return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+    try {
+      const response = await withRetry('Player2 Batch', () => axios.post(`${config.PLAYER2_URL}/chat/completions`, {
+        model,
+        messages: [
+          { role: 'system', content: `Translate to ${config.TARGET_LANG}. Keep placeholders unchanged. Output only JSON.` },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.1
+      }, { headers, timeout: 60000 }));
+      const raw = response.data.choices?.[0]?.message?.content ?? null;
+      if (!raw) throw new Error('Player2 returned no message content.');
+      return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
+    } catch (e) {
+      const status = e.response ? e.response.status : 0;
+      if ((status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey('player2')) {
+        return callPlayer2Batch(items, modelOverride, attemptCount + 1);
+      }
+      throw e;
+    }
   }
 
   async function executeStageRequest(stage, route, prompt, options = {}, attemptCount = 0) {
@@ -616,6 +644,21 @@ except Exception as e:
         }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('OpenRouter returned no stage response content.');
+        logPayload(provider, `RESPONSE [${stage}]`, raw);
+        return parseRaw(raw);
+      }
+      if (provider === 'player2') {
+        const headers = key ? { Authorization: `Bearer ${key}` } : {};
+        const response = await withRetry(`Player2 ${stage}`, () => axios.post(`${config.PLAYER2_URL}/chat/completions`, {
+          model: activeModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          temperature: mode === 'flags' ? 0 : 0.1
+        }, { headers, timeout: mode === 'flags' ? 60000 : 90000 }));
+        const raw = response.data.choices?.[0]?.message?.content ?? null;
+        if (!raw) throw new Error('Player2 returned no stage response content.');
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
       }
@@ -800,7 +843,9 @@ except Exception as e:
   }
 
   async function fixGrammarBatch(items, stage = 'audit', attemptCount = 0) {
-    if (!config.GRAMMAR_CHECK || items.length === 0) return items.map(item => typeof item === 'string' ? item : item.source);
+    // Grammar guard is handled by the caller (ensureTranslations polish block).
+    // fixGrammarBatch is only invoked when polish is active.
+    if (items.length === 0) return items.map(item => typeof item === 'string' ? item : item.source);
     if (attemptCount >= 2) return items.map(item => typeof item === 'string' ? item : item.source);
 
     const entries = await enrichWithContext(items);
@@ -1052,7 +1097,7 @@ except Exception as e:
       }
     }
 
-    if (config.GRAMMAR_CHECK && !isAborting()) {
+    if ((config.GRAMMAR_CHECK || options.forcePolish) && !isAborting()) {
       const polishQueue = [...translations.keys()].filter(k => {
         const cached = cachedData.get(k) || {};
         return (cached.flagged || (cached.polishLevel || 0) < 2) && k.length > 5 && /[a-zA-Z]/.test(k);

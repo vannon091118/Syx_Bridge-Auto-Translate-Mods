@@ -1,13 +1,16 @@
+// ─── Free-model detection ─────────────────────────────────────────────────────
 function isFreeModel(model) {
   const name = String(model || '').toLowerCase();
   return name === 'openrouter/free' || name.endsWith(':free') || name.includes('/free');
 }
 
+// ─── Cost class: lower = cheaper / preferred ─────────────────────────────────
+// 0 = fully local/offline  →  6 = paid cloud
 function estimateCostClass(provider, model) {
   if (provider === 'argos') return 0;
   if (provider === 'ollama' || provider === 'player2') return 1;
   if (provider === 'google_free') return 2;
-  if (isFreeModel(model)) return 3;
+  if (isFreeModel(model)) return 3;             // free tier OpenRouter / Groq free etc.
   if (provider === 'openrouter' || provider === 'groq') return 4;
   if (provider === 'gemini') return 5;
   return 6;
@@ -19,6 +22,19 @@ function isEnabledFlag(value, defaultValue = true) {
   const normalized = String(value).trim().toLowerCase();
   return ['1', 'true', 'yes', 'on'].includes(normalized);
 }
+
+// ─── Default model per provider: always prefer the cheapest/free option ───────
+// No hardcoded vendor-specific model names here; the config-runtime discovers
+// real models at startup and overwrites PRIMARY_MODEL / AUDITOR_MODEL / POLISHER_MODEL.
+const PROVIDER_DEFAULTS = {
+  gemini: 'auto',
+  groq: 'auto',
+  openrouter: 'openrouter/free',   // always start with the free route
+  ollama: 'auto',
+  player2: 'auto',
+  google_free: 'google-translate-free',
+  argos: 'argos-translate-local'
+};
 
 class Router {
   constructor(config = {}, helpers = {}) {
@@ -65,14 +81,10 @@ class Router {
     return this.hasAccess(id);
   }
 
+  // Returns the configured model for a provider, defaulting to the free-tier option.
+  // Callers that pass 'auto' expect runtime auto-discovery by config-runtime.
   getDefaultModelForProvider(provider) {
-    if (provider === 'gemini') return 'gemini-2.0-flash-lite';
-    if (provider === 'groq') return 'llama-3.1-8b-instant';
-    if (provider === 'openrouter') return 'openrouter/free';
-    if (provider === 'ollama') return this.config.OLLAMA_DEFAULT_MODEL || this.config.AUDITOR_MODEL || 'llama3';
-    if (provider === 'google_free') return 'google-translate-free';
-    if (provider === 'argos') return 'argos-translate-local';
-    return '';
+    return PROVIDER_DEFAULTS[provider] || 'auto';
   }
 
   handleFailure(id, error) {
@@ -126,61 +138,70 @@ class Router {
   buildRoutePlan(role = 'translate', options = {}) {
     const plan = [];
     const seen = new Set();
-    
-    // 1. Determine User Priority
+
+    // ── 1. Determine user-configured provider/model for this role ─────────────
     let userProvider, userModel;
     if (role === 'audit') {
       userProvider = this.config.AUDITOR_PROVIDER;
-      userModel = this.config.AUDITOR_MODEL;
+      userModel    = this.config.AUDITOR_MODEL;
     } else if (role === 'polish') {
       userProvider = this.config.POLISHER_PROVIDER;
-      userModel = this.config.POLISHER_MODEL;
+      userModel    = this.config.POLISHER_MODEL;
     } else {
       userProvider = options.preferredProvider || this.config.PRIMARY_PROVIDER;
-      userModel = options.preferredModel || this.config.PRIMARY_MODEL;
+      userModel    = options.preferredModel    || this.config.PRIMARY_MODEL;
     }
 
-    // 2. Define candidates with default models
+    // ── 2. Build ordered candidate list ──────────────────────────────────────
+    // For polish and audit the fallback chain deliberately includes the free
+    // OpenRouter tier so we always have a zero-cost fallback model available.
+    const freeFallbacks = [
+      { provider: 'openrouter', model: 'openrouter/free' },  // free tier fallback
+      { provider: 'groq',       model: 'auto' },             // Groq free tier
+      { provider: 'ollama',     model: 'auto' },
+      { provider: 'google_free', model: 'google-translate-free' }
+    ];
+
     const candidatesByRole = {
       translate: [
         { provider: userProvider, model: userModel },
-        { provider: 'gemini', model: 'auto' },
-        { provider: 'groq', model: 'auto' },
+        { provider: 'openrouter', model: 'openrouter/free' },
+        { provider: 'groq',       model: 'auto' },
+        { provider: 'gemini',     model: 'auto' },
         { provider: 'openrouter', model: 'auto' },
-        { provider: 'argos', model: 'argos-translate-local' },
-        { provider: 'ollama', model: 'auto' },
-        { provider: 'player2', model: 'auto' }
+        { provider: 'argos',      model: 'argos-translate-local' },
+        { provider: 'ollama',     model: 'auto' },
+        { provider: 'player2',    model: 'auto' },
+        { provider: 'google_free', model: 'google-translate-free' }
       ],
       audit: [
         { provider: userProvider, model: userModel },
-        { provider: 'gemini', model: 'auto' },
-        { provider: 'groq', model: 'auto' },
-        { provider: 'openrouter', model: 'auto' },
-        { provider: 'ollama', model: 'auto' }
+        ...freeFallbacks,
+        { provider: 'gemini',     model: 'auto' },
+        { provider: 'openrouter', model: 'auto' }
       ],
       polish: [
         { provider: userProvider, model: userModel },
-        { provider: 'gemini', model: 'auto' },
-        { provider: 'groq', model: 'auto' },
-        { provider: 'openrouter', model: 'auto' },
-        { provider: 'ollama', model: 'auto' }
+        ...freeFallbacks,
+        { provider: 'gemini',     model: 'auto' },
+        { provider: 'openrouter', model: 'auto' }
       ]
     };
 
-    // 3. Filter and Rank
+    // ── 3. Filter: skip providers we have no access to or that are disabled ───
     for (const cand of candidatesByRole[role] || []) {
       if (!cand || !cand.provider) continue;
-      
+
       const providerId = cand.provider;
-      const modelName = cand.model || 'auto';
+      const modelName  = cand.model || 'auto';
       const key = `${providerId}:${modelName}`;
       if (seen.has(key)) continue;
 
       const providerStatus = this.getProvider(providerId);
-      const isHealthy = this.isAvailable(providerId);
+      const isHealthy  = this.isAvailable(providerId);
       const inCooldown = providerStatus.cooldownUntil && providerStatus.cooldownUntil > Date.now();
 
-      // Skip only if hard-disabled (no API key / disabled by user)
+      // Hard-skip only if truly inaccessible (no key / user-disabled)
       if (!this.hasAccess(providerId) || providerStatus.enabled === false) continue;
 
       seen.add(key);
@@ -194,15 +215,11 @@ class Router {
       });
     }
 
-    // 4. Multi-tier Sorting: 
-    // - Healthy first
-    // - User Priority second
-    // - Cost Class third
-    // - Cooldown providers last
+    // ── 4. Sort: healthy → user-priority → cheapest first → cooldown last ────
     return plan.sort((a, b) => {
-      if (a.isHealthy !== b.isHealthy) return a.isHealthy ? -1 : 1;
+      if (a.isHealthy    !== b.isHealthy)    return a.isHealthy    ? -1 : 1;
       if (a.isUserPriority !== b.isUserPriority) return a.isUserPriority ? -1 : 1;
-      if (a.costClass !== b.costClass) return a.costClass - b.costClass;
+      if (a.costClass    !== b.costClass)    return a.costClass - b.costClass;
       return 0;
     });
   }

@@ -123,6 +123,23 @@ Syx_bridge-/
 
 ## 📋 Changelog — Was seit dem Relaunch passiert ist
 
+### Patch `v0.15.4-patch` (2026-06-15)
+- **[BUG-5] Native Mode Fix:** Backup jetzt bei jedem Lauf frisch, Polish läuft immer (auch ohne GRAMMAR_CHECK), _Info.txt bleibt im Workshop-Ordner unberührt. Reihenfolge garantiert: Backup → Translate → Polish → Overwrite.
+
+### Patch `v0.15.3-patch` (2026-06-14)
+- **[WARN-2] Ollama/Player2 in Stage-Requests:** `executeStageRequest` unterstützt jetzt Ollama/Player2 als Polisher/Auditor-Provider. API-Keys und automatische Key-Rotation für Player2 integriert.
+
+### Patch `v0.15.2-patch` (2026-06-14)
+- **[BUG-1] PLAYER2_KEYS Datenverlust behoben:** Player2-Schlüssel werden jetzt ordnungsgemäß persistiert und beim Hot-Reload neu eingelesen.
+- **[BUG-4] persistConfig-Divergenz behoben:** CLI-Wizard und GUI erzeugen nun identische `.env`-Dateien.
+
+### Patch `v0.15.1-patch` (2026-06-14)
+- **[M1] Shielding Konsolidierung:** Doppeltes Shielding in `translateBatch` beseitigt — Placeholder-Maps werden jetzt einmalig und korrekt pro Entry gesetzt
+- **[M2] Quote Preservation:** Dialog-Anführungszeichen bleiben erhalten; Outer-Quote-Strip nur noch wenn Quelltext selbst keine Quotes hat
+- **[M3] Text-Core Cleanup:** Redundante Replacement-Logik entfernt, `applyTranslations` bereinigt
+- **[M6] Architecture Cleanup:** Tote Imports (`validator`, `exporter`) aus `planner.js` entfernt
+- **System-Prompt Konsistenz:** Alle Provider (Gemini/Groq/OpenRouter/Ollama/Player2) nutzen jetzt denselben Batch-System-Prompt
+
 ### Alpha Release `v0.15.0-alpha` (2026-06-14)
 - **GUI Layout Overhaul:** Dashboard komplett umgebaut — Settings in ein Dropdown verlagert, DB-Browser nativ in den Idle-Screen integriert, Terminal-View für aktive Runs
 - **Live Progress Indicators:** Fortschrittsbalken mit Phase-Tracking, Thread-Zähler und aktuellem Mod-Namen

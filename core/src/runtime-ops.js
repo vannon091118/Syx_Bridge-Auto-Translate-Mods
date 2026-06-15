@@ -112,8 +112,6 @@ function createRuntimeOps(options) {
     // Syx-Mod Structure: VXX/assets/text/[LANG]/
     const syxPathPart = path.join(`V${majorVersion}`, 'assets', 'text', config.TARGET_LANG);
 
-    const notice = `\\n\\n--- ${config.TARGET_LANG.toUpperCase()} PATCH ---\\nDiese Mod wurde automatisch auf ${config.TARGET_LANG} uebersetzt. Nutze die Syx-Bridge GUI zum Anpassen.`;
-
     if (!config.NATIVE_MODE && !dryRun) {
       await fsp.mkdir(modOutputPath, { recursive: true });
       await fsp.mkdir(config.PATCH_ROOT, { recursive: true });
@@ -131,8 +129,11 @@ function createRuntimeOps(options) {
       await fsp.mkdir(config.BACKUP_ROOT, { recursive: true });
       const backupId = path.basename(modDir).replace(/[^a-z0-9_.-]/gi, '_');
       const backupPath = path.join(config.BACKUP_ROOT, `.backup_${backupId}_ORIGINAL`);
-      if (!fs.existsSync(backupPath) || !fs.existsSync(path.join(backupPath, '.backup_info.json'))) {
-        console.log('[INFO] Erstelle Sicherheits-Backup...');
+      // Native Mode: ALWAYS create a fresh backup before overwriting originals
+      // Patch Mode: only create once (backup exists → skip)
+      const shouldBackup = config.NATIVE_MODE || !fs.existsSync(backupPath) || !fs.existsSync(path.join(backupPath, '.backup_info.json'));
+      if (shouldBackup) {
+        console.log(`[INFO] Erstelle Sicherheits-Backup (${config.NATIVE_MODE ? 'Native Mode: immer' : 'Erstlauf'})...`);
         if (fs.existsSync(backupPath)) {
           await fsp.rm(backupPath, { recursive: true, force: true });
         }
@@ -147,20 +148,22 @@ function createRuntimeOps(options) {
       }
     }
 
-    const updatedInfo = { ...info };
+    // Native Mode: NEVER touch _Info.txt in the original Workshop folder
+    // Patch Mode: add patch suffix and notice to the mod copy
     if (!config.NATIVE_MODE) {
+      const notice = `\\n\\n--- ${config.TARGET_LANG.toUpperCase()} PATCH ---\\nDiese Mod wurde automatisch auf ${config.TARGET_LANG} uebersetzt. Nutze die Syx-Bridge GUI zum Anpassen.`;
       const patchSuffix = ` (${config.TARGET_LANG} Patch)`;
       const currentName = info.NAME || modName;
+      const updatedInfo = { ...info };
       updatedInfo.NAME = currentName.endsWith(patchSuffix) ? currentName : `${currentName}${patchSuffix}`;
-    }
-    updatedInfo.DESC = appendPatchNotice(info.DESC || '', notice);
-    updatedInfo.AUTHOR = info.AUTHOR || 'syx-bridge';
-    if (!updatedInfo.VERSION) updatedInfo.VERSION = '1.0.0';
-    if (!updatedInfo.GAME_VERSION_MAJOR) updatedInfo.GAME_VERSION_MAJOR = 70;
-    if (updatedInfo.GAME_VERSION_MINOR === undefined) updatedInfo.GAME_VERSION_MINOR = 0;
-
-    if (!dryRun) {
-      await fsp.writeFile(path.join(modOutputPath, '_Info.txt'), formatModInfo(updatedInfo), 'utf-8');
+      updatedInfo.DESC = appendPatchNotice(info.DESC || '', notice);
+      updatedInfo.AUTHOR = info.AUTHOR || 'syx-bridge';
+      if (!updatedInfo.VERSION) updatedInfo.VERSION = '1.0.0';
+      if (!updatedInfo.GAME_VERSION_MAJOR) updatedInfo.GAME_VERSION_MAJOR = 70;
+      if (updatedInfo.GAME_VERSION_MINOR === undefined) updatedInfo.GAME_VERSION_MINOR = 0;
+      if (!dryRun) {
+        await fsp.writeFile(path.join(modOutputPath, '_Info.txt'), formatModInfo(updatedInfo), 'utf-8');
+      }
     }
 
     const files = (await collectTextFiles(modDir, modDir)).filter(f => f.relativePath !== '_Info.txt');
@@ -178,7 +181,9 @@ function createRuntimeOps(options) {
       options.onProgress({ totalFiles: allTexts.length, filesScanned: 0 });
     }
     
-    const translations = await ensureTranslations(allTexts, options);
+    // Native Mode: always attempt grammar polish for maximum quality
+    const nativeOptions = config.NATIVE_MODE ? { ...options, forcePolish: true } : options;
+    const translations = await ensureTranslations(allTexts, nativeOptions);
     const translationStats = translations.__stats || {};
         
     if (!dryRun) {

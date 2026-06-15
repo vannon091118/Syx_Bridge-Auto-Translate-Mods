@@ -51,8 +51,6 @@ const { isArgosInstalled, ensureArgos } = require('./scripts/check_argos');
 const { checkOllama, startOllama } = require('./scripts/start_ollama');
 
 // Constants & Defaults
-const OPENROUTER_DEFAULT_MODEL = 'openrouter/free';
-const GEMINI_DEFAULT_MODEL = 'gemini-2.0-flash-lite';
 const DEFAULT_BATCH_SIZE = 24;
 const BATCH_SIZE = Math.max(1, Number(process.env.BATCH_SIZE || DEFAULT_BATCH_SIZE));
 const MAX_PARALLEL_FILES = Number(process.env.MAX_PARALLEL_FILES || 8);
@@ -93,12 +91,12 @@ let CONFIG = {
   GRAMMAR_PROMPT_FILE: 'grammar_context.txt',
     
   PRIMARY_PROVIDER: envFirst('PRIMARY_PROVIDER') || 'openrouter',
-  PRIMARY_MODEL: envFirst('PRIMARY_MODEL') || OPENROUTER_DEFAULT_MODEL,
-  POLISHER_PROVIDER: envFirst('POLISHER_PROVIDER') || (envFirst('GEMINI_KEY', 'GEMINI_KEYS') ? 'gemini' : 'openrouter'),
-  POLISHER_MODEL: envFirst('POLISHER_MODEL') || (envFirst('GEMINI_KEY', 'GEMINI_KEYS') ? 'gemini-2.0-pro' : OPENROUTER_DEFAULT_MODEL),
+  PRIMARY_MODEL: envFirst('PRIMARY_MODEL') || 'auto',
+  POLISHER_PROVIDER: envFirst('POLISHER_PROVIDER') || 'openrouter',
+  POLISHER_MODEL: envFirst('POLISHER_MODEL') || 'auto',
   REPOLISH_BUDGET: Number(process.env.REPOLISH_BUDGET || 50),
-  AUDITOR_PROVIDER: envFirst('AUDITOR_PROVIDER') || (envFirst('GEMINI_KEY', 'GEMINI_KEYS') ? 'gemini' : 'ollama'),
-  AUDITOR_MODEL: envFirst('AUDITOR_MODEL') || (envFirst('GEMINI_KEY', 'GEMINI_KEYS') ? GEMINI_DEFAULT_MODEL : ''),
+  AUDITOR_PROVIDER: envFirst('AUDITOR_PROVIDER') || 'openrouter',
+  AUDITOR_MODEL: envFirst('AUDITOR_MODEL') || 'auto',
     
   BATCH_SIZE: BATCH_SIZE,
 
@@ -110,6 +108,7 @@ let CONFIG = {
   OLLAMA_URL: process.env.OLLAMA_URL || 'http://localhost:11434',
   PLAYER2_ENABLED: parseEnvFlag(process.env.PLAYER2_ENABLED, false),
   PLAYER2_URL: process.env.PLAYER2_URL || 'http://localhost:4315/v1',
+  PLAYER2_KEYS: parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS')),
     
   KEY_INDICES: { gemini: 0, groq: 0, openrouter: 0, ollama: 0 }
 };
@@ -202,6 +201,7 @@ function applyEnvToConfig() {
   CONFIG.OLLAMA_URL = envFirst('OLLAMA_URL') || CONFIG.OLLAMA_URL;
   CONFIG.PLAYER2_ENABLED = parseEnvFlag(process.env.PLAYER2_ENABLED, CONFIG.PLAYER2_ENABLED);
   CONFIG.PLAYER2_URL = envFirst('PLAYER2_URL') || CONFIG.PLAYER2_URL;
+  CONFIG.PLAYER2_KEYS = parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS'));
 }
 
 async function persistConfig(config) {
@@ -219,6 +219,7 @@ async function persistConfig(config) {
     ['OPENROUTER_KEY', (config.OPENROUTER_KEYS || []).join(',')],
     ['OLLAMA_KEY', (config.OLLAMA_KEYS || []).join(',')],
     ['OLLAMA_URL', config.OLLAMA_URL],
+    ['PLAYER2_KEY', (config.PLAYER2_KEYS || []).join(',')],
     ['PLAYER2_ENABLED', String(!!config.PLAYER2_ENABLED)],
     ['PLAYER2_URL', config.PLAYER2_URL],
     ['BATCH_SIZE', config.BATCH_SIZE],
@@ -233,7 +234,7 @@ async function persistConfig(config) {
 }
 
 function getGeminiModelName(name) {
-  if (!name) return GEMINI_DEFAULT_MODEL;
+  if (!name) return 'auto';
   if (name.startsWith('models/')) return name.replace('models/', '');
   return name;
 }
@@ -631,7 +632,7 @@ async function main() {
     dbAll, 
     dbRun,
     isAborting: () => isAborting,
-    langCodes: LANG_CODES, defaults: { GEMINI_DEFAULT_MODEL }, batchSize: BATCH_SIZE,
+    langCodes: LANG_CODES, defaults: {}, batchSize: BATCH_SIZE,
     isArgosInstalled: () => isArgosInstalled()
   });
 

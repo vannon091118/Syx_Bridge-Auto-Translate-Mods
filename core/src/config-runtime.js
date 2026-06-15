@@ -3,14 +3,14 @@ const path = require('path');
 const axios = require('axios');
 const inquirer = require('inquirer');
 
-const GROQ_DEFAULT_MODEL = 'llama-3.1-8b-instant';
-const GROQ_POLISHER_MODEL = 'llama-3.3-70b-versatile';
-const GEMINI_DEFAULT_MODEL = 'gemini-2.0-flash-lite';
-const GEMINI_POLISHER_MODEL = 'gemini-2.0-pro';
-const OPENROUTER_DEFAULT_MODEL = 'openrouter/free';
-const OLLAMA_DEFAULT_MODEL = 'llama3';
-const OLLAMA_DEFAULT_URL = 'http://localhost:11434';
-const PLAYER2_DEFAULT_URL = 'http://localhost:4315/v1';
+// NOTE: No hardcoded vendor model names here.
+// The router always prefers 'auto' (runtime discovery) or the user-specified model.
+// For OpenRouter we default to the free tier so there is always a zero-cost fallback.
+const OPENROUTER_FREE_MODEL = 'openrouter/free';
+const GROQ_FALLBACK_MODELS   = ['llama-3.1-8b-instant', 'llama3-8b-8192', 'gemma-7b-it'];
+const OLLAMA_FALLBACK_MODELS = ['llama3', 'llama2', 'mistral', 'gemma'];
+const OLLAMA_DEFAULT_URL     = 'http://localhost:11434';
+const PLAYER2_DEFAULT_URL    = 'http://localhost:4315/v1';
 
 const MODEL_BLACKLIST = ['whisper', 'stt', 'tts', 'embedding', 'bert', 'vision', 'guard', 'moderation', 'rerank'];
 const MODEL_WHITELIST = ['llama', 'gemini', 'gpt', 'mixtral', 'gemma', 'claude', 'qwen', 'mistral', 'deepseek', 'yi'];
@@ -39,14 +39,14 @@ function parseKeys(val) {
 
 function isUsableTextModel(model) {
   const name = String(model || '').toLowerCase();
-  if (!name) return false;
+  if (!name || name === 'auto') return false;
   return !MODEL_BLACKLIST.some(term => name.includes(term));
 }
 
 function rankModel(model) {
   const name = String(model || '').toLowerCase();
   let score = 0;
-  if (name === OPENROUTER_DEFAULT_MODEL) score += 100;
+  if (name === OPENROUTER_FREE_MODEL) score += 100;
   if (name.endsWith(':free')) score += 50;
   if (name.includes('flash') || name.includes('instant') || name.includes('lite')) score += 20;
   if (name.includes('70b') || name.includes('pro') || name.includes('sonnet')) score += 10;
@@ -55,18 +55,18 @@ function rankModel(model) {
 }
 
 function filterLLMs(models, freeOnly = false) {
-  return [...new Set([...(freeOnly ? [OPENROUTER_DEFAULT_MODEL] : []), ...(models || [])])]
+  return [...new Set([...(freeOnly ? [OPENROUTER_FREE_MODEL] : []), ...(models || [])])]
     .filter(isUsableTextModel)
-    .filter(model => !freeOnly || String(model).endsWith(':free') || model === OPENROUTER_DEFAULT_MODEL)
+    .filter(model => !freeOnly || String(model).endsWith(':free') || model === OPENROUTER_FREE_MODEL)
     .sort((a, b) => rankModel(b) - rankModel(a) || String(a).localeCompare(String(b)));
 }
 
 function getDefaultModelForProvider(provider) {
-  if (provider === 'gemini') return GEMINI_DEFAULT_MODEL;
-  if (provider === 'groq') return GROQ_DEFAULT_MODEL;
-  if (provider === 'openrouter') return OPENROUTER_DEFAULT_MODEL;
-  if (provider === 'ollama') return OLLAMA_DEFAULT_MODEL;
-  return '';
+  // Return 'auto' for cloud providers so runtime discovery picks the best model.
+  // For OpenRouter we always start with the free tier.
+  if (provider === 'openrouter') return OPENROUTER_FREE_MODEL;
+  if (provider === 'ollama')     return OLLAMA_FALLBACK_MODELS[0];
+  return 'auto'; // gemini, groq, player2 → runtime discovery
 }
 
 function maskSecret(value) {
@@ -79,13 +79,8 @@ class ConfigRuntime {
   constructor(config) {
     this.config = config;
     this.providerHealth = {};
-    this.providerStats = {
-      gemini: { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null },
-      groq: { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null },
-      openrouter: { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null },
-      ollama: { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null },
-      player2: { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null }
-    };
+    // Dynamically populated from key config; no provider hard-wired here.
+    this.providerStats = {};
   }
 
   setRouter(router) {
@@ -96,21 +91,27 @@ class ConfigRuntime {
     const keys = this.config[`${provider.toUpperCase()}_KEYS`];
     if (!keys || keys.length === 0) return null;
     const index = this.config.KEY_INDICES[provider] || 0;
-    return keys[index % keys.length];
+    const rawKey = keys[index % keys.length];
+    return rawKey.includes('::') ? rawKey.split('::').pop().trim() : rawKey;
   }
 
   getProviderStatus() {
-    // Refresh stats based on current config keys
     const routerStats = this.router ? this.router.getAllProviderStatuses() : {};
-    
-    for (const provider of ['gemini', 'groq', 'openrouter', 'ollama', 'player2']) {
+    const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'player2'];
+
+    // Also include any providers that have keys configured
+    const configProviders = Object.keys(this.config)
+      .filter(k => k.endsWith('_KEYS') && Array.isArray(this.config[k]) && this.config[k].length > 0)
+      .map(k => k.replace('_KEYS', '').toLowerCase());
+
+    const allProviders = [...new Set([...knownProviders, ...configProviders])];
+
+    for (const provider of allProviders) {
       if (!this.providerStats[provider]) {
         this.providerStats[provider] = { valid: 0, invalid: 0, total: 0, rateLimited: false, last429: null };
       }
-      
       const keys = this.config[`${provider.toUpperCase()}_KEYS`] || [];
       this.providerStats[provider].total = keys.length;
-      
       if (routerStats[provider]) {
         this.providerStats[provider].rateLimited = routerStats[provider].inCooldown;
         if (routerStats[provider].inCooldown) {
@@ -185,7 +186,7 @@ class ConfigRuntime {
   async fetchGeminiModels() {
     try {
       const key = this.getApiKey('gemini');
-      if (!key) return [GEMINI_DEFAULT_MODEL];
+      if (!key) return [];
       const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
       const response = await axios.get(url, { timeout: 10000 });
       return (response.data.models || [])
@@ -193,18 +194,23 @@ class ConfigRuntime {
         .map(m => m.name.replace('models/', ''))
         .sort();
     } catch (e) {
-      return [GEMINI_DEFAULT_MODEL, GEMINI_POLISHER_MODEL];
+      return []; // Let router fall through to next provider
     }
   }
 
   async fetchGroqModels() {
     const key = this.getApiKey('groq');
-    if (!key) return [GROQ_DEFAULT_MODEL, GROQ_POLISHER_MODEL];
-    const response = await axios.get('https://api.groq.com/openai/v1/models', {
-      headers: { Authorization: `Bearer ${key}` },
-      timeout: 20000
-    });
-    return (response.data.data || []).map(model => model.id).sort();
+    if (!key) return GROQ_FALLBACK_MODELS;
+    try {
+      const response = await axios.get('https://api.groq.com/openai/v1/models', {
+        headers: { Authorization: `Bearer ${key}` },
+        timeout: 20000
+      });
+      const models = (response.data.data || []).map(model => model.id).sort();
+      return models.length > 0 ? models : GROQ_FALLBACK_MODELS;
+    } catch (e) {
+      return GROQ_FALLBACK_MODELS;
+    }
   }
 
   async fetchOllamaModels() {
@@ -232,33 +238,32 @@ class ConfigRuntime {
       const response = await axios.get('https://openrouter.ai/api/v1/models', { headers, timeout: 15000 });
       const models = (response.data.data || []).map(model => model.id).filter(Boolean);
       const filtered = filterLLMs(models, freeOnly);
-      return filtered.length > 0 ? filtered : [OPENROUTER_DEFAULT_MODEL];
+      return filtered.length > 0 ? filtered : [OPENROUTER_FREE_MODEL];
     } catch (e) {
-      return [OPENROUTER_DEFAULT_MODEL];
+      return [OPENROUTER_FREE_MODEL];
     }
   }
 
   async checkCloudKey(provider, key, index) {
     const startedAt = Date.now();
-    const getGeminiModelName = (name) => {
-      if (!name) return GEMINI_DEFAULT_MODEL;
-      if (name.startsWith('models/')) return name.replace('models/', '');
-      return name;
-    };
     try {
       let response;
       if (provider === 'gemini') {
-        const model = getGeminiModelName(this.config.POLISHER_PROVIDER === 'gemini' ? this.config.POLISHER_MODEL : (this.config.PRIMARY_PROVIDER === 'gemini' ? this.config.PRIMARY_MODEL : GEMINI_DEFAULT_MODEL));
-        response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+        // Use the lightest available model for key tests; list first from API
+        const models = await this.fetchGeminiModels();
+        const testModel = models.find(m => m.includes('flash') || m.includes('lite')) || models[0] || 'gemini-1.5-flash-latest';
+        const cleanModel = testModel.startsWith('models/') ? testModel.replace('models/', '') : testModel;
+        response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`, {
           contents: [{ parts: [{ text: 'Return OK.' }] }]
         }, { timeout: 10000 });
         const text = response.data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `generateContent ok (${model})`, ms: `${Date.now() - startedAt}ms` };
+        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `generateContent ok (${cleanModel})`, ms: `${Date.now() - startedAt}ms` };
       }
       if (provider === 'groq') {
-        const model = this.config.PRIMARY_PROVIDER === 'groq' ? this.config.PRIMARY_MODEL : (this.config.AUDITOR_PROVIDER === 'groq' ? this.config.AUDITOR_MODEL : GROQ_DEFAULT_MODEL);
+        const models = await this.fetchGroqModels();
+        const testModel = models.find(m => m.includes('8b') || m.includes('instant')) || models[0] || GROQ_FALLBACK_MODELS[0];
         response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-          model,
+          model: testModel,
           messages: [{ role: 'user', content: 'Return OK.' }],
           max_tokens: 8,
           temperature: 0
@@ -267,12 +272,12 @@ class ConfigRuntime {
           timeout: 10000
         });
         const text = response.data.choices?.[0]?.message?.content || '';
-        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${model})`, ms: `${Date.now() - startedAt}ms` };
+        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${testModel})`, ms: `${Date.now() - startedAt}ms` };
       }
       if (provider === 'openrouter') {
-        const model = this.config.PRIMARY_PROVIDER === 'openrouter' ? this.config.PRIMARY_MODEL : (this.config.POLISHER_PROVIDER === 'openrouter' ? this.config.POLISHER_MODEL : OPENROUTER_DEFAULT_MODEL);
+        // Test with the free model – no cost
         response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-          model,
+          model: OPENROUTER_FREE_MODEL,
           messages: [{ role: 'user', content: 'Return OK.' }],
           max_tokens: 8,
           temperature: 0
@@ -285,7 +290,7 @@ class ConfigRuntime {
           timeout: 12000
         });
         const text = response.data.choices?.[0]?.message?.content || '';
-        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${model})`, ms: `${Date.now() - startedAt}ms` };
+        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${OPENROUTER_FREE_MODEL})`, ms: `${Date.now() - startedAt}ms` };
       }
       return { provider, index, key: maskSecret(key), ok: false, detail: 'Unbekannter Provider', ms: `${Date.now() - startedAt}ms` };
     } catch (e) {
@@ -348,10 +353,15 @@ class ConfigRuntime {
         this.markProviderDegraded('groq', 'Keine Modelle verfuegbar');
         return;
       }
-      if (this.config.PRIMARY_PROVIDER === 'groq' && !models.includes(this.config.PRIMARY_MODEL)) {
-        const replacement = [GROQ_DEFAULT_MODEL, GROQ_POLISHER_MODEL, 'llama-3.1-8b-instant'].find(model => models.includes(model)) || models[0];
-        console.log(`[INFO] Groq Modell ${this.config.PRIMARY_MODEL} nicht gefunden. Nutze: ${replacement}`);
+      const needsReplacement = (m) => !m || m === 'auto' || !models.includes(m);
+      if (this.config.PRIMARY_PROVIDER === 'groq' && needsReplacement(this.config.PRIMARY_MODEL)) {
+        const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
+        console.log(`[INFO] Groq Modell auto-select: ${replacement}`);
         this.config.PRIMARY_MODEL = replacement;
+      }
+      if (this.config.AUDITOR_PROVIDER === 'groq' && needsReplacement(this.config.AUDITOR_MODEL)) {
+        const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
+        this.config.AUDITOR_MODEL = replacement;
       }
     } catch (e) {
       this.markProviderDegraded('groq', e.message);
@@ -367,9 +377,9 @@ class ConfigRuntime {
         }
         return;
       }
-            
+
       const findBestModel = (preferred, fallbacks) => {
-        if (models.includes(preferred)) return preferred;
+        if (preferred && preferred !== 'auto' && models.includes(preferred)) return preferred;
         for (const f of fallbacks) {
           if (models.includes(f)) return f;
           const fuzzy = models.find(m => m.includes(f));
@@ -378,20 +388,23 @@ class ConfigRuntime {
         return models[0];
       };
 
-      const discoveredDefault = findBestModel(this.config.OLLAMA_DEFAULT_MODEL || this.config.PRIMARY_MODEL, [OLLAMA_DEFAULT_MODEL, 'llama3', 'llama2', 'mistral', 'gemma']);
+      const discoveredDefault = findBestModel(
+        this.config.OLLAMA_DEFAULT_MODEL || this.config.PRIMARY_MODEL,
+        OLLAMA_FALLBACK_MODELS
+      );
       this.config.OLLAMA_DEFAULT_MODEL = discoveredDefault;
 
       if (this.config.PRIMARY_PROVIDER === 'ollama') {
-        const replacement = findBestModel(this.config.PRIMARY_MODEL, [discoveredDefault, OLLAMA_DEFAULT_MODEL, 'llama3', 'llama2', 'mistral', 'gemma']);
+        const replacement = findBestModel(this.config.PRIMARY_MODEL, [discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
         if (replacement !== this.config.PRIMARY_MODEL) {
-          console.log(`[INFO] Ollama Modell ${this.config.PRIMARY_MODEL} nicht gefunden. Nutze: ${replacement}`);
+          console.log(`[INFO] Ollama Modell auto-select: ${replacement}`);
           this.config.PRIMARY_MODEL = replacement;
         }
       }
-            
+
       if (this.config.AUDITOR_PROVIDER === 'ollama') {
-        const auditorPref = this.config.AUDITOR_MODEL || 'tiny';
-        const replacement = findBestModel(auditorPref, ['1b', 'tiny', 'phi', 'phi3:mini', 'gemma:2b', discoveredDefault, 'llama3']);
+        const auditorPref = this.config.AUDITOR_MODEL || 'auto';
+        const replacement = findBestModel(auditorPref, ['1b', 'tiny', 'phi', 'phi3:mini', 'gemma:2b', discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
         if (replacement !== this.config.AUDITOR_MODEL) {
           this.config.AUDITOR_MODEL = replacement;
         }
@@ -404,36 +417,40 @@ class ConfigRuntime {
   }
 
   async ensurePrimaryModel() {
-    if (isUsableTextModel(this.config.PRIMARY_MODEL)) return;
+    const model = this.config.PRIMARY_MODEL;
+    // 'auto' and empty string trigger discovery; valid model names skip this step
+    if (model && model !== 'auto' && isUsableTextModel(model)) return;
 
-    console.warn(`[WARN] Modell "${this.config.PRIMARY_MODEL}" ist kein geeignetes Textmodell. Suche Ersatz fuer ${this.config.PRIMARY_PROVIDER}...`);
+    console.warn(`[WARN] Modell "${model}" erfordert auto-discovery fuer ${this.config.PRIMARY_PROVIDER}...`);
     let models = [];
     try {
-      if (this.config.PRIMARY_PROVIDER === 'gemini') models = await this.fetchGeminiModels();
-      else if (this.config.PRIMARY_PROVIDER === 'groq') models = await this.fetchGroqModels();
+      if (this.config.PRIMARY_PROVIDER === 'gemini')     models = await this.fetchGeminiModels();
+      else if (this.config.PRIMARY_PROVIDER === 'groq')  models = await this.fetchGroqModels();
       else if (this.config.PRIMARY_PROVIDER === 'openrouter') models = await this.fetchOpenRouterModels(true);
       else if (this.config.PRIMARY_PROVIDER === 'ollama') models = await this.fetchOllamaModels();
       else if (this.config.PRIMARY_PROVIDER === 'player2') models = await this.fetchPlayer2Models();
     } catch (e) {}
 
-    const replacement = filterLLMs(models, this.config.PRIMARY_PROVIDER === 'openrouter')[0] || getDefaultModelForProvider(this.config.PRIMARY_PROVIDER);
-    if (replacement) {
+    const freeOnly = this.config.PRIMARY_PROVIDER === 'openrouter';
+    const replacement = filterLLMs(models, freeOnly)[0] || getDefaultModelForProvider(this.config.PRIMARY_PROVIDER);
+    if (replacement && replacement !== 'auto') {
       this.config.PRIMARY_MODEL = replacement;
       console.log(`[INFO] Nutze Ersatzmodell: ${this.config.PRIMARY_MODEL}`);
       return;
     }
 
+    // Last-resort: try providers in cost order, prefer free tier
     const routedFallbacks = [
-      { provider: 'gemini', model: GEMINI_DEFAULT_MODEL, enabled: !!this.getApiKey('gemini') && this.isProviderHealthy('gemini') },
-      { provider: 'groq', model: GROQ_DEFAULT_MODEL, enabled: !!this.getApiKey('groq') && this.isProviderHealthy('groq') },
-      { provider: 'openrouter', model: OPENROUTER_DEFAULT_MODEL, enabled: !!this.getApiKey('openrouter') && this.isProviderHealthy('openrouter') },
-      { provider: 'ollama', model: OLLAMA_DEFAULT_MODEL, enabled: this.isProviderHealthy('ollama') }
+      { provider: 'openrouter', model: OPENROUTER_FREE_MODEL, enabled: !!this.getApiKey('openrouter') && this.isProviderHealthy('openrouter') },
+      { provider: 'groq',       model: 'auto',                enabled: !!this.getApiKey('groq') && this.isProviderHealthy('groq') },
+      { provider: 'gemini',     model: 'auto',                enabled: !!this.getApiKey('gemini') && this.isProviderHealthy('gemini') },
+      { provider: 'ollama',     model: OLLAMA_FALLBACK_MODELS[0], enabled: this.isProviderHealthy('ollama') }
     ];
     const routed = routedFallbacks.find(item => item.enabled);
     if (routed) {
       this.config.PRIMARY_PROVIDER = routed.provider;
-      this.config.PRIMARY_MODEL = routed.model;
-      console.log(`[INFO] Route auf ${this.config.PRIMARY_PROVIDER} (${this.config.PRIMARY_MODEL}) um.`);
+      this.config.PRIMARY_MODEL    = routed.model;
+      console.log(`[INFO] Fallback-Route auf ${this.config.PRIMARY_PROVIDER} (${this.config.PRIMARY_MODEL}).`);
     }
   }
 
@@ -585,7 +602,9 @@ class ConfigRuntime {
       ['GEMINI_KEY', (this.config.GEMINI_KEYS || []).join(',')],
       ['GROQ_KEY', (this.config.GROQ_KEYS || []).join(',')],
       ['OPENROUTER_KEY', (this.config.OPENROUTER_KEYS || []).join(',')],
+      ['OLLAMA_KEY', (this.config.OLLAMA_KEYS || []).join(',')],
       ['OLLAMA_URL', firstDefined(this.config.OLLAMA_URL, OLLAMA_DEFAULT_URL)],
+      ['PLAYER2_KEY', (this.config.PLAYER2_KEYS || []).join(',')],
       ['PLAYER2_ENABLED', String(!!this.config.PLAYER2_ENABLED)],
       ['PLAYER2_URL', firstDefined(this.config.PLAYER2_URL, PLAYER2_DEFAULT_URL)]
     ];

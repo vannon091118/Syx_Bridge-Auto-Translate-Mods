@@ -317,17 +317,28 @@ async function fetchProviderStatus() {
 
 function updateBatchRecommendation() {
   const provider = document.getElementById('cfg-provider').value;
+  const modelEl = document.getElementById('cfg-model');
+  const modelVal = modelEl ? modelEl.value.toLowerCase() : '';
   const recEl = document.getElementById('batch-rec');
   if (!recEl) return;
-    
-  const recs = {
-    gemini: 30,
-    groq: 20,
-    openrouter: 24,
-    ollama: 12,
-    player2: 12
-  };
-  recEl.textContent = recs[provider] || 24;
+
+  // Mirror logic from getBatchProfile in translation-runtime.js
+  const isFree  = modelVal.includes('free') || modelVal.endsWith(':free') || modelVal === 'openrouter/free';
+  const isLarge = modelVal.includes('70b') || modelVal.includes('pro') || modelVal.includes('sonnet') || modelVal.includes('405b');
+
+  let rec;
+  if (provider === 'google_free') rec = 8;
+  else if (provider === 'ollama' || provider === 'player2') rec = 12;
+  else if (provider === 'openrouter' && isFree) rec = 10;
+  else if (provider === 'openrouter' && isLarge) rec = 28;
+  else if (provider === 'openrouter') rec = 20;
+  else if (provider === 'groq' && isLarge) rec = 28;
+  else if (provider === 'groq') rec = 22;
+  else if (provider === 'gemini' && isLarge) rec = 36;
+  else if (provider === 'gemini') rec = 24;
+  else rec = 20;
+
+  recEl.textContent = rec;
 }
 
 async function triggerAction(action) {
@@ -442,29 +453,85 @@ function renderKeySections() {
   if (!container) return;
     
   const providers = [
-    { id: 'gemini', label: 'Google Gemini', keys: currentConfig.GEMINI_KEYS },
-    { id: 'groq', label: 'Groq Cloud', keys: currentConfig.GROQ_KEYS },
-    { id: 'openrouter', label: 'OpenRouter', keys: currentConfig.OPENROUTER_KEYS },
-    { id: 'ollama', label: 'Ollama (Optional Key)', keys: currentConfig.OLLAMA_KEYS }
+    { id: 'openrouter', label: 'OpenRouter', hint: 'Gratis-Tier: openrouter/free (kein Key nötig!)', keys: currentConfig.OPENROUTER_KEYS || [] },
+    { id: 'groq',       label: 'Groq Cloud',  hint: 'Kostenlos mit Account',    keys: currentConfig.GROQ_KEYS || [] },
+    { id: 'gemini',     label: 'Google Gemini', hint: 'Gemini API Key',          keys: currentConfig.GEMINI_KEYS || [] },
+    { id: 'ollama',     label: 'Ollama (optional Key)', hint: 'Nur wenn Ollama Auth aktiviert', keys: currentConfig.OLLAMA_KEYS || [] },
+    { id: 'player2',    label: 'Player2 (optional Key)', hint: 'Lokaler KI-Client', keys: currentConfig.PLAYER2_KEYS || [] }
   ];
     
-  container.innerHTML = providers.map(p => `
-        <div style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-            <label class="stat-label">${p.label}</label>
-            <input type="text" id="modal-key-${p.id}" value="${(p.keys || []).join(',')}" placeholder="Key1, Key2...">
+  container.innerHTML = providers.map(p => {
+    const rowsHtml = p.keys.map((k, idx) => {
+      let name = `Key ${idx + 1}`;
+      let val = k;
+      if (k.includes('::')) {
+        const parts = k.split('::');
+        name = parts[0];
+        val = parts.slice(1).join('::');
+      }
+      return `
+        <div class="key-row" style="display:flex; gap:10px; margin-bottom:5px; align-items:center;">
+          <input type="text" class="key-name" value="${name}" placeholder="Bezeichnung" style="flex:1; min-width:80px; max-width:120px; margin:0;">
+          <input type="text" class="key-val" value="${val}" placeholder="API Key" style="flex:4; margin:0; font-family: monospace; font-size:0.8rem;">
+          <button onclick="this.parentElement.remove()" style="padding: 5px 10px; background: #c0392b; flex:none; width:auto; margin:0;">✕</button>
+        </div>`;
+    }).join('');
+
+    return `
+      <div style="margin-bottom: 20px; border: 1px solid var(--border); border-radius: 6px; padding: 12px;" id="provider-group-${p.id}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div>
+            <label class="stat-label" style="margin:0; font-size:0.8rem; color:var(--text); font-weight:bold;">${p.label}</label>
+            <div style="font-size:0.65rem; color:var(--muted); margin-top:2px;">${p.hint}</div>
+          </div>
+          <button onclick="addKeyRow('${p.id}')" style="padding: 4px 12px; font-size:0.75rem; background:var(--accent); color:black; width:auto; white-space:nowrap;">+ Key</button>
         </div>
-    `).join('');
+        <div id="keys-list-${p.id}">
+          ${rowsHtml || '<div style="font-size:0.7rem; color:var(--muted); padding:4px 0;">Kein Key eingetragen</div>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+
+function addKeyRow(providerId) {
+  const list = document.getElementById(`keys-list-${providerId}`);
+  if (!list) return;
+  const rowCount = list.querySelectorAll('.key-row').length;
+  const div = document.createElement('div');
+  div.className = 'key-row';
+  div.style.cssText = 'display:flex; gap:10px; margin-bottom:5px;';
+  div.innerHTML = `
+    <input type="text" class="key-name" value="Key ${rowCount + 1}" placeholder="Name" style="flex:1;">
+    <input type="text" class="key-val" value="" placeholder="API Key" style="flex:3;">
+    <button onclick="this.parentElement.remove()" style="padding: 5px 10px; background: #c0392b; flex:none;">X</button>
+  `;
+  list.appendChild(div);
 }
 
 async function saveKeysFromModal() {
-  currentConfig.GEMINI_KEYS = document.getElementById('modal-key-gemini').value.split(',').map(k => k.trim()).filter(Boolean);
-  currentConfig.GROQ_KEYS = document.getElementById('modal-key-groq').value.split(',').map(k => k.trim()).filter(Boolean);
-  currentConfig.OPENROUTER_KEYS = document.getElementById('modal-key-openrouter').value.split(',').map(k => k.trim()).filter(Boolean);
-  currentConfig.OLLAMA_KEYS = document.getElementById('modal-key-ollama').value.split(',').map(k => k.trim()).filter(Boolean);
+  const getKeys = (id) => {
+    const list = document.getElementById(`keys-list-${id}`);
+    if(!list) return [];
+    return Array.from(list.querySelectorAll('.key-row')).map(row => {
+      const name = row.querySelector('.key-name').value.trim();
+      const val = row.querySelector('.key-val').value.trim();
+      if (!val) return null;
+      return name ? `${name}::${val}` : val;
+    }).filter(Boolean);
+  };
+
+  currentConfig.GEMINI_KEYS     = getKeys('gemini');
+  currentConfig.GROQ_KEYS       = getKeys('groq');
+  currentConfig.OPENROUTER_KEYS = getKeys('openrouter');
+  currentConfig.OLLAMA_KEYS     = getKeys('ollama');
+  currentConfig.PLAYER2_KEYS    = getKeys('player2');
     
   await saveConfig(true);
   closeKeyModal();
 }
+
 
 // DB Browser Logic
 // Now handled automatically via tick() based on liveStats.isRunning

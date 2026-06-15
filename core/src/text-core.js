@@ -80,13 +80,36 @@ function stripJsonFence(text) {
 }
 
 function extractJsonPayload(text) {
-  const clean = stripJsonFence(text);
+  const clean = stripJsonFence(text).trim();
   const starts = ['[', '{'];
   for (const start of starts) {
     const startIndex = clean.indexOf(start);
     const endIndex = clean.lastIndexOf(start === '[' ? ']' : '}');
     if (startIndex >= 0 && endIndex > startIndex) {
       return clean.slice(startIndex, endIndex + 1);
+    }
+  }
+
+  // Try to repair truncated JSON arrays (e.g. from cheap/free OpenRouter models)
+  if (clean.startsWith('[') && !clean.endsWith(']')) {
+    let repaired = clean;
+    // Count occurrences of unescaped double quotes
+    let quoteCount = 0;
+    for (let i = 0; i < repaired.length; i++) {
+      if (repaired[i] === '"' && (i === 0 || repaired[i-1] !== '\\')) {
+        quoteCount++;
+      }
+    }
+    if (quoteCount % 2 !== 0) {
+      repaired += '"';
+    }
+    repaired = repaired.trim().replace(/,\s*$/, '');
+    repaired += ']';
+    try {
+      JSON.parse(repaired);
+      return repaired;
+    } catch (e) {
+      // Repair failed, fallback to original clean string
     }
   }
   return clean;
