@@ -119,7 +119,6 @@ function createRuntimeOps(options) {
     }
 
     const modFolderName = `${modName.replace(/[^a-z0-9]/gi, '_')}_${config.TARGET_LANG}`;
-    const majorVersion = await getMajorVersion(modDir);
     const modOutputPath = config.NATIVE_MODE ? modDir : path.join(config.PATCH_ROOT, modFolderName);
     
     // Syx-Mod Structure: VXX/assets/text/[LANG]/
