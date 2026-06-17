@@ -13,7 +13,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 | `code-searcher` | Suche | Ripgrep-basierte Code-Suche über das gesamte Projekt |
 | `file-picker` | Suche | Fuzzy-Search für relevante Dateien nach Beschreibung |
 | `basher` | Ausführung | Einzelne Terminal-Befehle ausführen |
-| `code-reviewer-mimo-pro` | Review | Kritisches Review von Code-Änderungen |
+| `code-reviewer-deepseek` | Review | Kritisches Review von Code-Änderungen |
 | `thinker-gpt` | Analyse | Deep-Thinking ohne Tool-Zugriff (ChatGPT-basiert) |
 | `researcher-web` | Recherche | Web-Suche für aktuelle Informationen |
 | `researcher-docs` | Recherche | Technische Dokumentation von Libraries/Frameworks |
@@ -42,7 +42,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 **Params:** `command: string`, `what_to_summarize?: string`, `timeout_seconds?: number`
 **⚠️ Sicherheit:** Keine destruktiven Befehle ohne explizite User-Aufforderung (git push, rm -rf, etc.)
 
-### `code-reviewer-mimo-pro`
+### `code-reviewer-deepseek`
 **Einsatz:** Review nach Code-Änderungen (Pflicht bei >10 Zeilen)
 **Typischer Prompt:** "Review die Änderungen in X"
 **Prüft:** Korrektheit, Regression-Risiko, Konsistenz, Security
@@ -77,7 +77,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 3. thinker-gpt oder eigene Bewertung
 4. Fixes implementieren (str_replace)
 5. basher: Tests + Syntax
-6. code-reviewer-mimo-pro: Review
+6. code-reviewer-deepseek: Review
 7. Doku-Update (CHANGELOG, TODO)
 ```
 

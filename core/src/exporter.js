@@ -42,7 +42,7 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
   // Catches KEY count mismatches, unbalanced quotes, or significant line drift
   // BEFORE writing to disk, so corrupted files never reach the game engine.
   const syntaxResult = validateFileSyntax(content, newContent);
-  try { getGateCounter().record("exporter:validateFileSyntax", (syntaxResult && syntaxResult.ok) ? "keep" : "discard", { ok: !!(syntaxResult && syntaxResult.ok) }); } catch (_) {}
+  try { getGateCounter().record('exporter:validateFileSyntax', (syntaxResult && syntaxResult.ok) ? 'keep' : 'discard', { ok: !!(syntaxResult && syntaxResult.ok) }); } catch (_) {}
   if (!syntaxResult.valid) {
     const fileName = path.basename(outputPath);
     console.warn(`[SYNTAX] Struktur-Abweichung in "${fileName}": ${syntaxResult.issues.join('; ')}`);

@@ -1,7 +1,7 @@
 # SyxBridge — AI Translation Engine for Songs of Syx
 
 <p align="center">
-  <img src="Banner.png" alt="SyxBridge Banner" width="600">
+  <img src="core/archive/assets/Banner.png" alt="SyxBridge Banner" width="600">
 </p>
 
 <p align="center">
@@ -35,17 +35,17 @@
 </p>
 
 ### ⚡ Run-Modus — Live-Terminal
-![GUI im Run](Übersicht.png)
+![GUI im Run](core/archive/assets/Übersicht.png)
 
 > Drückst du **SYNC**, wechselt das Dashboard in den Terminal-Modus. Du siehst live jeden Prompt der an die KI geht, jede Antwort die zurückkommt, jede Datei die gerade geschrieben wird. Der Neon-Fortschrittsbalken zeigt Phase, Threads und aktuellen Mod. Kein Blindflug. Kein Ratespiel.
 
 ### ⚙️ Config & DB Browser — Das Kontrollzentrum
-![Settings and DB](Statistiken.png)
+![Settings and DB](core/archive/assets/Statistiken.png)
 
 > **"API & EINSTELLUNGEN"**-Button → Config-Dropdown mit Provider-Auswahl, Modell-Liste, Batch-Size, Zielsprache. Dazu: **Lokale Modelle Opt-in** (damit deine GPU nicht abfackelt), **Key-Manager** (mehrere API-Keys pro Provider mit automatischer Rotation), **Patch-Mode-Kontrollfeld** (⚠️ deaktiviert, weil er nicht zuverlässig funktioniert — ja, ich bin ehrlich). Im Idle-Zustand wird die Mitte zum **DB-Browser** — Translation anklicken, editieren, speichern. Kein SQL nötig.
 
 ### 📊 Live Stats & Provider-Health
-![Live Stats](Provider.png)
+![Live Stats](core/archive/assets/Provider.png)
 
 > Harte Fakten, kein Bullshit: Dateien gelesen, Cache-Hits (spart API-Kosten!), neue Übersetzungen, Fehler. Dazu CPU/RAM in Echtzeit plus Provider-Status mit Erfolgsrate, Key-Gültigkeit und 429-Limit-Warnungen.
 
@@ -130,7 +130,7 @@ Syx_bridge-/
 
 ## 📋 Changelog — Peinlich genau dokumentiert
 
-→ **Vollständiges Changelog:** [`core/CHANGELOG.md`](core/CHANGELOG.md)
+→ **Vollständiges Changelog:** [`core/docs/CHANGELOG.md`](core/docs/CHANGELOG.md)
 
 | Version | Datum | Was ist passiert? |
 |---|---|---|

@@ -674,7 +674,7 @@ function renderDbTable() {
             <td>${row.target_lang}</td>
             <td>
                 <button onclick="saveDbEntry(${idx})" style="padding: 2px 6px; font-size: 0.6rem; width: auto; margin-bottom: 2px;">Save</button>
-                <button onclick="openRevisions('${row.source_text.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${row.target_lang}')" title="Alle gespeicherten Versionen dieser Uebersetzung anzeigen" style="padding: 2px 6px; font-size: 0.6rem; width: auto; background: #332d29; border: 1px solid #444; color: var(--muted);">Rev</button>
+                <button onclick="openRevisions('${row.source_text.replace(/'/g, '\\\'').replace(/"/g, '&quot;')}', '${row.target_lang}')" title="Alle gespeicherten Versionen dieser Uebersetzung anzeigen" style="padding: 2px 6px; font-size: 0.6rem; width: auto; background: #332d29; border: 1px solid #444; color: var(--muted);">Rev</button>
             </td>
         </tr>
     `;
@@ -953,7 +953,7 @@ function renderModelStatus(status) {
   const c = document.getElementById('model-status-container');
   if (!c || !status) return;
   if (status.error) {
-    c.innerHTML = `<div style="color: var(--danger); padding: 6px 0;">Fehler: </div><div style="color: var(--danger); padding: 6px 0;" id="model-status-error-msg"></div>`;
+    c.innerHTML = '<div style="color: var(--danger); padding: 6px 0;">Fehler: </div><div style="color: var(--danger); padding: 6px 0;" id="model-status-error-msg"></div>';
     const errEl = document.getElementById('model-status-error-msg');
     if (errEl) errEl.textContent = status.error;
     return;
@@ -976,9 +976,9 @@ function renderModelStatus(status) {
   const pullKeys = Object.keys(pulls);
   const pullsHtml = pullKeys.length > 0
     ? pullKeys.map(jobId => {
-        const p = pulls[jobId];
-        const color = p.status === 'success' ? 'var(--success)' : (p.status === 'failed' ? 'var(--danger)' : 'var(--accent)');
-        return `<div style="margin-top: 6px; padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 3px; border-left: 2px solid ${color};">
+      const p = pulls[jobId];
+      const color = p.status === 'success' ? 'var(--success)' : (p.status === 'failed' ? 'var(--danger)' : 'var(--accent)');
+      return `<div style="margin-top: 6px; padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 3px; border-left: 2px solid ${color};">
           <div style="display:flex; justify-content:space-between; font-size:0.6rem;">
             <span>📥 ${p.model}</span>
             <span style="color:${color}">${p.status} (${p.percent || 0}%)</span>
@@ -987,7 +987,7 @@ function renderModelStatus(status) {
             <div class="progress-fill" style="width: ${p.percent || 0}%; background: ${color};"></div>
           </div>
         </div>`;
-      }).join('')
+    }).join('')
     : '';
 
   // Ollama models
@@ -1007,7 +1007,7 @@ function renderModelStatus(status) {
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
       <div>
         <div style="margin-bottom: 4px;"><span style="color:${argosColor}; font-weight: bold;">${argosIcon}</span> Argos</div>
-        ${!argos.installed ? `<button onclick="installArgosFromUI()" style="width: auto; padding: 3px 8px; font-size: 0.6rem; background: var(--accent); color: #000;">INSTALL ARGS</button>` : ''}
+        ${!argos.installed ? '<button onclick="installArgosFromUI()" style="width: auto; padding: 3px 8px; font-size: 0.6rem; background: var(--accent); color: #000;">INSTALL ARGS</button>' : ''}
         <div style="margin-top: 4px;"><span style="color:${langColor};">${langIcon}</span> ${tName} (${tCode})</div>
         ${(argos.installed && !argos.targetLangInstalled) ? `<button onclick="installArgosLanguageFromUI()" style="width: auto; padding: 3px 8px; font-size: 0.6rem; background: var(--accent); color: #000; margin-top: 2px;">INSTALL ${tCode.toUpperCase()}</button>` : ''}
       </div>

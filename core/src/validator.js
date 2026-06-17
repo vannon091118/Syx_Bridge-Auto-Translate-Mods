@@ -67,7 +67,7 @@ function checkStructure(source, target) {
  * @returns {{ valid: boolean, issues: string[], keyCount: {source: number, target: number} }}
  */
 function validateFileSyntax(sourceContent, targetContent) {
-  _gcRec("validator:validateFileSyntax", "enter");
+  _gcRec('validator:validateFileSyntax', 'enter');
   const issues = [];
   
   // Count KEY: patterns (Songs of Syx format)
@@ -130,7 +130,7 @@ function getQaScore(source, target) {
   const structuralIssues = checkStructure(source, target);
   score -= structuralIssues.length * 15;
 
-  try { _gcRec("validator:getQaScore", (typeof score === "number" && score >= 60) ? "keep" : "discard", { score: typeof score === "number" ? score : null }); } catch (_) {}
+  try { _gcRec('validator:getQaScore', (typeof score === 'number' && score >= 60) ? 'keep' : 'discard', { score: typeof score === 'number' ? score : null }); } catch (_) {}
   return Math.max(0, score);
 }
 

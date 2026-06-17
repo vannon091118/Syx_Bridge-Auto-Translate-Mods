@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## [0.19.05d-17.06] - 2026-06-17 — CLEANUP
+
+### Fixed (Konsistenz-Audit)
+- **[TREE-1] core/TREE.md stale Struktur:** 8+ Diskrepanzen gegen tatsächlichen Repository-Zustand korrigiert. `docs/plans/` listet jetzt nur noch `HARDENING-DRY-RUN-GATE-COUNTER` (3 andere Plans nach `archive/plans/` verschoben). `DB_REPORT` aus `docs/` entfernt (existiert in `archive/docs/`). `archive/docs/` ergänzt um `DB_REPORT`, `WORKSHOP_CHANGELOG`. `archive/backups/` bereinigt (`.bak`-Dateien gelöscht, nur `.gitkeep`). `archive/plans/`-Sektion hinzugefügt. `scripts/` ergänzt um `check_consistency.js`, `sync-version.js`, `release.js`.
+- **[TREE-2] core/docs/TREE.md stale archive/plans/:** `HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md` fälschlich unter `archive/plans/` gelistet — Datei existiert nur in `docs/plans/`. Referenz entfernt.
+- **[SCRIPT-1] check_consistency.js stale Pfade:** `path.join(ROOT, 'MASTER_DOC.md')` und `path.join(ROOT, 'STATUS.md')` verweisen auf Root-Verzeichnis — Dateien liegen in `core/archive/docs/`. Pfade korrigiert.
+
+### Removed
+- **nul:** Windows-Artefakt (0-Byte-Datei) aus Root entfernt.
+
+### Governance
+- Keine funktionalen Code-Änderungen. Rein dokuments-/referenzbasierte Korrekturen gegen tatsächlichen Repository-Zustand.
+
 ## [0.19.05c-17.06] - 2026-06-17 — PATCH
 
 ### Fixed
