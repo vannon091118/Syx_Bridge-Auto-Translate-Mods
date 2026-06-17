@@ -1,6 +1,6 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
-**Stand:** 16.06.2026 (aktualisiert) | **Version:** v0.19.5 | **Autor:** Vannon  
+**Stand:** 16.06.2026 (aktualisiert) | **Version:** v0.19.05b-19.06 | **Autor:** Vannon  
 **Destilliert aus:** README.md · TECHNICAL_REVIEW_2026-06-15.md · AUDIT_REPORT.md · STATUS.md · TODO.md · PATCH_REVIEW_2026-06-16.md · HARDENING-DRY-RUN-GATE-COUNTER.md
 
 ---
@@ -43,7 +43,9 @@ Scan → Extract → Translate → Audit → Polish → Export
 | `exporter.js` | Datei-Export, Syntax-Validierung, BridgeCore-Bundling |
 | `validator.js` | Platzhalter-/Tag-Validierung, QA-Scoring (0–100) |
 | `polish-arbiter.js` | Multi-Provider A/B-Polishing mit Scoring |
-| `gate-counter.js` | Telemetrie: Trackt alle Gates, schreibt `runs.jsonl` |
+| `providers/client-factory.js` | Alle 7 Provider-Implementierungen + executeStageRequest (Gemini, Groq, OpenRouter, Ollama, Player2, Argos, Google Free) |
+| `gui-handlers.js` | REST API + SSE Event-Handler, DB-Suche, Revision-Restore, Backup-System |
+| `gate-counter.js` | Telemetrie: Trackt alle Gates, schreibt `runs.jsonl` (Dry-Run-Telemetrie, eigenständiges Modul) |
 | `text-core.js` | JSON-Reparatur, Translation-Apply |
 | `cli-progress.js` | Echtzeit-Fortschrittsanzeige (ETA, Durchsatz) |
 | `db.js` | SQLite-Cache, Translation-Revisions, Read-Only-Suche |

@@ -82,12 +82,12 @@ class SongsOfSyxAdapter extends GameAdapter {
 
   applyPatchModifications(infoObj, targetLanguage) {
     const patchSuffix = ` (${targetLanguage} Patch)`;
-    const currentName = infoObj.NAME || `BridgePatch`;
+    const currentName = infoObj.NAME || 'BridgePatch';
     if (!currentName.endsWith(patchSuffix)) {
       infoObj.NAME = `${currentName}${patchSuffix}`;
     }
     const notice = this.formatPatchNotice(targetLanguage);
-    infoObj.DESC = (infoObj.DESC ? infoObj.DESC + String.fromCharCode(10) + String.fromCharCode(10) : ``) + notice;
+    infoObj.DESC = (infoObj.DESC ? infoObj.DESC + String.fromCharCode(10) + String.fromCharCode(10) : '') + notice;
     return infoObj;
   }
 

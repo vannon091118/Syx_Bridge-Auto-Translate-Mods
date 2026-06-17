@@ -36,7 +36,7 @@ function isDryRun() {
 }
 function resetDryRunCache() { _dryRunCache = null; }
 let _dryRunCache = null;
-function getGateCounterOpts(logger) { return { logger: logger || null, dryRun: isDryRun(), source: "config-runtime" }; }
+function getGateCounterOpts(logger) { return { logger: logger || null, dryRun: isDryRun(), source: 'config-runtime' }; }
 function parseEnvFlag(value, defaultValue = false) {
   if (value === undefined || value === null || value === '') return defaultValue;
   if (typeof value === 'boolean') return value;

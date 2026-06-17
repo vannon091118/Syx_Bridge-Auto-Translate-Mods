@@ -127,21 +127,21 @@ async function pullOllamaModel(modelName, options = {}) {
   const onProgress = typeof options.onProgress === 'function'
     ? options.onProgress
     : (msg) => {
-        if (!msg.status) return;
-        const now = Date.now();
-        const completed = msg.completed || 0;
-        const total = msg.total || 0;
-        const significantByteDelta = total === 0 || (completed - lastLoggedBytes) >= 1024 * 1024;
-        const isStatusTransition = !/^downloading\b/.test(msg.status);
-        if (!isStatusTransition && now - lastLogAt < 250 && !significantByteDelta) return;
-        lastLogAt = now;
-        lastLoggedBytes = completed;
-        const detail = msg.digest ? ` (${msg.digest})` : '';
-        const progress = (total && completed != null)
-          ? ` ${Math.round((completed / total) * 100)}%`
-          : '';
-        process.stdout.write(`  ${msg.status}${progress}${detail}\n`);
-      };
+      if (!msg.status) return;
+      const now = Date.now();
+      const completed = msg.completed || 0;
+      const total = msg.total || 0;
+      const significantByteDelta = total === 0 || (completed - lastLoggedBytes) >= 1024 * 1024;
+      const isStatusTransition = !/^downloading\b/.test(msg.status);
+      if (!isStatusTransition && now - lastLogAt < 250 && !significantByteDelta) return;
+      lastLogAt = now;
+      lastLoggedBytes = completed;
+      const detail = msg.digest ? ` (${msg.digest})` : '';
+      const progress = (total && completed != null)
+        ? ` ${Math.round((completed / total) * 100)}%`
+        : '';
+      process.stdout.write(`  ${msg.status}${progress}${detail}\n`);
+    };
 
   try {
     // 30 min hard cap so a stalled server eventually returns an error

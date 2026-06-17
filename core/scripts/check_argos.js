@@ -194,7 +194,7 @@ async function installArgosLanguage(langCode) {
   const script = [
     'from argostranslate import package',
     'package.update_package_index()',
-    `for pkg in package.get_available_packages():`,
+    'for pkg in package.get_available_packages():',
     `    if pkg.from_code == 'en' and pkg.to_code == '${langCode}':`,
     '        path = pkg.download()',
     '        package.install_from_path(path)',

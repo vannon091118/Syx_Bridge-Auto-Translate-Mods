@@ -6,11 +6,11 @@
 SyxBridge_Live/                     # Root — Deployment-Verzeichnis
 ├── .env                            # [gitignore] Runtime-Config (API-Keys, Pfad, Sprache)
 ├── .gitignore
+├── debug_payloads.txt              # [gitignore] Debug-Payloads
 ├── README.md                       # Haupt-README (User-facing, deutsch/englisch)
 ├── start.bat                       # Launcher — startet core/index.js
 ├── log.txt                         # [gitignore] Runtime-Log
 ├── runs.jsonl                      # [gitignore] Run-History (JSONL)
-├── debug_payloads.txt              # [gitignore] Debug-Payloads
 ├── V70/                            # Mod-Version 70 Assets (init/ + text/)
 │   └── assets/
 │       ├── init/{room,tech}/
@@ -37,7 +37,7 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     │
     │
     │   ══════════════════════════════════════════════
-    │   src/ — Quellcode (23 Module)
+    │   src/ — Quellcode (26 Module)
     │   ══════════════════════════════════════════════
     │
     ├── src/
@@ -57,11 +57,12 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     │   ├── translation-runtime.js      # Phase 5: LLM-Translation, A/B-Polish, Revision-System
     │   ├── validator.js                # Phase 6: Übersetzungsvalidierung, Placeholder-Restore
     │   ├── exporter.js                 # Phase 7: Write-Back ins Mod-Format
-    │   │
-    │   │   ─── Provider/Modell ───
+    │   │   │   ─── Provider/Modell ───
     │   ├── router.js                   # Route-Plan-Builder, PROVIDER_CAPABILITIES Matrix
     │   ├── model-registry.js           # Modell-Discovery, Argos-Install, Target-Language-Setup
     │   ├── polish-arbiter.js           # A/B-Polish: Multi-Provider parallele Polish + Scoring
+    │   ├── providers/
+    │   │   └── client-factory.js       # Alle 7 Provider-Implementierungen (Gemini, Groq, OpenRouter, Ollama, Player2, Argos, Google Free)
     │   │
     │   │   ─── Datenbank ───
     │   ├── db.js                       # SQLite (sql.js), WAL-Mode, Read-Only-Connection, Revisionen
@@ -83,18 +84,22 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     │   ├── sos-runtime.js              # SoS-Mod-Runtime (Room/Tech Overrides)
     │   │
     │   │   ─── GUI (Web-Interface) ───
+    │   ├── gui-handlers.js            # REST API + SSE Event-Handler, DB-Suche, Revision-Modal, Backup-System
     │   └── gui/
-    │       ├── server.js               # Express-Server — API-Endpunkte, DB-Browser, Revision-Modal
+    │       ├── server.js               # HTTP-Server — API-Endpunkte, DB-Browser, Revision-Modal
     │       └── public/
     │           ├── index.html           # SPA — Dark-Theme, Pipeline-Viz, DB-Browser
     │           └── app.js               # Frontend-Logik (SSE, Provider-Stats, Modell-Status)
     │
     │
     │   ══════════════════════════════════════════════
-    │   scripts/ — DevOps & Wartung (13 Scripts)
+    │   scripts/ — DevOps & Wartung (16 Scripts)
     │   ══════════════════════════════════════════════
     │
     ├── scripts/
+    │   ├── check_consistency.js         # Konsistenz-Checker (Versionen, Pfade, Archive)
+    │   ├── sync-version.js             # Version-Synchronisation (7 Dateien)
+    │   ├── release.js                  # Workshop-Release-Builder (ZIP)
     │   ├── check_syntax.js             # Syntax-Check aller .js-Dateien (39 Files)
     │   ├── check_argos.js              # Argos-Translate Installation prüfen
     │   ├── start_ollama.js             # Ollama starten + Modell pullen
@@ -104,10 +109,6 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     │   ├── redteam_baseline.js         # Red-Team Sicherheitstests (Placeholder, Injection)
     │   ├── verify_integrity.js         # Mod-Integritätsprüfung
     │   ├── workshop_export.js          # Steam-Workshop-Export
-    │   ├── check_consistency.js         # Konsistenz-Checker (Versionen, Pfade, Archive)
-    │   ├── sync-version.js             # Version-Synchronisation (7 Dateien)
-    │   ├── release.js                  # Workshop-Release-Builder (ZIP)
-    │   ├── package.js                  # Release-Paketierung
     │   ├── check_workshop_damage.ps1   # [PowerShell] Workshop-Schadensprüfung
     │   ├── start.bat                   # Windows-Starter
     │   └── vannon_test_run.js          # [gitignore] Persönlicher Test-Script
@@ -155,9 +156,9 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     │   │   ├── STATUS.md                    # Release-Status (historisch)
     │   │   ├── TECHNICAL_REVIEW_2026-06-15.md # Tech-Review
     │   │   ├── VISION.md                    # [gitignore] Projektvision
-    │   │   └── WORKSHOP_CHANGELOG.md         # User-facing Changelog (archiviert)
+    │   │   ├── WORKSHOP_CHANGELOG.md         # User-facing Changelog (archiviert)
     │   ├── backups/
-    │   ├── plans/                          # ─── Gefrorene Pläne (archiviert) ───
+    │    ├── plans/                          # ─── Gefrorene Pläne (archiviert) ───
     │   │   ├── MULTI_LANGUAGE_MODEL_PLAN_2026-06-16.md
     │   │   ├── SESSION-RESTART-PROMPT_2026-06-16.md
     │   │   └── STRESS_TEST_SPEC_2026-06-16.md
@@ -178,9 +179,6 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
     ├── node_modules/               # [gitignore] npm-Dependencies
     │
     ├── backups/
-    │   ├── .backup_3133779397_ORIGINAL/
-    │   ├── .backup_3633565210_ORIGINAL/
-    │   └── .backup_3641940853_ORIGINAL/
     │
     │
     │   ══════════════════════════════════════════════
@@ -221,6 +219,8 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
 | `router.js` | Route-Plan-Builder + `PROVIDER_CAPABILITIES` Matrix |
 | `model-registry.js` | Modell-Discovery, Argos-Install, Target-Language |
 | `polish-arbiter.js` | Multi-Provider A/B-Polish mit Scoring |
+| `providers/client-factory.js` | Alle 7 Provider-Implementierungen (Gemini, Groq, OpenRouter, Ollama, Player2, Argos, Google Free) |
+| `gui-handlers.js` | REST API + SSE Event-Handler, DB-Suche, Revision-Restore, Backup-System |
 | `db.js` | SQLite WAL-Mode, Read-Only-Connection, Revisions-Tabelle |
 | `config-runtime.js` | .env-Management, `persistSingleEnvVar()` |
 
@@ -238,9 +238,9 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
 
 | Befehl | Funktion |
 |--------|----------|
-| `npm start` | Bridge starten (CLI-Modus) |
 | `npm run lint` | ESLint |
 | `npm run test:syntax` | Syntax-Check (39 Files) |
 | `npm run test` | Full Pipeline (lint + syntax + redteam + reconstruct) |
+| `npm run consistency` | Konsistenz-Check (Versionen, Pfade, Archive) |
 | `npm run package` | Release-Paketierung |
 | `npm run workshop` | Steam-Workshop-Export |

@@ -53,7 +53,7 @@ function createGateCounter(opts) {
   function flush() {
     if (!dryRun) return null;
     const s = summarize();
-    // newline (0x0A) via fromCharCode — no literal '\n' to avoid heredoc/escape-parser corruption in build pipelines (see docs/HARDENING-DRY-RUN-GATE-COUNTER.md §6). Do not revert to '\n'.
+    // newline (0x0A) via fromCharCode — no literal '\n' to avoid heredoc/escape-parser corruption in build pipelines (see docs/plans/HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md §6). Do not revert to '\n'.
     const nl = String.fromCharCode(10);
     let fd = -1;
     try {

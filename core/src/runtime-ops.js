@@ -16,7 +16,7 @@ function createRuntimeOps(options) {
     getMajorVersion,
     getHasConfirmedNative,
     setHasConfirmedNative
-  ,
+    ,
     gameAdapter
   } = options;
 
@@ -113,8 +113,8 @@ function createRuntimeOps(options) {
         // Implicit-confirm path (non-interactive / --gui / --auto / persisted).
         const reason = isGuiMode ? 'GUI-Mode'
           : isAutoMode ? '--auto Flag'
-          : !stdinIsTty ? 'non-interactive stdin (CI/tmux/pipe)'
-          : 'persistent bestätigt';
+            : !stdinIsTty ? 'non-interactive stdin (CI/tmux/pipe)'
+              : 'persistent bestätigt';
         console.log(`[NATIVE] Keine Rückfrage (${reason}). Backup wird VOR dem Überschreiben angelegt.`);
         setHasConfirmedNative(true);
         persistConsented();

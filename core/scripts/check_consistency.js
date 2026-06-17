@@ -102,8 +102,8 @@ function checkVersions() {
     path.join(CORE, 'src', 'exporter.js'),
     path.join(CORE, 'src', 'validator.js'),
     path.join(CORE, 'index.js'),
-    path.join(ROOT, 'MASTER_DOC.md'),
-    path.join(ROOT, 'STATUS.md'),
+    path.join(CORE, 'archive', 'docs', 'MASTER_DOC.md'),
+    path.join(CORE, 'archive', 'docs', 'STATUS.md'),
     path.join(CORE, 'archive', 'docs', 'VISION.md'),
     path.join(ROOT, 'AGENTS.md'),
   ];

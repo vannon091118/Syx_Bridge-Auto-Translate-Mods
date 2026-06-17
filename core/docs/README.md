@@ -2,16 +2,16 @@
 
 ## Handshake-Vermerk
 
-Version: `0.19.05c-17.06`
+Version: `0.19.05b-19.06`
 
-> 📋 **Doku-Vermerk (17.06.2026):** Patch-Release nach v0.19.05b. Änderungen: Windows Shell-Escaping Fix (execSync → spawnSync in check_argos.js), GUI Lazy-Loading (Model-Status + Provider-Stats nur bei offenem Settings-Dropdown), DB-Suche mit Server-Side Limit (Default 50). Alle P0/P1/P2/P3 Issues aus v0.19.05b behoben. Full Technical Review unter **[TECHNICAL_REVIEW_2026-06-15.md](../../TECHNICAL_REVIEW_2026-06-15.md)**.
+> 📋 **Doku-Vermerk (17.06.2026):** Patch-Release nach v0.19.05b. Änderungen: Windows Shell-Escaping Fix (execSync → spawnSync in check_argos.js), GUI Lazy-Loading (Model-Status + Provider-Stats nur bei offenem Settings-Dropdown), DB-Suche mit Server-Side Limit (Default 50). Alle P0/P1/P2/P3 Issues aus v0.19.05b behoben. Full Technical Review unter **[TECHNICAL_REVIEW_2026-06-15.md](../archive/docs/TECHNICAL_REVIEW_2026-06-15.md)**.
 
 Diese Dokumentation beschreibt den produktiven Stand der Bridge. Das System nutzt eine modulare Architektur mit Web-GUI (Dashboard) und CLI-Modus.
 
-## Produktiver Stand `0.19.05c-17.06`
+## Produktiver Stand `0.19.05b-19.06`
 
 - `index.js`: Operativer Einstiegspunkt und Starter für CLI/GUI.
-- `src/gui/`: Web-Dashboard Kern (Express + Socket.io).
+- `src/gui/`: Web-Dashboard Kern (pures http, kein Express/Socket.io).
 - `polish-arbiter.js`: Paralleler Multi-Provider Polish mit A/B-Vergleich und Scoring.
 - `cli-progress.js`: ASCII-Progress-Box für CLI-Mode mit ETA, Provider live, Stats.
 - `runtime-ops.js`: Mod-Laufoperationen, `_Info.txt`-Pflege und BridgeCore-Ausgabe.
@@ -118,7 +118,7 @@ Die Routing-Entscheidung ist stage-gated: Nur `translate` nutzt diese Logik. `po
 - `validator.js`: QA-Validierung
 - `logger.js`: Datei- und DB-Logging
 - `ui.js`: Interaktive Menues
-- `gui/`: Web-Dashboard (Express + Socket.io)
+- `gui/`: Web-Dashboard (pures http)
 
 ## ✅ Erledigt (Session 15.06.2026)
 
@@ -138,7 +138,7 @@ Die Routing-Entscheidung ist stage-gated: Nur `translate` nutzt diese Logik. `po
 - P4: WAL Checkpoint nach Runs automatisieren
 - Arch: `index.js` Refactoring (1000+ Zeilen)
 
-## Änderungen v0.19.05c-17.06 (PATCH)
+## Änderungen v0.19.05b-19.06 (PATCH)
 
 ### Fixed
 - **BUG-010 — Windows Shell-Escaping:** `check_argos.js` nutzt jetzt `spawnSync()` statt `execSync()` für alle Python-Subprocess-Calls. `codesJson` wird inline injiziert statt als `sys.argv[1]` übergeben.
