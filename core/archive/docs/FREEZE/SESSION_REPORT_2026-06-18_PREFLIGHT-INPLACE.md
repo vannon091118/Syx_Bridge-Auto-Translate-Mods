@@ -2,7 +2,12 @@
 
 > **Datum:** 2026-06-18 | **Version:** v0.19.7+ | **Branch:** prepare-0.20-wip
 > **Methode:** Chain-Function Hardening Loop + External Research Siege
-> **Syntax:** 52/52 PASS durchgehend | **DB:** 4.307 Einträge
+> **Syntax:** 52/52 PASS durchgehend | **DB:** 4.307 Einträge (Session-Ende; aktuell 5.447)
+
+> **🔄 INPLACE-MARKER (2026-06-18) — Was aus dieser Session in Live-Docs übernommen wurde:**
+> - **LLM-AGENTS-EntryPoint.md:** System-Build-Loop + External Research Siege Patterns ✅ (Regel 11+12)
+> - **MASTER_DOC.md:** PREFLIGHT-System fehlt noch → wird INPLACE ergänzt
+> - **CHANGELOG.md:** v0.19.7 Eintrag enthält PREFLIGHT + Dual-Path-Copy ✅
 
 ---
 

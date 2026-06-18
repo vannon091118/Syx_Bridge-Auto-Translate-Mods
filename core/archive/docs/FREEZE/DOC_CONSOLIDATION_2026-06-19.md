@@ -1,5 +1,13 @@
 # 📋 SyxBridge — Dokumentations-Konsolidierung
 
+> **🔄 INPLACE-MARKER (2026-06-18):** Diese Datei ist teilweise veraltet.
+> - **FREEZE/ hat jetzt 34 Dateien** (nicht 18/27) — 6 neue Session-Reports, DB-Snapshots, Pre-Review-Docs seit 19.06
+> - **"Verbleibende aktive Dokumente" sind jetzt selbst in FREEZE/** (ANALYSE, FULLSCAN, IMPORT_CHAIN_ISOLATION, LOG_REPORT, KNOWN_BUGS_REPORT)
+> - **Neue aktive Docs:** PREFLIGHT_LATEST.md, preflight_history.log, COMMIT_MSG_2026-06-18.txt, COMMIT_HISTORY_RETROSPECTIVE, PRE_REVIEW_MAIN
+> - **Siehe MASTER_DOC.md §7** für aktuelle Dokumentationsstruktur
+>
+> ---
+>
 > **Generiert:** 2026-06-19 | **Version:** v0.20-alpha.2
 > **Auftrag:** Alle archive/docs/ Dokumente lesen, konsolidieren, abgeschlossene in FREEZE verschieben
 
@@ -32,7 +40,10 @@
 | TREE.md | Projektstruktur-Snapshot — veraltet |
 | README.md | Doku-Readme — veraltet |
 
-## Verbleibende aktive Dokumente (8)
+## 🔄 Verbleibende aktive Dokumente (8) — Stand 19.06.2026
+
+> **⚠️ INPLACE-MARKER:** Diese Liste ist veraltet. ANALYSE, FULLSCAN, IMPORT_CHAIN_ISOLATION, LOG_REPORT und KNOWN_BUGS_REPORT
+> wurden nach FREEZE/ verschoben (nicht mehr aktiv). Aktuelle Struktur siehe MASTER_DOC.md §7.
 
 | Datei | Zweck |
 |-------|-------|

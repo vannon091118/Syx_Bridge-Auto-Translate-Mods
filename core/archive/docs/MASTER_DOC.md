@@ -15,6 +15,10 @@
 - **Plugin-Architektur:** v0.20 Phase 1 abgeschlossen (8/8 Hardcodes entkoppelt)
 - **GUI-Refresh:** Heartbeat + SubPhase-Tracking + Input-Lock + Streaming Writes (NEU v0.20-alpha.3)
 - **NMT Local Provider:** Optionaler lokaler Übersetzer via `@huggingface/transformers` + NLLB-200 (NEU v0.19.7)
+- **PREFLIGHT Analysis:** Automatischer DB-Health-Check vor jedem Sync (NEU v0.19.7) — Integrity-Check, 6-Kategorie-Audit, Auto-Repair bei <5% Issues, Report nach `archive/docs/PREFLIGHT_LATEST.md`
+- **Dual-Path-Copy:** Native Mode kopiert übersetzte Dateien in BEIDE Verzeichnisse (NEU v0.19.7) — Steam Workshop (Persistenz) + AppData (sofort ladbar im Spiel)
+- **Routing-Hardening:** Argos CostClass 0→10 (letzte Wahl), Nvidia/Groq priorisiert, Tier 2 Nvidia-Injection (NEU v0.19.7)
+- **Error-Handler Smart:** 429→disable run, eskalierender Cooldown ×2, flaggedForReview (NEU v0.19.7)
 
 ---
 
@@ -52,7 +56,8 @@ Scan → Extract → Translate → Audit → Polish → Export
 | `providers/client-factory.js` | 9 Provider-Implementierungen |
 | `plugins/SongsOfSyxPlugin.js` | SoS-spezifische Logik (NEU v0.19.9) |
 | `adapters/SongsOfSyxAdapter.js` | SoS File-Format (NEU v0.19.5) |
-| `router.js` | Provider-Routing, Capability Matrix |
+| `preflight.js` | DB-Health-Check: Integrity, 6-Kategorie-Audit, Auto-Repair, Reports (NEU v0.19.7) |
+| `router.js` | Provider-Routing, Capability Matrix, Error-Handler, flaggedForReview |
 | `config-runtime.js` | Provider-Konfig, Key-Rotation, Model-Discovery, NMT_LOCAL_ENABLED |
 | `gui-handlers.js` | REST API + SSE, DB-Suche, Revision-Restore, Heartbeat-Broadcast (NEU) |
 | `db.js` | SQLite WAL-Mode, Read-Only-Connection, Migrationen |
@@ -131,16 +136,30 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 5. DB-Stand (19.06.2026 nach Cleanup)
+## 5. DB-Stand (18.06.2026 — Live)
+
+> **🔄 INPLACE-UPDATE:** Werte vom 19.06 (3.567 Einträge) auf aktuellen Stand 18.06 (5.447 Einträge) aktualisiert.
 
 | Metrik | Wert |
 |---|---|
-| Translations gesamt | 3.567 |
-| Stale (translation = source) | 1.016 (28.5%) |
-| Flagged | 45 (1.3%) |
-| Stage 2 (Verified) | 2.239 (62.77%) |
-| Glossary Terms | 792 |
-| Revisions | 11.762 |
+| Translations gesamt | 5.447 |
+| Stale (translation = source) | 1.672 (30.7%) |
+| Flagged | 988 (18.1%) |
+| Stage 2 (Verified) | 4.066 (74.6%) |
+| Glossary Terms | 1.040 |
+| Revisions | 16.281 (5.451 aktiv) |
+
+**Provider-Verteilung (Top 8):**
+| Provider | Einträge | Anteil |
+|----------|----------|--------|
+| native_runtime | 2.521 | 46.3% |
+| ab_polish | 1.394 | 25.6% |
+| google_free | 582 | 10.7% |
+| argos | 560 | 10.3% |
+| openrouter | 216 | 4.0% |
+| polish_single | 149 | 2.7% |
+| groq | 24 | 0.4% |
+| nvidia | 0 | 0.0% ⚠️ |
 
 ### Stale-Reduktionsplan (READ-ONLY)
 | Prio | Strategy | Aufwand | Erwartung |
@@ -157,6 +176,10 @@ Scan → Extract → Translate → Audit → Polish → Export
 | Prio | Phase | Aufgabe | Status |
 |---|---|---|---|
 | ✅ | v0.20 Phase 1 | Hardcode→Plugin (H1-H8) | ABGESCHLOSSEN |
+| ✅ | v0.19.7 | PREFLIGHT Analysis System | ABGESCHLOSSEN |
+| ✅ | v0.19.7 | Dual-Path-Copy (Native Mode) | ABGESCHLOSSEN |
+| ✅ | v0.19.7 | Routing-Hardening (Argos last, Nvidia first) | ABGESCHLOSSEN |
+| ✅ | v0.19.7 | Error-Handler Smart (429→disable, eskalierend) | ABGESCHLOSSEN |
 | 🔴 | v0.20 Phase 1 | H1: buildProofreadPrompt → Plugin | OFFEN |
 | 🟠 | v0.20 Phase 2 | SongsOfSyxAdapter deprecate | OFFEN |
 | 🟠 | v0.20 Phase 2 | RimWorld-Prototyp | OFFEN |
@@ -178,7 +201,7 @@ core/archive/docs/
 ├── plans/                    # Aktive Implementierungspläne
 │   ├── HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md
 │   └── TRANSLATION_RUNTIME_SPLIT_2026-06-18.md
-├── FREEZE/                   # 27 archivierte Session/Report-Dateien
+├── FREEZE/                   # 34 archivierte Session/Report-Dateien
 │   ├── AUDIT_REPORT.md
 │   ├── AUDIT_REPORT_2026-06-17.md
 │   ├── ANALYSE_2026-06-19.md
@@ -209,4 +232,4 @@ core/archive/docs/
 
 ---
 
-*Stand: 19.06.2026 — 27 obsolete Reports in FREEZE/ archiviert.*
+*Stand: 18.06.2026 — 34 obsolete Reports in FREEZE/ archiviert. DB: 5.447 Einträge. Version: v0.19.7.*

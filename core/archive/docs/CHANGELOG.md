@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## [0.19.7-chain] - 2026-06-18 — PREFLIGHT NATIVE-STALE FIX + ROUTING-HARDENING + ERROR-HANDLER SMART
+
+### Fixed (P0 — PREFLIGHT Sync-Blocker)
+- **[PREFLIGHT] NATIVE_STALE blockierte Sync:** `preflight.js` zählte 1.593 NATIVE_STALE-Einträge (native_runtime src=tgt — erwartetes Verhalten) in die 5%-Blocking-Schwelle ein. 31,5% statt echte 2,3%. Fix: `criticalIssues = totalIssues - issues.nativeStale`. Nur echte Issues (UNFLAGGED_STALE, SHIELD_LEAK, LOW_SCORE, JAVA_NOISE, ORPHANED_REVISIONS) zählen für die Schwelle. Soft-Warnung bei >50% NATIVE_STALE.
+
+### Changed (P0 — Routing-Hardening gegen Argos-Overuse)
+- **[ROUTER] Argos CostClass 0→10:** `estimateCostClass()` setzt Argos jetzt als ABSOLUTE LETZTE Wahl (Cost 10). Jeder API-Key-Provider sortiert davor. Vorher Cost 0 machte Argos zur ersten Wahl.
+- **[ROUTER] Google-Free CostClass 3→9:** Auch Google-Free nur noch vorletzte Wahl.
+- **[ROUTER] Nvidia auf Position 2 in candidatesByRole:** Alle Stages (translate/audit/polish). Groq auf Position 3.
+- **[DISPATCHER] Tier 2 Nvidia-Injection:** Low-Risk-Batches gehen jetzt an Nvidia (Qualitäts-LLM) statt direkt an Argos/Google-Free.
+- **[CLIENT-FACTORY] Nvidia Batch-Reduktion:** 8-12→3-6 Items, maxChars halbiert. Verhindert 429-Rate-Limits die zu Cooldown→Argos-Fallback führen.
+
+### Changed (P1 — Error-Handler Smart)
+- **[ROUTER] 429→disable run:** Provider wird für den GESAMTEN Lauf deaktiviert (nicht nur Cooldown). Wiederholter 429→flaggedForReview.
+- **[ROUTER] Eskalierender Cooldown ×2:** 10s→20s→40s→80s (cap 5min) bei Server/Netzwerk-Fehlern. Gleicher Status wiederholt→flaggedForReview.
+- **[ROUTER] isAvailable Cooldown-Bypass:** Cooldown blockiert NICHT mehr die Verfügbarkeit. Key-Rotation übernimmt Backoff.
+- **[ROUTER] reset() State-Leak-Fix:** Neue Felder (lastErrorStatus, lastCooldownMs, flaggedForReview) werden zwischen Runs zurückgesetzt.
+- **[CONFIG-RUNTIME] flaggedForReview im GUI-Status:** `getProviderStatus()` exportiert jetzt `flaggedForReview` + `lastErrorStatus` für die GUI.
+
+### DB Snapshot
+- **Pre-Run Baseline:** `translations_2026-06-18_231437.db` (10.35 MB) — 5.447 Einträge, Argos 10.3%, Nvidia 0%
+
+### Files Changed
+- `src/router.js` — estimateCostClass, candidatesByRole, handleFailure, isAvailable, reset, syncDefaults
+- `src/dispatcher.js` — Tier 2 Nvidia-Injection
+- `src/providers/client-factory.js` — Nvidia Batch-Reduktion (getBatchProfile)
+- `src/config-runtime.js` — flaggedForReview-Exposure in getProviderStatus
+- `src/preflight.js` — NATIVE_STALE von Blocking-Schwelle ausgeschlossen
+- `archive/docs/FREEZE/SESSION_REPORT_2026-06-18_CHAIN-HARDENING.md` — Chain-Hardening Session
+- `archive/docs/FREEZE/SESSION_REPORT_2026-06-18_PREFLIGHT-INPLACE.md` — PREFLIGHT + INPLACE Session
+- `archive/docs/FREEZE/COMMIT_HISTORY_RETROSPECTIVE_2026-06-18.md` — Retroaktive Commit-History
+- `archive/docs/FREEZE/PRE_REVIEW_MAIN_2026-06-18.md` — Pre-Review für Merge nach main
+
+### EFFORT TO NEXT SCOPE
+- **P1 Routing-Fixes:** polish-arbiter familyOrder (nvidia Pos 2), dispatcher Tier 1 (fcm/free LLMs für UI-Strings), argos Batch-Reduktion
+- **P1 UX-Fixes:** flaggedForReview im GUI rendern, Health-Dots für Groq/OpenRouter/Gemini
+- **Live-Run + DB-Auswertung:** db_repair --execute, Sync-Lauf starten, Vorher/Nachher Provider-Verteilung vergleichen
+
+---
+
 ## [0.20.0-wip] - 2026-06-19 — SHIELD-TOKEN REFORMAT + VALIDATEFILEMARKERS INTEGRATION + UNIT-TESTS
 
 ### Phase 1A: Shield-Token-Format [[N]] → __SHLD_N__

@@ -1,7 +1,19 @@
 # 🗄️ SyxBridge — Aktueller Stand (2026-06-16) [ARCHIVED]
 
 > **🔴 Archiviert am 2026-06-19.** Diese Status-Dokumentation ist mit v0.19.5 veraltet.
-> Aktuelle Version: **v0.19.6** — Siehe `core/docs/CHANGELOG.md` und `core/archive/docs/LOG_REPORT_2026-06-19.md`.
+> Aktuelle Version: **v0.19.7** — Siehe `core/archive/docs/CHANGELOG.md` und `core/archive/docs/MASTER_DOC.md`.
+
+> **🔄 INPLACE-MARKER (2026-06-18) — Was ist seit dieser Datei passiert:**
+> - **P5-Blocker:** ✅ GEFIXT — `persistSingleEnvVar()` .env-Pfad-Mismatch (v0.19.05b-19.06)
+> - **P3-Risk-Scoring:** ✅ ABGESCHLOSSEN — Dynamic Risk Integration + Google Free Stress-Test
+> - **Parser-Phase 1:** ✅ ABGESCHLOSSEN — raw/json Parser mit index/full-Feldern
+> - **PREFLIGHT Analysis System:** 🆕 NEU — Automatischer DB-Health-Check vor jedem Sync
+> - **Dual-Path-Copy:** 🆕 NEU — Native Mode kopiert nach Steam Workshop + AppData
+> - **Routing-Hardening:** 🆕 NEU — Argos als letzte Wahl, Nvidia/Groq priorisiert
+> - **Error-Handler Smart:** 🆕 NEU — 429→disable run, eskalierender Cooldown, flaggedForReview
+> - **NMT Local Provider:** 🆕 NEU — @huggingface/transformers (optional)
+> - **DB:** 5.447 Einträge (statt ~3.047)
+>
 > **Grund der Archivierung:** Enthält Pre-P0-Fix-Zustand, veraltete P5-Blocker-Analyse und historische Run-Daten.
 > Diese Datei bleibt als historische Referenz erhalten.
 
