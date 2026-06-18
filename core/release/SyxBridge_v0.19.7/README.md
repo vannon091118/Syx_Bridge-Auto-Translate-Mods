@@ -7,7 +7,7 @@
 <p align="center">
   <a href="#-what-is-syxbridge"><img src="https://img.shields.io/badge/lang-English-blue?style=flat-square" alt="English"></a>
   <a href="#-was-ist-syxbridge"><img src="https://img.shields.io/badge/lang-Deutsch-grey?style=flat-square" alt="Deutsch"></a>
-  <img src="https://img.shields.io/badge/version-v0.19.7-orange?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-v0.19.6-orange?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-Alpha-red?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen?style=flat-square" alt="Node">
@@ -178,7 +178,7 @@ Syx_bridge-/
 │   └── docs/                  # CHANGELOG, TODO, architecture docs
 │
 ├── V70/ & V71/                # Version-specific references
-│
+└── AGENTS.md                  # Sub-agent orchestration
 ```
 
 ---
@@ -192,7 +192,7 @@ Syx_bridge-/
 | v0.16.0 | 2026-06-15 | Dynamic Risk Scoring, Google Free Stress-Test, Route Pipeline |
 | v0.15.0 | 2026-06-14 | GUI Overhaul, Live Terminal, DB Browser, Strict Versioning |
 
-→ **Full changelog:** [`CHANGELOG.md`](core/archive/docs/CHANGELOG.md)
+→ **Full changelog:** [`CHANGELOG.md`](core/docs/CHANGELOG.md)
 
 ---
 
@@ -394,7 +394,7 @@ Syx_bridge-/
 │   └── docs/                  # CHANGELOG, TODO, Architektur-Docs
 │
 ├── V70/ & V71/                # Versions-spezifische Referenzen
-│
+└── AGENTS.md                  # Sub-Agent-Orchestrierung
 ```
 
 ---
@@ -408,7 +408,7 @@ Syx_bridge-/
 | v0.16.0 | 2026-06-15 | Dynamic Risk Scoring, Google-Free Stress-Test, Route-Pipeline |
 | v0.15.0 | 2026-06-14 | GUI-Overhaul, Live-Terminal, DB-Browser, Strict Versioning |
 
-→ **Vollständiges Changelog:** [`CHANGELOG.md`](core/archive/docs/CHANGELOG.md)
+→ **Vollständiges Changelog:** [`CHANGELOG.md`](core/docs/CHANGELOG.md)
 
 ---
 
