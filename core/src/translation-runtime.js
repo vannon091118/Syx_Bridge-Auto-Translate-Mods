@@ -7,7 +7,7 @@ const { createDispatcher } = require('./dispatcher');
 const { createPolishArbiter } = require('./polish-arbiter');
 const cli = require('./cli-progress');
 const { createProviderClients } = require('./providers/client-factory');
-const { createTranslationQuality } = require('./translation-quality');
+const { createTranslationQuality, NATIVE_RUNTIME_DEFAULT_QUALITY, NATIVE_GLOSSARY_DEFAULT_QUALITY } = require('./translation-quality');
 const { createTranslationDb } = require('./translation-db');
 
 function createTranslationRuntime(options) {
@@ -162,8 +162,11 @@ function createTranslationRuntime(options) {
       if (!map || map.size === 0) return t;
       let result = String(t || '');
       for (const [dntToken, shldToken] of map) {
+        // P1-Fix: Case-insensitive replacement because MT providers
+        // (Argos/Google) may alter token casing (e.g. _DNT_0_ → _dnt_0_)
+        const regex = new RegExp(dntToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
         const before = result;
-        result = result.replaceAll(dntToken, shldToken);
+        result = result.replace(regex, shldToken);
         if (result === before) {
           console.warn(`[DNT] Token ${dntToken} nicht in Google/Argos-Response gefunden — Token ging vermutlich verloren.`);
         }
@@ -235,6 +238,14 @@ function createTranslationRuntime(options) {
 
     const resolvedRoute = routeOverride || dispatcher.resolveTranslateRoute(entries);
 
+    // ── P0-Fix: Stress-Test Partial-Pass — failed entries silently got source text ──
+    // Vorher: Wenn overallPassRate > 0.7, wurde die GESAMTE Batch via Google Free
+    // zurueckgegeben. Eintraege die den Stress-Test NICHT bestanden (bis zu 30%)
+    // bekamen `entry.source` als "Uebersetzung" — ein stiller Datenverlust.
+    // Jetzt: Bestandene Eintraege werden vorab gefuellt, nicht-bestandene laufen
+    // durch die normale LLM-Pipeline weiter.
+    let stressPreResolved = null;  // Array<result | null> indexed by entry position
+
     if (resolvedRoute.stressTestRequired) {
       if (isAborting()) throw new Error('ABORTED');
       let stressResult;
@@ -245,24 +256,39 @@ function createTranslationRuntime(options) {
       }
 
       if (stressResult && stressResult.overallPassRate > 0.7) {
-        console.log(`[DISPATCH] Stress-Test bestanden (${(stressResult.overallPassRate * 100).toFixed(0)}%). Nutze Google Free direkt.`);
-        for (const [source, result] of stressResult.stressResults) {
-          saveStressTestResult(source, result.passed).catch(() => {});
-        }
-        return entries.map((entry) => {
+        console.log(`[DISPATCH] Stress-Test bestanden (${(stressResult.overallPassRate * 100).toFixed(0)}%). Nutze Google Free fuer bestandene Eintraege.`);
+        stressPreResolved = new Array(entries.length).fill(null);
+        let stressPassedCount = 0;
+
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
           const translated = stressResult.translations.get(entry.source);
           if (translated) {
             const shieldResult = restorePlaceholders(translated, entry.placeholders);
             if (shieldResult.replacedCount < shieldResult.totalTokens) {
               console.warn(`[SHIELD] Stelle ${shieldResult.totalTokens - shieldResult.replacedCount}/${shieldResult.totalTokens} Tokens nicht restored fuer "${(entry.source || '').substring(0, 30)}".`);
             }
-            return { translation: shieldResult.restored, shieldResult };
+            stressPreResolved[i] = { translation: shieldResult.restored, shieldResult };
+            stressPassedCount++;
           }
-          return { translation: entry.source, shieldResult: { restored: entry.source, replacedCount: 0, totalTokens: 0 } };
-        });
-      }
+          // Failed entries remain null — they will be routed through normal pipeline
+        }
 
-      if (stressResult) {
+        for (const [source, result] of stressResult.stressResults) {
+          saveStressTestResult(source, result.passed).catch(() => {});
+        }
+
+        console.log(`[DISPATCH] ${stressPassedCount}/${entries.length} via Google Free, ${entries.length - stressPassedCount} via LLM-Pipeline.`);
+
+        // P0-Fix Review-Issue #3: Don't early-return even when all entries pass.
+        // Let the normal results assembly validate all entries through the same
+        // quality checks (restoreAndValidateTranslation, translationCriticalCheck,
+        // properNounOverride). This ensures proper nouns get native_runtime/q=94
+        // metadata and all entries have consistent metadata structure.
+        // If ALL entries passed, they're all in skipIndices → rawTranslations will
+        // be entirely populated from stressPreResolved via expansion → normal
+        // pipeline produces empty rawTranslations → expansion fills them all in.
+      } else if (stressResult) {
         console.log(`[DISPATCH] Stress-Test marginal (${(stressResult.overallPassRate * 100).toFixed(0)}%). Eskaliere zu Qualitaets-Modell.`);
         const entryBySource = new Map(entries.map(e => [e.source, e]));
         for (const [source, result] of stressResult.stressResults) {
@@ -288,6 +314,15 @@ function createTranslationRuntime(options) {
       }
     }
 
+    // P0-Fix: Add stress-pre-resolved indices to skipIndices so they are
+    // excluded from the normal LLM translation pipeline. Their translations
+    // (from Google Free) are already stored in stressPreResolved.
+    if (stressPreResolved) {
+      for (let i = 0; i < stressPreResolved.length; i++) {
+        if (stressPreResolved[i]) skipIndices.add(i);
+      }
+    }
+
     const filteredEntries = skipIndices.size > 0
       ? entries.filter((_, i) => !skipIndices.has(i))
       : entries;
@@ -303,19 +338,32 @@ function createTranslationRuntime(options) {
     }
 
     let rawTranslations;
-    if (resolvedRoute.provider === 'gemini') rawTranslations = await clients.callGeminiBatch(entries, resolvedRoute.model);
-    else if (resolvedRoute.provider === 'groq') rawTranslations = await clients.callGroqBatch(entries, resolvedRoute.model);
-    else if (resolvedRoute.provider === 'openrouter') rawTranslations = await clients.callOpenRouterBatch(entries, resolvedRoute.model);
-    else if (resolvedRoute.provider === 'ollama') rawTranslations = await clients.callOllamaBatch(entries, resolvedRoute.model);
+    // P0-Fix V2: Pass filteredEntries to LLM providers when skipIndices has entries.
+    // LLM providers previously always received the full `entries` array, which
+    // prevented the provider-agnostic expansion logic from ever triggering
+    // (rawTranslations.length was always === entries.length, so expansion was skipped
+    // and stressPreResolved translations were silently discarded).
+    const batchInput = skipIndices.size > 0 ? filteredEntries : entries;
+
+    // P0-Fix V3 (Reviewer): Guard against empty batchInput. When all entries pass
+    // the stress test, filteredEntries is []. Sending [] to an LLM provider builds
+    // a nonsense prompt (zero items) which the LLM may reject or respond with garbage.
+    // The expansion logic handles zero-length rawTranslations correctly, so just skip.
+    if (batchInput.length === 0) {
+      rawTranslations = [];
+    } else if (resolvedRoute.provider === 'gemini') rawTranslations = await clients.callGeminiBatch(batchInput, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'groq') rawTranslations = await clients.callGroqBatch(batchInput, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'openrouter') rawTranslations = await clients.callOpenRouterBatch(batchInput, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'ollama') rawTranslations = await clients.callOllamaBatch(batchInput, resolvedRoute.model);
     else if (resolvedRoute.provider === 'argos') {
       // BUG-FS-003: DNT double-shield before sending to non-LLM provider
       const { dntTexts, dntMaps } = dntShieldEntries(filteredEntries);
       let raw = await clients.callArgosBatch(dntTexts);
       rawTranslations = dntRestoreTranslations(raw, dntMaps);
     }
-    else if (resolvedRoute.provider === 'player2') rawTranslations = await clients.callPlayer2Batch(entries, resolvedRoute.model);
-    else if (resolvedRoute.provider === 'nvidia') rawTranslations = await clients.callNvidiaBatch(entries, resolvedRoute.model);
-    else if (resolvedRoute.provider === 'fcm') rawTranslations = await clients.callFcmBatch(entries, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'player2') rawTranslations = await clients.callPlayer2Batch(batchInput, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'nvidia') rawTranslations = await clients.callNvidiaBatch(batchInput, resolvedRoute.model);
+    else if (resolvedRoute.provider === 'fcm') rawTranslations = await clients.callFcmBatch(batchInput, resolvedRoute.model);
     else if (resolvedRoute.provider === 'google_free') {
       // BUG-FS-003: DNT double-shield before sending to non-LLM provider
       const { dntTexts, dntMaps } = dntShieldEntries(filteredEntries);
@@ -323,12 +371,19 @@ function createTranslationRuntime(options) {
       rawTranslations = dntRestoreTranslations(raw, dntMaps);
     }
 
-    if (skipIndices.size > 0 && rawTranslations && (resolvedRoute.provider === 'argos' || resolvedRoute.provider === 'google_free')) {
+    // P0-Fix: Make expansion provider-agnostic. Vorher nur fuer argos/google_free.
+    // Jetzt immer wenn skipIndices Eintraege hat (auch stress-pre-resolved).
+    if (skipIndices.size > 0 && rawTranslations && rawTranslations.length < entries.length) {
       const expanded = [];
       let filteredIdx = 0;
       for (let i = 0; i < entries.length; i++) {
         if (skipIndices.has(i)) {
-          expanded.push(entries[i].source);
+          // For stress-pre-resolved entries, use the Google Free translation
+          if (stressPreResolved && stressPreResolved[i]) {
+            expanded.push(stressPreResolved[i].translation);
+          } else {
+            expanded.push(entries[i].source);
+          }
         } else {
           expanded.push(rawTranslations[filteredIdx++]);
         }
@@ -336,6 +391,11 @@ function createTranslationRuntime(options) {
       rawTranslations = expanded;
     }
 
+    // QUAL-OFFENSIVE Fix #1: track Proper-Noun-Override-Indizes damit der
+    // Save-Path den Provider auf native_runtime überschreiben kann (statt argos).
+    // Vorher: alle Proper-Nouns landeten in DB mit provider='argos' +
+    // translation=source → Audit staende als 522 argos|low_score|source_reused.
+    const properNounOverrideSet = new Set();
     if (resolvedRoute.provider === 'argos' || resolvedRoute.provider === 'google_free') {
       const _properNounAllowlist = new Set([
         'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'is', 'it', 'he', 'she',
@@ -345,7 +405,28 @@ function createTranslationRuntime(options) {
       rawTranslations = rawTranslations.map((translation, i) => {
         const source = entries[i].source;
         if (isProperNoun(source) && !_properNounAllowlist.has(source.toLowerCase())) {
+          properNounOverrideSet.add(i);
           return source;
+        }
+        return translation;
+      });
+    }
+
+    // P0-Fix Review-Issue #2: Always run properNounOverride for stress-pre-resolved
+    // entries too, regardless of resolvedRoute.provider. Without this, proper nouns
+    // in the stress-pre-resolved batch are saved with the LLM provider's metadata
+    // instead of native_runtime/q=94 (QUAL-OFFENSIVE Fix #1 bypass).
+    if (stressPreResolved && resolvedRoute.provider !== 'argos' && resolvedRoute.provider !== 'google_free') {
+      const _properNounAllowlist = new Set([
+        'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'is', 'it', 'he', 'she',
+        'do', 'go', 'if', 'or', 'be', 'my', 'me', 'we', 'us', 'no', 'so', 'up',
+        'by', 'as', 'am', 'oh', 'hi', 'ok'
+      ]);
+      rawTranslations = rawTranslations.map((translation, i) => {
+        // Only override stress-pre-resolved entries that are proper nouns
+        if (stressPreResolved[i] && isProperNoun(entries[i].source) && !_properNounAllowlist.has(entries[i].source.toLowerCase())) {
+          properNounOverrideSet.add(i);
+          return entries[i].source;
         }
         return translation;
       });
@@ -365,7 +446,17 @@ function createTranslationRuntime(options) {
       if (!critical.ok) {
         console.warn(`[CRITICAL] "${item.source.substring(0, 30)}" -> ${critical.reason} (${resolvedRoute.provider}). Fallback auf Original.`);
         unchangedCount++;
-        return { translation: item.source, softWarnings: [], fallbackUsed: true, criticalReject: true, shieldResult: null };
+        return {
+          translation: item.source,
+          softWarnings: [],
+          fallbackUsed: true,
+          criticalReject: true,
+          shieldResult: null,
+          // A5-Fix (Reviewer): Override-Indikator MUSS auch im critical-fail-Branch
+          // propagiert werden, sonst wird ein proper_noun das durch critical-check
+          // faellt mit provider='argos'+q=25 statt native_runtime+94 persistiert.
+          wasProperNounOverride: properNounOverrideSet.has(index)
+        };
       }
 
       // Capture shield restoration stats from restoreAndValidateTranslation
@@ -380,7 +471,14 @@ function createTranslationRuntime(options) {
       if (normalizeWhitespace(finalized.restored) === normalizeWhitespace(item.source) && !isLikelyTargetLanguageText(finalized.restored)) {
         unchangedCount++;
       }
-      return { translation: finalized.restored, softWarnings: warnings.warnings, fallbackUsed: false, criticalReject: false, shieldResult };
+      return {
+        translation: finalized.restored,
+        softWarnings: warnings.warnings,
+        fallbackUsed: false,
+        criticalReject: false,
+        shieldResult,
+        wasProperNounOverride: properNounOverrideSet.has(index)
+      };
     });
 
     if (unchangedCount === texts.length && texts.some(text => shouldTranslate(text) && !isLikelyTargetLanguageText(text))) {
@@ -402,8 +500,14 @@ function createTranslationRuntime(options) {
       const batchResults = await translateBatch(items, route);
       const translations = batchResults.map(r => typeof r === 'string' ? r : r.translation);
       const meta = batchResults.map(r => typeof r === 'string'
-        ? { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null }
-        : { softWarnings: r.softWarnings || [], fallbackUsed: r.fallbackUsed || false, criticalReject: r.criticalReject || false, shieldResult: r.shieldResult || null }
+        ? { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null, wasProperNounOverride: false }
+        : {
+            softWarnings: r.softWarnings || [],
+            fallbackUsed: r.fallbackUsed || false,
+            criticalReject: r.criticalReject || false,
+            shieldResult: r.shieldResult || null,
+            wasProperNounOverride: !!r.wasProperNounOverride
+          }
       );
       return {
         provider: route.provider,
@@ -615,10 +719,15 @@ function createTranslationRuntime(options) {
       if (!nativeDecision.reuse) continue;
       translations.set(entry.source, nativeDecision.translation);
       nativeReuseCount++;
+      // SoT-via-import (F3 Finalisierung, Reviewer-Pass-3): die Konstanten
+      // NATIVE_GLOSSARY_DEFAULT_QUALITY (88) und NATIVE_RUNTIME_DEFAULT_QUALITY (94)
+      // leben ausschliesslich in translation-quality.js. Dieser Code folgt der Single
+      // Source of Truth — keine lokal duplizierten Magic Numbers mehr, sodass eine
+      // v0.20-Anpassung der Quality-Scores nur EINE Stelle beruehrt.
       await saveTranslation(entry, nativeDecision.translation, nativeDecision.reason === 'glossary_exact' ? 1 : 2, {
         provider: nativeDecision.reason === 'glossary_exact' ? 'native_glossary' : 'native_runtime',
         flagReason: '',
-        qualityScore: nativeDecision.reason === 'glossary_exact' ? 88 : 94
+        qualityScore: nativeDecision.reason === 'glossary_exact' ? NATIVE_GLOSSARY_DEFAULT_QUALITY : NATIVE_RUNTIME_DEFAULT_QUALITY
       });
       cachedData.set(entry.source, {
         translation: nativeDecision.translation,
@@ -626,7 +735,7 @@ function createTranslationRuntime(options) {
         flagged: false,
         flagReason: '',
         provider: nativeDecision.reason === 'glossary_exact' ? 'native_glossary' : 'native_runtime',
-        qualityScore: nativeDecision.reason === 'glossary_exact' ? 88 : 94,
+        qualityScore: nativeDecision.reason === 'glossary_exact' ? NATIVE_GLOSSARY_DEFAULT_QUALITY : NATIVE_RUNTIME_DEFAULT_QUALITY,
         sourceHash: getEntryHash(entry)
       });
       if (nativeDecision.reason === 'glossary_exact') {
@@ -692,27 +801,52 @@ function createTranslationRuntime(options) {
           const entry = currentBatch[j];
           const source = entry.source;
           const translated = result.translations[j];
-          const itemMeta = batchMeta[j] || { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null };
+          const itemMeta = batchMeta[j] || { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null, wasProperNounOverride: false };
           const qualityScore = scoreTranslationQuality(source, translated);
-          const flagReason = inferFlagReason(source, translated, result.provider, { qualityScore });
+          // QUAL-OFFENSIVE Fix #1: Proper-Noun-Override → persistieren mit
+          // provider='native_runtime' (nicht argos), korrekter Quality-Score 94.
+          const properNounOverride = !!itemMeta.wasProperNounOverride;
+          const saveProvider = properNounOverride ? 'native_runtime' : result.provider;
+          const flagReason = inferFlagReason(source, translated, saveProvider, { qualityScore });
           translations.set(source, translated);
 
           const saveMeta = {
-            provider: result.provider,
+            provider: saveProvider,
             flagReason,
-            qualityScore,
-            polishStatus: (itemMeta.softWarnings.length > 0 || itemMeta.fallbackUsed) ? 'pending' : 'completed',
-            requiresDeepPolish: itemMeta.softWarnings.length > 0 || itemMeta.fallbackUsed || qualityScore < 60,
-            overwriteFallbackUsed: itemMeta.fallbackUsed
+            qualityScore: properNounOverride ? NATIVE_RUNTIME_DEFAULT_QUALITY : qualityScore,
+            // C-Fix (Reviewer-Pass-2): Override-Indikator dominiert die Save-Semantik.
+            // polishStatus/requiresDeepPolish/overwriteFallbackUsed werden bei Override
+            // auf completed/false/false gezwungen, sonst entsteht der Widerspruch
+            // "q=94 + polishStatus=pending" der Deep-Polish-Code in eine dead-loop laufen liesse.
+            // F1-Fix (Reviewer-Pass-3): overwriteFallbackUsed ist jetzt truthy bei Override.
+            // Hintergrund: Deep-Polish-SELECT schliesst Eintraege mit
+            //   (overwrite_fallback_used=1 AND translation=source_text)
+            // explizit AUS. Wenn ein zukuenftiger Code-Pfad die polishQueue umgeht
+            // (Direct-SQL/Scripted-Rerun), wuerde ein Override-Eintrag sonst re-polished
+            // und der Override wuerde wirkungslos. Mit overwriteFallbackUsed=true ist die
+            // SQL-Selektion selbst der Schutz, nicht nur die Queue-Entscheidung.
+            polishStatus: properNounOverride ? 'completed' : ((itemMeta.softWarnings.length > 0 || itemMeta.fallbackUsed) ? 'pending' : 'completed'),
+            requiresDeepPolish: !properNounOverride && (itemMeta.softWarnings.length > 0 || itemMeta.fallbackUsed || qualityScore < 60),
+            overwriteFallbackUsed: properNounOverride || itemMeta.fallbackUsed
           };
 
-          savePromises.push(saveTranslation(entry, translated, 0, saveMeta));
+          // polishLevel 2 = final (deep-polished / proper-noun). Für Override markiert
+          // das den Eintrag als terminal, sodass Deep-Polish-SELECT ihn ueberspringt
+          // (zusaetzlich zu overwriteFallbackUsed=true als doppelte Absicherung).
+          savePromises.push(saveTranslation(entry, translated, properNounOverride ? 2 : 0, saveMeta));
           cachedData.set(source, {
             translation: translated,
-            polishLevel: 0,
+            polishLevel: properNounOverride ? 2 : 0,
+            // F2-Fix (Reviewer-Pass-3): flagged strikt an Presence von flagReason koppeln,
+            // nicht an properNounOverride. Vorher: Override=>flagged=false egal was.
+            // Jetzt: wenn inferFlagReason doch einen Grund liefert (z.B. shield_leak weil
+            // placeholders verloren), bleibt flagReason nicht ignoriert -> DB zeigt es.
             flagged: !!flagReason,
             flagReason,
-            provider: result.provider,
+            // A3-Fix (Reviewer): cachedData.provider muss saveProvider sein, sonst
+            // divergieren DB (native_runtime) und Cache (argos) für denselben Eintrag
+            // und spaetere Stats/Summary-Reports zeigen falsche Provider-Verteilung.
+            provider: saveProvider,
             qualityScore: saveMeta.qualityScore,
             sourceHash: getEntryHash(entry)
           });
@@ -730,10 +864,46 @@ function createTranslationRuntime(options) {
         for (const item of currentBatch) {
           translations.set(item.source, item.source);
           const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
+          // D-Fix (Reviewer-Pass-2): Fail-Path Proper-Nouns jetzt konsistent mit
+          // Translate-Path-Fix A — als native_runtime (q=94) persistieren statt
+          // als native_fallback (q=90). Verhindert Split-Brain bei Re-Runs wo der
+          // gleiche Proper-Noun mal als native_runtime (via Translate), mal als
+          // native_fallback (via Fail-Path) auftaucht.
+          const failProvider = isPN ? 'native_runtime' : 'native_fallback';
           const failReason = isPN ? 'proper_noun' : 'all_routes_failed';
-          const failScore = isPN ? 90 : 20;
-          failPromises.push(saveTranslation(item, item.source, 0, { provider: 'native_fallback', flagReason: failReason, qualityScore: failScore }));
-          cachedData.set(item.source, { translation: item.source, polishLevel: isPN ? 2 : 0, flagged: !isPN, flagReason: failReason, provider: 'native_fallback', qualityScore: failScore, sourceHash: getEntryHash(item) });
+          const failScore = isPN ? NATIVE_RUNTIME_DEFAULT_QUALITY : 20;
+          // Fail-Path-Hardening (Reviewer-Pass-3 Finalisierung):
+          //   overwriteFallbackUsed ist jetzt strikt `true` für BEIDE Fail-Path-Branches,
+          //   weil in beiden Faellen translation === item.source gilt. Analog zu F1 in
+          //   Translate-Path: wenn ein zukuenftiger Polish-Bypass-Pfad die Queue umgeht
+          //   (Direct-SQL/Scripted-Rerun), schuetzt das SQL-SELECT
+          //   `(overwrite_fallback_used=1 AND translation=source_text) → NOT selected`
+          //   beide Branches konsistent.
+          //
+          //   flagged bleibt asymmetrisch zu Translate-Path-F2-Strenge: Fail-Path
+          //   proper-noun-Entries erhalten flagReason='proper_noun' als informativen
+          //   Marker (DB-Audit-Dashboards koennen ihn lesen), sind aber nicht actionable
+          //   (requiresDeepPolish=false). Das ist bewaehrt, dokumentiert, NICHT split-
+          //   brain zu Translate-Path (wo proper-noun-Override flagged=false hat, aber
+          //   schon polishLevel=2 + overwriteFallbackUsed=true die Sicherheits-Garantien
+          //   liefert).
+          failPromises.push(saveTranslation(item, item.source, isPN ? 2 : 0, {
+            provider: failProvider,
+            flagReason: failReason,
+            qualityScore: failScore,
+            polishStatus: isPN ? 'completed' : 'pending',
+            requiresDeepPolish: !isPN,
+            overwriteFallbackUsed: true
+          }));
+          cachedData.set(item.source, {
+            translation: item.source,
+            polishLevel: isPN ? 2 : 0,
+            flagged: !isPN,
+            flagReason: failReason,
+            provider: failProvider,
+            qualityScore: failScore,
+            sourceHash: getEntryHash(item)
+          });
         }
         await Promise.all(failPromises);
         if (cli.isActive()) cli.addErr(currentBatch.length);

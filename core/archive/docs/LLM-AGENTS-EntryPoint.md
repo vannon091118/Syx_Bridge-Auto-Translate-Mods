@@ -1,9 +1,9 @@
 # 🤖 AGENTS.md — SyxBridge Sub-Agent Reference
 
-> **Version:** v0.19.7 | **Stand:** 2026-06-19 (Updated)
+> **Version:** v0.19.7 | **Stand:** 2026-06-18 (Updated — PREFLIGHT + INPLACE Session)
 > Dieses Dokument beschreibt alle verfügbaren Sub-Agents die von Buffy (Codebuff) orchestriert werden.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können. Kein tmux. Keine Lockfiles im Release.
-> **Single Source of Truth:** AGENTS.md (Root) gelöscht — dieses Dokument ist die einzige Agent-Referenz.
+> **Single Source of Truth:** Liegt im Projekt-Root UND in core/archive/docs/ — beide identisch.
 
 Uservorgabe Immer du führst ungefragt direkt nach lesen der Datei folgendes aus : LIES DIE VERDAMMTE DOKUMENTATION ! C:\Users\Vannon\Desktop\SyxBridge_Live\core\archive
 
@@ -25,7 +25,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 | `basher` | Ausführung | Einzelne Terminal-Befehle ausführen |
 | `code-reviewer-deepseek-flash` | Review | Kritisches Review von Code-Änderungen (DeepSeek Flash) |
 | `tmux-cli` | Testing | CLI-App-Testen via tmux-Session |
-| `thinker-gpt` | Analyse | Deep-Thinking ohne Tool-Zugriff (ChatGPT-basiert) |
+| `thinker-with-files-gemini` | Analyse | Deep-Thinking mit Datei-Zugriff (Gemini, sehr smart). Erreicht auch nicht-triviale Bugs und unsichere Entscheidungen. |
 | `researcher-web` | Recherche | Web-Suche für aktuelle Informationen |
 | `researcher-docs` | Recherche | Technische Dokumentation von Libraries/Frameworks |
 | `browser-use` | Testing | Chrome DevTools Automatisierung für Web-Apps |
@@ -66,6 +66,13 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 **Params:** `command: string` (CLI-Befehl zum Starten), `prompt: string` (was zu tun ist)
 **Capture:** Ergebnisse liegen in `/tmp/`, via `cat` auslesbar
 **✅ Parent-Verantwortung:** `scriptIssues` prüfen, Capture-Dateien lesen, bei Fehlern neu spawnen, `lessons` für künftige Runs nutzen
+
+### `thinker-with-files-gemini`
+**Einsatz:** Architektur-Design, Root-Cause-Analyse, Fix-Validierung, nicht-triviale Entscheidungen
+**Tools:** read_files auf übergebene filePaths (KEIN Zugriff auf Conversation-History!)
+**Typischer Prompt:** "Analysiere diese 3 Dateien auf Edge Cases und Quality-Gaps"
+**Params:** `filePaths: string[]` (REQUIRED — alle relevanten Dateien)
+**⚠️ Wichtig:** Hat KEINE Conversation-History. ALLE relevanten Dateien müssen via filePaths übergeben werden.
 
 ### `thinker-gpt`
 **Einsatz:** Komplexe Probleme die Nachdenken erfordern
@@ -119,13 +126,82 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 6. Doku-Update
 ```
 
-### Doku-Update / Audit
+### External Research Siege (Massive Parallel Root-Cause-Analyse)
 ```
-1. read_files: betroffene Docs lesen
-2. git diff HEAD --stat: Änderungen analysieren
-3. Abgleich: Ist-Doku vs. Soll-Zustand (fehlende Agents, falsche Versionen)
-4. str_replace: Doku korrigieren
-5. code-reviewer-deepseek-flash: Review der Doku-Änderungen
+ZIEL: Wenn ein Bug in der eigenen Codebase nicht vollständig erklärbar ist,
+      externes Wissen (Web, Docs, Community) in die Analyse einbeziehen.
+
+LOOP:
+  1. MASSIVE PARALLEL SEARCH: 10-15 Sub-Agents GLEICHZEITIG spawnen
+     → code-searcher (3-5×): alle relevanten Code-Patterns
+     → file-picker (2-3×): alle relevanten Dateien
+     → researcher-web (2-3×): externe Quellen, Community-Knowledge
+     → researcher-docs (1-2×): API-Dokumentation, Framework-Guides
+  2. KEY FILES LESEN: read_files auf alle identifizierten Dateien
+  3. DEEP ANALYSIS: thinker-with-files-gemini auf den KOMPLETTEN Satz
+     → Root Cause identifizieren ODER widerlegen
+     → Fix-Design mit Tradeoff-Analyse (mehrere Optionen bewerten)
+  4. IMPLEMENT: Gewählten Fix via str_replace einbauen
+  5. CODE REVIEW + SYNTAX parallel
+  6. Bei Reviewer-Issues → Fix → zurück zu Step 5
+
+CHARAKTERISTISCH: Code allein erklärt den Bug nicht — externes Wissen
+                 (z.B. "Spiel lädt Mods aus AppData, nicht aus Workshop")
+                 ist der Schlüssel zur Root-Cause-Identifikation.
+
+ENTSCHEIDUNGSREGEL: Fix zugunsten der Laufzeit-Zuverlässigkeit.
+                   Immer den WEG wählen der das Problem ENDGÜLTIG löst,
+                   nicht den der am wenigsten Code ändert.
+```
+
+### System-Build-Loop (Neues Feature/System)
+```
+ZIEL: Ein komplett neues System (z.B. Preflight Analysis) entwerfen,
+      bauen, reviewen und stabilisieren.
+
+LOOP:
+  1. ARCHITEKTUR-DESIGN: thinker-with-files-gemini auf existierende
+     Infrastruktur (alle relevanten Dateien) → Design mit Tradeoffs
+  2. IMPLEMENT: Alle Dateien parallel erstellen/ändern
+  3. CODE REVIEW + SYNTAX parallel
+  4. Bei Reviewer-Issues → Fix → zurück zu Step 3
+  5. DRY-RUN: node -e oder Script-Aufruf zum Verifikation
+  6. FINAL PASS → abnehmen
+
+REGEL: Maximal 4 Dateien gleichzeitig neu erstellen/ändern.
+       Neue Systeme IMMER erst designen, dann bauen.
+```
+
+### Chain-Function Hardening Loop (Iterative Qualitäts-Härtung)
+```
+ZIEL: Funktion für Funktion die gesamte Chain auf Edge Cases, Quality-Gaps
+      und Stabilität prüfen. Jeder Fix wird durch 2 unabhängige Sub-Agenten
+      (Verifikation + Widerlegung) gegengeprüft bevor er akzeptiert wird.
+
+LOOP pro Funktion:
+  1. BASELINE (RUN 1): Syntax-Check + alle Smoke-Tests → Messlatte
+  2. DEEP ANALYSIS: thinker-with-files-gemini auf ALLE relevanten Dateien
+     → klassifiziere EVERY Finding nach P0/P1/P2/P3
+  3. IMPLEMENT: Alle P0+P1+P2 Fixes via str_replace (parallel wo möglich)
+  4. RUN 2: Syntax + Smoke + code-reviewer-deepseek-flash parallel
+  5. VERIFICATION: thinker-with-files-gemini als UNABHÄNGIGER Prüfer
+     → "Prüfe diesen Datenstring und Kausalitäten OHNE Annahmen"
+     → Jeder Claim: VERIFIED oder FALSIFIED mit exakten Line-Referenzen
+  6. REFUTATION: thinker-with-files-gemini als AKTIVER Widerleger
+     → "Versuche AKTIV diese Claims zu widerlegen. Finde JEDES Szenario."
+     → Jeder Claim: SUCCESSFULLY REFUTED oder FAILED TO REFUTE
+  7. Wenn FALSIFIED oder REFUTED → Fix + zurück zu Step 4
+  8. RUN 3: Syntax + Smoke + code-reviewer-deepseek-flash (final)
+  9. Ergebnis GUT = NÄCHSTE Funktion | TENDIERT NEGATIV = LOOP WIEDERHOLEN
+
+ENTSCHEIDUNGSREGEL: Immer zugunsten der Laufzeit-Zuverlässigkeit.
+                   Edge Cases AKTIV minimieren. Jeder String hat das Recht
+                   korrekt übersetzt zu werden.
+
+FILES pro Durchlauf: MAXIMAL 5 Dateien gleichzeitig ändern.
+                     Nur EINE Funktion/Modul pro Loop-Iteration.
+
+ABBRUCH: Loop läuft bis keine neuen Fehler gefunden werden ODER User stoppt.
 ```
 ---
 
@@ -141,6 +217,8 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 8. **CHANGELOG aktuell halten:** Nach jedem Fix den CHANGELOG updaten
 9. **DB-Retention am Session-Ende:** Nach jeder Session oder vor jedem grösseren Fix den User fragen ob die aktuelle `translations.db` archiviert werden soll. Siehe § DB-Retention & Backup-Strategie.
 10. **gravity_index vor Service-Integration:** Nie einen Third-Party-Service aus dem Gedächtnis empfehlen — immer `gravity_index` verwenden.
+11. **PREFLIGHT ANALYSIS:** Vor jedem Sync läuft `preflight.js` automatisch — prüft DB-Health, repariert (<5%-Threshold), dokumentiert in `archive/docs/PREFLIGHT_LATEST.md`.
+12. **Dual-Path-Copy (Native Mode):** Übersetzte Dateien werden IMMER in BEIDE Verzeichnisse kopiert: Steam Workshop (für Launcher-Sync) + AppData (für sofortiges Laden im Spiel).
 
 ---
 

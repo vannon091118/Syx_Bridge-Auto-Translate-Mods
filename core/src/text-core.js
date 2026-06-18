@@ -38,8 +38,53 @@ function protectPlaceholders(text) {
   };
 }
 
+/**
+ * Common English words that look like proper nouns (capitalized) but are
+ * actually common nouns that SHOULD be translated. Words here are excluded
+ * from proper-noun classification so they go through translation.
+ * 
+ * This is a denylist — any capitalized word that matches this list is
+ * treated as a common noun, not a proper noun.
+ * 
+ * Source: DB-Anomaly-Scan (Phase 1.1) zeigte ~160 native_runtime-Einträge
+ * mit q=94, translation=source_text, flagged=0, die englische Gemeinwörter
+ * wie "Religion", "Temple", "Priest" enthielten. Diese wurden nie übersetzt.
+ */
+// Konstante (UPPER_SNAKE_CASE) — bewusst von camelCase-Funktionen abgesetzt,
+// da dies eine modulweite Konfigurationskonstante ist, die von aussen sichtbar
+// sein soll (exportierbar in v0.20). Siehe Reviewer-Hinweis zur Konvention.
+const PROPER_NOUN_DENY_COMMON_ENGLISH = new Set([
+  // Common nouns that are capitalized in-game but should be translated
+  'religion', 'temple', 'temples', 'priest', 'priests', 'worshippers',
+  'worshipping', 'carpet', 'grandeur', 'space', 'altar', 'torch', 'relief',
+  'pathway', 'shrine', 'shrines', 'decoration', 'decorations', 'capacity',
+  'pathways', 'cluster', 'clusters', 'torches', 'altars', 'faction', 
+  'factions', 'kingdom', 'kingdoms', 'empire', 'empires', 'province',
+  'provinces', 'region', 'regions', 'territory', 'territories',
+  'occupation', 'profession', 'professions', 'title', 'titles',
+  'population', 'settlement', 'settlements', 'building', 'buildings',
+  'workshop', 'workshops', 'storage', 'warehouse', 'warehouses',
+  'market', 'markets', 'trader', 'traders', 'merchant', 'merchants',
+  'resource', 'resources', 'material', 'materials', 'food', 'water',
+  'wood', 'stone', 'iron', 'steel', 'coal', 'clay', 'tools',
+  'weapon', 'weapons', 'armor', 'armour', 'furniture',
+  'noble', 'nobles', 'commoner', 'commoners', 'citizen', 'citizens',
+  'subject', 'subjects', 'slave', 'slaves', 'worker', 'workers',
+  'soldier', 'soldiers', 'officer', 'officers'
+]);
+
 function isProperNoun(text) {
   const value = String(text || '').trim();
+  // QUAL-OFFENSIVE Fix #3: Denylist für englische Gemeinwörter
+  // Vorher: Jedes Wort das mit Großbuchstaben beginnt, <40 Zeichen lang ist
+  // und keine Satzzeichen enthält, wurde als ProperNoun klassifiziert → nie übersetzt.
+  // Folge: 160+ Einträge mit translation=source_text, q=94, flagged=0.
+  // Jetzt: Wenn das Wort in PROPER_NOUN_DENY_COMMON_ENGLISH steht, wird es
+  // NICHT als ProperNoun behandelt → geht durch den normalen Übersetzungs-Pfad.
+  if (!value) return false;
+  const lower = value.toLowerCase();
+  if (PROPER_NOUN_DENY_COMMON_ENGLISH.has(lower)) return false;
+  
   // Kurz + beginnt mit Großbuchstabe + keine Leerzeichen + keine Satzzeichen
   // \p{Lu} = Unicode uppercase, \p{Lt} = titlecase — deckt alle Sprachen ab
   return value.length > 0 && value.length < 40 
@@ -296,6 +341,15 @@ function buildProofreadPrompt(items, targetLang = 'German', grammarContext = '',
     const meta = [];
     if (item.contextPacket) meta.push(`ctx:${item.contextPacket}`);
     const metaLine = meta.length > 0 ? ` [${meta.join(' | ')}]` : '';
+    // P1-Fix: Blind polishing. Wenn originalSource fehlt, hat der LLM keinen
+    // Anker fuer die urspruengliche Bedeutung und kann Meaning-Drift produzieren.
+    // Wir lassen die "Original English" Zeile weg (sicherer als item.source zu
+    // nutzen, was die aktuelle Uebersetzung waere und den LLM verwirren wuerde).
+    // Alle normalen Caller (ensureTranslations, Deep Polish) setzen originalSource.
+    const hasExplicitOriginal = !!item.originalSource;
+    if (!hasExplicitOriginal) {
+      console.warn(`[PROOFREAD] Eintrag ohne originalSource — Meaning-Drift moeglich.`);
+    }
     const originalLine = item.originalSource ? `Original English: "${item.originalSource}"\n` : '';
     return `ID:${index + 1}${metaLine}\n${originalLine}Current ${targetLang}: "${item.protectedText}"\nImproved ${targetLang}:`;
   }).join('\n\n');

@@ -33,28 +33,19 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
   const { applyTranslations } = require('./text-core');
   let newContent = applyTranslations(content, replacements, translations, plugin);
 
-  // Plugin-delegated file header (e.g. SoS V71 __OVERWRITE, XML declaration).
-  // Fallback: V71 __OVERWRITE check (backward compat without plugin).
-  if (plugin && typeof plugin.getFileHeader === 'function') {
-    const header = plugin.getFileHeader(outputPath);
-    if (header && !newContent.startsWith(header.trim())) {
-      newContent = header + newContent;
-    }
-  } else if (outputPath.includes('V71') && !newContent.includes('__OVERWRITE')) {
-    newContent = `__OVERWRITE: true,\n${newContent}`;
-  }
+  // ── BUG-FS-004: Syntax/Marker-Validierung VOR Header-Präfix ──────────
+  // Vorher wurde __OVERWRITE: true,\n VOR der Validierung eingefügt.
+  // validateFileSyntax() zählt KEY:-Zeilen per Regex und __OVERWRITE:
+  // matcht ebenfalls → +1 Key → KEY_COUNT_MISMATCH → Write BLOCKIERT.
+  // Jetzt: Validierung läuft auf dem reinen Übersetzungsinhalt (ohne
+  // Header) — vergleicht echte Game-Keys, nicht Framework-Direktiven.
+  // Der Header wird erst DANACH hinzugefügt (vor dem disk-write).
 
   // ── Post-Write Syntax Validation: compare source/target file structure ──
-  // Catches KEY count mismatches, unbalanced quotes, or significant line drift
-  // BEFORE writing to disk, so corrupted files never reach the game engine.
   const syntaxResult = validateFileSyntax(content, newContent);
   try { getGateCounter().record('exporter:validateFileSyntax', (syntaxResult && syntaxResult.valid) ? 'keep' : 'discard', { valid: !!(syntaxResult && syntaxResult.valid) }); } catch (_) {}
 
   // ── Marker-Level Integration Check ────────────────────────────────────
-  // Verifies that tags, placeholders, and variables from the source survive
-  // the translation process with correct type-densities. Blocks writes that
-  // would drop critical markers like {0}, <c:FF0000>, or $VAR.
-  // Extract shield restoration results from the translations Map (set by ensureTranslations)
   const shieldResults = (translations && translations.__shieldResults) || null;
   const markerResult = validateFileMarkers(content, newContent, shieldResults);
   try { getGateCounter().record('exporter:validateFileMarkers', markerResult.valid ? 'keep' : 'discard', { issues: markerResult.issues.length }); } catch (_) {}
@@ -69,6 +60,19 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
 
     console.warn(`[MARKER] Marker-Abweichung in "${fileName}": ${markerResult.issues.join('; ')}`);
     console.warn(`[MARKER] Source: ${JSON.stringify(markerResult.summary.source)} Target: ${JSON.stringify(markerResult.summary.target)}`);
+  }
+
+  // ── BUG-FS-004: Header-Präfix NACH der Validierung ───────────────────
+  // __OVERWRITE: true,\n ist eine V71-Engine-Direktive, kein Game-Content-Key.
+  // Wird NACH validateFileSyntax/validateFileMarkers hinzugefügt, damit
+  // diese nicht fälschlich einen KEY_COUNT_MISMATCH melden (41→42 etc.).
+  if (plugin && typeof plugin.getFileHeader === 'function') {
+    const header = plugin.getFileHeader(outputPath);
+    if (header && !newContent.startsWith(header.trim())) {
+      newContent = header + newContent;
+    }
+  } else if (outputPath.includes('V71') && !newContent.includes('__OVERWRITE')) {
+    newContent = `__OVERWRITE: true,\n${newContent}`;
   }
 
   // CRITICAL GATE: KEY_COUNT_MISMATCH means file structure is destroyed.

@@ -59,8 +59,11 @@ function createProviderClients(ctx) {
     if (provider === 'fcm')         return { maxItems: mode === 'polish' ? 8  : 14, maxChars: 2000 };
 
     // NVIDIA NIM: Max-Effort — smaller batches = more context per item = better quality
-    if (provider === 'nvidia' && isLarge) return { maxItems: mode === 'polish' ? 10 : 16, maxChars: 2400 };
-    if (provider === 'nvidia')            return { maxItems: mode === 'polish' ? 8  : 12, maxChars: 2000 };
+    // NVIDIA NIM: Reduced limits to respect 50 TPM (tokens per minute) quota.
+    // Larger batches exhaust the quota immediately (429 → cooldown → argos fallback).
+    // Small batches spread load across minutes and stay within rate limits.
+    if (provider === 'nvidia' && isLarge) return { maxItems: mode === 'polish' ? 4 : 6, maxChars: 1500 };
+    if (provider === 'nvidia')            return { maxItems: mode === 'polish' ? 3 : 5, maxChars: 1000 };
 
     // OpenRouter: conservative batches for quality
     if (provider === 'openrouter' && isFree)  return { maxItems: mode === 'polish' ? 4  : 8,  maxChars: 1200 };
@@ -334,16 +337,26 @@ except Exception as e:
     console.log(`[INFO] Google Translate Free Fallback (${texts.length} Texte)...`);
     for (const text of texts) {
       if (isAborting()) throw new Error('ABORTED');
-      try {
-        const r = await axios.get('https://translate.googleapis.com/translate_a/single', {
-          params: { client: 'gtx', sl: 'auto', tl, dt: 't', q: text },
-          timeout: 8000
-        });
-        results.push((r.data[0] || []).map(x => x[0]).join(''));
-      } catch (e) {
-        console.warn(`[!] Google Translate fehlgeschlagen fuer: "${text.substring(0, 20)}..."`);
-        results.push(text);
+      let translated = text;
+      // P2-Fix: Retry once on network timeout/error before falling back to source.
+      // Vorher: Ein einzelner Netzwerk-Timeout gab sofort den Quelltext zurueck.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const r = await axios.get('https://translate.googleapis.com/translate_a/single', {
+            params: { client: 'gtx', sl: 'auto', tl, dt: 't', q: text },
+            timeout: 8000
+          });
+          translated = (r.data[0] || []).map(x => x[0]).join('');
+          break;
+        } catch (e) {
+          if (attempt === 0) {
+            await sleep(800);
+            continue;
+          }
+          console.warn(`[!] Google Translate fehlgeschlagen fuer: "${text.substring(0, 20)}..."`);
+        }
       }
+      results.push(translated);
       await sleep(450);
     }
     return results;

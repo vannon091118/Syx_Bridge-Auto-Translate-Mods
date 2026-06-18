@@ -7,6 +7,13 @@
 
 const { normalizeTranslationEntry } = require('./context-packets');
 
+// QUAL-OFFENSIVE: Single Source of Truth für native_runtime Quality-Score.
+// classifyNativeDecision('native_runtime', reason != 'glossary_exact') liefert q=94.
+// Wenn dieser Wert in v0.20 angepasst wird, soll nur EINE Stelle geändert werden.
+const NATIVE_RUNTIME_DEFAULT_QUALITY = 94;
+// Gluecklicher Fall: native_glossary (reason='glossary_exact') nutzt q=88 — separater Wert.
+const NATIVE_GLOSSARY_DEFAULT_QUALITY = 88;
+
 function createTranslationQuality(options) {
   const {
     config,
@@ -96,7 +103,14 @@ function createTranslationQuality(options) {
     const tgt = normalizeWhitespace(translation);
     if (!tgt) return 0;
     if (/^\d+$/.test(tgt)) return 0;
-    if (src === tgt) return isLikelyTargetLanguageText(tgt) ? 80 : 25;
+    // QUAL-OFFENSIVE Fix #4: source_reused Score-Cap
+    // Vorher: Wenn src===tgt UND isLikelyTargetLanguageText(tgt) true (z.B. deutscher
+    // Satz der zufällig auch Englisch sein könnte), gab scoreTranslationQuality 80.
+    // Folge: 338 Einträge mit translation=source_text + quality_score>=80 — diese
+    // wurden nie als "needs retranslation" markiert und blieben flagged=0.
+    // Jetzt: source_reused hat HARD-CAP bei 50 (niemals >50), unabhängig von
+    // Sprachendetektion. Nur echte Übersetzungen können >50 haben.
+    if (src === tgt) return isLikelyTargetLanguageText(tgt) ? 50 : 25;
 
     let score = 70;
 
@@ -123,8 +137,9 @@ function createTranslationQuality(options) {
     if (!tgt) reasons.push('empty_translation');
     if (provider === 'google_free' && (opts.qualityScore ?? 100) < 80) reasons.push('free_machine_translation');
     if (src === tgt && !isLikelyTargetLanguageText(tgt)) reasons.push('source_reused');
-    // Check BOTH new (__SHLD_) and legacy ([[N]]) shield token formats
-    if (tgt.includes('__SHLD_') || tgt.includes('[[') || tgt.includes(']]')) reasons.push('shield_leak');
+    // Check BOTH new (__SHLD_) and legacy ([[N]]) shield token formats,
+    // plus DNT double-shield tokens that leaked through MT providers.
+    if (tgt.includes('__SHLD_') || tgt.includes('[[') || tgt.includes(']]') || tgt.toLowerCase().includes('_dnt_')) reasons.push('shield_leak');
     return reasons.join('|');
   }
 
@@ -168,4 +183,4 @@ function createTranslationQuality(options) {
   };
 }
 
-module.exports = { createTranslationQuality };
+module.exports = { createTranslationQuality, NATIVE_RUNTIME_DEFAULT_QUALITY, NATIVE_GLOSSARY_DEFAULT_QUALITY };

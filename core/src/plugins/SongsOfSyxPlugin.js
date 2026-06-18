@@ -1,18 +1,20 @@
 /**
- * SongsOfSyxAdapter – Concrete GameAdapter implementation for Songs of Syx.
+ * SongsOfSyxPlugin – GamePlugin for Songs of Syx mods.
  *
- * Encapsulates all SoS-specific logic: _Info.txt metadata, version directories,
- * backup naming, V71 __OVERWRITE headers, and patch notice formatting.
- *
- * Extracted from runtime-ops.js as part of the v0.20 DI-Prep.
+ * Format: .txt files with KEY: "value" pattern.
+ * Escaping: Backslash-based (\n, \", \\)
+ * Validation: Quote balancing, placeholder preservation
+ * Prompts: Medieval, gritty tone
+ * Headers: V71+ __OVERWRITE directive
  */
 
-const GameAdapter = require('./GameAdapter');
+const GamePlugin = require('./GamePlugin');
+const { escapeTextValue, unescapeTextValue } = require('../extractor');
 const path = require('path');
 
-class SongsOfSyxAdapter extends GameAdapter {
+class SongsOfSyxPlugin extends GamePlugin {
 
-  // ── Mod Metadata ────────────────────────────────────────────────────────
+  // ═══ GameAdapter methods (inherited from SongsOfSyxAdapter pattern) ═══
 
   getMetadataFileName() {
     return '_Info.txt';
@@ -22,11 +24,10 @@ class SongsOfSyxAdapter extends GameAdapter {
     const info = {};
     const lines = content.split('\n');
     for (const line of lines) {
-      const match = line.match(/^\s*([A-Z_]+):\s*"?(.*?)"?,?\s*$/i);
+      const match = line.match(/^\s*([A-Z_]+):\s*"?(.*?)",?\s*$/i);
       if (!match) continue;
       const key = match[1];
       let value = match[2].trim();
-      // Convert known integer fields
       if (key === 'GAME_VERSION_MAJOR' || key === 'GAME_VERSION_MINOR') {
         value = parseInt(value, 10) || 0;
       }
@@ -36,7 +37,6 @@ class SongsOfSyxAdapter extends GameAdapter {
   }
 
   formatMetadata(infoObj) {
-    // Ensure all required Songs of Syx fields are present with sensible defaults
     const info = {
       GAME_VERSION_MAJOR: 71,
       GAME_VERSION_MINOR: 0,
@@ -46,7 +46,6 @@ class SongsOfSyxAdapter extends GameAdapter {
       ...infoObj
     };
     const lines = [];
-    // Field order matters for Songs of Syx parser: VERSION first, then GAME_VERSION, then NAME
     if (info.VERSION) lines.push(`VERSION: "${info.VERSION}",`);
     if (info.GAME_VERSION_MAJOR !== undefined) lines.push(`GAME_VERSION_MAJOR: ${info.GAME_VERSION_MAJOR},`);
     if (info.GAME_VERSION_MINOR !== undefined) lines.push(`GAME_VERSION_MINOR: ${info.GAME_VERSION_MINOR},`);
@@ -57,8 +56,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return lines.join('\n') + '\n';
   }
 
-  // ── Core Mod (Bridge) ───────────────────────────────────────────────────
-
   getCoreModFolderName() {
     return 'BridgeCore';
   }
@@ -68,7 +65,7 @@ class SongsOfSyxAdapter extends GameAdapter {
     try {
       const pkg = require('../../package.json');
       bridgeVersion = pkg.releaseVersion || pkg.version;
-    } catch (e) { /* fallback if package.json not found */ }
+    } catch (e) { /* fallback */ }
     return this.formatMetadata({
       VERSION: '1.0.0',
       GAME_VERSION_MAJOR: sosMajorVersion,
@@ -91,8 +88,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return infoObj;
   }
 
-  // ── File System & Structure ─────────────────────────────────────────────
-
   getBackupDirectoryName(originalName) {
     return `.backup_${originalName}_ORIGINAL`;
   }
@@ -105,10 +100,7 @@ class SongsOfSyxAdapter extends GameAdapter {
     return /^V\d+$/i.test(dirName);
   }
 
-  // ── Export / Packaging ──────────────────────────────────────────────────
-
   getOverrideHeader(versionDir) {
-    // V71 introduced the __OVERWRITE directive
     const vMatch = versionDir.match(/^V(\d+)$/i);
     if (vMatch && parseInt(vMatch[1], 10) >= 71) {
       return '__OVERWRITE: true,\n';
@@ -120,13 +112,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return `--- ${targetLanguage.toUpperCase()} PATCH ---\nDiese Mod wurde automatisch auf ${targetLanguage} uebersetzt. Nutze die Syx-Bridge GUI zum Anpassen.`;
   }
 
-  // ── Parser / Scanner Control ─────────────────────────────────────────
-
-  /**
-   * Songs of Syx uses .txt files with KEY: "value" format (parser format 'sos').
-   * @param {string} filePath
-   * @returns {string} Parser format identifier
-   */
   getParserFormat(filePath) {
     if (!filePath) return 'raw';
     const ext = String(filePath).split('.').pop().toLowerCase();
@@ -135,10 +120,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return 'raw';
   }
 
-  /**
-   * Classify a file based on its relative path within a Songs of Syx mod.
-   * Mirrors the original scanner.classifyFile() logic.
-   */
   classifyFile(relativePath) {
     const lowerPath = relativePath.toLowerCase();
     const parts = lowerPath.split(/[/\\]/);
@@ -168,11 +149,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return 'UNKNOWN';
   }
 
-  /**
-   * Determine whether a classified file should be processed for translation.
-   * Only TEXT_FILE, WIKI_TEXT, TECH_LABEL, NAMES, and INIT_LOGIC/ROOM_LOGIC
-   * contain translatable KEY: "value" strings in Songs of Syx.
-   */
   isTranslatableFile(relativePath, fileType) {
     const translatable = new Set([
       'TEXT_FILE', 'WIKI_TEXT', 'TECH_LABEL', 'NAMES',
@@ -181,10 +157,6 @@ class SongsOfSyxAdapter extends GameAdapter {
     return translatable.has(fileType);
   }
 
-  /**
-   * Check whether a directory is a valid Songs of Syx mod root.
-   * A valid mod has an _Info.txt metadata file and optionally VXX version dirs.
-   */
   async scanMod(modDir) {
     const fs = require('fs').promises;
     if (path.basename(modDir).startsWith('.backup_')) return null;
@@ -206,6 +178,100 @@ class SongsOfSyxAdapter extends GameAdapter {
       versions: versions.length > 0 ? versions : ['root']
     };
   }
+
+  // ═══ GamePlugin methods (format-specific hooks) ═══════════════════════
+
+  /**
+   * SoS format: serialize as quoted, backslash-escaped value.
+   */
+  serializeTranslation(translated, entry) {
+    return `"${escapeTextValue(translated)}"`;
+  }
+
+  /**
+   * SoS format: unescape backslash sequences.
+   */
+  extractTextValue(rawValue) {
+    return unescapeTextValue(rawValue);
+  }
+
+  /**
+   * SoS-specific: check quote balancing.
+   * (Universal checks like placeholder loss are in translationCriticalCheck.)
+   */
+  validateTranslation(source, target) {
+    const srcQuotes = (String(source || '').match(/"/g) || []).length;
+    const tgtQuotes = (String(target || '').match(/"/g) || []).length;
+    if (srcQuotes % 2 !== tgtQuotes % 2) {
+      return { ok: false, reason: 'unbalanced_quotes' };
+    }
+    return { ok: true, reason: '' };
+  }
+
+  /**
+   * SoS-specific LLM prompt context.
+   */
+  getPromptContext() {
+    return {
+      gameName: 'Songs of Syx',
+      styleGuide: 'Use a medieval, professional, and slightly gritty tone. Avoid modern corporate language.',
+      rules: [
+        'PRESERVE TAGS: Keep all tokens like [[0]], [[1]], etc. EXACTLY unchanged and in their correct grammatical position.',
+        'PRESERVE PLACEHOLDERS: Keep {0}, $VAR, %s EXACTLY unchanged.',
+        'FORMAT: Respond ONLY with a raw JSON array of strings. No intro, no explanation.'
+      ]
+    };
+  }
+
+  /**
+   * SoS-specific lore/faction terms for risk scoring.
+   * Passed to scoreTranslationRisk() as the loreTerms argument.
+   */
+  getLoreTerms() {
+    return [
+      'kingdom', 'empire', 'clan', 'tribe', 'guild',
+      'order', 'house', 'dynasty', 'legion', 'court', 'realm', 'dominion'
+    ];
+  }
+
+  /**
+   * SoS-specific gameplay terms for language detection heuristics.
+   * Passed to createTranslationQuality() so the English-detection regex
+   * can correctly identify untranslated SoS strings.
+   */
+  getGameTerms() {
+    return [
+      'battle', 'room', 'workers', 'efficiency', 'hunting',
+      'city', 'food', 'population', 'happiness'
+    ];
+  }
+
+  /**
+   * SoS-specific path rules for classifyPath().
+   * Moved here from text-core.js PATH_RULES (v0.20 decoupling).
+   */
+  getPathRules() {
+    return {
+      'bio/specific': 'proper_noun',  // Namen → nie übersetzen
+      'race/name':    'proper_noun',
+      'room/':        'ui_string',    // UI → Google Free reicht
+      'tech/':        'ui_string',
+      'subject/':     'translate',    // Flavor Text → LLM
+    };
+  }
+
+  /**
+   * SoS V71+: __OVERWRITE directive.
+   */
+  getFileHeader(filePath, version) {
+    // Use version param or infer from path
+    const vStr = version || '';
+    const vMatch = vStr.match(/^V(\d+)$/i) || String(filePath || '').match(/V(\d+)/i);
+    if (vMatch && parseInt(vMatch[1], 10) >= 71) {
+      return '__OVERWRITE: true,\n';
+    }
+    return '';
+  }
 }
 
-module.exports = SongsOfSyxAdapter;
+module.exports = SongsOfSyxPlugin;
