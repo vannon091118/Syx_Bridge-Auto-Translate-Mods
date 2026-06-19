@@ -491,6 +491,20 @@ const createRuntimePlanner = () => new Planner(CONFIG, { translateMod: async (mo
 async function synchronize(planner, options = {}) {
   printHeader(options.dryRun ? 'Simulation (Dry Run)' : 'Automatische Synchronisation');
 
+  // ── RECOVERY: Stale processed_files when patches/ is missing ──────
+  // Scenario: fullReset() or manual deletion removed patches/
+  // but processed_files still has 401+ entries claiming "already written".
+  // Fix: auto-detect and clear the table so files are rewritten this sync.
+  if (!options.dryRun && !fs.existsSync(CONFIG.PATCH_ROOT)) {
+    const pfCount = await dbGet('SELECT COUNT(*) as cnt FROM processed_files');
+    if (pfCount && pfCount.cnt > 0) {
+      console.warn(`[RECOVERY] patches/ existiert nicht, aber ${pfCount.cnt} processed_files-Eintraege gefunden.`);
+      console.warn('[RECOVERY] Loesche processed_files — Dateien werden in diesem Sync neu geschrieben.');
+      await dbRun('DELETE FROM processed_files');
+      console.log(`[RECOVERY] ${pfCount.cnt} Eintraege geloescht.`);
+    }
+  }
+
   // ── PREFLIGHT ANALYSIS ────────────────────────────────────────────
   // Runs before every non-dry-run sync to check DB health.
   // Repairs common issues automatically (<5% threshold).
