@@ -291,7 +291,7 @@ console.log('    ✓ AGENTS.md (Sub-Agent-Referenz)');
 console.log('    ✓ ALLE Dev-Tools (core/scripts/ ungefiltert)');
 console.log('    ✓ Tests (Smoke, Redteam, E2E)');
 console.log('    ✓ Komplette Doku (FREEZE/, plans/, DB-Reports)');
-console.log('    ✓ Dr\n\n---');  // NOTE: this is intentional newline header for the next-loop\nconsole.log('    ✓ Drift-Manifest (.build-manifest.json, kompatibel mit F.A check)');
+console.log('    ✓ Drift-Manifest (.build-manifest.json, kompatibel mit F.A check)');
 console.log('');
 console.log('  REVIEW BASE — Ausgeschlossen (Sicherheits-Layer):');
 console.log('    ✗ node_modules (npm install required)');

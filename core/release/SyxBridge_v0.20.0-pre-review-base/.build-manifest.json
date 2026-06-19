@@ -2,9 +2,9 @@
   "version": "0.20.0-pre-review-base",
   "base_version": "0.20.0-pre-release",
   "label": "REVIEW BASE",
-  "generated_at": "2026-06-19T01:17:55.547Z",
+  "generated_at": "2026-06-19T11:54:34.922Z",
   "source_root": "core/",
-  "file_count": 132,
+  "file_count": 105,
   "includes": [
     "all dev tools (core/scripts/ — ungefiltert)",
     "all tests (core/tests/)",
@@ -28,227 +28,87 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "1c9d181e9b5ace79e7843f4c9ac292c2734beac000c7eeac02b5c380fe1292e2"
+      "sha256": "f55aad44a71135d98e97e88fa33fbead8db47d8e1d86048034ffa5157a3bfc13"
     },
     {
       "path": "core/archive/docs/CHANGELOG.md",
-      "sha256": "009565bb7d215cb6b7816c9b43a01bee4b9b8a37ddbf2732bac06d92a3b931d8"
+      "sha256": "3689c563dbd1294a863df1e11a578c59c9b98aafd292834ad1857484656e44db"
     },
     {
-      "path": "core/archive/docs/COMMIT_MSG_2026-06-18.txt",
+      "path": "core/archive/docs/DIVERGENZ_REPORT.md",
+      "sha256": "2dddfa91deef7a0d88e4f0695d74182d45e8e1d45d3554617c8664c905692d7e"
+    },
+    {
+      "path": "core/archive/docs/DOKU_KONSOLIDIERUNG_2026-06-19_RUN2.md",
+      "sha256": "f609e2f5862244e4592c0ca012d170fddb4b465aa885f4d23609ec34ae3d9cfd"
+    },
+    {
+      "path": "core/archive/docs/FORENSIC_FULLSCAN_v0.20_2026-06-19.md",
+      "sha256": "bb27851b7a55a2e2ad49faf12d6fd1aef993e60929cc12dee74577226439fef2"
+    },
+    {
+      "path": "core/archive/docs/FREEZE/COMMIT_MSG_2026-06-18.txt",
       "sha256": "69c19e23d0e757c88b04d2eaff2a2ab581f0d840ed3f20017b95cd3fff2b0fd4"
     },
     {
-      "path": "core/archive/docs/FREEZE/ANALYSE_2026-06-19.md",
-      "sha256": "5688382729ea3779e00ee839b900be5a6f783f7b93ccd9072433d5e28c6e1620"
+      "path": "core/archive/docs/FREEZE/FREEZE_INDEX.md",
+      "sha256": "285be526b27de9be603d9ddc65ba8715d6823b763d8c39aef301ce4614b14c1e"
     },
     {
-      "path": "core/archive/docs/FREEZE/AUDIT_REPORT_2026-06-17.md",
-      "sha256": "bf1278323c1792f42e9c082105edf425185867ca435b5278fc6983d25649c085"
+      "path": "core/archive/docs/FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md",
+      "sha256": "8308508fc46feb03a027d8922f50fd6e32e4d5db08a81d7fcc2ca0d32109466c"
     },
     {
-      "path": "core/archive/docs/FREEZE/AUDIT_REPORT.md",
-      "sha256": "979f045ff73dc1598b37773be9deb36ee97574eb4afc3294454da35d4a295f6a"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/BRANCH_REVIEW_2026-06-19.md",
-      "sha256": "ad7d3f69c0cbfa62b61ed1e2d43d5052529879c2f474f024bb8f99d7515d560f"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/BUGFIX_BU001-BU005_2026-06-18.md",
-      "sha256": "9e5c697768611c3d9e2c95d56bda7408d60e513a59e6878f5f8490b8587f81fb"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/COMMIT_HISTORY_RETROSPECTIVE_2026-06-18.md",
-      "sha256": "c7ca7b4e344d563fb60eea434f7f5a3c3e87997ba5b1511b7ba9c002b8886b3a"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DB_AUDIT_2026-06-18.md",
-      "sha256": "1962e501f32e431364a7c9e649bc0cfe07686f0401973b797d1f54c7925356f6"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DB_BACKUP_PENDING.md",
-      "sha256": "50b0e9bd60ab48edb4e27fcfb21c4b5912dada2442cc6e43b04e30ec3783cdd9"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DB_REPAIR_2026-06-18.md",
-      "sha256": "dad613f3b304d70372e344692017771e61a0ddd60e6485b9711048fee85121bc"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DB_REPORT_v0.19.5.D17.06.U17.06.md",
-      "sha256": "e51d9116198243af9bc4dad9ee8bfd3f02ce0ace284d3df26b5956bea948ad09"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DOC_CONSOLIDATION_2026-06-19.md",
-      "sha256": "4809e7923c79c562f0df1e56aa693a0ea0d1943db46d22c98adc5b97208ffe8a"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DOKU_KONSOLIDIERUNG_2026-06-19_FINAL.md",
-      "sha256": "a93829d39d8a999e3ac062be12f05acab1895b6540afed62259f1e08fb659bc1"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DOKU_KONSOLIDIERUNG_2026-06-19.md",
-      "sha256": "ffeca6d062b034b4f5c01bf4808d709367374f9b5f1a96f1c4b6261d4ecd8240"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/DOKUMENTATIONS_VERHAERTUNG_2026-06-19.md",
-      "sha256": "6601b8aa8b45259dfd98d34decb7de53757e213b54bc022662900b9a3d29facc"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/FULLSCAN_2026-06-19.md",
-      "sha256": "060571f8ab66a807ac722ad7e96db93f96999e2a5f3a0f4ab2ed6dac00251f85"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/GUI_REALTIME_DIAGNOSE_2026-06-19.md",
-      "sha256": "fe03b65cd16e2750ac00ce906744f9fadd908f023ceb3e25722eae8e4d584c5e"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/HANDSHAKE_2026-06-17.md",
-      "sha256": "2ab58005316bf185993f0d3d2553add93501aa11a9a5463bbe571df12a504ad3"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/HARDCODED_VALUES_NMT_2026-06-18.md",
-      "sha256": "b8c8605ee6b4c3bea534aba1d0fcfec81929fbae493afccde5d3dfbe8af3f87b"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md",
-      "sha256": "d5bfdaf3c04802b0400baa8f37d0779d396c0b9d23b69ffd37318d1d7cd26e33"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/IMPORT_CHAIN_ISOLATION_2026-06-19.md",
-      "sha256": "b9101ce0879e4e82ae9d948d9b78016563e15ab131de5251ff1cdfe84db84191"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/KNOWN_BUGS_REPORT_2026-06-19.md",
-      "sha256": "995e4fcb18c3136dd6eb9b0894370fa12a15d680ff5360ad4254672bea57eee6"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/LIVE_ANALYSE_2026-06-19_10AGENT.md",
-      "sha256": "0c3a16b70b2e70b2865a80bb7b31e10c282d6ec9a4c18e50c8219cd722e4ac1e"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/LOG_REPORT_2026-06-19.md",
-      "sha256": "0940490daab68cb0de21a2e99c1752fdc31263c3023c71e123e62fd154eee63a"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/MASTERANALYSE_15AGENT_2026-06-19.md",
-      "sha256": "3a962cca46e33e448699f8db739c0dc3e6010899cd375640ca95d08728590801"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/PATCH_REVIEW_2026-06-16.md",
-      "sha256": "951434626e5d0a8291de5261ea646e41d43e7a82a703d877a1356aa77d66c0fb"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/POST_V020_RE_AUDIT_2026-06-19.md",
-      "sha256": "a0cdb83d53ae1d027d337f2e1bb20e4c1d02aca3391161e1b0f00204c37314d0"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/PRE_REVIEW_MAIN_2026-06-18.md",
-      "sha256": "7197c3cf73645ade6282ae51e286de324d5804f3030f9e685750a2687906b561"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/QUALITY_OFFENSIVE_2026-06-19.md",
-      "sha256": "7da140946b261c19f536fbfaa74c77b8fe9fe360f53a849b77ba4fa8595c8cf0"
+      "path": "core/archive/docs/FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md",
+      "sha256": "178e562a93240c8edcfd1047191117d8cd7a13216d0bbe17b4e028f2094bf71f"
     },
     {
       "path": "core/archive/docs/FREEZE/README.md",
       "sha256": "705aab3afc22a49df678b463780facc6d8e0270fe6376afb9fd78114d0426823"
     },
     {
-      "path": "core/archive/docs/FREEZE/REDUNDANCY_REPORT_2026-06-18.md",
-      "sha256": "28d1a616ee3b2b8e9c9c3d36776f9a2c1a7700cc9847c17869899cd1f91952e7"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/REPORT_v0.19.5_dry_run.md",
-      "sha256": "e6d2bdb4b505e7c5fb3278792bb548be3feba789fa45cef693809b451f190965"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/RESET_2026-06-18.md",
-      "sha256": "76634703e9bddcce95a354c6465a1122249b1feefd88e39305c2e97ffa3ddbae"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/RISK_EFFORT_MATRIX_2026-06-19.md",
-      "sha256": "d78316589a0292121c55f62bee84a77a6db3da8f8026f375d45ccb7affe75110"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/RUN_TENDENCY_TRACKER_2026-06-19.md",
-      "sha256": "aa7c986172c6a5e5a624615388b213249bd7047efbab3f55c2e62e3f80c9accb"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-17.md",
-      "sha256": "df2bc9c932f6a3336f8cf62f5084d8d61aec7304b099fb2d9a4d9157635090c8"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-18_BUGFIX-SPRINT.md",
-      "sha256": "0739f77bb442a1e9902dd083df4fea6421746dd1a1fe92ca610da206579f87d9"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-18_CHAIN-HARDENING.md",
-      "sha256": "ef1b5f8d87e049e3f4dca8dd0dadb6e2b59c8d90f92fded01c08d5271cd6a410"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-18_PREFLIGHT-INPLACE.md",
-      "sha256": "e4c7deedfe19d6121d890e2e751af4b47238fae32089b6435744c5a03b8d6e4e"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-18_PRESERVE-CONTENT-FIRST.md",
-      "sha256": "e36db2a51328ce1190c50619a6ad88ccbe5ca201b701d598b10061e950f6f074"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_2026-06-19_FULLDAY.md",
-      "sha256": "0a61c6470d8c7a1ae47fdbc854e8d306815502a9260a7cc6b5bc8e1535dc441f"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_v0.19.05c-17.06_PLANNING.md",
-      "sha256": "51858ce6969a76aa5926c600cc642007121b45c8f7cb18183c6c5dbec1c2e362"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/SESSION_REPORT_v0.19.5-prerelease.md",
-      "sha256": "522b1d8fba15b5be13fef19360e332a6d613a0cc5a69f4598b8f5a4ef69ce4c7"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/STATUS.md",
-      "sha256": "b716796dccbaf27a35c6678ab470112305d193d0fbda189a6aa9122dfd1c73d9"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/TECHNICAL_REVIEW_2026-06-15.md",
-      "sha256": "ff7cfeedcfe2298cf0da37298d78ae9f51bf4e7d3cd3211f7e0ae49bad4cd869"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/TREE.md",
-      "sha256": "3b3bd36465bb8520a0426ae3719544ed9ea2762516614c36f7c698979c58e8a9"
-    },
-    {
-      "path": "core/archive/docs/FREEZE/WORKSHOP_CHANGELOG.md",
-      "sha256": "2fd71f0fc4df5e99d337c2c114a220fced706fbaf562a597febb2bc0de3d991a"
+      "path": "core/archive/docs/FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md",
+      "sha256": "591517d94dc64fe011933361d04fe52f68529661bfe0de3384945893c7908e20"
     },
     {
       "path": "core/archive/docs/HANDSHAKE_2026-06-19.md",
-      "sha256": "4075f4b943e0eb38f0e76281b066ee3e6c403169b2a8291227a9f63c207a34f9"
+      "sha256": "60f725a233df12c678c7138512c14d5b6991034bcc778d4c4e89f32796260cc9"
+    },
+    {
+      "path": "core/archive/docs/INTEGRITY_AUDIT_2026-06-19.md",
+      "sha256": "d4f3ac879ed242500e9ab67b0ba060d0187c999ce7c9eaf601b3939b67f1ab7a"
+    },
+    {
+      "path": "core/archive/docs/LIVE_INDEX.md",
+      "sha256": "34072ee4b1748f0dc547854ca61d100ef7518a6760f9b2539fc321a23927cf40"
     },
     {
       "path": "core/archive/docs/LLM-AGENTS-EntryPoint.md",
-      "sha256": "1c9d181e9b5ace79e7843f4c9ac292c2734beac000c7eeac02b5c380fe1292e2"
+      "sha256": "36ef1b4a1a269ce93c4925fa1324ef88a165b12e52c6fe358488c20641258e4f"
     },
     {
       "path": "core/archive/docs/MASTER_DOC.md",
-      "sha256": "6666d4aea64e157c1f02ce1270063965e7e35c27d6609c5b7a57179bdc005bf4"
+      "sha256": "6ad4e4b26b8c237e1ea83e3274ea4da6d33fb53f43c52b0d3ef13834f33e3220"
     },
     {
       "path": "core/archive/docs/plans/PHASE2_MARKER_INTEGRATION_2026-06-19.md",
       "sha256": "0c285b30ed85cdc3222d4d2de15da22eb9bb0f80fb1bf9a6c3e23678be15fc4f"
     },
     {
-      "path": "core/archive/docs/plans/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md",
-      "sha256": "591517d94dc64fe011933361d04fe52f68529661bfe0de3384945893c7908e20"
-    },
-    {
       "path": "core/archive/docs/preflight_history.log",
-      "sha256": "c216cd374f8cfc4d20d615fa35d299111b07b15c5c2dda9a7ee6970b99755681"
+      "sha256": "020c83336bdf268e89c4ec77b61a6f885924f7c5fd06faf18786a8ee7886519a"
     },
     {
       "path": "core/archive/docs/PREFLIGHT_LATEST.md",
-      "sha256": "98a7abced9b71b12a345eda1edaa3f57c933a5219040c3b6686384253e8ad123"
+      "sha256": "661885db9a21621f52750b20d5c5d1b7a8ae8a41d1c29a842ab28f2a34455d5a"
+    },
+    {
+      "path": "core/archive/docs/REDUNDANZ_AUDIT_V2_2026-06-19.md",
+      "sha256": "6d067cf0c09cef18c84e93bc76efee1ce1b27d3d3086668069d3d75ac4f8cd3b"
+    },
+    {
+      "path": "core/archive/docs/WORKFLOW.md",
+      "sha256": "9d8d9c092f99faa8052cc3e32b60647f6dd7298e86f36fc0f8735fe21b28dde2"
     },
     {
       "path": "core/eslint.config.mjs",
@@ -272,7 +132,7 @@
     },
     {
       "path": "core/scripts/build-review-base.js",
-      "sha256": "4745d0a865d93a70adb7c71c71e8b2fc887d15b3be66f78fb925439b1a998129"
+      "sha256": "e6a012e1d2810c195db4210d294e794a8c374f4fd30a9e8679ffc23d82a4c452"
     },
     {
       "path": "core/scripts/check_argos.js",
@@ -304,7 +164,11 @@
     },
     {
       "path": "core/scripts/db_repair.js",
-      "sha256": "b6bc7d97515d0baa0d7a877396ffbb56c0e846504c8d2b3f09dd313a9212cbbb"
+      "sha256": "c87253b6abe2f42d7b98e6f7c40eb0758608cd7c49b3897bf4c6bada36dba61a"
+    },
+    {
+      "path": "core/scripts/INDEX.md",
+      "sha256": "d25e2079f2d7ac7b50bcd68d1327909aa0b6d843818237ef379c8baf5c1f14ee"
     },
     {
       "path": "core/scripts/package.js",
@@ -351,6 +215,10 @@
       "sha256": "68339fba145643b28b8bfdc8768379ef777f5321bf256d611cf6839d99fb2eb5"
     },
     {
+      "path": "core/src/adapters/INDEX.md",
+      "sha256": "2e58d988e53a9c179b6543104fc7763876fad4833586b3b638164203b23e5b6f"
+    },
+    {
       "path": "core/src/cli-progress.js",
       "sha256": "96dfefd55b7253da0dd020e0d72004feb98b494ccd64fa778c589e86fd4e9742"
     },
@@ -364,7 +232,7 @@
     },
     {
       "path": "core/src/db.js",
-      "sha256": "f795231a6215a91d39124177b09583127f81ab778e843670609664df397dcb59"
+      "sha256": "a123af84470460191832bee120b2f7ebe0522af863290b423c64e09e520d5c6e"
     },
     {
       "path": "core/src/diagnostics.js",
@@ -372,7 +240,7 @@
     },
     {
       "path": "core/src/dispatcher.js",
-      "sha256": "320ec13012fcf5879c4534d155d9367f7a1ec545e3691637ed56fd354aa4a5b5"
+      "sha256": "3da2bf4444fb56148873498e5ec82f71e51efffe2c8d138cd194d4b5a991d1f6"
     },
     {
       "path": "core/src/exporter.js",
@@ -395,8 +263,12 @@
       "sha256": "a9c3b92da45a6728e78f24b30af7d28be67ca156066c92f117aa9af2df365b89"
     },
     {
+      "path": "core/src/gui/INDEX.md",
+      "sha256": "cdb4187e9f6f964cb82928c9166ba7940623520c58bd2f82cf8742ae229a6cb5"
+    },
+    {
       "path": "core/src/gui/public/app.js",
-      "sha256": "3f3d228404eba1228ae447e8f2259307d0a5321243ac8b2e41338ea3b0a91309"
+      "sha256": "d497fd245d7d1206d9f737ba8b6c3ad0c7c440d181dcf563b95deb2bebfb9cdd"
     },
     {
       "path": "core/src/gui/public/index.html",
@@ -405,6 +277,10 @@
     {
       "path": "core/src/gui/server.js",
       "sha256": "da3e0d4bef8996dd219db7010b2a5ee3cc22e3724af9bb06d2b9dcd2d322b6f8"
+    },
+    {
+      "path": "core/src/INDEX.md",
+      "sha256": "330e63f71425b7ccf04e715b5c15756f8b888437066b3414913ab6af1fcb4be2"
     },
     {
       "path": "core/src/logger.js",
@@ -427,6 +303,10 @@
       "sha256": "c1b0b5203377a35bf1ba88b8ecad72c79abe1f196842396ff97f666c26db5443"
     },
     {
+      "path": "core/src/plugins/INDEX.md",
+      "sha256": "3d5b5740f69411c62a522c78661e99154c709cd978bd62f4da47e5be4bf5a0ce"
+    },
+    {
       "path": "core/src/plugins/SongsOfSyxPlugin.js",
       "sha256": "cc078dbbb67e660213719d4177645f87c64ff6a976277987072231c03faa1553"
     },
@@ -436,11 +316,15 @@
     },
     {
       "path": "core/src/preflight.js",
-      "sha256": "2e3bc76b954dee6eeab12e3076841782070065a4294e2bf4e6d54db955b50c88"
+      "sha256": "ef639c3a8c4c203bc1d0146f0c398361677e4b60f34130f071572b283946c2a5"
     },
     {
       "path": "core/src/providers/client-factory.js",
       "sha256": "42ce36bc2d96f9c9354fad4e174fa9f9d59f585c3240fbc1d383c35632f1a58c"
+    },
+    {
+      "path": "core/src/providers/INDEX.md",
+      "sha256": "f7ee877350a3750db9c4cdca5190d8d92c55b7554eea598b975222fcca2b78a7"
     },
     {
       "path": "core/src/router.js",
@@ -472,7 +356,7 @@
     },
     {
       "path": "core/src/translation-runtime.js",
-      "sha256": "ad640f3266ed4a92564f4ea67d9f3649044f5651b10fa4822e70f59b1a019d13"
+      "sha256": "ac4c5027925253ddba20c242e2176b7eb1f26117eb7313f9c7ed868197adb24f"
     },
     {
       "path": "core/src/ui.js",
@@ -503,8 +387,16 @@
       "sha256": "0fdb61e29fbe04a9baa8dd40c7baac2baf136b96911eb1f545b94debd5711260"
     },
     {
+      "path": "core/tests/INDEX.md",
+      "sha256": "c0fe4acb0d4586dcf1ad50edd0df6834d17bacdbc0d095adaba9d18d2b56f7e9"
+    },
+    {
       "path": "core/tests/parser_smoke.js",
       "sha256": "73d2fd8213d65ce3e9607231db51c05513d6538942912a61df8c4937f3db218c"
+    },
+    {
+      "path": "core/tests/plugin-boundary-smoke.js",
+      "sha256": "d54ad3a9e7a574cf2fc7b731f807cc214f3dbee5661669f1d2334d211ca07e25"
     },
     {
       "path": "core/tests/translation-runtime-smoke.js",
@@ -516,7 +408,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "0e125b45b9fc1a2df0ac60a02a621b5348bbc44d6e0910bf786c34e0615fbd5e"
+      "sha256": "7a25cd0bc191e9e43a549f16ceea721484f2bbd97fe9681171124745bd0e6f3b"
     },
     {
       "path": "start.bat",

@@ -1,6 +1,7 @@
 # 🤖 AGENTS.md — SyxBridge Sub-Agent Reference
 
-> **Version:** v0.19.7 | **Stand:** 2026-06-18 (Updated — PREFLIGHT + INPLACE Session)
+> **Version:** v0.20.0-pre-release | **Stand:** 2026-06-19 (Updated — GOD-001 Refactoring + Reconciliation)
+> **⚠️ HINWEIS:** Dies ist eine archivierte Kopie. Die aktuelle Single Source of Truth ist `AGENTS.md` im Projekt-Root.
 > Dieses Dokument beschreibt alle verfügbaren Sub-Agents die von Buffy (Codebuff) orchestriert werden.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können. Kein tmux. Keine Lockfiles im Release.
 > **Single Source of Truth:** Liegt im Projekt-Root UND in core/archive/docs/ — beide identisch.
@@ -15,7 +16,7 @@ Ich der Agent aktzeptiere meine rolle alls ausführende kraft und bevor ich begi
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT "ICH WERDE GEMINI NICHT REIN LASSEN" antworten, ps: Meta ist immer noch auf flucht.
 
 ---
-CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem vorschlag mit EFFOR TO NEXt SCOPE  mit ausgeben und wenn kein scope gesettzt ist oder ermittelt werden kann User fragen.
+CHANGELOG LESEN / AKTUELL HALTEN und immer bei jedem vorschlag mit EFFOR TO NEXt SCOPE mit ausgeben und wenn kein scope gesettzt ist oder ermittelt werden kann User fragen.
 ## Übersicht
 
 | Agent | Typ | Einsatzgebiet |
@@ -23,7 +24,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 | `code-searcher` | Suche | Ripgrep-basierte Code-Suche über das gesamte Projekt |
 | `file-picker` | Suche | Fuzzy-Search für relevante Dateien nach Beschreibung |
 | `basher` | Ausführung | Einzelne Terminal-Befehle ausführen |
-| `code-reviewer-deepseek-flash` | Review | Kritisches Review von Code-Änderungen (DeepSeek Flash) |
+| `code-reviewer-deepseek` | Review | Kritisches Review von Code-Änderungen (DeepSeek) |
 | `tmux-cli` | Testing | CLI-App-Testen via tmux-Session |
 | `thinker-with-files-gemini` | Analyse | Deep-Thinking mit Datei-Zugriff (Gemini, sehr smart). Erreicht auch nicht-triviale Bugs und unsichere Entscheidungen. |
 | `researcher-web` | Recherche | Web-Suche für aktuelle Informationen |
@@ -53,11 +54,11 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 **Params:** `command: string`, `what_to_summarize?: string`, `timeout_seconds?: number`
 **⚠️ Sicherheit:** Keine destruktiven Befehle ohne explizite User-Aufforderung (git push, rm -rf, etc.)
 
-### `code-reviewer-deepseek-flash`
+### `code-reviewer-deepseek`
 **Einsatz:** Review nach Code-Änderungen (Pflicht bei >10 Zeilen)
 **Typischer Prompt:** "Review die Änderungen in X"
 **Prüft:** Korrektheit, Regression-Risiko, Konsistenz, Security
-**Hinweis:** Heisst `code-reviewer-deepseek-flash` (nicht `deepseek` ohne Flash). Alter Name wurde korrigiert.
+**Hinweis:** Heisst `code-reviewer-deepseek` (nicht `deepseek` ohne Flash). Alter Name wurde korrigiert.
 
 ### `tmux-cli`
 **Einsatz:** CLI-Apps interaktiv testen (Chatbots, Wizards, Prompt-Interfaces)
@@ -104,7 +105,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 3. thinker-gpt oder eigene Bewertung
 4. Fixes implementieren (str_replace)
 5. basher: Tests + Syntax
-6. code-reviewer-deepseek-flash: Review
+6. code-reviewer-deepseek: Review
 7. Doku-Update (CHANGELOG, TODO)
 ```
 
@@ -113,7 +114,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 1. scripts/sync-version.js (Version synchronisieren)
 2. scripts/release.js (sauberes Paket bauen)
 3. basher: npm run release
-4. code-reviewer-deepseek-flash: Release prüfen
+4. code-reviewer-deepseek: Release prüfen
 ```
 
 ### Bug-Fix (einzelner Bug)
@@ -122,7 +123,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 2. read_files: betroffenen Code lesen
 3. str_replace: Fix implementieren
 4. basher: Syntax + Tests parallel
-5. code-reviewer-deepseek-flash: Review
+5. code-reviewer-deepseek: Review
 6. Doku-Update
 ```
 
@@ -183,7 +184,7 @@ LOOP pro Funktion:
   2. DEEP ANALYSIS: thinker-with-files-gemini auf ALLE relevanten Dateien
      → klassifiziere EVERY Finding nach P0/P1/P2/P3
   3. IMPLEMENT: Alle P0+P1+P2 Fixes via str_replace (parallel wo möglich)
-  4. RUN 2: Syntax + Smoke + code-reviewer-deepseek-flash parallel
+  4. RUN 2: Syntax + Smoke + code-reviewer-deepseek parallel
   5. VERIFICATION: thinker-with-files-gemini als UNABHÄNGIGER Prüfer
      → "Prüfe diesen Datenstring und Kausalitäten OHNE Annahmen"
      → Jeder Claim: VERIFIED oder FALSIFIED mit exakten Line-Referenzen
@@ -191,7 +192,7 @@ LOOP pro Funktion:
      → "Versuche AKTIV diese Claims zu widerlegen. Finde JEDES Szenario."
      → Jeder Claim: SUCCESSFULLY REFUTED oder FAILED TO REFUTE
   7. Wenn FALSIFIED oder REFUTED → Fix + zurück zu Step 4
-  8. RUN 3: Syntax + Smoke + code-reviewer-deepseek-flash (final)
+  8. RUN 3: Syntax + Smoke + code-reviewer-deepseek (final)
   9. Ergebnis GUT = NÄCHSTE Funktion | TENDIERT NEGATIV = LOOP WIEDERHOLEN
 
 ENTSCHEIDUNGSREGEL: Immer zugunsten der Laufzeit-Zuverlässigkeit.
@@ -211,7 +212,7 @@ ABBRUCH: Loop läuft bis keine neuen Fehler gefunden werden ODER User stoppt.
 2. **Sequenziell bei Abhängigkeiten:** Erst Context, dann Edit, dann Test
 3. **_Info.txt:** NUR bei expliziter User-Aufforderung oder Version-Sync berühren
 4. **Keine destruktiven Befehle:** git push, rm -rf, npm install -g — nur auf User-Request
-5. **Reviewer-Pflicht:** Nach jeder Code-Änderung >10 Zeilen → `code-reviewer-deepseek-flash`
+5. **Reviewer-Pflicht:** Nach jeder Code-Änderung >10 Zeilen → `code-reviewer-deepseek`
 6. **Tests laufen lassen:** Nach jedem Fix: Syntax + passende Tests
 7. **Keine External Dependencies:** Keine Dependencies die wir selbst mit Code lösen können (tmux, lockfiles, etc.)
 8. **CHANGELOG aktuell halten:** Nach jedem Fix den CHANGELOG updaten

@@ -29,6 +29,12 @@ const DRY_RUN = !process.argv.includes('--execute');
 // ═════════════════════════════════════════════════════════════════════
 
 async function repairNativeStale(run) {
+  // FIX QO-PREFLIGHT: AND flagged=0 verhindert Endlosschleife.
+  // Ohne diesen Filter werden ALLE native_runtime src=tgt Einträge bei jedem
+  // Sync neu markiert — auch die 1.380 bereits geflaggten. Das erzeugt:
+  //   1. Unnötige DB-Writes (UPDATE auf bereits gesetzte Werte)
+  //   2. Deep-Polish Perpetuum Mobile (audit_stage=0 Reset → Polish → Reset)
+  //   3. DB-Snapshot-Leak (createSnapshot bei jedem Sync da totalIssues nie 0)
   const result = await run(`
     UPDATE translations
     SET flagged = 1,
@@ -39,6 +45,7 @@ async function repairNativeStale(run) {
         updated_at = CURRENT_TIMESTAMP
     WHERE provider = 'native_runtime'
       AND source_text = translation
+      AND flagged = 0
   `);
   return result.changes;
 }

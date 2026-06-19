@@ -214,7 +214,7 @@ Syx_bridge-/
 | ID | Issue | Severity |
 |----|-------|----------|
 | F.A | Live-Core `core/src/`-Drift vom Release-Snapshot (PR #5 änderte nur Vendored) | 🟡 P2 |
-| F.B | Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests | 🟡 P2 |
+| F.B | ~~Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests~~ | ✅ BEHOBEN |
 | F.C | CodeRabbit-Auto-Fix aus PR #5 nicht manuell re-verifiziert | 🟠 P1 |
 | F.D | Audit-`.jsonl`-Daten committed — gehören die in `.gitignore`? | 🟢 P3 |
 
@@ -433,7 +433,7 @@ Syx_bridge-/
 | ID | Fehler | Severity |
 |----|--------|----------|
 | F.A | Live-Core `core/src/`-Drift vom Release-Snapshot (PR #5 änderte nur Vendored) | 🟡 P2 |
-| F.B | Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests | 🟡 P2 |
+| F.B | ~~Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests~~ | ✅ BEHOBEN |
 | F.C | CodeRabbit-Auto-Fix aus PR #5 nicht manuell re-verifiziert | 🟠 P1 |
 | F.D | Audit-`.jsonl`-Daten committed — gehören die in `.gitignore`? | 🟢 P3 |
 

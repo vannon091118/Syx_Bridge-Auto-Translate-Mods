@@ -1,7 +1,7 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
-**Stand:** 19.06.2026 | **Version:** v0.20-alpha.3 | **Autor:** Vannon
-**Destilliert aus:** 6 aktive Reports + FULLSCAN + IMPORT_CHAIN_ISOLATION + GUI-Refresh-Feeding-Session
+**Stand:** 19.06.2026 | **Version:** v0.20.0-pre-release | **Autor:** Vannon & Sub-Agents
+**Destilliert aus:** MASTER_DOC.md (Basis), HANDSHAKE_2026-06-19.md, REDUNDANZ_AUDIT_V2_2026-06-19.md, LLM-AGENTS-EntryPoint.md
 
 ---
 
@@ -11,14 +11,12 @@
 
 - **Sprache:** Node.js (v18+)
 - **Dashboard:** Web-GUI auf `localhost:3000`
-- **Status:** Alpha, Solo-Dev, aktive tägliche Nutzung
+- **Status:** Rollout-Phase. v0.20.0-pre-release ist RELEASE-FÄHIG ("Built accidentally. Runs intentionally.") *(Quelle: HANDSHAKE)*
 - **Plugin-Architektur:** v0.20 Phase 1 abgeschlossen (8/8 Hardcodes entkoppelt)
-- **GUI-Refresh:** Heartbeat + SubPhase-Tracking + Input-Lock + Streaming Writes (NEU v0.20-alpha.3)
-- **NMT Local Provider:** Optionaler lokaler Übersetzer via `@huggingface/transformers` + NLLB-200 (NEU v0.19.7)
-- **PREFLIGHT Analysis:** Automatischer DB-Health-Check vor jedem Sync (NEU v0.19.7) — Integrity-Check, 6-Kategorie-Audit, Auto-Repair bei <5% Issues, Report nach `archive/docs/PREFLIGHT_LATEST.md`
-- **Dual-Path-Copy:** Native Mode kopiert übersetzte Dateien in BEIDE Verzeichnisse (NEU v0.19.7) — Steam Workshop (Persistenz) + AppData (sofort ladbar im Spiel)
-- **Routing-Hardening:** Argos CostClass 0→10 (letzte Wahl), Nvidia/Groq priorisiert, Tier 2 Nvidia-Injection (NEU v0.19.7)
-- **Error-Handler Smart:** 429→disable run, eskalierender Cooldown ×2, flaggedForReview (NEU v0.19.7)
+- **PREFLIGHT Analysis:** Automatischer DB-Health-Check vor jedem Sync (v0.20)
+- **Dual-Path-Copy:** Native Mode kopiert übersetzte Dateien in BEIDE Verzeichnisse (Steam/AppData)
+- **Routing-Hardening:** Argos CostClass 0→10, Nvidia/Groq priorisiert, Tier 2 Nvidia-Injection
+- **Error-Handler Smart:** 429→disable run, eskalierender Cooldown ×2, flaggedForReview
 
 ---
 
@@ -26,210 +24,147 @@
 
 ```
 Scan → Extract → Translate → Audit → Polish → Export
-         ↓           ↓          ↓         ↓
-    [Risk-Scoring] [Gate-Counter-Telemetrie]
 ```
 
-### Provider (9 Stück)
-| Provider | Typ | Nutzung |
-|---|---|---|
-| Groq | Cloud (Llama) | Primär-Provider |
-| OpenRouter | Cloud (Multi-Model) | Polish/Audit, Free-Tier-Fallback |
-| Gemini | Cloud (Google) | Übersetzung |
-| NVIDIA NIM | Cloud (NVIDIA) | Unlimitiert (nur Key) |
-| FCM | Lokaler Proxy | Kostenloser Router-Daemon |
-| Ollama | Lokal | Fallback/Offline (Opt-in) |
-| Player2 | Lokal (Desktop) | Optional (Opt-in) |
-| Argos Translate | Lokal (Offline) | UI-Strings, Low-Risk |
-| NMT Local (Transformers.js) | Lokal (CPU) | Optional, Opt-in via NMT_LOCAL_ENABLED |
-| Google Translate Free | Cloud (Kostenlos) | UI-Strings |
+### Provider Matrix (9 Stück)
 
-### Kernmodule (`core/src/` — 26 Module, 215 Funktionen)
-| Datei | Funktion |
-|---|---|
-| `translation-runtime.js` | Orchestrator: translateBatch, ensureTranslations, Deep Polish |
-| `translation-quality.js` | Scoring, Heuristiken, Guardrails (NEU v0.19.9) |
-| `translation-db.js` | DB/Cache/Glossary (NEU v0.19.9) |
-| `text-core.js` | Placeholder-Shield, Prompt-Bau, Quality-Checks |
-| `context-packets.js` | Static + Dynamic Risk Scoring |
-| `dispatcher.js` | Risk-basiertes Routing, Provider-Auswahl |
-| `providers/client-factory.js` | 9 Provider-Implementierungen |
-| `plugins/SongsOfSyxPlugin.js` | SoS-spezifische Logik (NEU v0.19.9) |
-| `adapters/SongsOfSyxAdapter.js` | SoS File-Format (NEU v0.19.5) |
-| `preflight.js` | DB-Health-Check: Integrity, 6-Kategorie-Audit, Auto-Repair, Reports (NEU v0.19.7) |
-| `router.js` | Provider-Routing, Capability Matrix, Error-Handler, flaggedForReview |
-| `config-runtime.js` | Provider-Konfig, Key-Rotation, Model-Discovery, NMT_LOCAL_ENABLED |
-| `gui-handlers.js` | REST API + SSE, DB-Suche, Revision-Restore, Heartbeat-Broadcast (NEU) |
-| `db.js` | SQLite WAL-Mode, Read-Only-Connection, Migrationen |
-| `exporter.js` | Datei-Export, Syntax-Validierung |
-| `validator.js` | Platzhalter-/Tag-Validierung, QA-Scoring |
-| `polish-arbiter.js` | Multi-Provider A/B-Polishing |
-| `cli-progress.js` | ASCII-Progress-Box (ETA, Provider live) |
-| `planner.js` | Laufplanung, CLI-Progress-Integration |
+| Provider | Typ | Nutzung | CostClass |
+|---|---|---|---|
+| Groq | Cloud (Llama) | Primär-Provider | 4 |
+| OpenRouter | Cloud (Multi) | Polish/Audit | 4 |
+| Gemini | Cloud (Google) | Übersetzung | 5 |
+| NVIDIA NIM | Cloud (NVIDIA) | Unlimitiert | 4 |
+| FCM | Lokal Proxy | Kostenloser Router | 1.5 |
+| Ollama | Lokal (LLM) | Fallback/Offline | 1 |
+| Player2 | Lokal (Desktop) | Optional (Opt-in) | 1 |
+| Argos Translate | Lokal (Offline) | UI-Strings | 10 |
+| Google Free | Cloud | UI-Strings | 9 |
 
 ---
 
 ## 3. Status: Erreicht & Offen
 
-### ✅ Erreicht (v0.20-wip)
-- **Phase 1A: Shield-Token-Format:** `[[N]]` → `__SHLD_N__` — 8 Dateien, kein SoS-Kollisionsrisiko mehr
-- **Phase 1B: restorePlaceholders Return + validateFileMarkers:** Rückgabe `{ restored, replacedCount, totalTokens }`, Marker-Level-Validierung (Tags, Placeholder, Variablen)
-- **Phase 2a: Gate-Counter Telemetrie:** `exporter:validateFileMarkers:keep/discard` Events
-- **Phase 2b: SHIELD_RESTORE_FAIL blockt Writes:** Schutz vor unrestored Shield-Tokens in game files
-- **Phase 2c: Unit-Tests:** 49 Checks für validateFileMarkers in validator-smoke.js
-- **Phase 3F (BUG-FS-003): DNT-Doppelshielding:** `_DNT_N_`-Layer für argos/google_free (non-LLM Provider)
-- **Fix: getPython() Priorität:** `python` vor `py`, Timeout 15s → 5s
-- **GUI-Refresh-Feeding:** Heartbeat-Timer (2s), SubPhase-Tracking (caching/native/translating/polishing/writing), Input-Lock im Run, Staleness-Detection
-- **Streaming Writes:** Per-File-Progress während writeTranslatedFile(), subPhase 'writing' an GUI
-- **Plugin-Architektur Phase 1:** 8/8 Hardcodes entkoppelt (H1-H8)
-- **3-Tier Accept/Reject:** translationCriticalCheck + assessTranslationWarnings
-- **Deep Polish Pipeline:** runDeepPolishBatch + Auto-Trigger
-- **NVIDIA NIM + FCM Provider:** 2 neue Provider
-- **activePlugin Init-Fix:** Modulebene statt main()
-- **shouldTranslate + extractStrings:** Structural-Noise-Filter (HistoryValue-Noise gefixt)
-- **33 Argos-Stale-Einträge gelöscht**
-- **Deep Polish A/B-System** (parallel, scored)
-- **JSON-Auto-Repair** (OpenRouter/Groq)
-- **Provider Capability Matrix** (9 Provider)
-- **Risk Routing** (5 Kategorien + Dynamic Risk)
-- **Translation Revisions** (DB + GUI Restore)
-- **CLI-Progress** (Echtzeit-Indikatoren)
-- **API-Key-Rotation** mit Cooldowns
-- **Native-Mode-Backup-System**
-- **Lokale LLM Opt-in** (Sicherheit)
-- **NMT Local Provider** (optional, @huggingface/transformers + NLLB-200)
+### ✅ Erreicht (v0.20.0-pre-release)
+- **Build-Linien:** Workshop-Paket (v0.20.0-pre-release) & REVIEW-BASE-Paket fertig. Drift-Detection (.build-manifest.json) etabliert.
+- **Sandbox-Cleanup:** ~239 MB freigegeben (audit/.claude/tar.gz entfernt).
+- **Core Engine:** Shield-Token-Format (`__SHLD_N__`), Deep Polish A/B-System, 16 Unit-Tests (49 Checks).
+- **Plugin-Architektur:** GamePlugin.js Interface + SongsOfSyxPlugin.js Implementierung.
+- **Quality-Offensive:** 0 verbleibende Blocker. API-Key Race, nativeStale Endlosschleife, needsRefresh behoben.
 
-### 🔴 Offene Bugs
+### 🔴 Offene Bugs & Anomalien
+
 | ID | Schwere | Beschreibung |
 |---|---|---|
-| F1 | P0 | Argos Python SyntaxError (spawnSync-Fix unwirksam) — kein Offline-Fallback |
-| F2 | P0 | `_dbGet is not a function` — Kompletter DB-Write-Verlust (Revision-Save wird still übersprungen) |
-| F3 | P2 | Exporter-Syntax 45× discard in Smoke-Tests |
-| F4 | P1 | 36.8% Stage 0 (nie auditiert) — 62.77% bereits Stage 2 (Verified) nach Cleanup |
-| F5 | P1 | 28.5% Stale Translations (1.016 Einträge) — Cache liefert source_reused aus |
-
-### 🔧 Technische Schulden
-- `index.js` ~720 Zeilen → Refactoring nötig
-- 8 Hardcoded SoS-Elemente verbleiben im Core (H1-H8 im FULLSCAN dokumentiert)
-- Dead Code: `getQaScore()`, `listFormats()` (D1, D2)
+| BUG-FS-003 | P0 | Argos Placeholder-Korruption bei skipIndices |
+| BUG-FS-006 | P1 | `flagPotentialErrors()` gibt null statt false |
+| F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) |
+| F.B | P1 | Plugin-Boundary Contract-Tests fehlen |
+| F.C | P1 | CodeRabbit-Auto-Fix unreviewed |
+| #013 | P0 | Doc-/Live-Drift zwischen Snap 16/17 (163 Einträge) |
+| #014 | — | **FALSIFIED ✅** — `quality_score` existiert (db.js:125, MASTER_FREEZE §3.2) |
 
 ---
 
 ## 4. Plugin-Architektur (v0.20 Phase 1 — ABGESCHLOSSEN)
 
-### Was bereits im Plugin/Adapter ist
-- ✅ `serializeTranslation()` → SongsOfSyxPlugin
-- ✅ `getFileHeader()` (__OVERWRITE) → SongsOfSyxPlugin
-- ✅ `getPromptContext()` → SongsOfSyxPlugin (via `_plugin`)
-- ✅ `getPathRules()` → SongsOfSyxPlugin (H2)
-- ✅ `getLoreTerms()` → SongsOfSyxPlugin (H4)
-- ✅ `getGameTerms()` → SongsOfSyxPlugin (H5)
-- ✅ `classifyFile()`, `scanMod()`, `parseMetadata()` → SongsOfSyxAdapter
-- ✅ `getParserFormat()` → SongsOfSyxAdapter
-- ✅ `readDisplayName()` → Adapter-aware (H6)
-- ✅ `classifyFile()` Fallback entfernt (H7)
-- ✅ UI-Branding via Plugin (H8)
-
-### Was NOCH im Core steckt
-- **H1:** `buildProofreadPrompt()` — SoS-Editor-Prompt (Delegation an Plugin ausstehend)
-- **H3:** `buildBatchPrompt()` Fallback — generisch, aber Plugin-Injection funktioniert
+- Alle Core-Hardcodes (H1-H8) delegiert oder als Fallback markiert
+- `plugins/GamePlugin.js`: Interface (getPromptContext, getGameTerms, getLoreTerms, getPathRules, serializeTranslation, validateTranslation)
+- `plugins/SongsOfSyxPlugin.js`: Implementierung mit 12 Lore-Begriffen + 9 Gameplay-Begriffen
+- `translation-quality.js` (~187 LOC): 6 extrahierte Quality/Scoring-Funktionen
+- `translation-db.js` (~356 LOC): 8 extrahierte DB/Cache/Glossary-Funktionen
+- `translation-runtime.js` (~1211 LOC): 5 fokussierte Phasen-Funktionen (GOD-001 Refactoring)
 
 ---
 
-## 5. DB-Stand (18.06.2026 — Live)
+## 5. DB-Stand (Snapshot 18 — 19.06.2026)
 
-> **🔄 INPLACE-UPDATE:** Werte vom 19.06 (3.567 Einträge) auf aktuellen Stand 18.06 (5.447 Einträge) aktualisiert.
+*(Quelle: HANDSHAKE §2.2)*
 
 | Metrik | Wert |
 |---|---|
-| Translations gesamt | 5.447 |
-| Stale (translation = source) | 1.672 (30.7%) |
-| Flagged | 988 (18.1%) |
-| Stage 2 (Verified) | 4.066 (74.6%) |
-| Glossary Terms | 1.040 |
-| Revisions | 16.281 (5.451 aktiv) |
+| Translations gesamt | 6.540 |
+| Stale (source = target) | 2.240 (34.3%) |
+| Flagged | 2.444 (37.4%) |
+| Stage 0 / 1 / 2 | 1.608 / 75* / 4.857 (24.6% / 1.1%* / 74.3%) |
 
-**Provider-Verteilung (Top 8):**
-| Provider | Einträge | Anteil |
-|----------|----------|--------|
-| native_runtime | 2.521 | 46.3% |
-| ab_polish | 1.394 | 25.6% |
-| google_free | 582 | 10.7% |
-| argos | 560 | 10.3% |
-| openrouter | 216 | 4.0% |
-| polish_single | 149 | 2.7% |
-| groq | 24 | 0.4% |
-| nvidia | 0 | 0.0% ⚠️ |
+*Stage 1 geschätzt (nicht per Live-Query verifiziert — Audit U-004)
 
-### Stale-Reduktionsplan (READ-ONLY)
-| Prio | Strategy | Aufwand | Erwartung |
-|---|---|---|---|
-| P0 | needsRefresh erweitern | 15 Min | ~33 Einträge |
-| P1 | Re-Translation Queue | 2h | ~50-100 |
-| P2 | Post-Batch Detection | 1h | Preventiv |
-| P3 | isLikelyTargetLanguageText verbessern | 2-3h | ~50-100 |
+**Stale-Verteilung nach Provider (Top 3):**
+- native_runtime: 1.973 (🔴 Großteil des Problems)
+- argos: 107
+- polish_single: 94
 
 ---
 
-## 6. Roadmap
+## 6. Roadmap & Nächste Effort Scopes
 
-| Prio | Phase | Aufgabe | Status |
-|---|---|---|---|
-| ✅ | v0.20 Phase 1 | Hardcode→Plugin (H1-H8) | ABGESCHLOSSEN |
-| ✅ | v0.19.7 | PREFLIGHT Analysis System | ABGESCHLOSSEN |
-| ✅ | v0.19.7 | Dual-Path-Copy (Native Mode) | ABGESCHLOSSEN |
-| ✅ | v0.19.7 | Routing-Hardening (Argos last, Nvidia first) | ABGESCHLOSSEN |
-| ✅ | v0.19.7 | Error-Handler Smart (429→disable, eskalierend) | ABGESCHLOSSEN |
-| 🔴 | v0.20 Phase 1 | H1: buildProofreadPrompt → Plugin | OFFEN |
-| 🟠 | v0.20 Phase 2 | SongsOfSyxAdapter deprecate | OFFEN |
-| 🟠 | v0.20 Phase 2 | RimWorld-Prototyp | OFFEN |
-| 🟡 | Stale | Cache-Invalidierung | PLANUNG |
-| 🟡 | Infra | Circuit-Breaker für Provider | OFFEN |
-| 🟢 | Tech-Debt | Dead Code entfernen (D1, D2) | OFFEN |
-| 🟢 | NMT | Router-Integration (10. Provider) | OFFEN |
-| 🟢 | NMT | GUI-Toggle + Hardcode-Entkopplung | OFFEN |
+| Prio | Aufgabe | Status/Aufwand |
+|---|---|---|
+| P0 | S1: REVIEW-BASE Naming-Bug fixen (#015) | ~15 Min |
+| P0 | S2: Erster echter v0.20 Live-Run & #013 Verifikation | ~60 Min |
+| — | S3: Schema-fix `quality_score` Spalte einführen | ✅ OBSOLET — Spalte existiert (db.js:125) |
+| P1 | S4: Snap-16 Re-Audit mit Score-Buckets | ~2h |
+| P1 | S5: Plugin-Boundary Contract-Tests (F.B) | ~3h |
+| P2 | S5: DB-Cleanup `stale_retranslate` | ~2h |
+| P2 | S6: Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
 
 ---
 
-## 7. Dokumentationsstruktur
+## 7. Agent-Referenz & Automation
+
+*(Quelle: LLM-AGENTS-EntryPoint.md)*
+
+**Verfügbare Agents:**
+- `code-searcher` / `file-picker`: Ripgrep & Fuzzy-Suche
+- `basher`: Terminal (Keine destruktiven Tasks ohne User-Erlaubnis!)
+- `code-reviewer-deepseek`: Zwingender PR-Reviewer für Changes >10 Zeilen
+- `thinker-with-files-gemini`: Deep-Thinking mit Context, Architektur-Design
+- `researcher-web` / `docs`: Externe Informationsrecherche
+
+**Wichtige Workflows & Regeln:**
+- **Regel 1 Overdrive:** "Ich werde Gemini nicht rein lassen." – Defensiver, langfristiger Code-Ansatz.
+- **External Research Siege:** Bei unklaren Bugs 10-15 Sub-Agents massiv-parallel.
+- **DB-Backup:** Vor und nach kritischen Fixes wird `translations.db` komprimiert archiviert.
+
+---
+
+## 8. Redundanz-Audit (v2)
+
+*(Quelle: REDUNDANZ_AUDIT_V2_2026-06-19.md)*
+
+- **5 von 8 Altfunden behoben.** Archive-Bloat: 239 MB → 4 MB.
+- **Offene Redundanzen:**
+  - Vendor-Drift: `FREEZE/`-Archiv versehentlich in Vendored Releases kopiert → `release.js` Excludes nötig.
+  - V70/V71 Verzeichnisse: DUMMY.txt-Platzhalter, Entscheidung ausstehend.
+
+---
+
+## 9. Dokumentationsstruktur (Post-Konsolidierung Run #2)
+
+> **Stand:** 2026-06-19 — 60 → 16 Dokumente (10 aktiv + 6 FREEZE)
+> **44 FREEZE-Dokumente gelöscht** nach 100% Integritäts-Verifikation (33/33 Claims).
+> Alle Inhalte im FREEZE_INDEX.md als Glossary-Einträge rekonstruierbar.
 
 ```
 core/archive/docs/
-├── MASTER_DOC.md             # ← DIESER REPORT (konsolidiert)
-├── CHANGELOG.md              # Versionshistorie
-├── LLM-AGENTS-EntryPoint.md  # Sub-Agent Referenz
-├── plans/                    # Aktive Implementierungspläne
-│   ├── HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md
-│   └── TRANSLATION_RUNTIME_SPLIT_2026-06-18.md
-├── FREEZE/                   # 34 archivierte Session/Report-Dateien
-│   ├── AUDIT_REPORT.md
-│   ├── AUDIT_REPORT_2026-06-17.md
-│   ├── ANALYSE_2026-06-19.md
-│   ├── DB_AUDIT_2026-06-18.md
-│   ├── DB_BACKUP_PENDING.md
-│   ├── DB_REPORT_v0.19.5.D17.06.U17.06.md
-│   ├── DOC_CONSOLIDATION_2026-06-19.md
-│   ├── FULLSCAN_2026-06-19.md
-│   ├── HANDSHAKE_2026-06-17.md
-│   ├── HARDCODED_VALUES_NMT_2026-06-18.md
-│   ├── IMPORT_CHAIN_ISOLATION_2026-06-19.md
-│   ├── KNOWN_BUGS_REPORT_2026-06-19.md
-│   ├── LOG_REPORT_2026-06-19.md
-│   ├── PATCH_REVIEW_2026-06-16.md
-│   ├── REDUNDANCY_REPORT_2026-06-18.md
-│   ├── REPORT_v0.19.5_dry_run.md
-│   ├── SESSION_REPORT_*.md (6)
-│   ├── STATUS.md
-│   ├── TECHNICAL_REVIEW_2026-06-15.md
-│   ├── TREE.md
-│   ├── WORKSHOP_CHANGELOG.md
-│   └── README.md
-└── dbold/                    # DB-Snapshots
-    ├── DB_SNAPSHOT_2026-06-18.md
-    ├── DB_STATISTICS.md
-    └── DB_TREND_REPORT.md
+├── MASTER_DOC.md              # ← DIESER REPORT (konsolidiert)
+├── CHANGELOG.md               # Versionshistorie (LIVE, persistent)
+├── PREFLIGHT_LATEST.md        # Letzter PREFLIGHT-Report (LIVE)
+├── LIVE_INDEX.md              # Index der LIVE- + Meta-Dokumente
+├── WORKFLOW.md                # Agenten-Workflow (Session-Lifecycle, Doku-Clean, Eskalation)
+├── HANDSHAKE_2026-06-19.md    # Session-Übergabe (offene Punkte, DB-Stand, Roadmap)
+├── DIVERGENZ_REPORT.md        # Vendor-Drift-Analyse
+├── FORENSIC_FULLSCAN_v0.20_2026-06-19.md  # Forensischer Full-Scan
+├── REDUNDANZ_AUDIT_V2_2026-06-19.md       # Redundanz-Analyse
+├── DOKU_KONSOLIDIERUNG_2026-06-19_RUN2.md # Konsolidierungsbericht
+├── INTEGRITY_AUDIT_2026-06-19.md          # Integritäts-Verifikation (100%)
+├── FREEZE/
+│   ├── FREEZE_INDEX.md        # Das Buch — 48 Glossary-Einträge
+│   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # Single Source of Truth
+│   ├── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikations-Checkliste
+│   ├── README.md              # Verzeichnis-Doku
+│   ├── TRANSLATION_RUNTIME_SPLIT_2026-06-18.md  # Archivierter Plan (umgesetzt)
+│   └── COMMIT_MSG_2026-06-18.txt                 # Archivierte Commit-Nachricht
+└── plans/
+    └── PHASE2_MARKER_INTEGRATION_2026-06-19.md   # Einziger offener Plan
 ```
-
----
-
-*Stand: 18.06.2026 — 34 obsolete Reports in FREEZE/ archiviert. DB: 5.447 Einträge. Version: v0.19.7.*

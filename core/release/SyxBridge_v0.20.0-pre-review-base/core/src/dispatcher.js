@@ -60,13 +60,19 @@ function createDispatcher(options) {
     const hasLongText = items.some(item => item.type === 'LONG_TEXT' || (item.source && item.source.length > 300));
 
     // ── Tier 1: UI-String optimization ──────────────────────────────────────
+    // UI-strings are low-risk → prefer free LLM tiers over machine translation.
+    // Falls kein LLM verfügbar → google_free/argos als absolute Fallbacks.
     const uiStringCount = items.filter(item => classifyPath(item.relativePath) === 'ui_string').length;
     if (uiStringCount >= items.length * 0.8) {
-      const cheapProviders = ['google_free', 'argos'];
-      for (const p of cheapProviders) {
+      const freeLlmFirst = ['openrouter', 'groq', 'fcm', 'google_free', 'argos'];
+      for (const p of freeLlmFirst) {
         if (routingEngine.isAvailable(p)) {
-          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${p}`);
-          return { provider: p, model: p === 'google_free' ? 'google-translate-free' : 'argos-translate-local', reason: 'ui_strings', stressTestRequired: false };
+          const model = p === 'openrouter' ? 'openrouter/free'
+            : p === 'google_free' ? 'google-translate-free'
+            : p === 'argos' ? 'argos-translate-local'
+            : 'auto';
+          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${p} (LLM-preferred)`);
+          return { provider: p, model, reason: 'ui_strings', stressTestRequired: false };
         }
       }
     }

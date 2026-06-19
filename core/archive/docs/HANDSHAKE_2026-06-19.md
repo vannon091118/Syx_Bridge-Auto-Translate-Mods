@@ -205,12 +205,11 @@
     HANDSHAKE §2.2-Schema war veraltet (Snap-17-Stand vor Migration).
     → Status: FALSIFIED. Korrigiert in MASTER_FREEZE §3.2 + INTEGRITY_AUDIT_2026-06-19.
 
-  Anomalie #015 (REVIEW-BASE Naming-Bug — pending)
-    Script akzeptiert `${version}-review-base` aber `version` selbst
-    enthält schon `-release`, daher `v0.20.0-pre-release-review-base`.
-    Fix: `cleanVersion = version.replace(/-release$/, '')` im Script.
-    Status: Cleanup-Three-Action-Versuch über Python-Heredoc schlug fehl
-    (cmake/python3 nicht im PATH). Workaround TODO.
+  Anomalie #015 (REVIEW-BASE Naming-Bug — BEHOBEN ✅)
+    Korrupte console.log-Zeile (build-review-base.js:294) mit eingebetteten
+    \n\n--- Zeichen entfernt. Drift-Manifest-Log korrekt wiederhergestellt.
+    cleanVersion-Logik (Zeilen 23-27) war bereits korrekt.
+    Ordner heißt jetzt sauber: `SyxBridge_v0.20.0-pre-review-base`.
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -313,7 +312,7 @@
 
   Prio    | Status  | Item                                                  | Approx. Effort
   --------+---------+-------------------------------------------------------+--------------
-  P0      | 🟡     | REVIEW-BASE Naming-Bug (Anomalie #015) fixen          | 15 Min Run
+  P0      | ✅     | REVIEW-BASE Naming-Bug (Anomalie #015) gefixt          | ✅ Done (build-review-base.js:294 — korrupte console.log-Zeile entfernt)
   P0      | 🔴     | Anomalie #013 verifizieren (erster v0.20 Live-Run)     | 60 Min Run
   P1      | ✅     | Schema `quality_score` existiert bereits (db.js:125, MASTER_FREEZE §3.2) | —
   P1      | 🟡     | S4: Snap-16 Re-Audit mit Score-Buckets | ~2h
@@ -375,13 +374,9 @@
   Reihenfolge nach Dringlichkeit. Jede Stufe benennt Vorbedingung + Deliverable.
 
   ──────────────────────────────────────────────────────────────────────────
-  S1. REVIEW-BASE Naming-Bug fixen (P0 🟡, ~15 Min)
-      Vorbedingung: cleanVersion-Logik bereits gedacht (siehe §4).
-      Deliverable: `core/scripts/build-review-base.js` enthält
-                   `const cleanVersion = version.replace(/-release$/, '');`
-                   und nutzt `cleanVersion` in `reviewBaseVersion`. Nach
-                   Re-Build heißt der Ordner `SyxBridge_v0.20.0-pre-review-base/`.
-      Verifikation: `ls core/release/` zeigt sauberen Namen.
+  S1. ✅ BEHOBEN — REVIEW-BASE Naming-Bug (Anomalie #015) 
+      Korrupte console.log-Zeile (build-review-base.js:294) entfernt.
+      cleanVersion-Logik war bereits korrekt. Ordner: SyxBridge_v0.20.0-pre-review-base.
   ──────────────────────────────────────────────────────────────────────────
   S2. Erster v0.20 Live-Run (P0 🔴, ~60 Min)
       Vorbedingung: S1 erledigt (oder Naming-Bug akzeptiert für ersten Run).
