@@ -75,12 +75,12 @@ function createDispatcher(options) {
           uiCandidates.push(c);
         }
       }
-      // Try candidates in order, use first available
-      for (const c of uiCandidates) {
-        if (routingEngine.isAvailable(c.provider)) {
-          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${c.provider} (LLM-preferred)`);
-          return { provider: c.provider, model: c.model, reason: 'ui_strings', stressTestRequired: false };
-        }
+      // BU-037 Fix: Removed redundant isAvailable() double-check. Candidates are
+      // already filtered during uiCandidates construction above. Return first available.
+      if (uiCandidates.length > 0) {
+        const c = uiCandidates[0];
+        console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${c.provider} (LLM-preferred)`);
+        return { provider: c.provider, model: c.model, reason: 'ui_strings', stressTestRequired: false };
       }
     }
 
