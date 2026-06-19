@@ -2,7 +2,7 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
 const axios = require('axios');
-const inquirer = require('inquirer');
+const prompts = require('prompts');
 require('dotenv').config({ path: path.join(__dirname, '.env'), quiet: true });
 
 const Router = require('./src/router');
@@ -192,13 +192,14 @@ async function runStartupWizard() {
   const currentLang = status.targetLang && SUPPORTED_LANGS.includes(status.targetLang)
     ? status.targetLang
     : (SUPPORTED_LANGS.includes(CONFIG.TARGET_LANG) ? CONFIG.TARGET_LANG : SUPPORTED_LANGS[0]);
-  const { targetLang: chosenLang } = await inquirer.prompt([{
-    type: 'list',
+  const { targetLang: chosenLang } = await prompts({
+    type: 'select',
     name: 'targetLang',
     message: 'Zielsprache für die Übersetzung wählen:',
-    default: currentLang,
-    choices: SUPPORTED_LANGS.map(l => ({ name: `${l} (${LANG_CODES[l]})`, value: l }))
-  }]);
+    initial: SUPPORTED_LANGS.indexOf(currentLang),
+    choices: SUPPORTED_LANGS.map(l => ({ title: `${l} (${LANG_CODES[l]})`, value: l }))
+  });
+  if (!chosenLang) return;
   if (chosenLang !== CONFIG.TARGET_LANG) {
     console.log(`  [INFO] Zielsprache: ${CONFIG.TARGET_LANG} → ${chosenLang}`);
     CONFIG.TARGET_LANG = chosenLang;
@@ -225,10 +226,10 @@ async function runStartupWizard() {
   // 1) Argos
   console.log('\n[1/3] Argos Translate:');
   if (!status.argos.installed) {
-    const { installArgos } = await inquirer.prompt([{
-      type: 'confirm', name: 'installArgos', default: true,
+    const { installArgos } = await prompts({
+      type: 'confirm', name: 'installArgos', initial: true,
       message: 'Argos Translate ist nicht installiert. Jetzt installieren?'
-    }]);
+    });
     if (installArgos) {
       const ok = await ensureArgos();
       console.log(ok ? '  [OK] Installiert' : '  [FAIL] Installation fehlgeschlagen');
@@ -241,10 +242,10 @@ async function runStartupWizard() {
   console.log(`\n[2/3] Sprachmodell (${status.targetLang} / ${status.targetLangCode}):`);
   const recheck = await registry.getModelStatus().catch(() => status);
   if (recheck.argos.installed && !recheck.argos.targetLangInstalled) {
-    const { installLang } = await inquirer.prompt([{
-      type: 'confirm', name: 'installLang', default: true,
+    const { installLang } = await prompts({
+      type: 'confirm', name: 'installLang', initial: true,
       message: `Sprachmodell "${status.targetLang}" jetzt installieren?`
-    }]);
+    });
     if (installLang) {
       const result = await registry.installTargetLanguage();
       console.log(`  ${result.ok ? '[OK]' : '[FAIL]'} ${result.message}`);
@@ -259,10 +260,10 @@ async function runStartupWizard() {
   console.log('\n[3/3] Ollama (optional, lokale KI):');
   const recheck2 = await registry.getModelStatus().catch(() => status);
   if (!recheck2.ollama.running) {
-    const { setupOllama } = await inquirer.prompt([{
-      type: 'confirm', name: 'setupOllama', default: false,
+    const { setupOllama } = await prompts({
+      type: 'confirm', name: 'setupOllama', initial: false,
       message: 'Ollama ist nicht erreichbar. Jetzt starten?'
-    }]);
+    });
     if (setupOllama) {
       const ok = await startOllama();
       console.log(ok ? '  [OK] Ollama laeuft' : '  [WARN] Ollama konnte nicht gestartet werden');
@@ -585,12 +586,12 @@ async function managePatches() {
     selected = patches;
     console.log('[GUI] Aktiviere alle verfügbaren Patches in BridgeCore...');
   } else {
-    const result = await inquirer.prompt([{ 
-      type: 'checkbox', 
-      name: 'selected', 
-      message: 'Wähle Patches für BridgeCore:', 
-      choices: patches.map(p => ({ name: p, checked: true })) 
-    }]);
+    const result = await prompts({
+      type: 'multiselect',
+      name: 'selected',
+      message: 'Wähle Patches für BridgeCore:',
+      choices: patches.map(p => ({ title: p, value: p, selected: true }))
+    });
     selected = result.selected;
   }
     
@@ -645,8 +646,8 @@ async function fullReset() {
   if (process.argv.includes('--gui')) {
     isSure = true;
   } else {
-    const confirm = await inquirer.prompt([{ type: 'confirm', name: 'sure', message: 'Bist du sicher? Alle lokalen Patches werden gelöscht.', default: false }]);
-    isSure = confirm.sure;
+    const confirm = await prompts({ type: 'confirm', name: 'sure', message: 'Bist du sicher? Alle lokalen Patches werden gelöscht.', initial: false });
+    isSure = !!(confirm && confirm.sure);
   }
   if (!isSure) return;
   try {
@@ -748,7 +749,7 @@ async function main() {
   const readFileJobWithAdapter = (job) => readFileJob({ ...job, adapter: gameAdapter });
 
   runtimeOps = createRuntimeOps({
-    config: CONFIG, fs, fsp, path, inquirer, exporter, ensureTranslations, mapLimit, readFileJob: readFileJobWithAdapter, collectTextFiles, writeTranslatedFile,
+    config: CONFIG, fs, fsp, path, prompts, exporter, ensureTranslations, mapLimit, readFileJob: readFileJobWithAdapter, collectTextFiles, writeTranslatedFile,
     getMajorVersion: async (dir) => {
       try {
         const entries = await fsp.readdir(dir);

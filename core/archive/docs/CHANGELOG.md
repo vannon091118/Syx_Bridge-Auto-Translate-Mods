@@ -1,31 +1,40 @@
 # CHANGELOG
 
-## [SECURITY-CLEANUP] - 2026-06-20 — DEPENDENCY REDUCTION + npm audit fix (0 VULN)
+## [SECURITY-CLEANUP] - 2026-06-20 — DEPENDENCY REDUCTION + npm audit fix + inquirer→prompts (0 VULN)
 
 ### Changed (Security-Offensive)
 - **sql.js von dependencies → devDependencies verschoben:** `sql.js` wird im Runtime (src/) nicht verwendet — `sqlite3` übernimmt alle DB-Operationen. sql.js wird nur in 2 Dev-Scripts (`scripts/analyze_snapshots.js`, `scripts/db_audit.js`) für Offline-Snapshot-Analyse verwendet. Durch Verschiebung nach devDependencies wird es nicht im Release-Bundle shipped, bleibt aber für Dev-Tools verfügbar. Version auf 1.14.1 gepinnt (Projekt-Konvention: keine `^`/`~`-Ranges).
 - **@huggingface/transformers komplett entfernt:** Optional-Dependency (76 transitive: sharp, onnxruntime-node, onnxruntime-web, protobufjs, jinja, tokenizers). NMT_LOCAL_ENABLED wurde bereits in BU-040 als VERWAIST entfernt und auf Roadmap v0.23 verschoben. Kein `require('@huggingface/transformers')` in src/ gefunden. start.bat NMT-Block war bereits nur Kommentar. Entfernung bringt die größte Single-Action-Reduktion: 76 Dependencies weniger, inkl. aller ONNX/Sharp-Binaries.
 - **npm audit fix — undici 6.26.0→6.27.0:** Transitive Dependency von sqlite3→node-gyp→undici. 4 Advisories (GHSA-p88m-4jfj-68fv, GHSA-vxpw-j846-p89q, GHSA-35p6-xmwp-9g52, GHSA-g8m3-5g58-fq7m) — HTTP Header Injection, WebSocket DoS, Response Queue Poisoning, SameSite Cookie Downgrade. Runtime-Risiko war gering (undici nur in node-gyp Build-Tool, nicht im Runtime-Pfad), aber CVE eliminiert.
+- **inquirer 8.2.7 → prompts 2.4.2 migriert:** inquirer brachte 62 Dependencies (inkl. chalk, lodash, rxjs, string-width). prompts bringt nur 2 (kleur, sisteransi). Migration umfasste 16 `inquirer.prompt()`-Aufrufe in 6 Dateien: `type:'list'`→`'select'`, `type:'input'`→`'text'`, `type:'checkbox'`→`'multiselect'`, `type:'confirm'`→`'confirm'`, `default`→`initial`, `choices:{name,value}`→`{title,value}`. `when`-Bedingungen wurden zu inline-if-Logik, asynchrone `validate`-Funktionen zu post-prompt-Validierung konvertiert. E2E-Test (`e2e_bug1_native_mode.js`) vollständig auf `prompts`-Mock umgestellt (35/35 PASS). Cancel-Guards in `ui.js` (mainMenu/selectMod) + explizites `!!(confirm && confirm.sure)` in `fullReset()` hinzugefügt. `gameAdapter`-Stub in E2E-Test ergänzt (runtime-ops.js braucht es seit Plugin-Architektur).
 
 ### Ergebnis
 - **npm audit: 0 vulnerabilities** (vorher: 1 HIGH)
-- **Production Dependencies: 4** (axios, dotenv, inquirer, sqlite3) — keine optionalDependencies mehr
+- **Production Dependencies: 4** (axios, dotenv, prompts, sqlite3) — keine optionalDependencies mehr
 - **Dev Dependencies: 4** (eslint, @eslint/js, globals, sql.js)
-- **Dependency-Reduktion:** ~310 → ~257 Pakete (−53 prod/optional, −76 transitive von transformers)
+- **Dependency-Reduktion:** ~310 → ~160 Pakete (−150 total: −76 transformers, −60 inquirer→prompts, −14 transitive cleanup)
 
-### Deep-Analysis-Ergebnisse (NICHT heute umgesetzt, als Tickets vorgemerkt)
-- **inquirer→prompts** (P2, Small Effort): 62→2 Dependencies. ~15 `inquirer.prompt()`-Aufrufe in 6 Dateien. Nur 4 Typen: list/confirm/input/checkbox. Migration ~80 LOC. Als eigene Session mit Testlauf geplant — CLI-Wizard-Flows müssen manuell verifiziert werden.
+### Deep-Analysis-Ergebnisse (NICHT heute umgesetzt, als Ticket vorgemerkt)
 - **sqlite3→better-sqlite3** (P3, Roadmap): sqlite3 ist DEPRECATED auf GitHub. better-sqlite3 hat 2 Dependencies statt 63, ist 3.8× schneller, aktiv gepflegt. **ABER:** Synchroner API in einem Prozess der parallel an 9 API-Provider dispatcht auf HDD — Event-Loop-Blocking während synchrone DB-Schreibvorgänge laufen würde alle parallelen async API-Calls einfrieren. Blast-Radius NICHT auf db.js beschränkt. Als P3/Roadmap behandeln, nicht als Sprint-Aufgabe.
 
 ### Files Changed
-- `core/package.json` — sql.js dependencies→devDependencies, @huggingface/transformers entfernt
-- `core/package-lock.json` — automatisch aktualisiert (1.020 Zeilen entfernt)
+- `core/package.json` — sql.js→devDependencies, @huggingface/transformers entfernt, inquirer→prompts
+- `core/package-lock.json` — automatisch aktualisiert
+- `core/src/config-runtime.js` — inquirer→prompts (5 Aufrufe: when→inline if, validate→post-prompt, choices-Format)
+- `core/src/ui.js` — inquirer→prompts (3 Aufrufe) + Cancel-Guards (mainMenu→exit, selectMod→{})
+- `core/src/runtime-ops.js` — inquirer→prompts (1 Aufruf, Parameter umbenannt)
+- `core/index.js` — inquirer→prompts (5 Aufrufe: checkbox→multiselect + .selected, fullReset explizit)
+- `core/scripts/check_argos.js` — inquirer→prompts (1 Aufruf)
+- `core/scripts/start_ollama.js` — inquirer→prompts (1 Aufruf)
+- `core/tests/e2e_bug1_native_mode.js` — makeInquirerMock→makePromptsMock, gameAdapter-Stub, inquirerInstance→promptsInstance
 - `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
 
 ### Tests
 - Syntax-Check: 58/58 PASS ✅
 - Redteam Baseline: 11/11 PASS ✅
+- E2E Bug1 Native Mode: 35/35 PASS ✅
 - npm audit: 0 vulnerabilities ✅
+- Vendor-Drift: 0 Errors ✅
 
 ### EFFORT TO NEXT SCOPE
 - **S2:** Erster v0.20 Live-Run (P0, ~60 Min)

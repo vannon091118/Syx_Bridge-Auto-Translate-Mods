@@ -1,6 +1,6 @@
 {
   "version": "0.20.0-pre-release",
-  "generated_at": "2026-06-19T23:37:57.740Z",
+  "generated_at": "2026-06-19T23:48:03.649Z",
   "source_root": "core/",
   "file_count": 56,
   "files": [
@@ -10,7 +10,7 @@
     },
     {
       "path": "core/index.js",
-      "sha256": "886d2650487a952ffcc37b24a55f59e2ded256749670d0107a4a4e40a6f8bd86"
+      "sha256": "bb1e3c983f3d0d671c5c2efffe9a4a71e7787696e4d71c23be73e4c964ae6283"
     },
     {
       "path": "core/LICENSE",
@@ -18,11 +18,11 @@
     },
     {
       "path": "core/package.json",
-      "sha256": "fb0e16d4ecf8866a0cb8c20cb9d0133d566499f91e013170427f639b173034eb"
+      "sha256": "8cf001e98851f52b4965b10a7ba22c3471f2f0e352c2076ee1502470ad0f72d0"
     },
     {
       "path": "core/scripts/check_argos.js",
-      "sha256": "b7d8f3649b7f6d5585d3b47bb3d6e25aaf9460c31de615c7e7c6876797cdaf1e"
+      "sha256": "c27552444864a1b7087584db7fb7e73f532f0498c61489af683f2c9529eeddbc"
     },
     {
       "path": "core/scripts/cleanup_zombies.js",
@@ -30,7 +30,7 @@
     },
     {
       "path": "core/scripts/start_ollama.js",
-      "sha256": "7eba6fd4dabbd5ab68efb78c44b5473b0df223eeee8d0fc458f81692669260ba"
+      "sha256": "6c80c168f1b51af99da3e97df3ae9593a31e3995516ab2ba71a9d2fff8c58ddb"
     },
     {
       "path": "core/scripts/workshop_export.js",
@@ -50,7 +50,7 @@
     },
     {
       "path": "core/src/config-runtime.js",
-      "sha256": "8e6e43782c2eec549f0de19a3ea9114422e53790afe2cdb9d329ee6cf9f9d54d"
+      "sha256": "53d6a69d8b1b144b51e4d4746aca8c159fe919c5ff835b29b584eda94ba389b4"
     },
     {
       "path": "core/src/context-packets.js",
@@ -158,7 +158,7 @@
     },
     {
       "path": "core/src/runtime-ops.js",
-      "sha256": "7d3c4697518355b896e1993644e2c6c7482d5d6aa631d2ee68c1cfcae430b635"
+      "sha256": "82ebc46097d021e65073454f9bccccdb881788a8a4271242a543eda265636dc5"
     },
     {
       "path": "core/src/scanner.js",
@@ -186,7 +186,7 @@
     },
     {
       "path": "core/src/ui.js",
-      "sha256": "8561d2beb047f5e0848f2e06e227553b0b08d9a5b05a3d4a46994981f1e1d1e4"
+      "sha256": "696ec8bfe93e86d38acb7e59a94f1d3f29e6696cb1d903f15fa7c0e2d64dd2fd"
     },
     {
       "path": "core/src/validator.js",
