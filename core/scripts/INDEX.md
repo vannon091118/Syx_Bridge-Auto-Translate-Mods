@@ -1,6 +1,6 @@
-# 📖 INDEX — core/scripts/ (19 Dateien, 3.551 LOC)
+# 📖 INDEX — core/scripts/ (20 Dateien, ~3.600 LOC)
 
-> **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release
+> **Generiert:** 2026-06-20 | **Version:** v0.20.0-pre-release
 > **Zweck:** Referenzbuch für Utility-Scripts (Audit, Repair, Release, Cleanup)
 > **CL-Refs:** Kanonische Quelle ist `core/archive/docs/CHANGELOG.md`. Lokale CL-Refs sind Kurzform.
 
@@ -25,6 +25,7 @@
 | reset_now.js | 180 | 6 | **Hard-Reset** — Backups, DB, Launcher |
 | start_ollama.js | 140 | 6 | Ollama-Start + Modell-Management |
 | sync-version.js | 100 | 1 | Version-Synchronisation (7 Dateien) |
+| verify_commit_msg.js | 105 | 1 | **RULE 3 Härtung** — Commit-Message vs Diff-Abgleich |
 | verify_integrity.js | 50 | 1 | Integritäts-Verifikation |
 | warm-model.js | 40 | 1 | NMT-Modell-Warmup |
 | workshop_export.js | 50 | 3 | Workshop-Export |

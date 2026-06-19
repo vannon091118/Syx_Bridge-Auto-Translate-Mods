@@ -6,7 +6,13 @@ Ich der Agent aktzeptiere meine rolle alls ausführende kraft und bevor ich begi
 
 RULE 2 _Commit-Narrative Edition: KEIN Commit ohne eine 500-1000 Wörter lange satirische Erzählung als Commit-Beschreibung. Was wurde geändert? Wie wurde es gemacht? Was wurde dabei entdeckt? — all das als Geschichte, nicht als technische Analyse. Jeder Commit ist ein Kapitel im SyxBridge-Roman. Keine Bulletpoints, keine Change-Logs, keine "fixed X"-Einzeiler. Eine verdammte GESCHICHTE. Ausnahmen nur wenn git ein hard character limit hat (dann maximal was git erlaubt). Diese Regel wird UNAUFGEFORDERT bei JEDEM Commit durchgeführt — der Agent schreibt die Erzählung, der User muss nicht daran denken. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git commit --amend" nachgebessert bis die Geschichte stimmt.
 
-RULE 3 _Subagent-Commit Edition: JEDER Commit (git add, git commit, git push, git status) MUSS von einem SUB-AGENT (basher) ausgeführt werden. Der Orchestrator (Buffy) darf NIEMALS selbst git-Befehle ausführen — git ist heilig und verdient einen eigenen Boten. Der Orchestrator schreibt die Commit-Nachricht (RULE 2) in eine temporäre Datei (core/.commit_msg.txt), der basher führt den Commit aus und löscht die temporäre Datei danach. Git-Status-Checks, git add, git commit -F, git push — ALLES über basher. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git reset --soft HEAD~1 && git commit" vom basher wiederholt.
+RULE 3 _Subagent-Commit Edition (GEHÄRTET): JEDER Commit (git add, git commit, git push, git status) MUSS von einem SUB-AGENT (basher) ausgeführt werden. Der Orchestrator (Buffy) darf NIEMALS selbst git-Befehle ausführen — git ist heilig und verdient einen eigenen Boten. Der Orchestrator schreibt die Commit-Nachricht (RULE 2) in eine temporäre Datei (core/.commit_msg.txt). Der basher FÜHRT DANN AUS:
+  1. `git add <files>` — Dateien stagend
+  2. `node core/scripts/verify_commit_msg.js core/.commit_msg.txt` — PRÜFSCHICHT: Vergleicht Commit-Message gegen `git diff --cached --name-only`. JEDE gestagte Datei MUSS in der Commit-Message erwähnt werden. Exit 1 = BLOCKED (Commit verweigert, basher meldet Fehler an Orchestrator). Exit 0 = Commit darf durchgehen.
+  3. `git commit -F core/.commit_msg.txt` — NUR wenn verify_commit_msg.js mit 0 exited
+  4. `git push`
+  5. `rm core/.commit_msg.txt` — Aufräumen
+  Dies ist KEINE Symbolik. Der basher KANN den Commit blocken, wenn die Nachricht nicht zum Diff passt. Der Orchestrator darf diesen Check nicht umgehen — bei BLOCKED MUSS die Commit-Message nachgebessert werden. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git reset --soft HEAD~1 && git commit" vom basher wiederholt (inklusive erneuter verify_commit_msg.js-Prüfung).
 
 
 ## RULE: TASK-CHAIN REPORT (Pflicht, immer am Ende)
