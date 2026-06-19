@@ -9,11 +9,17 @@ function createProviderClients(ctx) {
   const {
     config, configRuntime, axios, langCodes,
     getApiKey, rotateApiKey, withRetry, sleep, isAborting, logPayload,
+    // BU-020: AbortController signal — cancels in-flight HTTP on Ctrl+C
+    getAbortSignal,
     getModelForProvider, getGeminiModelName, getGrammarContext,
     stripJsonFence, restoreAndValidateTranslation, restorePlaceholders,
     parseBatchResponseWithMaps,
     buildBatchPromptForCurrentConfig
   } = ctx;
+
+  // BU-020: Safety wrapper — returns undefined if no AbortController is wired,
+  // so axios gracefully ignores the missing signal instead of throwing TypeError.
+  const safeSignal = () => getAbortSignal ? getAbortSignal() : undefined;
 
   function normalizeWhitespace(text) {
     return String(text || '').replace(/\s+/g, ' ').trim();
@@ -115,7 +121,7 @@ function createProviderClients(ctx) {
     logPayload('gemini', 'REQUEST', prompt);
 
     try {
-      const response = await withRetry('Gemini Batch', () => axios.post(url, buildGeminiRequest(prompt, 'text', items.length), { timeout: 60000 }));
+      const response = await withRetry('Gemini Batch', () => axios.post(url, buildGeminiRequest(prompt, 'text', items.length), { timeout: 60000, signal: getAbortSignal() }));
       handleRateLimits('gemini', response.headers);
       if (configRuntime) configRuntime.markKeyStatus('gemini', true);
       const raw = (response.data.candidates?.[0]?.content?.parts || []).map(part => part.text || '').join('');
@@ -158,7 +164,8 @@ function createProviderClients(ctx) {
     try {
       const response = await withRetry('Groq Batch', () => axios.post('https://api.groq.com/openai/v1/chat/completions', payload, {
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        timeout: 60000
+        timeout: 60000,
+        signal: getAbortSignal()
       }));
       handleRateLimits('groq', response.headers);
       if (configRuntime) configRuntime.markKeyStatus('groq', true);
@@ -183,7 +190,8 @@ function createProviderClients(ctx) {
         try {
           const retryResp = await withRetry('Groq Batch (JSON-Retry)', () => axios.post('https://api.groq.com/openai/v1/chat/completions', strictPayload, {
             headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-            timeout: 60000
+            timeout: 60000,
+            signal: getAbortSignal()
           }));
           const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
           if (retryRaw) {
@@ -233,7 +241,8 @@ function createProviderClients(ctx) {
           'HTTP-Referer': 'https://github.com/vannon/syx-bridge',
           'Content-Type': 'application/json'
         },
-        timeout: 60000
+        timeout: 60000,
+        signal: getAbortSignal()
       }));
       handleRateLimits('openrouter', response.headers);
       if (configRuntime) configRuntime.markKeyStatus('openrouter', true);
@@ -256,7 +265,8 @@ function createProviderClients(ctx) {
             ]
           }, {
             headers: { Authorization: `Bearer ${key}`, 'HTTP-Referer': 'https://github.com/vannon/syx-bridge', 'Content-Type': 'application/json' },
-            timeout: 60000
+            timeout: 60000,
+            signal: getAbortSignal()
           }));
           const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
           if (retryRaw) {
@@ -288,12 +298,14 @@ function createProviderClients(ctx) {
     const tl = langCodes[config.TARGET_LANG] || 'de';
     console.log(`[INFO] Argos Translate Local (${texts.length} Texte)...`);
         
-    try {
-      const { spawnSync } = require('child_process');
-      const payload = JSON.stringify({ texts, target_lang: tl });
-      const b64Payload = Buffer.from(payload).toString('base64');
+    // BU-020: Refactored from spawnSync to async spawn so AbortController
+    // can kill the Python subprocess on Ctrl+C. spawnSync blocks the Node.js
+    // event loop for 30+ seconds, making SIGINT handling impossible.
+    const { spawn } = require('child_process');
+    const payload = JSON.stringify({ texts, target_lang: tl });
+    const b64Payload = Buffer.from(payload).toString('base64');
             
-      const pythonScript = `
+    const pythonScript = `
 import argostranslate.translate, base64, json, sys
 
 try:
@@ -311,24 +323,68 @@ except Exception as e:
     sys.exit(1)
 `.trim();
 
-      const pythonProcess = spawnSync('python', ['-'], { 
-        input: pythonScript,
-        encoding: 'utf-8', 
-        timeout: 30000 + (texts.length * 2000) // Adaptive timeout
+    return new Promise((resolve, reject) => {
+      const pythonProcess = spawn('python', ['-'], {
+        stdio: ['pipe', 'pipe', 'pipe']
       });
-            
-      if (pythonProcess.error) throw pythonProcess.error;
-      const out = pythonProcess.stdout;
-            
-      if (!out) throw new Error(pythonProcess.stderr || 'Python produced no output');
-            
-      const results = JSON.parse(out.trim());
-      if (results.error) throw new Error(results.error);
-      return results;
-    } catch (e) {
-      console.warn(`[!] Argos Translate Batch fehlgeschlagen: ${e.message}`);
-      throw new Error(`Argos Translate fehlgeschlagen: ${e.message}`, { cause: e });
-    }
+
+      let stdout = '';
+      let stderr = '';
+
+      pythonProcess.stdout.on('data', (data) => { stdout += data.toString(); });
+      pythonProcess.stderr.on('data', (data) => { stderr += data.toString(); });
+
+      pythonProcess.on('error', (err) => {
+        reject(new Error(`Argos Python spawn failed: ${err.message}`, { cause: err }));
+      });
+
+      pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(stderr || `Argos Python exited with code ${code}`));
+          return;
+        }
+        try {
+          const results = JSON.parse(stdout.trim());
+          if (results.error) {
+            reject(new Error(results.error));
+          } else {
+            resolve(results);
+          }
+        } catch (e) {
+          reject(new Error(`Argos Translate fehlgeschlagen: ${e.message}`, { cause: e }));
+        }
+      });
+
+      // BU-020: Kill Python subprocess when AbortController fires.
+      const signal = getAbortSignal();
+      if (signal.aborted) {
+        pythonProcess.kill();
+        reject(new Error('ABORTED'));
+        return;
+      }
+      signal.addEventListener('abort', () => {
+        pythonProcess.kill();
+        reject(new Error('ABORTED'));
+      }, { once: true });
+
+      // Adaptive timeout: 30s base + 2s per text
+      const timeout = setTimeout(() => {
+        pythonProcess.kill();
+        reject(new Error(`Argos Batch timed out after ${30000 + (texts.length * 2000)}ms`));
+      }, 30000 + (texts.length * 2000));
+
+      // Clean up timeout on completion
+      pythonProcess.on('close', () => clearTimeout(timeout));
+
+      pythonProcess.stdin.write(pythonScript);
+      pythonProcess.stdin.end();
+    }).catch((e) => {
+      // BU-020: Don't log ABORTED as a failure — it's expected user behavior.
+      if (e.message !== 'ABORTED') {
+        console.warn(`[!] Argos Translate Batch fehlgeschlagen: ${e.message}`);
+      }
+      throw e;
+    });
   }
 
   async function callGoogleTranslateFree(texts) {
@@ -344,7 +400,8 @@ except Exception as e:
         try {
           const r = await axios.get('https://translate.googleapis.com/translate_a/single', {
             params: { client: 'gtx', sl: 'auto', tl, dt: 't', q: text },
-            timeout: 8000
+            timeout: 8000,
+            signal: getAbortSignal()
           });
           translated = (r.data[0] || []).map(x => x[0]).join('');
           break;
@@ -380,7 +437,7 @@ except Exception as e:
     logPayload('ollama', 'REQUEST', payload);
 
     try {
-      const response = await axios.post(`${config.OLLAMA_URL}/api/chat`, payload, { headers, timeout: 45000 });
+      const response = await axios.post(`${config.OLLAMA_URL}/api/chat`, payload, { headers, timeout: 45000, signal: getAbortSignal() });
       const raw = response.data.message.content;
       logPayload('ollama', 'RESPONSE', raw);
       return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
@@ -407,7 +464,7 @@ except Exception as e:
           { role: 'user', content: prompt }
         ],
         temperature: 0.1
-      }, { headers, timeout: 60000 }));
+      }, { headers, timeout: 60000, signal: getAbortSignal() }));
       const raw = response.data.choices?.[0]?.message?.content ?? null;
       if (!raw) throw new Error('Player2 returned no message content.');
       return parseBatchResponseWithMaps(raw, items.length, shieldMaps);
@@ -439,7 +496,8 @@ except Exception as e:
     try {
       const response = await withRetry('NVIDIA Batch', () => axios.post('https://integrate.api.nvidia.com/v1/chat/completions', payload, {
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        timeout: 90000
+        timeout: 90000,
+        signal: getAbortSignal()
       }));
       handleRateLimits('nvidia', response.headers);
       if (configRuntime) configRuntime.markKeyStatus('nvidia', true);
@@ -463,7 +521,8 @@ except Exception as e:
         try {
           const retryResp = await withRetry('NVIDIA Batch (JSON-Retry)', () => axios.post('https://integrate.api.nvidia.com/v1/chat/completions', strictPayload, {
             headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-            timeout: 90000
+            timeout: 90000,
+            signal: getAbortSignal()
           }));
           const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
           if (retryRaw) {
@@ -507,7 +566,8 @@ except Exception as e:
 
     try {
       const response = await withRetry('FCM Batch', () => axios.post(`${fcmUrl}/chat/completions`, payload, {
-        timeout: 90000
+        timeout: 90000,
+        signal: getAbortSignal()
       }));
       if (configRuntime) configRuntime.markKeyStatus('fcm', true);
       const raw = response.data.choices?.[0]?.message?.content ?? null;
@@ -527,7 +587,7 @@ except Exception as e:
               { role: 'user', content: strictPrompt.prompt }
             ],
             temperature: 0.1
-          }, { timeout: 90000 }));
+          }, { timeout: 90000, signal: getAbortSignal() }));
           const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
           if (retryRaw) {
             logPayload('fcm', 'RESPONSE (Retry)', retryRaw);
@@ -621,7 +681,7 @@ except Exception as e:
         if (!key) throw new Error('Gemini API Key fehlt.');
         const modelPath = activeModel.includes('/') ? activeModel : `models/${activeModel}`;
         const url = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${key}`;
-        const response = await withRetry(`Gemini ${stage}`, () => axios.post(url, buildGeminiRequest(prompt, mode, expectedCount), { timeout: mode === 'flags' ? 60000 : 90000 }));
+        const response = await withRetry(`Gemini ${stage}`, () => axios.post(url, buildGeminiRequest(prompt, mode, expectedCount), { timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
         const raw = (response.data.candidates?.[0]?.content?.parts || []).map(part => part.text || '').join('');
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
@@ -635,7 +695,7 @@ except Exception as e:
             { role: 'user', content: prompt }
           ],
           temperature: mode === 'flags' ? 0 : 0.1
-        }, { headers: { Authorization: `Bearer ${key}` }, timeout: mode === 'flags' ? 60000 : 90000 }));
+        }, { headers: { Authorization: `Bearer ${key}` }, timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('Groq returned no stage response content.');
         logPayload(provider, `RESPONSE [${stage}]`, raw);
@@ -656,7 +716,8 @@ except Exception as e:
             'HTTP-Referer': 'https://github.com/vannon/syx-bridge',
             'Content-Type': 'application/json'
           },
-          timeout: mode === 'flags' ? 60000 : 90000
+          timeout: mode === 'flags' ? 60000 : 90000,
+          signal: getAbortSignal()
         }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('OpenRouter returned no stage response content.');
@@ -672,7 +733,7 @@ except Exception as e:
             { role: 'user', content: prompt }
           ],
           temperature: mode === 'flags' ? 0 : 0.1
-        }, { headers, timeout: mode === 'flags' ? 60000 : 90000 }));
+        }, { headers, timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('Player2 returned no stage response content.');
         logPayload(provider, `RESPONSE [${stage}]`, raw);
@@ -687,7 +748,7 @@ except Exception as e:
           ],
           stream: false,
           format: 'json'
-        }, { timeout: mode === 'flags' ? 30000 : 60000 });
+        }, { timeout: mode === 'flags' ? 30000 : 60000, signal: getAbortSignal() });
         const raw = response.data.message.content;
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
@@ -703,7 +764,8 @@ except Exception as e:
           temperature: mode === 'flags' ? 0 : 0.1
         }, {
           headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-          timeout: mode === 'flags' ? 60000 : 90000
+          timeout: mode === 'flags' ? 60000 : 90000,
+          signal: getAbortSignal()
         }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('NVIDIA returned no stage response content.');
@@ -719,7 +781,7 @@ except Exception as e:
             { role: 'user', content: prompt }
           ],
           temperature: mode === 'flags' ? 0 : 0.1
-        }, { timeout: mode === 'flags' ? 60000 : 90000 }));
+        }, { timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
         const raw = response.data.choices?.[0]?.message?.content ?? null;
         if (!raw) throw new Error('FCM returned no stage response content.');
         logPayload(provider, `RESPONSE [${stage}]`, raw);

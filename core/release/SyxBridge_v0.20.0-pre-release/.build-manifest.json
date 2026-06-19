@@ -1,6 +1,6 @@
 {
   "version": "0.20.0-pre-release",
-  "generated_at": "2026-06-19T22:26:44.768Z",
+  "generated_at": "2026-06-19T23:37:57.740Z",
   "source_root": "core/",
   "file_count": 56,
   "files": [
@@ -10,7 +10,7 @@
     },
     {
       "path": "core/index.js",
-      "sha256": "f1552251c988a540dac93e818087509f0cd329e9832cf153425c34daaf2faec6"
+      "sha256": "886d2650487a952ffcc37b24a55f59e2ded256749670d0107a4a4e40a6f8bd86"
     },
     {
       "path": "core/LICENSE",
@@ -18,7 +18,7 @@
     },
     {
       "path": "core/package.json",
-      "sha256": "7432e2c858f049f90a67b807c5340fb264fea16e88540b3acb7285deafb949d5"
+      "sha256": "fb0e16d4ecf8866a0cb8c20cb9d0133d566499f91e013170427f639b173034eb"
     },
     {
       "path": "core/scripts/check_argos.js",
@@ -50,7 +50,7 @@
     },
     {
       "path": "core/src/config-runtime.js",
-      "sha256": "4645cb4cddfedfb2c8e4566b4e642720814682daba01b3bf1a8fdcc9755c9525"
+      "sha256": "8e6e43782c2eec549f0de19a3ea9114422e53790afe2cdb9d329ee6cf9f9d54d"
     },
     {
       "path": "core/src/context-packets.js",
@@ -130,11 +130,11 @@
     },
     {
       "path": "core/src/plugins/INDEX.md",
-      "sha256": "3d5b5740f69411c62a522c78661e99154c709cd978bd62f4da47e5be4bf5a0ce"
+      "sha256": "41f99f895fac13adb7b14eb6b247433e203c01ba11a4c052d00bc1f6de251a1d"
     },
     {
       "path": "core/src/plugins/SongsOfSyxPlugin.js",
-      "sha256": "f4465a7a4d5ff3acecfa87c2a605450e7ac756d9784b143940201a003d683eaf"
+      "sha256": "0e8fcff43614e33425513d7a2cee08fdd0cbec7d7b5a53e243b3a9054a3cb72b"
     },
     {
       "path": "core/src/polish-arbiter.js",
@@ -146,11 +146,11 @@
     },
     {
       "path": "core/src/providers/client-factory.js",
-      "sha256": "42ce36bc2d96f9c9354fad4e174fa9f9d59f585c3240fbc1d383c35632f1a58c"
+      "sha256": "909f230db20f1fb1344a699db9cb85ca00586ded6b9e33cabda28dce21d8053f"
     },
     {
       "path": "core/src/providers/INDEX.md",
-      "sha256": "f7ee877350a3750db9c4cdca5190d8d92c55b7554eea598b975222fcca2b78a7"
+      "sha256": "8caf5d78a22feb0b18bd6a4dffe0cb0d8a248b0ea168c76ceac10287b7151df4"
     },
     {
       "path": "core/src/router.js",
@@ -182,7 +182,7 @@
     },
     {
       "path": "core/src/translation-runtime.js",
-      "sha256": "9bb449ccc2a0eae01a4c3ed661fefdba99a0e15de774ea45134d68c25aafed5b"
+      "sha256": "deb173c68ed28b88a4eef0545a41bf885eac2b2ae89a0919e32e816597eaf776"
     },
     {
       "path": "core/src/ui.js",

@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## [SECURITY-CLEANUP] - 2026-06-20 — DEPENDENCY REDUCTION + npm audit fix (0 VULN)
+
+### Changed (Security-Offensive)
+- **sql.js von dependencies → devDependencies verschoben:** `sql.js` wird im Runtime (src/) nicht verwendet — `sqlite3` übernimmt alle DB-Operationen. sql.js wird nur in 2 Dev-Scripts (`scripts/analyze_snapshots.js`, `scripts/db_audit.js`) für Offline-Snapshot-Analyse verwendet. Durch Verschiebung nach devDependencies wird es nicht im Release-Bundle shipped, bleibt aber für Dev-Tools verfügbar. Version auf 1.14.1 gepinnt (Projekt-Konvention: keine `^`/`~`-Ranges).
+- **@huggingface/transformers komplett entfernt:** Optional-Dependency (76 transitive: sharp, onnxruntime-node, onnxruntime-web, protobufjs, jinja, tokenizers). NMT_LOCAL_ENABLED wurde bereits in BU-040 als VERWAIST entfernt und auf Roadmap v0.23 verschoben. Kein `require('@huggingface/transformers')` in src/ gefunden. start.bat NMT-Block war bereits nur Kommentar. Entfernung bringt die größte Single-Action-Reduktion: 76 Dependencies weniger, inkl. aller ONNX/Sharp-Binaries.
+- **npm audit fix — undici 6.26.0→6.27.0:** Transitive Dependency von sqlite3→node-gyp→undici. 4 Advisories (GHSA-p88m-4jfj-68fv, GHSA-vxpw-j846-p89q, GHSA-35p6-xmwp-9g52, GHSA-g8m3-5g58-fq7m) — HTTP Header Injection, WebSocket DoS, Response Queue Poisoning, SameSite Cookie Downgrade. Runtime-Risiko war gering (undici nur in node-gyp Build-Tool, nicht im Runtime-Pfad), aber CVE eliminiert.
+
+### Ergebnis
+- **npm audit: 0 vulnerabilities** (vorher: 1 HIGH)
+- **Production Dependencies: 4** (axios, dotenv, inquirer, sqlite3) — keine optionalDependencies mehr
+- **Dev Dependencies: 4** (eslint, @eslint/js, globals, sql.js)
+- **Dependency-Reduktion:** ~310 → ~257 Pakete (−53 prod/optional, −76 transitive von transformers)
+
+### Deep-Analysis-Ergebnisse (NICHT heute umgesetzt, als Tickets vorgemerkt)
+- **inquirer→prompts** (P2, Small Effort): 62→2 Dependencies. ~15 `inquirer.prompt()`-Aufrufe in 6 Dateien. Nur 4 Typen: list/confirm/input/checkbox. Migration ~80 LOC. Als eigene Session mit Testlauf geplant — CLI-Wizard-Flows müssen manuell verifiziert werden.
+- **sqlite3→better-sqlite3** (P3, Roadmap): sqlite3 ist DEPRECATED auf GitHub. better-sqlite3 hat 2 Dependencies statt 63, ist 3.8× schneller, aktiv gepflegt. **ABER:** Synchroner API in einem Prozess der parallel an 9 API-Provider dispatcht auf HDD — Event-Loop-Blocking während synchrone DB-Schreibvorgänge laufen würde alle parallelen async API-Calls einfrieren. Blast-Radius NICHT auf db.js beschränkt. Als P3/Roadmap behandeln, nicht als Sprint-Aufgabe.
+
+### Files Changed
+- `core/package.json` — sql.js dependencies→devDependencies, @huggingface/transformers entfernt
+- `core/package-lock.json` — automatisch aktualisiert (1.020 Zeilen entfernt)
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### Tests
+- Syntax-Check: 58/58 PASS ✅
+- Redteam Baseline: 11/11 PASS ✅
+- npm audit: 0 vulnerabilities ✅
+
+### EFFORT TO NEXT SCOPE
+- **S2:** Erster v0.20 Live-Run (P0, ~60 Min)
+- **P2:** inquirer→prompts Migration als eigene Session
+- **P3:** sqlite3→better-sqlite3 als Roadmap-Item (Event-Loop-Bedenken dokumentiert)
+
+---
+
 ## [AGENTS-PLAYBOOK] - 2026-06-19 — FIX-KATEGORIEN & WORKFLOW-PROMPTS integriert
 
 ### Added (AGENTS.md — 5 neue §§ nach Orchestrations-Patterns)
