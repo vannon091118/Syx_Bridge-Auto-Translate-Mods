@@ -29,13 +29,13 @@
 | `NATIVE_MODE` | index.js:109 (initial), :336 (applyEnvToConfig), config-runtime.js:760 (CLI wizard), :830 (→.env), app.js:292,320 (GUI toggle) | runtime-ops.js:176 (confirm gate), :297 (patchModifications), :323 (forcePolish), :372 (copy to Workshop+AppData) | .env, CLI wizard, GUI toggle | **AKTIV** |
 | `GRAMMAR_CHECK` | index.js:110 (initial, default true), :337 (applyEnvToConfig), config-runtime.js:831 (→.env) | index.js:316 (getGrammarContext gate), :444 (shouldSkipFile), translation-runtime.js:935 (qaPhase gate) | .env | **AKTIV** |
 | `LOCAL_MODELS_ENABLED` | index.js:108 (initial), :340 (applyEnvToConfig), config-runtime.js:832 (→.env), app.js:920,969 (GUI toggle) | router.js:105 (hasAccess — blocks ollama/player2) | .env, GUI toggle | **AKTIV** |
-| `NMT_LOCAL_ENABLED` | index.js:113 (initial), :339 (applyEnvToConfig), config-runtime.js:833 (→.env) | ⛔ **KEIN READ in core/src/** — nicht in router.js, dispatcher.js, translation-runtime.js, runtime-ops.js. warm-model.js liest es NICHT (nur start.bat:99 als ENV-Check) | .env | **VERWAIST** |
+| `NMT_LOCAL_ENABLED` | ~~index.js:113 (initial), :339 (applyEnvToConfig), config-runtime.js:833 (→.env)~~ | ❌ REMOVED from PERSISTED_KEYS (BU-040) | ❌ | **REMOVED** (BU-040) |
 | `FCM_ENABLED` | index.js:107 (initial, default true), config-runtime.js:848 (→.env) | router.js:101 (hasAccess — blocks fcm) | .env | **AKTIV** |
 | `GOOGLE_FREE_ENABLED` | config-runtime.js:849 (→.env), BU-036 Fix | router.js:98 (hasAccess — blocks google_free), app.js:424 (GUI filter) | .env, GUI (indirect via provider stats) | **AKTIV** |
 | `PLAYER2_ENABLED` | index.js:107 (initial, default false), config-runtime.js:851 (→.env) | router.js:106 (hasAccess — blocks player2), config-runtime.js:474 (checkLocalProvider), :807 (log) | .env | **AKTIV** |
 | `SYXBRIDGE_DRY_RUN` | config-runtime.js:38 (read from process.env) | config-runtime.js:44 (getGateCounterOpts → gate-counter.js) | .env | **AKTIV** |
 
-### ⚠️ FINDING: `NMT_LOCAL_ENABLED` ist VERWAIST
+### ⚠️ FINDING: `NMT_LOCAL_ENABLED` war VERWAIST → REMOVED (BU-040)
 
 **Befund:** Der Flag wird in `.env` geschrieben und in CONFIG geladen, aber **nirgends im Core-Code gelesen** um eine Entscheidung zu treffen. Der NMT-Provider existiert nicht in `PROVIDER_CAPABILITIES` (router.js), nicht in `candidatesByRole` (router.js), und nicht in `dispatcher.js`.
 

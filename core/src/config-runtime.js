@@ -830,7 +830,8 @@ const PERSISTED_KEYS = [
   ['NATIVE_MODE',           (c) => String(!!c.NATIVE_MODE)],
   ['GRAMMAR_CHECK',         (c) => String(!!c.GRAMMAR_CHECK)],
   ['LOCAL_MODELS_ENABLED',  (c) => String(!!c.LOCAL_MODELS_ENABLED)],
-  ['NMT_LOCAL_ENABLED',     (c) => String(!!c.NMT_LOCAL_ENABLED)],
+  // NMT_LOCAL_ENABLED removed (BU-040): was VERWAIST — no provider client, router entry, or dispatcher path existed.
+  // warm-model.js remains as roadmap v0.23. Re-add here when NMT provider is implemented.
   ['PRIMARY_PROVIDER',      (c) => firstDefined(c.PRIMARY_PROVIDER)],
   ['PRIMARY_MODEL',         (c) => firstDefined(c.PRIMARY_MODEL)],
   ['POLISHER_PROVIDER',     (c) => firstDefined(c.POLISHER_PROVIDER)],

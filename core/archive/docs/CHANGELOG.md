@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## [BU-040] - 2026-06-19 — NMT_LOCAL_ENABLED VERWAIST removed from PERSISTED_KEYS
+
+### Fixed (DEAD_FLAG_REPORT VERWAIST → REMOVED)
+- **[BU-040] `NMT_LOCAL_ENABLED` removed from PERSISTED_KEYS (`config-runtime.js`):**
+  - **Problem:** Flag was persisted to `.env` on every config save but never read by router.js (no `nmt_local` in PROVIDER_CAPABILITIES), dispatcher.js (no routing path), or any provider client. `warm-model.js` exists as standalone model-download script but has no integration point.
+  - **Fix:** Removed from `PERSISTED_KEYS` array, replaced with comment explaining why + roadmap reference (v0.23). `warm-model.js` retained with ROADMAP v0.23 header comment.
+  - **No GUI toggle existed** (verified: 0 matches in `gui/public/app.js`).
+  - **Classification change:** VERWAIST → REMOVED (no provider infrastructure exists).
+
+### Files Changed
+- `core/src/config-runtime.js` — NMT_LOCAL_ENABLED removed from PERSISTED_KEYS
+- `core/scripts/warm-model.js` — ROADMAP v0.23 comment added
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### Tests
+- Syntax-Check: 56/56 PASS ✅
+- Code-Review: Nit Pick Nick — "Clean removal, no regressions"
+
+### EFFORT TO NEXT SCOPE
+- **P0:** PREFLIGHT gegen aktuelle Live-DB (1.508) neu laufen lassen
+- **P1:** Push all session commits (DD-Audit + BU-035 + BU-040)
+
+---
+
 ## [BU-035] - 2026-06-19 — TOT FLAGS FIXED: last_checked_at + stress_tested_at integrated as PREFLIGHT diagnostics
 
 ### Fixed (DEAD_FLAG_REPORT TOT → AKTIV)
