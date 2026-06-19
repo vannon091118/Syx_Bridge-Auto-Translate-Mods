@@ -58,7 +58,7 @@ Scan → Extract → Translate → Audit → Polish → Export
 | BUG-FS-003 | P0 | ~~Argos Placeholder-Korruption bei skipIndices~~ | ✅ BEHOBEN — DNT-Doppelshielding (Phase 3F) |
 | BUG-FS-006 | P1 | ~~`flagPotentialErrors()` gibt null statt false~~ | ✅ BEHOBEN — null→true (CHANGELOG 0.19.05b) |
 | F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) | 🟡 Drift-Detection existiert, bidirektionaler Sync fehlt |
-| F.B | P1 | Plugin-Boundary Contract-Tests fehlen | 🔴 OFFEN |
+| F.B | P1 | Plugin-Boundary Contract-Tests fehlen | ✅ BEHOBEN (BU-023) |
 | F.C | P1 | CodeRabbit-Auto-Fix unreviewed | 🔴 OFFEN |
 | #013 | P0 | Doc-/Live-Drift zwischen Snap 16/17 (163 Einträge) | 🟡 Beobachtung — Live-Run muss Klärung bringen |
 | #014 | — | **FALSIFIED ✅** — `translations.quality_score` existiert (db.js:125, MASTER_FREEZE §3.2) | ✅ |
