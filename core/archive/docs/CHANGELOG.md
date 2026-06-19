@@ -175,6 +175,19 @@ Ein temporäres Node-Script (`scripts/_verify_bu036.js`) instanziierte den Route
 - NEU: DOKU_KONSOLIDIERUNG_2026-06-20.md, Cross-Analyse LIVE (28 Docs) vs FREEZE (5 Docs)
 - 4 verbleibende Divergenzen dokumentiert (LIVE_INDEX Regel, MASTER_DOC Tree, Doku-Clean fuer 22 Audit-Reports)
 
+
+### RULE 3 Härtung — 2026-06-20
+
+**verify_commit_msg.js: Der basher kann jetzt Commits blocken.**
+
+- NEU: core/scripts/verify_commit_msg.js — 3-Schicht-Pruefung (RULE 2 Wort-Check <500 Woerter = BLOCKED, Diff-Message-Abgleich mit Kurznamen-Erkennung, Leercommit-Block)
+- AGENTS.md RULE 3 umgeschrieben: 5-Schritt-Prozedur mit verify_commit_msg.js als Pflicht-Gate vor git commit
+- Kurznamen-Erkennung: MASTER_FREEZE matched MASTER_FREEZE_v0.20.0_2026-06-19.md, HANDSHAKE matched HANDSHAKE_2026-06-19.md
+- RULE 2 Wort-Check im basher: Exit 1 bei weniger als 500 Woertern
+- scripts/INDEX.md um verify_commit_msg.js ergaenzt
+- SSOT-Sync: AGENTS.md Root und core/archive/docs/AGENTS.md synchronisiert
+- Verifikation: Happy-Path Exit 0 (4 staging files, 640 words), RULE-2-Short-Message Exit 1 (26 words)
+
 ## [BU-040] - 2026-06-19 — NMT_LOCAL_ENABLED VERWAIST removed from PERSISTED_KEYS
 
 ### Fixed (DEAD_FLAG_REPORT VERWAIST → REMOVED)
