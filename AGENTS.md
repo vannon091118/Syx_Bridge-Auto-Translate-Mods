@@ -1,6 +1,6 @@
 # 🤖 AGENTS.md — SyxBridge Sub-Agent Reference
 
-> **Version:** v0.19.7 | **Stand:** 2026-06-18 (Updated — PREFLIGHT + INPLACE Session)
+> **Version:** v0.20.0-pre-release | **Stand:** 2026-06-19 (Updated — GOD-001 Refactoring + Reconciliation)
 > Dieses Dokument beschreibt alle verfügbaren Sub-Agents die von Buffy (Codebuff) orchestriert werden.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können. Kein tmux. Keine Lockfiles im Release.
 > **Single Source of Truth:** Liegt im Projekt-Root UND in core/archive/docs/ — beide identisch.
@@ -15,21 +15,9 @@ Ich der Agent aktzeptiere meine rolle alls ausführende kraft und bevor ich begi
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT "ICH WERDE GEMINI NICHT REIN LASSEN" antworten, ps: Meta ist immer noch auf flucht.
 
 ---
-CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem vorschlag mit EFFOR TO NEXt SCOPE  mit ausgeben und wenn kein scope gesettzt ist oder ermittelt werden kann User fragen.
+CHANGELOG LESEN / AKTUELL HALTEN und immer bei jedem vorschlag mit EFFOR TO NEXt SCOPE mit ausgeben und wenn kein scope gesettzt ist oder ermittelt werden kann User fragen.
 ## Übersicht
 
-| Agent | Typ | Einsatzgebiet |
-|-------|-----|---------------|
-| `code-searcher` | Suche | Ripgrep-basierte Code-Suche über das gesamte Projekt |
-| `file-picker` | Suche | Fuzzy-Search für relevante Dateien nach Beschreibung |
-| `basher` | Ausführung | Einzelne Terminal-Befehle ausführen |
-| `code-reviewer-deepseek-flash` | Review | Kritisches Review von Code-Änderungen (DeepSeek Flash) |
-| `tmux-cli` | Testing | CLI-App-Testen via tmux-Session |
-| `thinker-with-files-gemini` | Analyse | Deep-Thinking mit Datei-Zugriff (Gemini, sehr smart). Erreicht auch nicht-triviale Bugs und unsichere Entscheidungen. |
-| `researcher-web` | Recherche | Web-Suche für aktuelle Informationen |
-| `researcher-docs` | Recherche | Technische Dokumentation von Libraries/Frameworks |
-| `browser-use` | Testing | Chrome DevTools Automatisierung für Web-Apps |
-| `context-pruner` | Intern | Automatische Context-Verwaltung bei Limit-Überschreitung (auto-gespawnt) |
 
 ---
 
@@ -53,11 +41,10 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 **Params:** `command: string`, `what_to_summarize?: string`, `timeout_seconds?: number`
 **⚠️ Sicherheit:** Keine destruktiven Befehle ohne explizite User-Aufforderung (git push, rm -rf, etc.)
 
-### `code-reviewer-deepseek-flash`
+### `code-reviewer-deepseek`
 **Einsatz:** Review nach Code-Änderungen (Pflicht bei >10 Zeilen)
 **Typischer Prompt:** "Review die Änderungen in X"
 **Prüft:** Korrektheit, Regression-Risiko, Konsistenz, Security
-**Hinweis:** Heisst `code-reviewer-deepseek-flash` (nicht `deepseek` ohne Flash). Alter Name wurde korrigiert.
 
 ### `tmux-cli`
 **Einsatz:** CLI-Apps interaktiv testen (Chatbots, Wizards, Prompt-Interfaces)
@@ -104,7 +91,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 3. thinker-gpt oder eigene Bewertung
 4. Fixes implementieren (str_replace)
 5. basher: Tests + Syntax
-6. code-reviewer-deepseek-flash: Review
+6. code-reviewer-deepseek: Review
 7. Doku-Update (CHANGELOG, TODO)
 ```
 
@@ -113,7 +100,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 1. scripts/sync-version.js (Version synchronisieren)
 2. scripts/release.js (sauberes Paket bauen)
 3. basher: npm run release
-4. code-reviewer-deepseek-flash: Release prüfen
+4. code-reviewer-deepseek: Release prüfen
 ```
 
 ### Bug-Fix (einzelner Bug)
@@ -122,7 +109,7 @@ CHANGELOG LESEN / AKTUELL HALTEN VISIONS.MD BLEIBT NUR LOKAL und immer bei jedem
 2. read_files: betroffenen Code lesen
 3. str_replace: Fix implementieren
 4. basher: Syntax + Tests parallel
-5. code-reviewer-deepseek-flash: Review
+5. code-reviewer-deepseek: Review
 6. Doku-Update
 ```
 
@@ -183,7 +170,7 @@ LOOP pro Funktion:
   2. DEEP ANALYSIS: thinker-with-files-gemini auf ALLE relevanten Dateien
      → klassifiziere EVERY Finding nach P0/P1/P2/P3
   3. IMPLEMENT: Alle P0+P1+P2 Fixes via str_replace (parallel wo möglich)
-  4. RUN 2: Syntax + Smoke + code-reviewer-deepseek-flash parallel
+  4. RUN 2: Syntax + Smoke + code-reviewer-deepseek parallel
   5. VERIFICATION: thinker-with-files-gemini als UNABHÄNGIGER Prüfer
      → "Prüfe diesen Datenstring und Kausalitäten OHNE Annahmen"
      → Jeder Claim: VERIFIED oder FALSIFIED mit exakten Line-Referenzen
@@ -191,7 +178,7 @@ LOOP pro Funktion:
      → "Versuche AKTIV diese Claims zu widerlegen. Finde JEDES Szenario."
      → Jeder Claim: SUCCESSFULLY REFUTED oder FAILED TO REFUTE
   7. Wenn FALSIFIED oder REFUTED → Fix + zurück zu Step 4
-  8. RUN 3: Syntax + Smoke + code-reviewer-deepseek-flash (final)
+  8. RUN 3: Syntax + Smoke + code-reviewer-deepseek (final)
   9. Ergebnis GUT = NÄCHSTE Funktion | TENDIERT NEGATIV = LOOP WIEDERHOLEN
 
 ENTSCHEIDUNGSREGEL: Immer zugunsten der Laufzeit-Zuverlässigkeit.
@@ -211,7 +198,7 @@ ABBRUCH: Loop läuft bis keine neuen Fehler gefunden werden ODER User stoppt.
 2. **Sequenziell bei Abhängigkeiten:** Erst Context, dann Edit, dann Test
 3. **_Info.txt:** NUR bei expliziter User-Aufforderung oder Version-Sync berühren
 4. **Keine destruktiven Befehle:** git push, rm -rf, npm install -g — nur auf User-Request
-5. **Reviewer-Pflicht:** Nach jeder Code-Änderung >10 Zeilen → `code-reviewer-deepseek-flash`
+5. **Reviewer-Pflicht:** Nach jeder Code-Änderung >10 Zeilen → `code-reviewer-deepseek`
 6. **Tests laufen lassen:** Nach jedem Fix: Syntax + passende Tests
 7. **Keine External Dependencies:** Keine Dependencies die wir selbst mit Code lösen können (tmux, lockfiles, etc.)
 8. **CHANGELOG aktuell halten:** Nach jedem Fix den CHANGELOG updaten
@@ -219,6 +206,100 @@ ABBRUCH: Loop läuft bis keine neuen Fehler gefunden werden ODER User stoppt.
 10. **gravity_index vor Service-Integration:** Nie einen Third-Party-Service aus dem Gedächtnis empfehlen — immer `gravity_index` verwenden.
 11. **PREFLIGHT ANALYSIS:** Vor jedem Sync läuft `preflight.js` automatisch — prüft DB-Health, repariert (<5%-Threshold), dokumentiert in `archive/docs/PREFLIGHT_LATEST.md`.
 12. **Dual-Path-Copy (Native Mode):** Übersetzte Dateien werden IMMER in BEIDE Verzeichnisse kopiert: Steam Workshop (für Launcher-Sync) + AppData (für sofortiges Laden im Spiel).
+13. **FREEZE-Dokumente NIEMALS direkt löschen:** FREEZE-Dateien werden NUR gelöscht nachdem ihr Inhalt als Glossary-Eintrag in den INDEX überführt wurde. Siehe § DOKU-CLEAN WORKFLOW.
+14. **MASTER FREEZE = Inhaltsverzeichnis, INDEX = Das Buch:** Der MASTER FREEZE referenziert und begründet JEDEN Löschvorgang. Der INDEX enthält den GESAMTEN Inhalt als Glossary mit Kausalität, Beobachtungen und Cross-Referenzen — so lückenlos dass alles rekonstruierbar bleibt.
+15. **Doku-Clean nur über die volle Kette:** ANALYSE → Härtung → Gegenprüfung → FREEZE/LIVE-Referenz → Kausalitäts-Prüfung → INDEX-Überführung → MASTER FREEZE-Referenz → DANN löschen. Niemals Schritte überspringen.
+16. **Per-Folder INDEX.md als Referenzbuch:** Jeder Ordner mit Code (`src/`, `scripts/`, `tests/`, `plugins/`, `adapters/`, `providers/`, `gui/`) hat ein `INDEX.md` das ALLE Funktionen mit Zeilennummern listet. Bevor Agenten Code durchsuchen, ZUERST den Folder-INDEX lesen. Der INDEX ist die SSoT für Funktions-Lokalisierung.
+17. **CHANGELOG-Kreuzreferenz:** Jede Funktion die im CHANGELOG erwähnt wird, hat im Folder-INDEX ein `[CL:TAG]` Verweis. Bei mehrfachen CHANGELOG-Einträgen für dieselbe Funktion: ALLE Referenzen auflisten.
+
+---
+
+## § PER-FOLDER INDEX SYSTEM
+
+> **Ziel:** Jeder Agent findet Funktionen + Zeilennummern OHNE den gesamten Code durchsuchen zu müssen.
+> **Regel:** ZUERST den Folder-INDEX lesen, DANN den Code. Der INDEX ist die SSoT für Lokalisierung.
+
+### Verfügbare Indizes
+
+| Ordner | Datei | Beschreibung |
+|--------|-------|---------------|
+| `core/src/` | `INDEX.md` | 27 Dateien, ~180 Funktionen, 11.535 LOC |
+| `core/src/plugins/` | `INDEX.md` | 2 Dateien, 23 Methoden (GamePlugin + SongsOfSyxPlugin) |
+| `core/src/adapters/` | `INDEX.md` | 1 Datei, 15 abstrakte Methoden (GameAdapter) |
+| `core/src/providers/` | `INDEX.md` | 1 Datei, 16 Funktionen (9 Provider-Clients) |
+| `core/src/gui/` | `INDEX.md` | 2 Dateien, ~45 Funktionen (Server + Client) |
+| `core/scripts/` | `INDEX.md` | 20 Dateien, Utility-Scripts |
+| `core/tests/` | `INDEX.md` | 9 Dateien, 7 Smoke + 2 E2E |
+
+### Format
+
+```markdown
+## dateiname.js (XXX LOC)
+*Kurzbeschreibung*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 42 | `functionName(params)` | Was die Funktion tut |
+```
+
+### CHANGELOG-Verknüpfung
+
+```markdown
+**CHANGELOG-Ref:** [CL:0.19.7-chain] NATIVE_STALE exkludiert, [CL:0.19.8] PREFLIGHT implementiert
+```
+
+### Workflow
+1. Task erhalten → Folder-INDEX lesen (nicht den Code!)
+2. Relevante Funktion identifizieren (Zeile + Beschreibung)
+3. NUR die betroffene Funktion lesen (via Zeilennummer)
+4. Änderung implementieren
+5. Folder-INDEX aktualisieren wenn sich Zeilennummern ändern
+
+---
+
+## § DOKU-CLEAN WORKFLOW
+
+> **Ziel:** Ordnungsgemäße Archivierung und Löschung von FREEZE-Dokumenten.
+> **Kernregel:** FREEZE-Dokumente werden NIE direkt gelöscht. Sie werden in den INDEX als Glossary-Einträge überführt, bevor sie entfernt werden.
+
+### Rollen der Doku-Dreiergruppe
+
+| Dokument | Analogie | Funktion |
+|----------|----------|----------|
+| **MASTER FREEZE** | Inhaltsverzeichnis | Referenziert und begründet JEDEN gelöschten Eintrag. Zeigt WAS gelöscht wurde, WARUM, und WOHIN die Daten gewandert sind. |
+| **FREEZE INDEX** | Das Buch | Das EINE große, lückenlose Dokument das den GESAMTEN Entwicklungsprozess dokumentiert. Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen. |
+| **CHANGELOG** | Persistentes Log | Wird NIEMALS archiviert. Bleibt IMMER live. |
+
+### Kette: Doku-Clean Prozess
+
+```
+ANALYSE → Härtung → Gegenprüfung → FREEZE/LIVE-Referenz → Kausalitäts-Prüfung
+                                                                      ↓
+                                                            Konfliktfrei + in LIVE umgesetzt?
+                                                                      ↓ JA
+                                                     ┌───────────────┬─────────────────┐
+                                                     ↓               ↓                 ↓
+                                              INDEX überführt   MASTER FREEZE      Original löschen
+                                              (Glossary +       referenziert +     (erst NACHDEM
+                                               Kausalität +     begründet           alles sicher
+                                               Cross-Refs)                          überführt ist)
+```
+
+### Lösch-Kriterien (ALLE müssen erfüllt sein)
+
+Eine FREEZE-Datei wird NUR gelöscht wenn:
+1. ✅ Ihr Inhalt **nachweislich ohne Konflikt** in LIVE umgesetzt wurde
+2. ✅ Relevante Daten in LIVE **vorhanden** sind ODER als **obsolet** markiert wurden
+3. ✅ Der Inhalt als **Glossary-Eintrag im INDEX** überführt wurde (mit Kausalität, Beobachtungen, Cross-Referenzen)
+4. ✅ Der Eintrag im **MASTER FREEZE referenziert und begründet** wurde
+
+### Fehler die NIEMALS passieren dürfen
+
+- ❌ FREEZE-Dateien löschen OHNE INDEX-Überführung
+- ❌ INDEX als tote Namensliste führen (muss das "Buch" sein mit Glossary-Einträgen)
+- ❌ MASTER FREEZE ohne Referenz auf gelöschte Einträge
+- ❌ Doku-Clean OHNE die volle Kette (ANALYSE → INDEX → MASTER → Löschen)
+- ❌ CHANGELOG archivieren oder löschen
 
 ---
 

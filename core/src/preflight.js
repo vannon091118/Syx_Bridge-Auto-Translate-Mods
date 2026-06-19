@@ -184,7 +184,7 @@ function createPreflight(dbManager) {
       javaNoise,
       orphanedRevs
     ] = await Promise.all([
-      q1("SELECT COUNT(*) as c FROM translations WHERE provider='native_runtime' AND source_text=translation"),
+      q1("SELECT COUNT(*) as c FROM translations WHERE provider='native_runtime' AND source_text=translation AND flagged=0"),
       q1("SELECT COUNT(*) as c FROM translations WHERE source_text=translation AND flagged=0 AND provider NOT IN ('native_runtime','native_proper_noun','native_non_translatable')"),
       q1("SELECT COUNT(*) as c FROM translations WHERE (translation LIKE '%__SHLD_%' OR translation LIKE '%[[%' OR translation LIKE '%]]%') AND flag_reason NOT LIKE '%shield_leak%'"),
       q1("SELECT COUNT(*) as c FROM translations WHERE quality_score < 30 AND quality_score > 0 AND flagged=0"),

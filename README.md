@@ -7,11 +7,15 @@
 <p align="center">
   <a href="#-what-is-syxbridge"><img src="https://img.shields.io/badge/lang-English-blue?style=flat-square" alt="English"></a>
   <a href="#-was-ist-syxbridge"><img src="https://img.shields.io/badge/lang-Deutsch-grey?style=flat-square" alt="Deutsch"></a>
-  <img src="https://img.shields.io/badge/version-v0.19.7-orange?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-v0.20.0--pre--release-blue?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-Alpha-red?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen?style=flat-square" alt="Node">
   <img src="https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows" alt="Windows">
+</p>
+
+<p align="center">
+  <strong>Built accidentally. Runs intentionally.</strong>
 </p>
 
 <p align="center">
@@ -166,10 +170,7 @@ Syx_bridge-/
 │
 ├── core/                      # The engine
 │   ├── index.js               # Entry point (CLI + GUI mode)
-│   ├── package.json           # v0.19.7, cache, polish
-│   │   ├── dispatcher.js      # Unified routing pipeline
-│   │   ├── router.js          # Provider routing with capability matrix
-│   │   ├── config-runtime.js  # Keys, rotation, cooldown, discovery
+│   ├── package.json           # v0.20.0-pre-release, rotation, cooldown, discovery
 │   │   ├── text-core.js       # Shielding, prompt building, JSON parsing
 │   │   ├── context-packets.js # Risk scores
 │   │   ├── glossary.js        # Terminology memory
@@ -187,7 +188,9 @@ Syx_bridge-/
 
 | Version | Date | Highlights |
 |---|---|---|
-| **v0.19.6** | 2026-06-19 | Release: Version unified, docs consolidated, 6 bugs fixed |
+| **v0.20.0-pre-release** | 2026-06-19 | Plugin Architecture, PREFLIGHT, INFO-Block fix, Write-Loss recovery |
+| v0.19.7 | 2026-06-18 | PREFLIGHT fix + Routing hardening + smart Error-Handler |
+| v0.19.6 | 2026-06-18 | Release: Version unified, docs consolidated, 6 bugs fixed |
 | v0.19.05b | 2026-06-15 | Capability Matrix, Local Models Opt-in, JSON Retry, Key Cooldown |
 | v0.16.0 | 2026-06-15 | Dynamic Risk Scoring, Google Free Stress-Test, Route Pipeline |
 | v0.15.0 | 2026-06-14 | GUI Overhaul, Live Terminal, DB Browser, Strict Versioning |
@@ -200,9 +203,9 @@ Syx_bridge-/
 
 | | |
 |---|---|
-| **Version** | v0.19.6 |
+| **Version** | v0.20.0-pre-release |
 | **Maturity** | Alpha · Solo project · In daily use |
-| **Latest Release** | v0.19.6 (2026-06-19) — 47 files, 135 KB |
+| **Latest Release** | v0.20.0-pre-release (2026-06-19) — 220 files, ~35k LOC |
 | **Limitations** | Patch Mode disabled — everything else works |
 
 <details>
@@ -210,10 +213,10 @@ Syx_bridge-/
 
 | ID | Issue | Severity |
 |----|-------|----------|
-| F1 | Argos Python SyntaxError (spawnSync fix ineffective) | 🔴 P0 |
-| F2 | `_dbGet is not a function` — Revision skipped | 🟠 P1 |
-| F3 | 99.7% Stage 0 — entries never audited | 🟠 P1 |
-| F4 | Exporter syntax: 45× discard in smoke tests | 🟡 P2 |
+| F.A | Live-Core `core/src/`-Drift vom Release-Snapshot (PR #5 änderte nur Vendored) | 🟡 P2 |
+| F.B | ~~Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests~~ | ✅ BEHOBEN |
+| F.C | CodeRabbit-Auto-Fix aus PR #5 nicht manuell re-verifiziert | 🟠 P1 |
+| F.D | Audit-`.jsonl`-Daten committed — gehören die in `.gitignore`? | 🟢 P3 |
 
 </details>
 
@@ -235,6 +238,8 @@ Syx_bridge-/
 
 <details>
 <summary><h2>🇩🇪 Deutsch</h2></summary>
+
+> <strong>Aus Versehen gebaut. Läuft mit Absicht.</strong>
 
 ### 🎮 Was ist SyxBridge?
 
@@ -378,8 +383,7 @@ Syx_bridge-/
 ├── README.md                  # ← Du bist hier
 │
 ├── core/                      # Die Engine
-│   ├── index.js               # Einstiegspunkt (CLI + GUI-Mode)
-│   ├── package.json           # v0.19.6
+│   ├── index.js               # Einstiegspunkt (CLI + GUI-Mode)│       ├── package.json           # v0.20.0-pre-release
 │   ├── src/
 │   │   ├── gui/               # Web-Dashboard (Express + SSE)
 │   │   ├── translation-runtime.js   # Batch-Übersetzung, Cache, Polish
@@ -403,7 +407,9 @@ Syx_bridge-/
 
 | Version | Datum | Highlights |
 |---|---|---|
-| **v0.19.6** | 2026-06-19 | Release: Version vereinheitlicht, Doku konsolidiert, 6 Bugs gefixt |
+| **v0.20.0-pre-release** | 2026-06-19 | Plugin-Architektur, PREFLIGHT, INFO-Block-Fix, Write-Verlust-Recovery |
+| v0.19.7 | 2026-06-18 | PREFLIGHT-Fix + Routing-Hardening + smarter Error-Handler |
+| v0.19.6 | 2026-06-18 | Release: Version vereinheitlicht, Doku konsolidiert, 6 Bugs gefixt |
 | v0.19.05b | 2026-06-15 | Capability Matrix, Lokale-Modelle Opt-in, JSON-Retry, Key-Cooldown |
 | v0.16.0 | 2026-06-15 | Dynamic Risk Scoring, Google-Free Stress-Test, Route-Pipeline |
 | v0.15.0 | 2026-06-14 | GUI-Overhaul, Live-Terminal, DB-Browser, Strict Versioning |
@@ -416,9 +422,9 @@ Syx_bridge-/
 
 | | |
 |---|---|
-| **Version** | v0.19.6 |
+| **Version** | v0.20.0-pre-release |
 | **Reifegrad** | Alpha · Solo-Projekt · im Daily-Use |
-| **Letztes Release** | v0.19.6 (2026-06-19) — 47 Dateien, 135 KB |
+| **Letztes Release** | v0.20.0-pre-release (2026-06-19) — 220 Dateien, ~35k LOC |
 | **Einschränkungen** | Patch Mode deaktiviert — Rest funktioniert |
 
 <details>
@@ -426,10 +432,10 @@ Syx_bridge-/
 
 | ID | Fehler | Severity |
 |----|--------|----------|
-| F1 | Argos Python SyntaxError (spawnSync-Fix unwirksam) | 🔴 P0 |
-| F2 | `_dbGet is not a function` — Revision skipped | 🟠 P1 |
-| F3 | 99,7% Stage 0 — Einträge nie auditiert | 🟠 P1 |
-| F4 | Exporter-Syntax: 45× discard in Smoke-Tests | 🟡 P2 |
+| F.A | Live-Core `core/src/`-Drift vom Release-Snapshot (PR #5 änderte nur Vendored) | 🟡 P2 |
+| F.B | ~~Plugin-Boundary GamePlugin ↔ SongsOfSyxPlugin hat keine Boundary-Tests~~ | ✅ BEHOBEN |
+| F.C | CodeRabbit-Auto-Fix aus PR #5 nicht manuell re-verifiziert | 🟠 P1 |
+| F.D | Audit-`.jsonl`-Daten committed — gehören die in `.gitignore`? | 🟢 P3 |
 
 </details>
 

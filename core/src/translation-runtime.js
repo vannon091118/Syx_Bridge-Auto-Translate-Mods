@@ -650,7 +650,10 @@ function createTranslationRuntime(options) {
     } catch (e) {
       console.warn(`[!] Flagging fehlgeschlagen: ${e.message} -> Pruefe alle Texte.`);
     }
-    return items.map(() => null);
+    // BUG-FS-006-Fix: null → true. Bei Audit-Fehler ALLE Texte markieren
+    // (konservativer Ansatz). null wurde von downstream als 'kein Fehler'
+    // interpretiert → Texte mit riskScore < 4 wurden nie gepolished.
+    return items.map(() => true);
   }
 
   async function getBestAvailableQualityModel() {
@@ -659,72 +662,72 @@ function createTranslationRuntime(options) {
     return { provider: config.PRIMARY_PROVIDER, model: config.PRIMARY_MODEL };
   }
 
-  // ── ensureTranslations (main orchestrator) ───────────────────────────
+  // ── PHASE 1: Cache ──────────────────────────────────────────────────
 
-  async function ensureTranslations(texts, options = {}) {
-    consecutiveGrammarFailures = 0;
-    const entries = await enrichWithContext(texts);
-    const contextBySource = mergeEntryContexts(entries);
-    const glossaryRows = await loadGlossaryRows(entries);
-    const glossaryMap = buildGlossaryMap(glossaryRows);
-    const uniqueTexts = [...new Set(entries.map(entry => entry.source).filter(shouldTranslate))];
-    const cachedData = await getCachedTranslations(entries);
-    const translations = new Map();
-    let verifiedCount = 0;
-    let basicCount = 0;
-    let unverifiedCount = 0;
-    let nativeReuseCount = 0;
-    let reusedCacheCount = 0;
+  async function cachePhase(ctx) {
+    if (ctx.options.onProgress) ctx.options.onProgress({ subPhase: 'caching' });
 
-    // Signal subPhase to GUI so it knows what's happening
-    if (options.onProgress) options.onProgress({ subPhase: 'caching' });
+    for (const t of ctx.uniqueTexts) {
+      if (!ctx.cachedData.has(t)) continue;
+      const data = ctx.cachedData.get(t);
+      const sourceEntry = ctx.contextBySource.get(t) || normalizeTranslationEntry(t);
+      // QO-FIX-1: polish_single stale entries (73.5% stale = src=tgt) müssen
+      // re-translatiert werden. Gleiche Logik wie native_fallback: wenn der
+      // Provider den Originaltext als "Übersetzung" gespeichert hat, Cache
+      // verwerfen und durch normale Translate-Pipeline neu übersetzen lassen.
+      // Side-Effect: 208 gute polish_single Einträge (translation ≠ t) sind
+      // NICHT betroffen weil Bedingung translation === t prüft.
+      // QO-FIX-3+4: Dynamische Re-Evaluierung von classifyNativeDecision.
+      // Vorher: native_runtime-Eintraege mit translation===source wurden NIE
+      // refreshed, weil needsRefresh nur native_fallback+polish_single checkte.
+      // Alte Eintraege (vor dem Space-Check in isProperNoun) blieben ewig im
+      // Cache stecken. Jetzt: wenn classifyNativeDecision das Entry HEUTE
+      // nicht mehr als 'reuse' einstuft, wird es in die Translate-Pipeline
+      // entlassen. Infinite-Loop-Schutz: nativeDecision.reuse=true blockt Refresh.
+      // Nur fuer native_runtime-Eintraege evaluieren (andere Provider brauchen
+      // das nicht). native_glossary bewusst AUSGESCHLOSSEN — Glossary-Eintraege
+      // haben echte target_terms (translation !== source), daher nie stale.
+      const nativeDecision = (data.provider === 'native_runtime' && data.translation === t)
+        ? classifyNativeDecision(sourceEntry, ctx.glossaryMap)
+        : null;
+      const needsRefresh = (data.flagged && data.translation === t && !isLikelyTargetLanguageText(t)) || (data.provider === 'native_fallback' && data.translation === t) || (data.provider === 'polish_single' && data.translation === t) || (data.qualityScore < 30 && data.translation === t) || (nativeDecision && !nativeDecision.reuse);
+      const hashMismatch = data.sourceHash && sourceEntry.sourceHash && data.sourceHash !== sourceEntry.sourceHash;
 
-    uniqueTexts.forEach(t => {
-      if (cachedData.has(t)) {
-        const data = cachedData.get(t);
-        const sourceEntry = contextBySource.get(t) || normalizeTranslationEntry(t);
-        // QO-FIX-1: polish_single stale entries (73.5% stale = src=tgt) müssen
-        // re-translatiert werden. Gleiche Logik wie native_fallback: wenn der
-        // Provider den Originaltext als "Übersetzung" gespeichert hat, Cache
-        // verwerfen und durch normale Translate-Pipeline neu übersetzen lassen.
-        // Side-Effect: 208 gute polish_single Einträge (translation ≠ t) sind
-        // NICHT betroffen weil Bedingung translation === t prüft.
-        const needsRefresh = (data.flagged && data.translation === t && !isLikelyTargetLanguageText(t)) || (data.provider === 'native_fallback' && data.translation === t) || (data.provider === 'polish_single' && data.translation === t);
-        const hashMismatch = data.sourceHash && sourceEntry.sourceHash && data.sourceHash !== sourceEntry.sourceHash;
+      const criticalCheck = translationCriticalCheck(t, data.translation);
+      const isSafe = criticalCheck.ok;
 
-        const criticalCheck = translationCriticalCheck(t, data.translation);
-        const isSafe = criticalCheck.ok;
+      if (!needsRefresh && !hashMismatch && isSafe) {
+        ctx.translations.set(t, data.translation);
+        ctx.stats.reusedCacheCount++;
+        if (data.polishLevel >= 2 && !data.flagged) ctx.stats.verifiedCount++;
+        else if (data.polishLevel === 1 && !data.flagged) ctx.stats.basicCount++;
+        else ctx.stats.unverifiedCount++;
 
-        if (!needsRefresh && !hashMismatch && isSafe) {
-          translations.set(t, data.translation);
-          reusedCacheCount++;
-          if (data.polishLevel >= 2 && !data.flagged) verifiedCount++;
-          else if (data.polishLevel === 1 && !data.flagged) basicCount++;
-          else unverifiedCount++;
-
-          if (global.guiServer && reusedCacheCount % 5 === 0) {
-            global.guiServer.broadcastDbSample(t, data.translation);
-          }
-          if (options.onProgress) options.onProgress({ cacheHits: 1, filesScanned: translations.size, subPhase: 'caching' });
-          if (cli.isActive() && reusedCacheCount % 20 === 0) {
-            cli.addCache(20);
-            cli.tick(translations.size, uniqueTexts.length);
-          }
-        } else if (!isSafe && !needsRefresh) {
-          console.log(`[INTEGRITY] Cache-Eintrag fuer "${t.substring(0, 30)}..." verworfen: ${criticalCheck.reason}.`);
+        if (global.guiServer && ctx.stats.reusedCacheCount % 5 === 0) {
+          global.guiServer.broadcastDbSample(t, data.translation);
         }
+        if (ctx.options.onProgress) ctx.options.onProgress({ cacheHits: 1, filesScanned: ctx.translations.size, subPhase: 'caching' });
+        if (cli.isActive() && ctx.stats.reusedCacheCount % 20 === 0) {
+          cli.addCache(20);
+          cli.tick(ctx.translations.size, ctx.uniqueTexts.length);
+        }
+      } else if (!isSafe && !needsRefresh) {
+        console.log(`[INTEGRITY] Cache-Eintrag fuer "${t.substring(0, 30)}..." verworfen: ${criticalCheck.reason}.`);
       }
-    });
+    }
+  }
 
-    // Signal native-decision phase
-    if (options.onProgress) options.onProgress({ subPhase: 'native' });
+  // ── PHASE 2: Native ─────────────────────────────────────────────────
 
-    for (const entry of entries) {
-      if (!entry.source || translations.has(entry.source)) continue;
-      const nativeDecision = classifyNativeDecision(entry, glossaryMap);
+  async function nativePhase(ctx) {
+    if (ctx.options.onProgress) ctx.options.onProgress({ subPhase: 'native' });
+
+    for (const entry of ctx.entries) {
+      if (!entry.source || ctx.translations.has(entry.source)) continue;
+      const nativeDecision = classifyNativeDecision(entry, ctx.glossaryMap);
       if (!nativeDecision.reuse) continue;
-      translations.set(entry.source, nativeDecision.translation);
-      nativeReuseCount++;
+      ctx.translations.set(entry.source, nativeDecision.translation);
+      ctx.stats.nativeReuseCount++;
       // SoT-via-import (F3 Finalisierung, Reviewer-Pass-3): die Konstanten
       // NATIVE_GLOSSARY_DEFAULT_QUALITY (88) und NATIVE_RUNTIME_DEFAULT_QUALITY (94)
       // leben ausschliesslich in translation-quality.js. Dieser Code folgt der Single
@@ -735,7 +738,7 @@ function createTranslationRuntime(options) {
         flagReason: '',
         qualityScore: nativeDecision.reason === 'glossary_exact' ? NATIVE_GLOSSARY_DEFAULT_QUALITY : NATIVE_RUNTIME_DEFAULT_QUALITY
       });
-      cachedData.set(entry.source, {
+      ctx.cachedData.set(entry.source, {
         translation: nativeDecision.translation,
         polishLevel: nativeDecision.reason === 'glossary_exact' ? 1 : 2,
         flagged: false,
@@ -749,30 +752,38 @@ function createTranslationRuntime(options) {
       }
     }
 
-    const missing = uniqueTexts.filter(text => !translations.has(text));
-    console.log(`\n[STATUS] Texte gefunden: ${texts.length} (${uniqueTexts.length} eindeutig)`);
-    console.log(`[STATUS] Cache-Hits: ${translations.size} | Fehlend: ${missing.length}`);
-    if (nativeReuseCount > 0) {
-      console.log(`[STATUS] Native Uebernahmen: ${nativeReuseCount}`);
+    // Compute missing after both cache and native phases have populated translations
+    ctx.missing = ctx.uniqueTexts.filter(text => !ctx.translations.has(text));
+    console.log(`\n[STATUS] Texte gefunden: ${ctx.entries.length} (${ctx.uniqueTexts.length} eindeutig)`);
+    console.log(`[STATUS] Cache-Hits: ${ctx.translations.size} | Fehlend: ${ctx.missing.length}`);
+    if (ctx.stats.nativeReuseCount > 0) {
+      console.log(`[STATUS] Native Uebernahmen: ${ctx.stats.nativeReuseCount}`);
     }
-    if (translations.size > 0) {
-      console.log(`[STATUS] Qualitaet: ${verifiedCount} Deep Polish, ${basicCount} Verifiziert, ${unverifiedCount} Basis`);
+    if (ctx.translations.size > 0) {
+      console.log(`[STATUS] Qualitaet: ${ctx.stats.verifiedCount} Deep Polish, ${ctx.stats.basicCount} Verifiziert, ${ctx.stats.unverifiedCount} Basis`);
     }
+  }
+
+  // ── PHASE 3: Translate ──────────────────────────────────────────────
+
+  async function translatePhase(ctx) {
+    if (ctx.missing.length === 0) return;
 
     let processedCount = 0;
     let batchNumber = 0;
-    const totalBatches = Math.ceil(missing.length / (options.batchSize || 20));
-    while (processedCount < missing.length && !isAborting()) {
+    const totalBatches = Math.ceil(ctx.missing.length / (ctx.options.batchSize || 20));
+
+    while (processedCount < ctx.missing.length && !isAborting()) {
       batchNumber++;
       let currentBatch = [];
       let currentBatchChars = 0;
       const preferredRoute = dispatcher.buildStageRoutePlan('translate')[0] || dispatcher.resolveProviderModel('translate');
       const batchProfile = getBatchProfile(preferredRoute.provider, preferredRoute.model, 'translate');
-      const limit = Math.max(1, options.batchSize || batchProfile.maxItems);
-      while (processedCount < missing.length && currentBatch.length < limit) {
-        const nextText = missing[processedCount];
+      const limit = Math.max(1, ctx.options.batchSize || batchProfile.maxItems);
+      while (processedCount < ctx.missing.length && currentBatch.length < limit) {
+        const nextText = ctx.missing[processedCount];
         if (currentBatchChars + nextText.length > batchProfile.maxChars && currentBatch.length > 0) break;
-        currentBatch.push(contextBySource.get(nextText) || normalizeTranslationEntry(nextText));
+        currentBatch.push(ctx.contextBySource.get(nextText) || normalizeTranslationEntry(nextText));
         currentBatchChars += nextText.length;
         processedCount++;
       }
@@ -783,8 +794,8 @@ function createTranslationRuntime(options) {
       const logKeyIndex = config.KEY_INDICES && typeof config.KEY_INDICES[logRoute.provider] === 'number' ? config.KEY_INDICES[logRoute.provider] : 0;
       console.log(`[BATCH-RUN] #${batchNumber}/${totalBatches} | Provider: ${logRoute.provider} | Model: ${logRoute.model} | KeyIndex: ${logKeyIndex}/${logKeys.length} | Items: ${currentBatch.length} | Chars: ${currentBatchChars}`);
 
-      if (options.onProgress) {
-        options.onProgress({ newTranslations: currentBatch.length, filesScanned: translations.size + currentBatch.length, subPhase: 'translating', batchN: batchNumber, totalBatches });
+      if (ctx.options.onProgress) {
+        ctx.options.onProgress({ newTranslations: currentBatch.length, filesScanned: ctx.translations.size + currentBatch.length, subPhase: 'translating', batchN: batchNumber, totalBatches });
       }
 
       try {
@@ -793,13 +804,13 @@ function createTranslationRuntime(options) {
         const batchMeta = result._meta || [];
 
         // ── Collect shield restoration results for validateFileMarkers ────
-        if (!translations.__shieldResults) translations.__shieldResults = new Map();
+        if (!ctx.translations.__shieldResults) ctx.translations.__shieldResults = new Map();
         for (let j = 0; j < currentBatch.length; j++) {
           const entry = currentBatch[j];
           const source = entry.source;
           const itemMeta = batchMeta[j] || { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null };
           if (itemMeta.shieldResult) {
-            translations.__shieldResults.set(source, itemMeta.shieldResult);
+            ctx.translations.__shieldResults.set(source, itemMeta.shieldResult);
           }
         }
 
@@ -814,7 +825,7 @@ function createTranslationRuntime(options) {
           const properNounOverride = !!itemMeta.wasProperNounOverride;
           const saveProvider = properNounOverride ? 'native_runtime' : result.provider;
           const flagReason = inferFlagReason(source, translated, saveProvider, { qualityScore });
-          translations.set(source, translated);
+          ctx.translations.set(source, translated);
 
           const saveMeta = {
             provider: saveProvider,
@@ -840,7 +851,7 @@ function createTranslationRuntime(options) {
           // das den Eintrag als terminal, sodass Deep-Polish-SELECT ihn ueberspringt
           // (zusaetzlich zu overwriteFallbackUsed=true als doppelte Absicherung).
           savePromises.push(saveTranslation(entry, translated, properNounOverride ? 2 : 0, saveMeta));
-          cachedData.set(source, {
+          ctx.cachedData.set(source, {
             translation: translated,
             polishLevel: properNounOverride ? 2 : 0,
             // F2-Fix (Reviewer-Pass-3): flagged strikt an Presence von flagReason koppeln,
@@ -861,14 +872,14 @@ function createTranslationRuntime(options) {
         for (const p of savePromises) { await p; }
         if (cli.isActive()) {
           cli.updateBatch(batchNumber, totalBatches, result.provider, result.model);
-          cli.tick(translations.size, uniqueTexts.length);
+          cli.tick(ctx.translations.size, ctx.uniqueTexts.length);
         }
       } catch (e) {
         if (e.message === 'ABORTED') break;
         console.error(`[!] Batch fehlgeschlagen: ${extractErrorMessage(e)}`);
         const failPromises = [];
         for (const item of currentBatch) {
-          translations.set(item.source, item.source);
+          ctx.translations.set(item.source, item.source);
           const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
           // D-Fix (Reviewer-Pass-2): Fail-Path Proper-Nouns jetzt konsistent mit
           // Translate-Path-Fix A — als native_runtime (q=94) persistieren statt
@@ -901,7 +912,7 @@ function createTranslationRuntime(options) {
             requiresDeepPolish: !isPN,
             overwriteFallbackUsed: true
           }));
-          cachedData.set(item.source, {
+          ctx.cachedData.set(item.source, {
             translation: item.source,
             polishLevel: isPN ? 2 : 0,
             flagged: !isPN,
@@ -915,145 +926,183 @@ function createTranslationRuntime(options) {
         if (cli.isActive()) cli.addErr(currentBatch.length);
       }
     }
+  }
 
-    if ((config.GRAMMAR_CHECK || options.forcePolish) && !isAborting()) {
-      const polishQueue = [...translations.keys()].filter(k => {
-        const cached = cachedData.get(k) || {};
-        return (cached.flagged || (cached.polishLevel || 0) < 2) && k.length > 5 && /[a-zA-Z]/.test(k);
-      }).sort((a, b) => {
-        const riskA = (contextBySource.get(a) || {}).riskScore || 0;
-        const riskB = (contextBySource.get(b) || {}).riskScore || 0;
-        return riskB - riskA;
-      });
+  // ── PHASE 4: QA / Polish ────────────────────────────────────────────
 
-      const limit = options.forcePolish ? polishQueue.length : Math.max(missing.length + 10, config.REPOLISH_BUDGET);
-      const activeQueue = polishQueue.slice(0, limit);
+  async function qaPhase(ctx) {
+    if (!(config.GRAMMAR_CHECK || ctx.options.forcePolish) || isAborting()) return;
 
-      if (activeQueue.length > 0) {
-        console.log(`[INFO] QA-Phase: Optimiere ${activeQueue.length} Texte${options.forcePolish ? ' (Deep Polish aktiv)' : ''}...`);
-        if (options.onProgress) options.onProgress({ subPhase: 'polishing' });
-        const polishRoute = dispatcher.buildStageRoutePlan('polish')[0] || dispatcher.resolveProviderModel('polish');
-        const polishProfile = getBatchProfile(polishRoute.provider, polishRoute.model, 'polish');
+    const polishQueue = [...ctx.translations.keys()].filter(k => {
+      const cached = ctx.cachedData.get(k) || {};
+      return (cached.flagged || (cached.polishLevel || 0) < 2) && k.length > 5 && /[a-zA-Z]/.test(k);
+    }).sort((a, b) => {
+      const riskA = (ctx.contextBySource.get(a) || {}).riskScore || 0;
+      const riskB = (ctx.contextBySource.get(b) || {}).riskScore || 0;
+      return riskB - riskA;
+    });
 
-        for (let i = 0; i < activeQueue.length; i += polishProfile.maxItems) {
-          if (isAborting()) break;
-          const batchKeys = activeQueue.slice(i, i + polishProfile.maxItems);
-          const batchValues = batchKeys.map(k => translations.get(k));
-          const batchEntries = batchKeys.map(k => contextBySource.get(k) || normalizeTranslationEntry(k));
+    const limit = ctx.options.forcePolish ? polishQueue.length : Math.max(ctx.missing.length + 10, config.REPOLISH_BUDGET);
+    const activeQueue = polishQueue.slice(0, limit);
 
-          const flags = await flagPotentialErrors(batchValues);
-          const problematicIdx = [];
-          const batchUpdatePromises = [];
+    if (activeQueue.length === 0) return;
 
-          for (let j = 0; j < batchKeys.length; j++) {
-            const key = batchKeys[j];
-            const entry = batchEntries[j];
-            const needsPolish = flags[j] === true || entry.riskScore >= 4;
+    console.log(`[INFO] QA-Phase: Optimiere ${activeQueue.length} Texte${ctx.options.forcePolish ? ' (Deep Polish aktiv)' : ''}...`);
+    if (ctx.options.onProgress) ctx.options.onProgress({ subPhase: 'polishing' });
+    const polishRoute = dispatcher.buildStageRoutePlan('polish')[0] || dispatcher.resolveProviderModel('polish');
+    const polishProfile = getBatchProfile(polishRoute.provider, polishRoute.model, 'polish');
 
-            if (needsPolish) problematicIdx.push(j);
+    for (let i = 0; i < activeQueue.length; i += polishProfile.maxItems) {
+      if (isAborting()) break;
+      const batchKeys = activeQueue.slice(i, i + polishProfile.maxItems);
+      const batchValues = batchKeys.map(k => ctx.translations.get(k));
+      const batchEntries = batchKeys.map(k => ctx.contextBySource.get(k) || normalizeTranslationEntry(k));
 
-            const cached = cachedData.get(key) || {};
-            if (cached.polishLevel < 1) {
-              batchUpdatePromises.push(saveTranslation(entry, translations.get(key), 1, {
-                provider: cached.provider || 'native_review',
-                flagReason: (flags[j] === true) ? 'needs_polish' : '',
-                qualityScore: scoreTranslationQuality(key, translations.get(key))
-              }));
+      const flags = await flagPotentialErrors(batchValues);
+      const problematicIdx = [];
+      const batchUpdatePromises = [];
+
+      for (let j = 0; j < batchKeys.length; j++) {
+        const key = batchKeys[j];
+        const entry = batchEntries[j];
+        const needsPolish = flags[j] === true || entry.riskScore >= 4;
+
+        if (needsPolish) problematicIdx.push(j);
+
+        const cached = ctx.cachedData.get(key) || {};
+        if (cached.polishLevel < 1) {
+          batchUpdatePromises.push(saveTranslation(entry, ctx.translations.get(key), 1, {
+            provider: cached.provider || 'native_review',
+            flagReason: (flags[j] === true) ? 'needs_polish' : '',
+            qualityScore: scoreTranslationQuality(key, ctx.translations.get(key))
+          }));
+        }
+      }
+
+      if (problematicIdx.length > 0) {
+        try {
+          const problematicEntries = problematicIdx.map(idx => ({
+            ...batchEntries[idx],
+            source: ctx.translations.get(batchKeys[idx]),
+            originalSource: batchKeys[idx],
+            contextPacket: buildContextPacket(batchEntries[idx], batchEntries[idx].hints || [])
+          }));
+
+          let corrected;
+          let polishProvider = 'single';
+          let polishShieldResults = null;
+          const abResult = await polishArbiter.runAbPolishing(problematicEntries, config.TARGET_LANG);
+          if (abResult) {
+            corrected = abResult;
+            polishProvider = 'ab_multi';
+          } else {
+            corrected = await fixGrammarBatch(problematicEntries, 'polish');
+            // Extract shield restoration results from polish path
+            if (corrected && corrected.__shieldResults) {
+              polishShieldResults = corrected.__shieldResults;
             }
           }
 
-          if (problematicIdx.length > 0) {
-            try {
-              const problematicEntries = problematicIdx.map(idx => ({
-                ...batchEntries[idx],
-                source: translations.get(batchKeys[idx]),
-                originalSource: batchKeys[idx],
-                contextPacket: buildContextPacket(batchEntries[idx], batchEntries[idx].hints || [])
-              }));
+          const finalStrictTerms = await getGuardedTerminology(problematicEntries);
 
-              let corrected;
-              let polishProvider = 'single';
-              let polishShieldResults = null;
-              const abResult = await polishArbiter.runAbPolishing(problematicEntries, config.TARGET_LANG);
-              if (abResult) {
-                corrected = abResult;
-                polishProvider = 'ab_multi';
-              } else {
-                corrected = await fixGrammarBatch(problematicEntries, 'polish');
-                // Extract shield restoration results from polish path
-                if (corrected && corrected.__shieldResults) {
-                  polishShieldResults = corrected.__shieldResults;
-                }
-              }
+          for (let j = 0; j < problematicIdx.length; j++) {
+            const idx = problematicIdx[j];
+            const key = batchKeys[idx];
+            const entry = batchEntries[idx];
+            const improved = corrected[j];
 
-              const finalStrictTerms = await getGuardedTerminology(problematicEntries);
-
-              for (let j = 0; j < problematicIdx.length; j++) {
-                const idx = problematicIdx[j];
-                const key = batchKeys[idx];
-                const entry = batchEntries[idx];
-                const improved = corrected[j];
-
-                // Capture shield restoration results from polish
-                if (polishShieldResults && polishShieldResults[j]) {
-                  if (!translations.__shieldResults) translations.__shieldResults = new Map();
-                  translations.__shieldResults.set(key, polishShieldResults[j]);
-                }
-
-                const persistentViolation = checkTerminologyViolations(key, improved, finalStrictTerms);
-                if (persistentViolation) {
-                  console.error(`[GUARD] Kritischer Terminologie-Verstoss bleibt bestehen fuer: "${key.substring(0, 30)}..."`);
-                }
-
-                translations.set(key, improved);
-                batchUpdatePromises.push(saveTranslation(entry, improved, 2, {
-                  provider: polishProvider === 'ab_multi' ? 'ab_polish' : 'polish_single',
-                  flagReason: persistentViolation ? 'terminology_violation_persistent' : '',
-                  qualityScore: scoreTranslationQuality(key, improved)
-                }));
-                batchUpdatePromises.push(learnGlossary(key, improved, entry));
-              }
-            } catch (e) {
-              if (e.message === 'ABORTED') break;
-              console.warn(`[!] QA-Korrektur Batch fehlgeschlagen: ${e.message}`);
+            // Capture shield restoration results from polish
+            if (polishShieldResults && polishShieldResults[j]) {
+              if (!ctx.translations.__shieldResults) ctx.translations.__shieldResults = new Map();
+              ctx.translations.__shieldResults.set(key, polishShieldResults[j]);
             }
+
+            const persistentViolation = checkTerminologyViolations(key, improved, finalStrictTerms);
+            if (persistentViolation) {
+              console.error(`[GUARD] Kritischer Terminologie-Verstoss bleibt bestehen fuer: "${key.substring(0, 30)}..."`);
+            }
+
+            ctx.translations.set(key, improved);
+            batchUpdatePromises.push(saveTranslation(entry, improved, 2, {
+              provider: polishProvider === 'ab_multi' ? 'ab_polish' : 'polish_single',
+              flagReason: persistentViolation ? 'terminology_violation_persistent' : '',
+              qualityScore: scoreTranslationQuality(key, improved)
+            }));
+            batchUpdatePromises.push(learnGlossary(key, improved, entry));
           }
-          await Promise.all(batchUpdatePromises);
+        } catch (e) {
+          if (e.message === 'ABORTED') break;
+          console.warn(`[!] QA-Korrektur Batch fehlgeschlagen: ${e.message}`);
         }
       }
+      await Promise.all(batchUpdatePromises);
     }
+  }
 
-    // ── Deep Polish Auto-Trigger ────────────────────────────────────────
-    if (!isAborting()) {
-      try {
-        const deepPolishCount = await _dbGet(
-          'SELECT COUNT(*) as cnt FROM translations WHERE target_lang = ? AND requires_deep_polish = 1 AND polish_status = ?',
-          [config.TARGET_LANG, 'pending']
-        );
-        if (deepPolishCount && deepPolishCount.cnt > 0) {
-          console.log(`[DEEP-POLISH] ${deepPolishCount.cnt} Eintraege warten auf Deep Polish. Starte automatisch...`);
-          // BUG-FS-004: Reset vor Deep Polish, damit Failures aus der Polish-Queue
-          // nicht den Deep-Polish-Lauf blockieren. Ohne diesen Reset wuerden 3
-          // Grammar-Failures im Polish-Teil dazu fuehren, dass ALLE Deep-Polish-
-          // Batches sofort uebersprungen werden (consecutiveGrammarFailures >= 3).
-          consecutiveGrammarFailures = 0;
-          await runDeepPolishBatch(config.TARGET_LANG);
-        }
-      } catch (e) {
-        // Non-critical
+  // ── PHASE 5: Deep Polish ────────────────────────────────────────────
+
+  async function deepPolishPhase(ctx) {
+    if (isAborting()) return;
+
+    try {
+      const deepPolishCount = await _dbGet(
+        'SELECT COUNT(*) as cnt FROM translations WHERE target_lang = ? AND requires_deep_polish = 1 AND polish_status = ?',
+        [config.TARGET_LANG, 'pending']
+      );
+      if (deepPolishCount && deepPolishCount.cnt > 0) {
+        console.log(`[DEEP-POLISH] ${deepPolishCount.cnt} Eintraege warten auf Deep Polish. Starte automatisch...`);
+        // BUG-FS-004: Reset vor Deep Polish, damit Failures aus der Polish-Queue
+        // nicht den Deep-Polish-Lauf blockieren. Ohne diesen Reset wuerden 3
+        // Grammar-Failures im Polish-Teil dazu fuehren, dass ALLE Deep-Polish-
+        // Batches sofort uebersprungen werden (consecutiveGrammarFailures >= 3).
+        consecutiveGrammarFailures = 0;
+        await runDeepPolishBatch(config.TARGET_LANG);
       }
+    } catch (e) {
+      // Non-critical
     }
+  }
 
-    translations.__stats = {
-      cacheHits: reusedCacheCount,
-      missing: missing.length,
-      nativeReuseCount,
-      verifiedCount,
-      basicCount,
-      unverifiedCount,
-      totalUnique: uniqueTexts.length
+  // ── ensureTranslations (orchestrator) ───────────────────────────────
+
+  async function ensureTranslations(texts, options = {}) {
+    consecutiveGrammarFailures = 0;
+    const entries = await enrichWithContext(texts);
+
+    const ctx = {
+      entries,
+      contextBySource: mergeEntryContexts(entries),
+      glossaryMap: buildGlossaryMap(await loadGlossaryRows(entries)),
+      cachedData: await getCachedTranslations(entries),
+      uniqueTexts: [...new Set(entries.map(e => e.source).filter(shouldTranslate))],
+      translations: new Map(),
+      options,
+      missing: [],
+      stats: {
+        verifiedCount: 0,
+        basicCount: 0,
+        unverifiedCount: 0,
+        nativeReuseCount: 0,
+        reusedCacheCount: 0
+      }
     };
-    return translations;
+
+    await cachePhase(ctx);
+    await nativePhase(ctx);
+    await translatePhase(ctx);
+    await qaPhase(ctx);
+    await deepPolishPhase(ctx);
+
+    ctx.translations.__stats = {
+      cacheHits: ctx.stats.reusedCacheCount,
+      missing: ctx.missing.length,
+      nativeReuseCount: ctx.stats.nativeReuseCount,
+      verifiedCount: ctx.stats.verifiedCount,
+      basicCount: ctx.stats.basicCount,
+      unverifiedCount: ctx.stats.unverifiedCount,
+      totalUnique: ctx.uniqueTexts.length
+    };
+    return ctx.translations;
   }
 
   // ── Deep Polish Batch ────────────────────────────────────────────────

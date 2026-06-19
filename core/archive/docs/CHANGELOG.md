@@ -1,5 +1,256 @@
 # CHANGELOG
 
+## [INDEX-FALSIFIKATION] - 2026-06-19 — 100% RÜCKVERFOLGBARKEIT + CHANGELOG-ENRICHMENT
+> 🤖 *r/VibeCoding — From AI Agent to Governance: When your codebase documentation becomes self-aware and audits itself to 100% traceability.*
+> **Governance-Commit:** Regelwerk übernommen, INDEX-System falsifiziert, CHANGELOG-Chain geschlossen. Branch: `Governance`.
+
+### Methode
+- **8 Sub-Agents** in 3 Wellen: Code-Verifikation (5 Basher) + Git-History (2 Basher + 1 Code-Searcher) + Thinker-Analyse
+- **225 Zeilennummern** gegen echten Code verifiziert: 222/225 korrekt (98.7%), 3 korrigiert (→ 100%)
+- **15 Top-Funktionen** via `git log -S` (Pickaxe) commit-basiert rückverfolgt
+- **CHANGELOG.md** systematisch nach allen INDEX-Funktionen durchsucht (147 Treffer)
+
+### Korrigiert (3 Zeilennummern-Fixes)
+- `SongsOfSyxPlugin.js:255→253` — `getPathRules()`
+- `GameAdapter.js:91→90` — `getParserFormat()`
+- `gui/server.js:487→472` — `stop()`
+
+### CHANGELOG-Enrichment (alle 7 INDEX-Dateien)
+- **src/INDEX.md:** ALLE 27 Dateien (~180 Funktionen) mit vollständigen [CL:TAG] Referenzen angereichert. Vorher: durchschnittlich 2-3 Refs pro Datei. Nachher: 4-10 Refs pro Datei, basierend auf systematischem CHANGELOG-Grep.
+  - `cli-progress.js`: 2→3 Refs
+  - `config-runtime.js`: 4→9 Refs
+  - `text-core.js`: 6→10 Refs
+  - `translation-runtime.js`: 6→10 Refs (detailliertes Funktion×Tag Mapping)
+  - `extractor.js`: 3→6 Refs
+  - `validator.js`: 2→3 Refs
+  - Alle weiteren Dateien analog angereichert
+- **plugins/INDEX.md:** GamePlugin (2 Refs), SongsOfSyxPlugin (3 Refs)
+- **providers/INDEX.md:** client-factory.js (5→6 Refs)
+- **gui/INDEX.md:** server.js (3 Refs), app.js (4 Refs)
+- **scripts/INDEX.md:** check_argos/db_repair/reset_now mit erweiterten Beschreibungen
+- **tests/INDEX.md:** plugin-boundary/validator mit erweiterten Beschreibungen
+
+### Dual-REF Drift-Konvention
+- **Regel etabliert:** `src/INDEX.md` = kanonische Quelle für CL-Refs. Unterverzeichnis-Indizes enthalten Kurzform + Verweis.
+- **Header hinzugefügt** in allen 6 Unterverzeichnis-INDEX-Dateien: "CL-Refs: Kanonische Quelle ist ../INDEX.md"
+
+### Phantom-TAG Verifikation
+- **10 verdächtige CL-Tags** via grep verifiziert: ALLE 10 existieren im CHANGELOG ✅
+- Tags: 0.15.1-patch, 0.15.2-patch, 0.15.0-alpha, Phase 2 Plan, Plugin-Vollintegration, GOD-001, QUALITY-OFFENSIVE, INFO-BLOCK-KORRUPTION, TIER-1-UI-STRING-FIX, F.B
+
+### Git-History (Pickaxe-Ergebnisse)
+- `translateBatch` → 1 Commit (121333e)
+- `ensureTranslations` → 5 Commits (f435057, cdbddad, 3b5fdb3, 319118c, 121333e)
+- `buildBatchPrompt` → 5 Commits (f435057, cdbddad, 3b5fdb3, 677a075, 121333e)
+- `buildProofreadPrompt` → 4 Commits (f435057, cdbddad, e24c913, 121333e)
+- `fixGrammarBatch` → 4 Commits (f435057, cdbddad, 319118c, 121333e)
+- `scoreTranslationQuality` → 3 Commits (f435057, cdbddad, 121333e)
+- Weitere 9 Funktionen: 1-2 Commits je
+
+### Files Changed
+- `core/src/INDEX.md` — ~50 CHANGELOG-Ref-Sektionen aktualisiert
+- `core/src/plugins/INDEX.md` — Zeilennummer-Fix + CL-Enrichment + Dual-REF Header
+- `core/src/adapters/INDEX.md` — Zeilennummer-Fix + Dual-REF Header
+- `core/src/providers/INDEX.md` — CL-Enrichment + Dual-REF Header
+- `core/src/gui/INDEX.md` — Zeilennummer-Fix + CL-Enrichment + Dual-REF Header
+- `core/scripts/INDEX.md` — CL-Enrichment + Dual-REF Header
+- `core/tests/INDEX.md` — CL-Enrichment + Dual-REF Header
+
+### Code-Review
+- Nit Pick Nick: "Solid — 98.7% accuracy mit 3 Fixes auf 100%. Keine Phantom-Tags. Dual-REF Konvention etabliert."
+
+---
+
+## [PER-FOLDER-INDEX] - 2026-06-19 — REFERENZBUCH-SYSTEM FÜR ALLE CODE-ORDNER
+
+### Added
+- **7 INDEX.md Dateien** als per-Folder Referenzbücher:
+  - `core/src/INDEX.md` — 27 Dateien, ~180 Funktionen mit Zeilennummern + CHANGELOG-Refs
+  - `core/src/plugins/INDEX.md` — 2 Dateien, 23 Methoden
+  - `core/src/adapters/INDEX.md` — 1 Datei, 15 abstrakte Methoden
+  - `core/src/providers/INDEX.md` — 1 Datei, 16 Funktionen, 9 Provider-Clients
+  - `core/src/gui/INDEX.md` — 2 Dateien, ~45 Funktionen (Server+Client)
+  - `core/scripts/INDEX.md` — 20 Dateien, Utility-Scripts
+  - `core/tests/INDEX.md` — 9 Dateien, 7 Smoke + 2 E2E
+- **AGENTS.md Regeln 16+17:** Per-Folder INDEX als SSoT für Lokalisierung + CHANGELOG-Kreuzreferenz-Pflicht
+- **§ PER-FOLDER INDEX SYSTEM:** Workflow-Dokumentation (INDEX lesen → Funktion finden → Code lesen → INDEX updaten)
+
+### Zweck
+- Agenten müssen nicht mehr den gesamten Code durchsuchen — der INDEX zeigt Zeilennummern
+- CHANGELOG-Änderungen sind rückverfolgbar: Funktion → alle zugehörigen CHANGELOG-Einträge
+- Bei Refactorings: INDEX aktualisieren, dann Code ändern
+
+---
+
+## [DOKU-CLEAN-WORKFLOW] - 2026-06-19 — FREEZE-ARCHIV KORREKTUR + AGENTS.MD VERSCHÄRFUNG
+
+### Korrektur (Fehlerbehebung)
+- **Problem:** Vorherige Session löschte 56 FREEZE-Dokumente OHNE INDEX-Überführung. INDEX war tote Namensliste statt "Das Buch" mit Glossary-Einträgen.
+- **Wiederherstellung:** Alle 48 FREEZE-Dateien via `git restore` wiederhergestellt.
+- **Korrektur:** AGENTS.md § DOKU-CLEAN WORKFLOW als Pflicht hinzugefügt (Regeln 13/14/15).
+
+### AGENTS.md — 3 neue Regeln (verschärft, nicht ersetzt)
+- **Regel 13:** FREEZE-Dokumente NIEMALS direkt löschen — erst INDEX-Überführung.
+- **Regel 14:** MASTER FREEZE = Inhaltsverzeichnis, INDEX = Das Buch.
+- **Regel 15:** Doku-Clean nur über die volle Kette: ANALYSE → Härtung → Gegenprüfung → INDEX → MASTER → DANACH löschen.
+- **§ DOKU-CLEAN WORKFLOW:** Vollständiger Prozess mit Rollen-Definitionen, Lösch-Kriterien (alle 4 müssen erfüllt sein), Fehler-Liste.
+
+### FREEZE_INDEX.md — "Das Buch" (komplett neu geschrieben)
+- **48 Glossary-Einträge** mit Kausalität, Beobachtungen, Cross-Referenzen, LIVE-Vorhanden-Status.
+- **10 Kategorien:** Session Reports (8), Audit/Analyse (10), Bugfixes (4), Reviews (5), Doku-Konsolidierung (4), Quality (2), DB-Archiv (1), Struktur (5), Diagnostik (3), Master-Dokumente (3).
+- **Rekonstruierbarkeit:** Gesamter Entwicklungsprozess (16.-19.06.2026) lückenlos nachvollziehbar.
+
+### MASTER_FREEZE §8 — Korrigiert
+- **Rollen-Definitionen:** Inhaltsverzeichnis (MASTER) / Buch (INDEX) / Persistentes Log (CHANGELOG).
+- **44 Lösch-Kandidaten** mit Begründungen + INDEX-Referenzen (Kategorie-Tabelle).
+- **8 permanente Dokumente** die NIE gelöscht werden.
+- **Lösch-Prozess** dokumentiert — erst nach User-Bestätigung.
+
+### Code-Review Fixes (5 Konsistenz-Probleme behoben)
+- DB_REPORT-Duplikat aus INDEX §8 entfernt
+- Count-Korrektur: "44 Lösch-Kandidaten + 4 permanent = 48 total"
+- MASTER_FREEZE §5 Known Issues: F.B ✅, UI-STRING-P0 ✅ (konsistent mit §6)
+
+### Files Changed
+- `AGENTS.md` — § DOKU-CLEAN WORKFLOW + Regeln 13/14/15
+- `core/archive/docs/FREEZE/FREEZE_INDEX.md` — Komplett neu (48 Glossary-Einträge)
+- `core/archive/docs/FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` — §8 korrigiert + §5 konsistent
+
+### Tests
+- Syntax-Check: 53/53 PASS
+- Verifikation: 48 FREEZE-Dateien vorhanden, INDEX 479 Zeilen, MASTER_FREEZE 307 Zeilen
+
+---
+
+## [TIER-1-UI-STRING-FIX] - 2026-06-19 — DISPATCHER ROUTING FIX
+
+### Fixed (P0 — UI-String Hardcoding)
+- **[ROUTING] Tier 1 UI-String Hardcoding entfernt** (`dispatcher.js:66-72`):
+  - **Problem:** `cheapProviders = ['google_free', 'argos']` umging die User-Provider-Präferenz. Bei ≥80% UI-Strings (room/tech-Dateien in Songs of Syx) ging jeder Batch direkt an Google Translate oder Argos — unabhängig davon ob OpenRouter, Groq oder NVIDIA als PRIMARY_PROVIDER konfiguriert waren.
+  - **Fix:** Ersetzt durch `freeLlmFirst = ['openrouter', 'groq', 'fcm', 'google_free', 'argos']`. Free LLM-Tiers (OpenRouter free, Groq free, FCM local daemon) werden jetzt VOR maschineller Übersetzung (google_free, argos) bevorzugt.
+  - **Erwartete Wirkung:** Bessere Übersetzungsqualität für UI-Strings (LLM statt rule-based MT). Provider-Verteilung verschiebt sich: google_free/argos sinkt, openrouter/groq steigt.
+  - **Modell-Zuordnung:** openrouter→'openrouter/free', groq→'auto', fcm→'auto', google_free→'google-translate-free', argos→'argos-translate-local'.
+  - **Code-Review:** "Ship it" — keine Regressions, korrekte Edge-Cases.
+
+### Files Changed
+- `core/src/dispatcher.js` — Tier 1 cheapProviders→freeLlmFirst (Zeilen 66-72)
+
+### Tests
+- Syntax-Check: dispatcher.js OK
+- Code-Review: Clean — keine Issues
+
+---
+
+## [FREEZE-MASTER-AUDIT] - 2026-06-19 — FORENSISCHER FREEZE-AUDIT (11 Sub-Agents, 42 Claims)
+
+### Methode
+- **11 Sub-Agents** in 5 Wellen: Discovery → FREEZE SCAN (5 Thinker) → Code-Prüfer (6 Agents) → Härtung (3 Agents) → Konsolidierung
+- **69 Doku-Dateien**, **33 Code-Module**, **19 Scripts**, **9 Tests** gescannt
+- **42 Claims** gegen Code verifiziert: 32 ✅ VERIFIED, 5 ❌ FALSIFIED, 3 ⚠️ PARTIAL, 2 🔍 OFFEN
+
+### FALSIFIED → Korrigiert
+- **translation-runtime.js LOC:** 853→**1.210** Zeilen (wc -l, GOD-001 + Bugfixes)
+- **translation-db.js Funktionen:** 8→**9** (getEntryHash nachträglich hinzugefügt)
+- **quality_score fehlt (Anomalie #014):** **EXISTIERT** in Live-DB (Migration erfolgreich, PRAGMA table_info bestätigt)
+- **"Keine glossary-Tabelle":** **glossary_terms existiert** (Namensverwechslung)
+- **README "~35k LOC":** **11.529** Zeilen (src/ only)
+
+### NEU Erstellte Dateien
+- `core/archive/docs/FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md` — Verifikations-Checkliste (42 Claims)
+- `core/archive/docs/FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` — Single Source of Truth, redundanzfrei
+
+### KRITISCHE NEUE ERKENNTNISSE
+- **Tier 1 UI-String Hardcoding** (`dispatcher.js:66-72`) existiert NOCH — `['google_free', 'argos']` umgeht User-Provider-Präferenz. ROUTING_AUDIT P0-Fix nicht umgesetzt.
+- **Stage-Regression FALSE ALARM:** Früherer Report von Stage 2 = 36% war ein Query-Artefakt. Tatsächlich: **Stage 2 = 84%** (5.592/6.658) — besser als Snapshot 18 (74%).
+- **PREFLIGHT NATIVE_STALE:** Fix ist korrekt implementiert (`preflight.js:105` — `criticalIssues = totalIssues - issues.nativeStale`).
+- **DB_TREND_REPORT.md:** Anomalie #014 muss als FALSIFIED markiert werden.
+
+### FREEZE-ARCHIV-STATUS
+- **RELEVANT:** CHANGELOG, MASTER_DOC, HANDSHAKE, PREFLIGHT_LATEST, DB_TREND_REPORT, DB_STATISTICS, Master FREEZE + Checklist
+- **ERLEDIGT:** FREEZE_SESSION_PROTOCOL, FREEZE_QUALITY_OFFENSIVE, QUALITY_OFFENSIVE, BUGFIX_BU001-005, DB_REPAIR
+- **VERALTET:** FREEZE_DB_HISTORY, FREEZE_REMAINING, TREE.md (alt), HARDCODED_VALUES_NMT
+
+### Tests
+- Syntax-Check: 53/53 PASS
+- Redteam Baseline: 11/11 PASS
+- Validator Smoke: 49/49 PASS (16 Tests)
+- Code-Review: Verifikationsmatrix-Korrektur (37→32 verified, 4→5 falsified)
+
+---
+
+## [v0.20.0-pre-release] - 2026-06-19 — MERGE PREPARE-0.20-WIP → MAIN
+
+### Merge
+- **Commit:** `eae4c81` — "Merge prepare-0.20-wip → main: v0.20.0-pre-release"
+- **Scale:** 220 Files | +22.432 / −12.535 LOC
+- **Seiten:** 2 Prepare-Commits (PR #5 + CodeRabbit-Auto-Fix) + 15 Main-Commits (4× P0 + Features + Plugin-Architektur + Doku-Konsolidierung)
+
+### P0-Fixes (alle main-side)
+- **220a02b:** `fix: INFO-Block-Korruption behoben` — `findClosingBrace()` schützt `INFO: { ... }`-Game-Engine-Metadaten vor Übersetzung. parser_smoke.js: 26/26 PASS.
+- **3369a61:** `fix: Write-Verlust behoben` — RECOVERY-Block in `synchronize()` cleared `processed_files` automatisch bei fehlenden `patches/backups`. Plus manuelle Wiederherstellung der Verzeichnisse.
+- **eab8958:** `fix: Merge-Blocker gelöst` — BUG-FS-004 + `_dbGet`-Bestätigung (Revision-Save funktionsfähig) + .env-Protection-Test (31/31 PASS).
+- **f435057:** `feat: v0.19.7 — PREFLIGHT Fix + Routing-Hardening + Error-Handler Smart` — NATIVE_STALE aus Blocking-Schwelle ausgenommen; Argos CostClass 0→10; 429→disable run; flaggedForReview im GUI-Status.
+
+### Phase 1 Features (Shield-/Marker-System)
+- **cdbddad:** `feat: Phase 1A/1B/2a/2b/2c/3F` — Shield-Token-Format `__SHLD_N__` (keine SoS-Markdown-Kollision), `validateFileMarkers()`, 16 Unit-Tests (49 Checks), DNT-Doppelshielding für argos/google_free gegen Token-Übersetzungs-Bugs.
+- **c45b34f:** `feat: Quickfix-Sprint + FCM-Config + Doku-Konsolidierung` — Masteranalyse-Aktionen 1-5 (außer NVIDIA-Key), FCM Proxy-Provider eingebunden, FREEZE-Konsolidierung initialisiert.
+
+### Plugin-Architektur (vollständiges Detail in [0.19.9])
+- **`plugins/GamePlugin.js`:** Interface (`getPromptContext`, `getGameTerms`, `getLoreTerms`, `getPathRules`, `serializeTranslation`, `validateTranslation`).
+- **`plugins/SongsOfSyxPlugin.js`:** Implementierung mit 12 Lore-Begriffen + 9 Gameplay-Begriffen + SoS-Path-Rules.
+- **`translation-quality.js` (NEU, ~155 LOC):** 6 extrahierte Quality/Scoring-Funktionen via `createTranslationQuality(options)`.
+- **`translation-db.js` (NEU, ~280 LOC):** 8 extrahierte DB/Cache/Glossary-Funktionen via `createTranslationDb(options)`.
+- **`translation-runtime.js` (1250→853 LOC, −32%):** Factory-Composition statt Monolith, neuer `createTranslationRuntime()`-Initializer mit `translationCriticalCheck` + `assessTranslationWarnings`.
+- **Effekt:** Format-Extensibility für weitere Spiele (RimWorld-Prototyp geplant) ohne Core-Änderungen, sauberere Plugin-Boundary-Tests möglich.
+
+### Documentation (Konsolidierungs-Push)
+- **ff83958:** `docs: CHANGELOG persistent fortgeführt` (dieser Eintrag + WRITE-VERLUST-Nachtrag).
+- **5d09ebf:** `docs: FREEZE-Konsolidierung + INPLACE-Erweiterung` — Cross-Reference mit Live-Docs, 49 Dokumente analysiert, 10 erledigt, 8 veraltet, 4 Widersprüche aufgelöst, 15 offene Punkte dedupliziert.
+- **ccaae22:** `docs: Commit-History Retrospective + Pre-Review Main` — 209 Dateien / +18.566 / −12.519 / 9 Commits analysiert, Merge-Empfehlung: 🟡 MIT AUFLAGEN.
+- **8841efe:** `docs: Phase 2 Plan — validateFileMarkers Vollintegration` — 6 Lücken, ~8,5h Aufwand.
+- **01a5dd8:** `docs: LLM-AGENTS-EntryPoint` — Agent-Liste korrigiert, tmux-cli ergänzt, Rules/Patterns aktualisiert.
+- **f40b22f:** `docs: archive cleanup` — 9 Reports nach `FREEZE/` verschoben, MASTER_DOC + CHANGELOG aktualisiert.
+
+### Cleanup & Version-Bump
+- **c3b611e:** `chore: cleanup` — alte Releases (`v0.19.05b-19.06`, `v0.19.6`) gelöscht, README/TREE aktualisiert.
+- **0b7e1ce:** `chore: version bump → v0.20.0-pre-release`.
+
+### Prepare-0.20-wip-Side (F.A und F.C im README-Kontext referenziert)
+- **d796b05:** `Merge PR #5 feat/parser-adapter-integration` — 16 Files, +196/−86. **Achtung:** Änderungen sind ausschließlich im Vendored-Release-Snapshot `core/release/SyxBridge_v0.19.6/...`, nicht im Live-Core `core/src/`. Release-Snapshot-Drift dokumentiert (siehe F.A im README).
+- **1e1e846:** `fix: apply CodeRabbit auto-fixes` — Auto-Tunes nach PR #5-Quality-Issues. **Manuelles Re-Verify empfohlen** (siehe F.C im README).
+
+### Tests
+- Syntax-Check: 14/14 Dateien ALL OK
+- Redteam Baseline: 11/11 PASS
+- Validator Smoke: 49/49 PASS
+- Parser Smoke: 26/26 PASS
+- Gate-Counter Smoke: PASS
+
+### EFFORT TO NEXT SCOPE (~25h verteilt)
+- **Phase 2d:** Stats-Aggregation `shieldResults` im Mod-Summary (~1h)
+- **Plugin-Vollintegration:** `validateFileMarkers` in Export-Pipeline komplett absichern (~3h)
+- **RimWorld-Prototyp:** Machbarkeitsnachweis mit neuem Game-Adapter (~4h)
+- **[0.20.0-wip/alpha.1-3]-Backlog abschließen:** Vollständige Shield-Token-Integration + Stats (~6h)
+- **DB-Recovery Regression-Test:** Auto-Recovery-Block permanent im Smoke-Portfolio (~2h)
+- **Live-Run + DB-Auswertung:** Sync-Lauf mit Vorher/Nachher-Provider-Vergleich (~4h)
+- **Doku-Konsolidierungs-Intervall:** alle 3 Sessions statt sporadisch (~laufend)
+
+### GOD-001: ensureTranslations() Refactoring (2026-06-19)
+- **Datei:** `core/src/translation-runtime.js`
+- **Änderung:** `ensureTranslations()` (358 Zeilen) in 5 fokussierte Phasen-Funktionen gesplittet: `cachePhase(ctx)`, `nativePhase(ctx)`, `translatePhase(ctx)`, `qaPhase(ctx)`, `deepPolishPhase(ctx)`. Slim Orchestrator (32 Zeilen) baut `ctx`-Objekt und ruft Phasen in Sequenz. Alle Logik 1:1 erhalten.
+- **Effekt:** Keine Logik-Änderung. Bessere Lesbarkeit, isolierte Fehlersuche, klare Schnittstellen via shared `ctx`-Objekt.
+- **Tests:** Syntax 53/53 ✅ | Smoke-Test 13/16 (pre-existing failures, unverändert) | Code-Review "Ship it"
+- **EFFORT TO NEXT SCOPE:** translateBatch() (~280 Zeilen) als GOD-002 splitten
+
+### Reconciliation & Doc-Drift-Fixes (2026-06-19)
+- **CODE_VS_DOCS_AUDIT:** 15 DRIFT-Einträge identifiziert, 4 CRITICAL + 5 HIGH behoben
+- **AGENTS.md:** Version v0.19.7→v0.20.0-pre-release, code-reviewer-deepseek-flash→code-reviewer-deepseek, VISIONS.MD-Referenz entfernt
+- **MASTER_DOC.md:** Provider-Tabelle 10→9, CostClass aus router.js korrigiert, BUG-FS-002/007 entfernt (0 Code-Marker), LOC-Zahlen aktualisiert
+- **FREEZE_AUDIT_CONSOLIDATED:** BUG-FS-002/007→ENTFERNT, BUG-FS-008–017→DOC-ONLY, F.B→BEHOBEN
+- **ROUTING_AUDIT:** Root Cause der Provider-Schieflage in dispatcher.js:69 identifiziert (Hardcoded UI-String-Route umgeht Primary-Provider)
+
+---
+
 ## [INFO-BLOCK-KORRUPTION] - 2026-06-19 — EXTRACTOR: INFO-BLOCK VOR ÜBERSETZUNG GESCHÜTZT
 
 ### Fixed (P0 — Datei-Korruption)

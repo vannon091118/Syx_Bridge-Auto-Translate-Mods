@@ -267,9 +267,6 @@ async function init() {
   await run('CREATE INDEX IF NOT EXISTS idx_revisions_lookup ON translation_revisions(source_text, target_lang, revision_id)');
 
   // --- v0.19.9 Shield-Leak Cleanup ---
-  // Entries with unreplaced shield tokens in translation column (both new __SHLD_
-  // and legacy [[N]] format) were never properly restored.
-  // Mark them for re-translation instead of leaving corrupted data in DB.
   try {
     const shieldLeakResult = await run(
       `UPDATE translations SET flagged = 1, flag_reason = 'shield_leak_migration',
@@ -282,6 +279,42 @@ async function init() {
     }
   } catch (e) {
     console.warn('[DB] Shield-Leak-Migration fehlgeschlagen:', e.message);
+  }
+
+  // --- v0.20 QO-FIX-5: Auto-Guard Migration ---
+  // Aktiviert is_guarded=1 fuer wiederkehrende Glossary-Eintraege (confidence >= 3)
+  // die saubere Uebersetzungen ohne structural noise haben.
+  // Laeuft bei JEDEM Startup — so werden neu auf confidence>=3 gestiegene Terms
+  // automatisch guarded, ohne separates Script. Idempotent (WHERE is_guarded = 0).
+  // Filter:
+  //   - source_term GLOB '[A-Za-z]*' — beginnt mit Buchstabe (kein +, (, Komma etc.)
+  //   - Keine HTML/Markup-Tags (<c:FF0000>, <br>)
+  //   - Keine Steuerzeichen (Tabs, Newlines, CR) — structural noise aus SoS-Files
+  //   - target NOT LIKE '%[[%' — keine unrestored Shield-Tokens ([[N]]).
+  //     "Essen nach [[Fetch]]" (conf=10) wird BEWUSST NICHT guarded — unaufgeloeste
+  //     Game-Tokens duerfen nicht als kanonische Uebersetzung eingefroren werden.
+  //   - target NOT LIKE '%SHLD%' — Shield-Token-Leak-Schutz
+  try {
+    const autoGuardResult = await run(
+      `UPDATE glossary_terms SET is_guarded = 1, guarded_by = 'auto_migration', updated_at = CURRENT_TIMESTAMP
+       WHERE is_guarded = 0
+         AND confidence >= 3
+         AND target_term != source_term
+         AND source_term GLOB '[A-Za-z]*'
+         AND source_term NOT LIKE '%<%>%'
+         AND source_term NOT LIKE '%' || CHAR(10) || '%'
+         AND source_term NOT LIKE '%' || CHAR(13) || '%'
+         AND source_term NOT LIKE '%' || CHAR(9) || '%'
+         AND target_term NOT LIKE '%<%>%'
+         AND target_term NOT LIKE '%[[%'
+         AND target_term NOT LIKE '%SHLD%'
+         AND LENGTH(TRIM(source_term)) > 2`
+    );
+    if (autoGuardResult && autoGuardResult.changes > 0) {
+      console.log(`[DB] Auto-Guard-Migration: ${autoGuardResult.changes} Glossary-Eintraege auf is_guarded=1 gesetzt.`);
+    }
+  } catch (e) {
+    console.warn('[DB] Auto-Guard-Migration fehlgeschlagen:', e.message);
   }
 }
 

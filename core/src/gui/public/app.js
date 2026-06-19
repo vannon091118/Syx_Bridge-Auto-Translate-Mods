@@ -974,7 +974,10 @@ async function saveConfig(silent = false) {
       body: JSON.stringify(currentConfig)
     });
 
-    triggerAction('reload_config');
+    // FIX #1: triggerAction('reload_config') ENTFERNT.
+    // Grund: Race-Condition — reload_config feuert dotenv.config({override: true})
+    // WÄHREND persistConfig noch in .env schreibt → Keys werden geleert.
+    // persistSingleEnvVar aktualisiert process.env bereits synchron.
     if (!silent) alert('Konfiguration gespeichert.');
   } catch (e) {
     console.error('Save config failed', e);
