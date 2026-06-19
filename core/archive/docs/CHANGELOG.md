@@ -163,6 +163,18 @@ Ein temporäres Node-Script (`scripts/_verify_bu036.js`) instanziierte den Route
 
 ---
 
+
+### DOKU-KONSOLIDIERUNG 2026-06-20
+
+**12 Divergenzen LIVE vs FREEZE identifiziert, 8 in diesem Lauf behoben.**
+
+- P0: HANDSHAKE BU-023 Status OFFEN to BEHOBEN (73/73 PASS) + NMT Local aus Provider-Matrix entfernt (BU-040)
+- P0: MASTER_FREEZE NMT to ENTFERNT + F.B Testname korrigiert (smoke to contract)
+- P1: KNOWN_BUGS_REPORT Cluster A 4/5 to 5/5, Cluster D 0/5 to 2/5, Cluster E 0/4 to 1/4
+- P1: BU-023 PERSISTENT to GEHEILT, Top-5-Prioritaeten aktualisiert, doppelter BU-020 behoben
+- NEU: DOKU_KONSOLIDIERUNG_2026-06-20.md, Cross-Analyse LIVE (28 Docs) vs FREEZE (5 Docs)
+- 4 verbleibende Divergenzen dokumentiert (LIVE_INDEX Regel, MASTER_DOC Tree, Doku-Clean fuer 22 Audit-Reports)
+
 ## [BU-040] - 2026-06-19 — NMT_LOCAL_ENABLED VERWAIST removed from PERSISTED_KEYS
 
 ### Fixed (DEAD_FLAG_REPORT VERWAIST → REMOVED)
