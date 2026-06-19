@@ -11,6 +11,7 @@
 
 ### Files Changed
 - `core/src/config-runtime.js` — NMT_LOCAL_ENABLED removed from PERSISTED_KEYS
+- `core/index.js` — NMT_LOCAL_ENABLED removed from CONFIG init (line ~113) + applyEnvToConfig (line ~339)
 - `core/scripts/warm-model.js` — ROADMAP v0.23 comment added
 - `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
 

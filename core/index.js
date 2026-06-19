@@ -110,8 +110,8 @@ let CONFIG = {
   GRAMMAR_CHECK: process.env.GRAMMAR_CHECK !== 'false', // BUG-004: Default true — ensures Polish/Audit runs for all entries
   GRAMMAR_PROMPT_FILE: 'grammar_context.txt',
   LOCAL_MODELS_ENABLED: parseEnvFlag(process.env.LOCAL_MODELS_ENABLED, false),
-  NMT_LOCAL_ENABLED: parseEnvFlag(process.env.NMT_LOCAL_ENABLED, false),
-    
+  // NMT_LOCAL_ENABLED removed (BU-040): was VERWAIST — no provider client, router entry,
+  // or dispatcher path existed. warm-model.js retained as Roadmap v0.23.
   PRIMARY_PROVIDER: envFirst('PRIMARY_PROVIDER') || 'openrouter',
   PRIMARY_MODEL: envFirst('PRIMARY_MODEL') || 'auto',
   POLISHER_PROVIDER: envFirst('POLISHER_PROVIDER') || '',  // '' = inherit from PRIMARY_PROVIDER below
@@ -336,7 +336,7 @@ function applyEnvToConfig() {
   CONFIG.NATIVE_MODE = parseEnvFlag(process.env.NATIVE_MODE, CONFIG.NATIVE_MODE);
   CONFIG.GRAMMAR_CHECK = parseEnvFlag(process.env.GRAMMAR_CHECK, CONFIG.GRAMMAR_CHECK);
   CONFIG.LOCAL_MODELS_ENABLED = parseEnvFlag(process.env.LOCAL_MODELS_ENABLED, CONFIG.LOCAL_MODELS_ENABLED);
-  CONFIG.NMT_LOCAL_ENABLED = parseEnvFlag(process.env.NMT_LOCAL_ENABLED, CONFIG.NMT_LOCAL_ENABLED);
+  // NMT_LOCAL_ENABLED removed (BU-040): see NMT_LOCAL_ENABLED comment in CONFIG block.
   CONFIG.PRIMARY_PROVIDER = envFirst('PRIMARY_PROVIDER') || CONFIG.PRIMARY_PROVIDER;
   CONFIG.PRIMARY_MODEL = envFirst('PRIMARY_MODEL') || CONFIG.PRIMARY_MODEL;
   CONFIG.POLISHER_PROVIDER = envFirst('POLISHER_PROVIDER') || CONFIG.POLISHER_PROVIDER;

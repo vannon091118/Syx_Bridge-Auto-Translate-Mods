@@ -35,13 +35,13 @@
 | `PLAYER2_ENABLED` | index.js:107 (initial, default false), config-runtime.js:851 (→.env) | router.js:106 (hasAccess — blocks player2), config-runtime.js:474 (checkLocalProvider), :807 (log) | .env | **AKTIV** |
 | `SYXBRIDGE_DRY_RUN` | config-runtime.js:38 (read from process.env) | config-runtime.js:44 (getGateCounterOpts → gate-counter.js) | .env | **AKTIV** |
 
-### ⚠️ FINDING: `NMT_LOCAL_ENABLED` war VERWAIST → REMOVED (BU-040)
+### ✅ FINDING: `NMT_LOCAL_ENABLED` war VERWAIST → REMOVED (BU-040)
 
-**Befund:** Der Flag wird in `.env` geschrieben und in CONFIG geladen, aber **nirgends im Core-Code gelesen** um eine Entscheidung zu treffen. Der NMT-Provider existiert nicht in `PROVIDER_CAPABILITIES` (router.js), nicht in `candidatesByRole` (router.js), und nicht in `dispatcher.js`.
+**Befund:** Der Flag wurde in `.env` geschrieben und in CONFIG geladen, aber **nirgends im Core-Code gelesen** um eine Entscheidung zu treffen. Der NMT-Provider existiert nicht in `PROVIDER_CAPABILITIES` (router.js), nicht in `candidatesByRole` (router.js), und nicht in `dispatcher.js`.
 
 **Grund:** NMT Local (NLLB-200 via @huggingface/transformers) wurde als Provider vorbereitet, aber nie in die Routing-Kette integriert. `warm-model.js` lädt das Modell, aber der Translation-Dispatch hat keinen NMT-Zweig.
 
-**Fix-Vorschlag:** Entweder (1) NMT in router.js `PROVIDER_CAPABILITIES` + dispatcher.js integrieren, oder (2) `NMT_LOCAL_ENABLED` aus PERSISTED_KEYS entfernen und in index.js als TODO markieren.
+**Fix (BU-040 — angewendet):** `NMT_LOCAL_ENABLED` aus `PERSISTED_KEYS` (config-runtime.js), CONFIG init (index.js:113), und `applyEnvToConfig` (index.js:339) entfernt. `warm-model.js` bleibt als Roadmap v0.23 erhalten. Kein GUI-Toggle existierte (0 Matches in app.js).
 
 ---
 
@@ -120,7 +120,7 @@
 |--------|--------|---------|
 | **AKTIV** | 27 | Alle ENV-Flags (außer NMT_LOCAL_ENABLED), die meisten DB-Spalten, Routing-Flags mit Entscheidung |
 | **TOT** | 2 | `last_checked_at`, `stress_tested_at` — geschrieben, nie gelesen |
-| **VERWAIST** | 1 | `NMT_LOCAL_ENABLED` — gelesen (.env→CONFIG), aber nirgends in Entscheidung verwendet |
+| **REMOVED** | 1 | `NMT_LOCAL_ENABLED` — war VERWAIST, entfernt via BU-040 (PERSISTED_KEYS + index.js CONFIG/applyEnvToConfig) |
 | **KOSMETISCH** | 5 | `flaggedForReview`, `failureCount`, `last429`, `inCooldown`, `guarded_by` — nur Logging/Anzeige |
 
 ### TOT-Flags (Fix-Vorschläge)
@@ -130,11 +130,11 @@
 | `last_checked_at` | translations | **Entfernen** oder als Diagnostic-Read in preflight.js integrieren (z.B. "Einträge die seit >30 Tagen nicht geprüft wurden") |
 | `stress_tested_at` | translations | **Entfernen** oder in enrichWithContext als zusätzliches DB-History-Feld einbinden (z.B. Alter des Stress-Tests für Re-Test-Logik) |
 
-### VERWAIST-Flags (Fix-Vorschläge)
+### REMOVED-Flags (bereits angewendet)
 
-| Flag | Fix-Vorschlag |
-|------|---------------|
-| `NMT_LOCAL_ENABLED` | **Option A:** NMT in `PROVIDER_CAPABILITIES` (router.js) + `candidatesByRole` (router.js) + dispatcher.js integrieren. **Option B:** Aus PERSISTED_KEYS entfernen und in index.js als `// TODO: NMT-Provider-Integration` markieren. |
+| Flag | Status |
+|------|--------|
+| `NMT_LOCAL_ENABLED` | ✅ **REMOVED** (BU-040) — Aus PERSISTED_KEYS + index.js CONFIG + applyEnvToConfig entfernt. warm-model.js als Roadmap v0.23 erhalten. |
 
 ### KOSMETISCH-Flags (kein Fix nötig, nur Dokumentation)
 
