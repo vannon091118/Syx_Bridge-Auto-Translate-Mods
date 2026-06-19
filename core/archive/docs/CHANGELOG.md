@@ -1177,3 +1177,28 @@ Der Native Mode mit Inplace Overwrite verwarf Übersetzungen zu aggressiv. `tran
 - Fixed Argos installation infinite loop.
 - Improved Ollama process startup via detached spawn.
 - Resolved inconsistent model references in logs and configuration.
+
+## [WIDERSPRUCHS-AUFLÖSUNG] - 2026-06-19 — W6+W8 GESCHLOSSEN (PLAN-STATUS KORRIGIERT)
+
+### W6: MASTER_DOC §5 vs MASTER_FREEZE §3 — DB-Wert-Drift
+- **Widerspruch:** MASTER_DOC zeigt Snapshot 18 (6.540), MASTER_FREEZE zeigt Live-Query (6.658)
+- **Ursache:** PREFLIGHT läuft zwischen Doc-Updates und verändert Eintragszahlen
+- **Auflösung:** Drift-Notiz in MASTER_DOC §5 eingefügt. MASTER_FREEZE §3 als SSoT für aktuellen DB-Zustand deklariert.
+
+### W8: PHASE2_MARKER_INTEGRATION — 6 Lücken vs CHANGELOG
+- **Widerspruch:** Plan listet 6 Lücken als OFFEN, CHANGELOG [0.20.0-wip] sagt Phasen 2a/2b/2c sind implementiert
+- **Code-Verifikation:** 4 von 6 Lücken sind tatsächlich implementiert
+  - Lücke 2 (Gate-Counter): ✅ Done — exporter.js:51
+  - Lücke 3 (SHIELD_RESTORE_FAIL): ✅ Done — exporter.js:54
+  - Lücke 4 (Unit-Tests): ✅ Done — validator-smoke.js (16 Tests, 49 Checks)
+  - Lücke 6 (getQaScore __SHLD_): ✅ Done — validator.js:228-236
+  - Lücke 1 (Shield-Results): 🟡 Teilweise — polish-Pfad ✅, googleFreePreflight ❌
+  - Lücke 5 (Stats-Aggregation): ❌ Offen
+- **Auflösung:** Plan-Status aktualisiert — alle 6 Lücken mit korrektem Status markiert. Verbleibender Effort: ~2h.
+
+### Files Changed
+- `core/archive/docs/MASTER_DOC.md` — §5: Drift-Notiz + MASTER_FREEZE-SSoT-Referenz
+- `core/archive/docs/plans/PHASE2_MARKER_INTEGRATION_2026-06-19.md` — Alle 6 Lücken + Phasen-Tabelle + Abschlusskriterien aktualisiert
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+---

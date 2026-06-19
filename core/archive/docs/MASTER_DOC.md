@@ -76,7 +76,12 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 5. DB-Stand (Snapshot 18 — 19.06.2026)
+## 5. DB-Stand (Snapshot 18 — 19.06.2026) + Live-Drift
+
+> ⚠️ **Erwartbare Drift (W6):** Dieser Snapshot (6.540 Einträge) wurde vor dem letzten PREFLIGHT-Pass erstellt.
+> Die Live-DB (MASTER_FREEZE §3) zeigt 6.658 Einträge (+118, Δ durch PREFLIGHT-Reparaturen).
+> **SSoT für aktuellen DB-Zustand:** `FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` §3 (Live-Query).
+> Diese Drift ist erwartbar — PREFLIGHT läuft zwischen Doc-Updates und verändert Eintragszahlen.
 
 *(Quelle: HANDSHAKE §2.2)*
 

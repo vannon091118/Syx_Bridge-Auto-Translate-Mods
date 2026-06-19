@@ -2,6 +2,7 @@
 
 > **Stand:** 2026-06-19 | **Abhängig von:** Phase 1A ✅, Phase 1B ✅, Phase 3F ✅
 > **Ziel:** Lückenlose Integration der Marker-Level-Validierung in die gesamte Export-Pipeline
+> **⚠️ W8-Resolution (2026-06-19):** Plan-Status aktualisiert — 4/6 Lücken implementiert (2a+2b+2c), 1 teilweise (Lücke 1), 1 offen (Lücke 5). Kein Widerspruch mehr zum CHANGELOG [0.20.0-wip].
 
 ---
 
@@ -19,6 +20,8 @@
 ## 🔴 Lücken (Was Phase 2 schliesst)
 
 ### Lücke 1: Shield-Results nur für Batch-Translation-Pfad
+**Status:** 🟡 TEILWEISE — polish-Pfad hat shieldResults (translation-runtime.js:1001-1017), googleFreePreflight fehlt
+
 **Aktuell:** Shield-Results werden nur im `translateBatch()` → `ensureTranslations()` Pfad gesammelt.
 
 **Fehlt:**
@@ -51,7 +54,7 @@
 ---
 
 ### Lücke 2: Gate-Counter Telemetrie für validateFileMarkers
-**Aktuell:** `validateFileSyntax()` hat Gate-Counter-Tracking (`exporter:validateFileSyntax:keep/discard`). `validateFileMarkers()` hat nichts.
+**Status:** ✅ DONE — Phase 2a implementiert. `exporter.js:51`: `getGateCounter().record('exporter:validateFileMarkers', ...)`
 
 **Fix:** `_gcRec()`-Calls in `exporter.js` für `validateFileMarkers`-Ergebnisse.
 
@@ -69,7 +72,7 @@ try { getGateCounter().record('exporter:validateFileMarkers',
 ---
 
 ### Lücke 3: SHIELD_RESTORE_FAIL blockiert den Write NICHT
-**Aktuell:** Nur `MARKER_COUNT_MISMATCH` blockiert den Write. `SHIELD_RESTORE_FAIL` wird geloggt aber der Write läuft trotzdem durch.
+**Status:** ✅ DONE — Phase 2b implementiert. `exporter.js:54`: `hasCriticalMarkerLoss` prüft `SHIELD_RESTORE_FAIL` UND `MARKER_COUNT_MISMATCH`
 
 **Problem:** `__SHLD_0__` Tokens im translated file wären für den Game-Engine sichtbar.
 
@@ -95,7 +98,7 @@ const hasCriticalMarkerLoss = markerResult.issues.some(i =>
 ---
 
 ### Lücke 4: Keine Unit-Tests für validateFileMarkers
-**Aktuell:** Kein einziger Test für `validateFileMarkers()`.
+**Status:** ✅ DONE — Phase 2c implementiert. `core/tests/validator-smoke.js`: 16 Testfälle, 49 Checks (inkl. Edge Cases, Tags, Placeholder, Variables, Shield-Restore)
 
 **Benötigte Tests:**
 
@@ -134,11 +137,7 @@ return {
 ---
 
 ### Lücke 6: `getQaScore()` prüft nur Legacy `[[` Pattern für SHIELD_TOKEN_LOST
-**Aktuell:**
-```javascript
-const sourceTokens = (source.match(/\[\[\d+\]\]/g) || []).length;
-```
-Dies matcht NUR das alte `[[N]]` Format, nicht das neue `__SHLD_N__`.
+**Status:** ✅ DONE — Phase 2a implementiert. `validator.js:228-236`: Prüft BOTH `__SHLD_\d+__` (neu) UND `[[\d+]]` (Legacy)
 
 **Fix:** Beide Formate prüfen:
 ```javascript
@@ -155,21 +154,19 @@ const totalSourceTokens = sourceTokens + sourceShieldTokens;
 ## ⚡ Implementierungs-Reihenfolge
 
 ```
-Phase 2a — Quick-Wins (kein Risiko, 1h gesamt)
-──────────────────────────────────────────────────
-[ ] Lücke 2: Gate-Counter Telemetrie        ⏱️ 0.5h  🟢
-[ ] Lücke 6: getQaScore() __SHLD_ Check     ⏱️ 0.5h  🟢
+- [x] Lücke 2: Gate-Counter Telemetrie        ⏱️ 0.5h  ✅ DONE (Phase 2a)
+- [x] Lücke 6: getQaScore() __SHLD_ Check     ⏱️ 0.5h  ✅ DONE (Phase 2a)
 
 Phase 2b — Pipeline-Tiefe (mittleres Risiko, 3h)
 ──────────────────────────────────────────────────
-[ ] Lücke 3: SHIELD_RESTORE_FAIL blockt      ⏱️ 0.5h  🟡
-[ ] Lücke 1: Shield-Results für preflight   ⏱️ 2h    🟢
+- [x] Lücke 3: SHIELD_RESTORE_FAIL blockt      ⏱️ 0.5h  ✅ DONE (Phase 2b)
+- [~] Lücke 1: Shield-Results für preflight    ⏱️ 2h    🟡 TEILWEISE (polish ✅, googleFreePreflight ❌)
     + polish-Pfad
-[ ] Lücke 5: Stats-Aggregation              ⏱️ 1h    🟢
+- [ ] Lücke 5: Stats-Aggregation              ⏱️ 1h    🟢 OFFEN
 
 Phase 2c — Qualitätssicherung (3h)
 ──────────────────────────────────────────────────
-[ ] Lücke 4: Unit-Tests (9 Testfälle)       ⏱️ 3h    🟢
+- [x] Lücke 4: Unit-Tests (16 Testfälle)      ⏱️ 3h    ✅ DONE (Phase 2c)
 
 Phase 2d — Integrationstest (1h)
 ──────────────────────────────────────────────────
@@ -184,11 +181,11 @@ Phase 2d — Integrationstest (1h)
 
 | Phase | Effort | Risk | Beschreibung |
 |-------|--------|------|-------------|
-| 2a — Quick-Wins | 1h | 🟢 | Gate-Counter + getQaScore Update |
-| 2b — Pipeline-Tiefe | 3.5h | 🟡 | SHIELD blockt, preflight/polish, stats |
-| 2c — QA | 3h | 🟢 | Unit-Tests |
+| 2a — Quick-Wins | 1h | 🟢 | ✅ DONE (Lücke 2 + 6: Gate-Counter + getQaScore) |
+| 2b — Pipeline-Tiefe | 3.5h | 🟡 | 🟡 TEILWEISE (Lücke 3 ✅, Lücke 1 partial, Lücke 5 ❌) |
+| 2c — QA | 3h | 🟢 | ✅ DONE (Lücke 4: 16 Tests, 49 Checks) |
 | 2d — E2E | 1h | 🟡 | Dry-Run Integrationstest |
-| **Total** | **~8.5h** | **🟡** | |
+| **Total** | **~2h verbleibend** | **🟢** | Lücke 1 (googleFreePreflight) + Lücke 5 (Stats) + 2d (E2E) |
 
 ---
 
@@ -204,7 +201,9 @@ Phase 2d — Integrationstest (1h)
 
 ## ✅ Abschlusskriterien
 
-- [ ] Alle 6 Lücken geschlossen
+- [x] Lücken 2, 3, 4, 6 geschlossen (Phase 2a+2b+2c)
+- [~] Lücke 1 teilweise (polish-Pfad ✅, googleFreePreflight ❌)
+- [ ] Lücke 5 offen (Stats-Aggregation im Mod-Summary, ~1h)
 - [ ] `node --check` auf allen geänderten Dateien ✅
 - [ ] Redteam Baseline läuft durch
 - [ ] 9 Unit-Tests für `validateFileMarkers()` bestehen
