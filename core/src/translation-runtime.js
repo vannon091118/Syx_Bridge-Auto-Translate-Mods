@@ -168,7 +168,8 @@ function createTranslationRuntime(options) {
         const before = result;
         result = result.replace(regex, shldToken);
         if (result === before) {
-          console.warn(`[DNT] Token ${dntToken} nicht in Google/Argos-Response gefunden — Token ging vermutlich verloren.`);
+          // BU-029: console.warn → console.log (Hygiene — kein echter Fehler, nur Info)
+          console.log(`[DNT] Token ${dntToken} nicht in Google/Argos-Response gefunden — Token ging vermutlich verloren.`);
         }
       }
       return result;
@@ -396,12 +397,14 @@ function createTranslationRuntime(options) {
     // Vorher: alle Proper-Nouns landeten in DB mit provider='argos' +
     // translation=source → Audit staende als 522 argos|low_score|source_reused.
     const properNounOverrideSet = new Set();
+    // BU-028 Fix: _properNounAllowlist dedupliziert — einmal im Funktions-Scope definiert.
+    const _properNounAllowlist = new Set([
+      'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'is', 'it', 'he', 'she',
+      'do', 'go', 'if', 'or', 'be', 'my', 'me', 'we', 'us', 'no', 'so', 'up',
+      'by', 'as', 'am', 'oh', 'hi', 'ok'
+    ]);
+
     if (resolvedRoute.provider === 'argos' || resolvedRoute.provider === 'google_free') {
-      const _properNounAllowlist = new Set([
-        'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'is', 'it', 'he', 'she',
-        'do', 'go', 'if', 'or', 'be', 'my', 'me', 'we', 'us', 'no', 'so', 'up',
-        'by', 'as', 'am', 'oh', 'hi', 'ok'
-      ]);
       rawTranslations = rawTranslations.map((translation, i) => {
         const source = entries[i].source;
         if (isProperNoun(source) && !_properNounAllowlist.has(source.toLowerCase())) {
@@ -417,11 +420,6 @@ function createTranslationRuntime(options) {
     // in the stress-pre-resolved batch are saved with the LLM provider's metadata
     // instead of native_runtime/q=94 (QUAL-OFFENSIVE Fix #1 bypass).
     if (stressPreResolved && resolvedRoute.provider !== 'argos' && resolvedRoute.provider !== 'google_free') {
-      const _properNounAllowlist = new Set([
-        'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'is', 'it', 'he', 'she',
-        'do', 'go', 'if', 'or', 'be', 'my', 'me', 'we', 'us', 'no', 'so', 'up',
-        'by', 'as', 'am', 'oh', 'hi', 'ok'
-      ]);
       rawTranslations = rawTranslations.map((translation, i) => {
         // Only override stress-pre-resolved entries that are proper nouns
         if (stressPreResolved[i] && isProperNoun(entries[i].source) && !_properNounAllowlist.has(entries[i].source.toLowerCase())) {
@@ -690,7 +688,10 @@ function createTranslationRuntime(options) {
       const nativeDecision = (data.provider === 'native_runtime' && data.translation === t)
         ? classifyNativeDecision(sourceEntry, ctx.glossaryMap)
         : null;
-      const needsRefresh = (data.flagged && data.translation === t && !isLikelyTargetLanguageText(t)) || (data.provider === 'native_fallback' && data.translation === t) || (data.provider === 'polish_single' && data.translation === t) || (data.qualityScore < 30 && data.translation === t) || (nativeDecision && !nativeDecision.reuse);
+      // BU-034 Fix: qualityScore < 30 triggert Refresh OHNE Bedingung translation === t.
+      // Vorher: Nur stale entries (src=tgt) mit Score < 30 wurden refreshed.
+      // Jetzt: JEDE Übersetzung mit miserabel niedrigem Score wird neu übersetzt.
+      const needsRefresh = (data.flagged && data.translation === t && !isLikelyTargetLanguageText(t)) || (data.provider === 'native_fallback' && data.translation === t) || (data.provider === 'polish_single' && data.translation === t) || (data.qualityScore < 30) || (nativeDecision && !nativeDecision.reuse);
       const hashMismatch = data.sourceHash && sourceEntry.sourceHash && data.sourceHash !== sourceEntry.sourceHash;
 
       const criticalCheck = translationCriticalCheck(t, data.translation);

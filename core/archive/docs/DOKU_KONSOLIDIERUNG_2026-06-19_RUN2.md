@@ -24,7 +24,7 @@
 | 4 | `LIVE_INDEX.md` | Index der LIVE-Dokumente + Merge-Quellen-Verweis | ✅ AKTUELL |
 | 5 | `HANDSHAKE_2026-06-19.md` | Session-Übergabe mit Re-Entry-Pfad + Escalation-Triggern | ✅ AKTUELL |
 | 6 | `DIVERGENZ_REPORT.md` | LIVE-vs-FREEZE Divergenz-Tracker | ✅ AKTUELL |
-| 7 | `FORENSIC_FULLSCAN_v0.20_2026-06-19.md` | Architektur-Baseline (Snapshot 18, 6.540 Einträge) | ✅ AKTUELL |
+| 7 | `FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md` | Architektur-Baseline (Snapshot 18, 6.540 Einträge) | ✅ AKTUELL |
 | 8 | `REDUNDANZ_AUDIT_V2_2026-06-19.md` | Dateisystem-Duplikat-Analyse + Bereinigungsplan | ✅ AKTUELL |
 
 ## Offene Pläne (1)

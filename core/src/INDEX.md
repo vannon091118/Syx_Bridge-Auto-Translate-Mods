@@ -16,7 +16,7 @@
 | [context-packets.js](#context-packetsjs) | 190 | 6 | Risk-Scoring, Context-Enrichment |
 | [db.js](#dbjs) | 325 | 8 | SQLite Connection, Init, Migration |
 | [diagnostics.js](#diagnosticsjs) | 55 | 2 | System-Diagnose, Cache-Clear |
-| [dispatcher.js](#dispatcherjs) | 155 | 6 | Routing-Pipeline, UI-String-Optimierung |
+| [dispatcher.js](#dispatcherjs) | 149 | 5 | Routing-Pipeline, UI-String-Optimierung |
 | [exporter.js](#exporterjs) | 145 | 4 | Datei-Write, Bundle, Validation |
 | [extractor.js](#extractorjs) | 185 | 8 | String-Extraction, Shielding, Escaping |
 | [gate-counter.js](#gate-counterjs) | 87 | 9 | Telemetrie-Events, Gate-Counter |
@@ -170,15 +170,14 @@
 
 ---
 
-## dispatcher.js (155 LOC)
+## dispatcher.js (149 LOC)
 *Routing-Pipeline mit Tier-basierter UI-String-Optimierung*
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
 | 4 | `createDispatcher(options)` | Factory |
 | 11 | `resolveProviderModel(stage)` | Modell-Auflösung pro Stage |
-| 36 | `isQualityProvider(provider)` | Quality-Provider-Check |
-| 40 | `buildStageRoutePlan(stage)` | Route-Plan bauen |
+| 33 | `buildStageRoutePlan(stage)` | Route-Plan bauen |
 | 56-149 | `resolveTranslateRoute(items)` | **Haupt-Routing** — Tier 1-4 |
 | 150-155 | `runRoute(stage, executor, items)` | Route ausführen |
 

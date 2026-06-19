@@ -1,3 +1,4 @@
+const WATERMARK_CONFIG = require('./watermark-config');
 const {
   shieldPlaceholders,
   restorePlaceholders,
@@ -6,6 +7,7 @@ const {
   classifyString,
   getHash
 } = require('./extractor');
+require('./extractor');
 const { validatePlaceholders, validateTags, checkStructure, classifyStructureIssues } = require('./validator');
 
 function normalizePromptItem(item) {
@@ -506,8 +508,19 @@ function applyTranslations(content, replacements, translations, plugin) {
   let result = content;
 
   for (const r of sorted) {
-    const translated = translations.get(r.value);
+    let translated = translations.get(r.value);
     if (translated !== undefined) {
+      // ZERO-WIDTH WATERMARK: Unsichtbarer Unicode-Marker (ZWSP / ZWNJ)
+      // Wird nach dem ersten Wort injiziert (split-basiert).
+      // Im Spiel unsichtbar, im Editor unsichtbar, nur per Script detektierbar.
+      // Ueberlebt Copy-Paste und manuelle Bearbeitung.
+      // Muss VOR der Serialisierung erfolgen, damit der Marker im quoted Value landet.
+      if (typeof translated === 'string' && translated.length > 0) {
+        const marker = WATERMARK_CONFIG.randomZWMarker();
+        const words = translated.split(' ');
+        words[0] = words[0] + marker;
+        translated = words.join(' ');
+      }
       // Plugin-delegated serialization: each game format has its own escaping.
       // Fallback: SoS-style quoted value with backslash escaping (backward compat).
       const serialized = plugin

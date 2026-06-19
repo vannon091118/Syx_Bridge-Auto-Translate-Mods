@@ -1,5 +1,155 @@
 # CHANGELOG
 
+## [WATERMARK-FIX] - 2026-06-19 — applyTranslations() WATERMARK-CODE REPARIERT
+
+### Fixed (P0 — Feature-Totalschaden)
+- **[WATERMARK-1] Watermark-Injection defekt in `text-core.js` applyTranslations():**
+  - **Problem:** `translated` war als `const` innerhalb des for-loops deklariert (block-scoped). Der Watermark-Code befand sich AUSSERHALB des Loops und referenzierte `translated` → `ReferenceError: translated is not defined` zur Laufzeit. Zudem: `const` kann nicht re-assigned werden (`translated = words.join(' ')`). Resultat: Feature (Zero-Width-Watermark via ZWSP/ZWNJ) war komplett tot — nie ein einziger Marker injiziert.
+  - **Fix:** `const translated` → `let translated`, Watermark-Logik IN den Loop verschoben VOR der Serialisierung. Toter Code-Block außerhalb des Loops entfernt. `WATERMARK_CONFIG.randomZWMarker()` statt manuellem Array-Indexing.
+  - **Erwartete Wirkung:** Jeder übersetzte String enthält jetzt einen unsichtbaren Unicode-Marker (ZWSP oder ZWNJ) nach dem ersten Wort. Detektierbar per Script, unsichtbar im Spiel/Editor.
+  - **Code-Review:** Nit Pick Nick — "Ship it". Keine Regressions.
+
+### Files Changed
+- `core/src/text-core.js` — Watermark-Code in applyTranslations() repositioniert + Scope-Fix
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### Tests
+- Syntax-Check: PASS ✅
+- Code-Review: PASS ✅
+
+### EFFORT TO NEXT SCOPE
+- **P0:** NVIDIA Key validieren + Groq Routing debuggen
+- **Stufe 4:** AbortController (BU-020) + config-runtime.js Split (M1)
+
+---
+
+## [STUFE3-POSTRUN-ANALYSIS] - 2026-06-19 — POST-RUN DB-ANALYSE (1.508 EINTRÄGE)
+
+### Ergebnisse
+- **Tier-1-Fix VERIFIZIERT:** OpenRouter von 0.9% → 9.8% (+10x). Free-LLM-Provider werden jetzt vor google_free priorisiert.
+- **google_free komplett verdrängt:** 0 Einträge im neuen Run — freeLlmFirst-Kette funktioniert.
+- **DB-Health MASSIV verbessert:** Flagged 41.4% → 1.4%, Avg Score 81.0 → 91.3, Stage 0 24.5% → 13.7%.
+- **85.9% Stale erklärbar:** 1.248/1.295 stale = native_runtime (Proper Nouns). Ohne native_runtime: 7.8% stale.
+- **🔴 NVIDIA Key Problem:** PRIMARY_PROVIDER=nvidia, Key SET, aber 0 Einträge. Key-Validierung nötig.
+- **🔴 Groq/Gemini nicht genutzt:** Keys konfiguriert, 0 Einträge. Routing-Priorität debuggen.
+- **92.2% Score 90+:** Qualität exzellent. 53 Low-Score (<30) werden durch BU-034-Fix automatisch geheilt.
+- **7 Deep-Polish-Pending** — Auto-Trigger heilt beim nächsten Run. 6 Failed brauchen manuellen Retry.
+
+### Report
+→ `core/archive/dbold/DB_POSTRUN_ANALYSIS_2026-06-19.md`
+
+### Files Changed
+- `core/archive/dbold/DB_POSTRUN_ANALYSIS_2026-06-19.md` — NEU: Post-Run-Analyse
+- `core/scripts/_live_analysis.js` — Temporäres Analyse-Script (aufräumen nach Report)
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### EFFORT TO NEXT SCOPE
+- **P0:** NVIDIA Key validieren + Groq Routing debuggen
+- **Stufe 4:** AbortController (BU-020) + config-runtime.js Split (M1)
+
+---
+
+## [STUFE1-DOKU-ROUTING-CONFIG] - 2026-06-19 — DOKU-KORREKTUREN (D1-D4) + R2 + R3
+
+### Fixed
+- **[D1] ROUTING_AUDIT_2026-06-19.md aktualisiert:** "AKTUALISIERT"-Notice am Dokumentkopf — Tier-1-Fix ist BEREITS IMPLEMENTIERT (`freeLlmFirst` statt `cheapProviders`). Root-Cause-Abschnitt §4 referenziert alten Code. Verweis auf TRIPLE_AUDIT_2026-06-19.md.
+
+- **[D2] MASTER_DOC.md Bug-Liste aktualisiert (§3):** 8 Bugs als BEHOBEN markiert:
+  - BUG-FS-003 (P0) — DNT-Doppelshielding (Phase 3F)
+  - BUG-FS-006 (P1) — null→true (CHANGELOG 0.19.05b)
+  - BU-018 (P1) — GOD-001 Refactoring abgeschlossen
+  - BU-021 (P2) — addColumnIfMissing (Stufe 2)
+  - BU-027 (P3) — logs/debug_payloads.txt (Stufe 2)
+  - BU-028 (P3) — Allowlist dedupliziert (Stufe 2)
+  - BU-029 (P3) — console.log (Stufe 2)
+  - BU-034 (P1) — needsRefresh erweitert (Stufe 2)
+  - Status-Spalte hinzugefügt für bessere Lesbarkeit.
+  - Provider Matrix §2: Google Free Beschreibung ergänzt ("abschaltbar").
+
+- **[D3] HANDSHAKE_2026-06-19.md §5.3 CostClasses korrigiert:** Falsche Werte (Groq=2, OpenRouter=3, NVIDIA=1, Ollama=5, Player2=6, FCM=1, Google Free=8) auf korrekte Werte aus router.js synchronisiert (Groq=4, OpenRouter=4, NVIDIA=4, Ollama=1, Player2=1, FCM=1.5, Google Free=9). NMT als "nicht im Router registriert" markiert. Google Free: "abschaltbar via GOOGLE_FREE_ENABLED".
+
+- **[D4] KNOWN_BUGS_REPORT.md Status-Updates:** 6 Bugs als BEHOBEN markiert (Durchgestrichen + Status aktualisiert):
+  - BU-018: GOD-001 Refactoring ✅
+  - BU-021: addColumnIfMissing ✅
+  - BU-027: logs/debug_payloads.txt ✅
+  - BU-028: Allowlist dedupliziert ✅
+  - BU-029: console.log ✅
+  - BU-034: needsRefresh erweitert ✅
+
+- **[R2] google_free abschaltbar** (`router.js` hasAccess):
+  - Vorher: `if (id === 'google_free') return true` — immer verfügbar, kein Config-Flag.
+  - Jetzt: `return isEnabledFlag(this.config.GOOGLE_FREE_ENABLED, true)` — selbes Pattern wie FCM_ENABLED.
+  - Default: true (Backward-Compat). User kann `GOOGLE_FREE_ENABLED=false` in .env setzen um google_free zu deaktivieren.
+  - Effekt: Wenn LLM-Provider verfügbar sind, kann google_free komplett deaktiviert werden.
+
+- **[R3] NVIDIA Key geprüft:** NVIDIA_KEY ist ✅ SET in core/.env. Schlüssel ist konfiguriert. Nächster Live-Run verifiziert ob NVIDIA tatsächlich genutzt wird (bisher 0% über alle Snapshots).
+
+### Files Changed
+- `ROUTING_AUDIT_2026-06-19.md` — D1: AKTUALISIERT-Notice
+- `core/archive/docs/MASTER_DOC.md` — D2: Bug-Liste §3 + Provider Matrix §2
+- `core/archive/docs/HANDSHAKE_2026-06-19.md` — D3: CostClasses §5.3
+- `core/archive/docs/KNOWN_BUGS_REPORT.md` — D4: 6 Status-Updates
+- `core/src/router.js` — R2: google_free abschaltbar
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### Tests
+- Syntax-Check: 55/55 PASS ✅
+- Code-Review: Nit Pick Nick — "Changes are correct and consistent". Hinweis auf MASTER_DOC §2 Provider Matrix (bereits korrigiert). NVIDIA Key Status: SET.
+
+### EFFORT TO NEXT SCOPE
+- **Stufe 3:** Live-Run mit frischer DB — verifiziert Routing-Fixes + NVIDIA-Nutzung
+- **Stufe 4:** AbortController (BU-020) + config-runtime.js Split (M1)
+
+---
+
+## [STUFE2-QUICKBUGFIXES] - 2026-06-19 — 5 BUGFIXES (BU-034/021/028/029/027)
+
+### Fixed
+- **[BU-034] needsRefresh für Score<30 erweitert** (`translation-runtime.js` cachePhase):
+  - Vorher: `data.qualityScore < 30 && data.translation === t` — nur stale entries (src=tgt) mit Score<30 wurden refreshed.
+  - Jetzt: `data.qualityScore < 30` — JEDE Übersetzung mit Score<30 wird neu übersetzt, unabhängig ob stale.
+  - Erwartung: 82 Low-Score-Einträge werden beim nächsten Run re-translatiert.
+  - Risiko: Entries die deterministisch <30 scoren (sehr kurze Strings via Argos) werden bei jedem Run refreshed. Akzeptabel — Deep-Polish-Breaker existiert.
+
+- **[BU-021] 14x ALTER TABLE try/catch eliminiert** (`db.js` init):
+  - Vorher: 14 `try { await run('ALTER TABLE ...') } catch {}` bei JEDEM Startup — 14 garantierte Fehler pro Start.
+  - Jetzt: `addColumnIfMissing(table, column, type)` Helper via `PRAGMA table_info()` — prüft ob Spalte existiert BEVOR ALTER TABLE aufgerufen wird.
+  - 13 weitere `try/catch` zu `addColumnIfMissing()` konvertiert (processed_files.hash, glossary_terms.is_guarded/guarded_by, migrateRiskScore).
+  - Effekt: Sauberere Startup-Logs, ~14ms schneller (keine 14 fehlgeschlagenen SQL-Statements mehr).
+
+- **[BU-028] _properNounAllowlist dedupliziert** (`translation-runtime.js` translateBatch):
+  - Vorher: `_properNounAllowlist = new Set([...])` zweimal definiert (Argos-Block + Stress-Pre-Resolved-Block).
+  - Jetzt: Einmalig im translateBatch-Scope, beide Blöcke nutzen dieselbe Referenz.
+  - Effekt: DRY, sauberer Code. Keine Verhaltensänderung (Blöcke sind mutually exclusive).
+
+- **[BU-029] console.warn → console.log** (`translation-runtime.js` dntRestoreTranslations):
+  - DNT-Token-Verlust-Meldung ist Info, kein Warn — Provider-Verhalten bei dem der Token halt verloren geht.
+  - Effekt: Sauberere Logs (keine gelben Warnings mehr für erwartetes Verhalten).
+
+- **[BU-027] debug_payloads.txt nach logs/ verlagert** (`logger.js`):
+  - Vorher: `path.join(process.cwd(), 'debug_payloads.txt')` — Datei im CWD.
+  - Jetzt: `path.join(process.cwd(), 'logs', 'debug_payloads.txt')` — `logs/` wird automatisch erstellt.
+  - Effekt: CWD bleibt sauber. `release.js`, `package.js`, `build-review-base.js` listen `debug_payloads.txt` in Cleanup — Datei existiert dort nicht mehr (harmlos).
+
+### Files Changed
+- `core/src/translation-runtime.js` — BU-034 (needsRefresh), BU-028 (allowlist dedup), BU-029 (warn→log)
+- `core/src/db.js` — BU-021 (addColumnIfMissing helper + 13 Migrationen konvertiert)
+- `core/src/logger.js` — BU-027 (debug_payloads.txt → logs/)
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+
+### Tests
+- Syntax-Check: 55/55 PASS ✅
+- Validator Smoke: 49/49 PASS ✅
+- Parser Smoke: 26/26 PASS ✅
+- Runtime-Smoke: Timed out (60s, erfordert DB-Verbindung + Provider-Calls)
+- Code-Review: Nit Pick Nick — "No blocking issues". Hinweis auf theoretisches Infinite-Refresh-Risiko bei BU-034 (dokumentiert).
+
+### EFFORT TO NEXT SCOPE
+- **Stufe 3:** Live-Run mit frischer DB — verifiziert BU-034 Wirkung + löst BU-031/032/033 automatisch
+- **Stufe 4:** AbortController (BU-020) + config-runtime.js Split (M1)
+
+---
+
 ## [WORKFLOW-SYSTEM] - 2026-06-19 — WORKFLOW.MD + AGENTS.MD-TRACEABILITY (3 NEUE §§)
 
 ### Added

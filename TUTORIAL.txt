@@ -171,8 +171,7 @@ Die REVIEW-BASE-Version enthaelt ALLE Dev-Tools. Die wichtigsten:
 | node scripts/build-review-base.js        | REVIEW BASE Build (ALLES + TUTORIAL)  |
 | node scripts/sync-version.js             | Versions-Stempel synchronisieren      |
 | node scripts/check_consistency.js        | Drift-Detection (Vendored vs Live)    |
-| node scripts/audit_db.js                 | DB-Audit (Suspicious source=target)   |
-| node scripts/db_audit.js                 | DB-Health-Audit (groesser)            |
+| node scripts/db_audit.js                 | DB-Audit + Health-Check               |
 | node scripts/db_repair.js                | Auto-Repair (<5% Threshold)           |
 | node scripts/check_syntax.js             | Syntax-Smoke aller Module             |
 | node scripts/reconstruct.js              | Reconstruction-Test                   |
@@ -423,8 +422,7 @@ The REVIEW BASE version contains ALL dev tools. The most important ones:
 | node scripts/build-review-base.js        | REVIEW BASE build (EVERYTHING + TUT.)  |
 | node scripts/sync-version.js             | Sync version stamps across files       |
 | node scripts/check_consistency.js        | Drift detection (vendored vs live)     |
-| node scripts/audit_db.js                 | DB audit (suspicious source=target)    |
-| node scripts/db_audit.js                 | DB health audit (larger)               |
+| node scripts/db_audit.js                 | DB audit + health check                |
 | node scripts/db_repair.js                | Auto-repair (<5% threshold)            |
 | node scripts/check_syntax.js             | Syntax smoke for every module          |
 | node scripts/reconstruct.js              | Reconstruction test                    |

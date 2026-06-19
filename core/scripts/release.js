@@ -245,7 +245,7 @@ console.log('    ✗ translations.db (User startet frisch)');
 console.log('    ✗ node_modules (npm install required)');
 console.log('    ✗ .env, .gitignore, .claude/');
 console.log('    ✗ tests/, docs/, archive/');
-console.log('    ✗ dev-tools: audit_db, reconstruct, redteam, package');
+console.log('    ✗ dev-tools: reconstruct, redteam, package');
 console.log('    ✗ VISION.md, STATUS.md, MASTER_DOC, TECHNICAL_REVIEW');
 console.log('    ✗ log.txt, runs.jsonl, debug_payloads.txt');
 console.log('');

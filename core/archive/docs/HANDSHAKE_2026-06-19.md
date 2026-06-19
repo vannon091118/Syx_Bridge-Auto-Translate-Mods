@@ -98,7 +98,7 @@
                             workshop_export, start.bat)
     AUSGESCHLOSSEN nach release.js EXCLUDE_LIST:
       node_modules, .env, *.db, *.log, .claude/, tests/, docs/, archive/,
-      plans/, dev-tools (audit_db, reconstruct, etc.)
+      plans/, dev-tools (reconstruct, etc.)
     Drift-Detection: .build-manifest.json mit SHA256 pro Datei;
                      `core/scripts/check_consistency.js` prüft via `checkVendorDrift()`
                      — Manueller Test bestätigt PASS im Clean-State.
@@ -111,7 +111,7 @@
                   (bilingual DE/EN), .build-manifest.json, V70/.gitkeep, V71/.gitkeep
     core/:        index.js, package.json, LICENSE, eslint.config.mjs,
                   src/ (komplett),
-                  scripts/ (ALLE 19 — inkl. audit_db, db_audit, db_repair,
+                  scripts/ (ALLE 18 — inkl. db_audit, db_repair,
                             reconstruct, redteam_baseline, release, sync-version,
                             check_consistency, build-review-base, …),
                   tests/ (Smoke + Redteam + E2E),
@@ -250,16 +250,16 @@
 
     Provider           | CostClass | Risk-Stufe   | Status
     -------------------+-----------+--------------+---------
-    Groq               | 2         | low+mid      | primary
-    OpenRouter         | 3         | mid+high     | audit/polish
-    Gemini             | 4         | any          | optional
-    NVIDIA NIM         | 1         | any          | preferred (key only)
-    FCM                | 1         | low          | local proxy daemon
-    Ollama             | 5         | low          | opt-in offline
-    Player2            | 6         | low          | opt-in desktop
+    Groq               | 4         | low+mid      | primary
+    OpenRouter         | 4         | mid+high     | audit/polish
+    Gemini             | 5         | any          | optional
+    NVIDIA NIM         | 4         | any          | preferred (key only)
+    FCM                | 1.5       | low          | local proxy daemon
+    Ollama             | 1         | low          | opt-in offline
+    Player2            | 1         | low          | opt-in desktop
     Argos Translate    | 10        | UI strings   | fallback
-    NMT Local          | 7         | low+mid      | opt-in NLLB-200
-    Google Free        | 8         | UI strings   | no key
+    NMT Local          | —         | low+mid      | opt-in NLLB-200 (nicht im Router registriert)
+    Google Free        | 9         | UI strings   | no key (abschaltbar via GOOGLE_FREE_ENABLED)
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -444,7 +444,7 @@
         ├── INTEGRITY_AUDIT_2026-06-19.md   Integritäts-Verifikation (100%)
         ├── DOKU_KONSOLIDIERUNG_2026-06-19_RUN2.md  Konsolidierungsbericht
         ├── DIVERGENZ_REPORT.md         Vendor-Drift-Analyse
-        ├── FORENSIC_FULLSCAN_v0.20_2026-06-19.md   Forensischer Full-Scan
+        ├── FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md   Forensischer Full-Scan
         ├── REDUNDANZ_AUDIT_V2_2026-06-19.md        Redundanz-Analyse
         ├── LLM-AGENTS-EntryPoint.md    Sub-Agent-Referenz
         ├── FREEZE/                     6 Dokumente (44 gelöscht, Inhalte im FREEZE_INDEX rekonstruierbar)

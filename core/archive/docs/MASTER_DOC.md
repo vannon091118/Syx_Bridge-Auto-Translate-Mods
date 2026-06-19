@@ -38,7 +38,7 @@ Scan → Extract → Translate → Audit → Polish → Export
 | Ollama | Lokal (LLM) | Fallback/Offline | 1 |
 | Player2 | Lokal (Desktop) | Optional (Opt-in) | 1 |
 | Argos Translate | Lokal (Offline) | UI-Strings | 10 |
-| Google Free | Cloud | UI-Strings | 9 |
+| Google Free | Cloud | UI-Strings (abschaltbar) | 9 |
 
 ---
 
@@ -55,13 +55,19 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 | ID | Schwere | Beschreibung |
 |---|---|---|
-| BUG-FS-003 | P0 | Argos Placeholder-Korruption bei skipIndices |
-| BUG-FS-006 | P1 | `flagPotentialErrors()` gibt null statt false |
-| F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) |
-| F.B | P1 | Plugin-Boundary Contract-Tests fehlen |
-| F.C | P1 | CodeRabbit-Auto-Fix unreviewed |
-| #013 | P0 | Doc-/Live-Drift zwischen Snap 16/17 (163 Einträge) |
-| #014 | — | **FALSIFIED ✅** — `quality_score` existiert (db.js:125, MASTER_FREEZE §3.2) |
+| BUG-FS-003 | P0 | ~~Argos Placeholder-Korruption bei skipIndices~~ | ✅ BEHOBEN — DNT-Doppelshielding (Phase 3F) |
+| BUG-FS-006 | P1 | ~~`flagPotentialErrors()` gibt null statt false~~ | ✅ BEHOBEN — null→true (CHANGELOG 0.19.05b) |
+| F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) | 🟡 Drift-Detection existiert, bidirektionaler Sync fehlt |
+| F.B | P1 | Plugin-Boundary Contract-Tests fehlen | 🔴 OFFEN |
+| F.C | P1 | CodeRabbit-Auto-Fix unreviewed | 🔴 OFFEN |
+| #013 | P0 | Doc-/Live-Drift zwischen Snap 16/17 (163 Einträge) | 🟡 Beobachtung — Live-Run muss Klärung bringen |
+| #014 | — | **FALSIFIED ✅** — `quality_score` existiert (db.js:125, MASTER_FREEZE §3.2) | ✅ |
+| BU-018 | P1 | ~~ensureTranslations() 354-Zeilen-Monolith~~ | ✅ BEHOBEN — GOD-001: 5 Phasen-Funktionen (GOD-001) |
+| BU-021 | P2 | ~~14 ALTER TABLE bei jedem Startup~~ | ✅ BEHOBEN — addColumnIfMissing Helper (Stufe 2) |
+| BU-027 | P3 | ~~debug_payloads.txt in CWD~~ | ✅ BEHOBEN — Pfad nach logs/ verlagert (Stufe 2) |
+| BU-028 | P3 | ~~_properNounAllowlist dupliziert~~ | ✅ BEHOBEN — dedupliziert (Stufe 2) |
+| BU-029 | P3 | ~~console.warn bei leeren Caches~~ | ✅ BEHOBEN — console.log (Stufe 2) |
+| BU-034 | P1 | ~~polish_single Low-Score-Cluster~~ | ✅ BEHOBEN — needsRefresh erweitert (Stufe 2) |
 
 ---
 
@@ -159,7 +165,7 @@ core/archive/docs/
 ├── WORKFLOW.md                # Agenten-Workflow (Session-Lifecycle, Doku-Clean, Eskalation)
 ├── HANDSHAKE_2026-06-19.md    # Session-Übergabe (offene Punkte, DB-Stand, Roadmap)
 ├── DIVERGENZ_REPORT.md        # Vendor-Drift-Analyse
-├── FORENSIC_FULLSCAN_v0.20_2026-06-19.md  # Forensischer Full-Scan
+├── FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md  # Forensischer Full-Scan
 ├── REDUNDANZ_AUDIT_V2_2026-06-19.md       # Redundanz-Analyse
 ├── DOKU_KONSOLIDIERUNG_2026-06-19_RUN2.md # Konsolidierungsbericht
 ├── INTEGRITY_AUDIT_2026-06-19.md          # Integritäts-Verifikation (100%)

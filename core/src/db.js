@@ -80,6 +80,23 @@ function all(sql, params = []) {
 }
 
 /**
+ * BU-021: Helper — add column only if it doesn't exist yet.
+ * Checks PRAGMA table_info() before running ALTER TABLE, eliminating the
+ * 14x try/catch pattern that ran (and silently failed) on every startup.
+ */
+async function addColumnIfMissing(table, column, type) {
+  const cols = await new Promise((resolve, reject) => {
+    db.all(`PRAGMA table_info(${table})`, [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+  if (!cols.some(c => c.name === column)) {
+    await run(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+  }
+}
+
+/**
  * Initializes the database schema and performs migrations.
  */
 async function init() {
@@ -104,11 +121,7 @@ async function init() {
     )`);
 
   // Migration: ensure audit_stage (formerly polish_level) exists
-  try {
-    await run('ALTER TABLE translations ADD COLUMN audit_stage INTEGER NOT NULL DEFAULT 0');
-  } catch (e) {
-    // Column might already exist or SQLite version doesn't support ALTER TABLE ... ADD COLUMN cleanly
-  }
+  await addColumnIfMissing('translations', 'audit_stage', 'INTEGER NOT NULL DEFAULT 0');
   try {
     await run(`UPDATE translations
             SET audit_stage = CASE
@@ -118,22 +131,22 @@ async function init() {
   } catch (e) {
     // Some older schemas may not have both columns available yet.
   }
-  try { await run('ALTER TABLE translations ADD COLUMN source_hash TEXT'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN provider TEXT NOT NULL DEFAULT \'\''); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN flagged INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN flag_reason TEXT NOT NULL DEFAULT \'\''); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN quality_score INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN last_checked_at TEXT'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN review_count INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN stress_test_passed INTEGER'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN stress_tested_at TEXT'); } catch (e) {}
+  await addColumnIfMissing('translations', 'source_hash', 'TEXT');
+  await addColumnIfMissing('translations', "provider", "TEXT NOT NULL DEFAULT ''");
+  await addColumnIfMissing('translations', 'flagged', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('translations', "flag_reason", "TEXT NOT NULL DEFAULT ''");
+  await addColumnIfMissing('translations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('translations', 'last_checked_at', 'TEXT');
+  await addColumnIfMissing('translations', 'review_count', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('translations', 'stress_test_passed', 'INTEGER');
+  await addColumnIfMissing('translations', 'stress_tested_at', 'TEXT');
   await run('CREATE INDEX IF NOT EXISTS idx_translations_lang_hash ON translations(target_lang, source_hash)');
   await run('CREATE INDEX IF NOT EXISTS idx_translations_lang_flagged ON translations(target_lang, flagged, audit_stage)');
 
   // --- v0.19.8 Deep Polish / Preserve-Content-First Flags ---
-  try { await run('ALTER TABLE translations ADD COLUMN polish_status TEXT NOT NULL DEFAULT \'completed\''); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN requires_deep_polish INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
-  try { await run('ALTER TABLE translations ADD COLUMN overwrite_fallback_used INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
+  await addColumnIfMissing('translations', "polish_status", "TEXT NOT NULL DEFAULT 'completed'");
+  await addColumnIfMissing('translations', 'requires_deep_polish', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('translations', 'overwrite_fallback_used', 'INTEGER NOT NULL DEFAULT 0');
   await run('CREATE INDEX IF NOT EXISTS idx_translations_deep_polish ON translations(target_lang, requires_deep_polish, polish_status)');
 
   await run(`CREATE TABLE IF NOT EXISTS processed_files (
@@ -147,9 +160,7 @@ async function init() {
     )`);
 
   // Migration: add hash to processed_files if it doesn't exist
-  try {
-    await run('ALTER TABLE processed_files ADD COLUMN hash TEXT');
-  } catch (e) {}
+  await addColumnIfMissing('processed_files', 'hash', 'TEXT');
   await run('CREATE INDEX IF NOT EXISTS idx_processed_files_lang_hash ON processed_files(target_lang, hash)');
 
   // --- V2 Tables (Relational Schema) ---
@@ -243,8 +254,8 @@ async function init() {
     )`);
 
   // Migration: add guarded columns if they don't exist
-  try { await run('ALTER TABLE glossary_terms ADD COLUMN is_guarded INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
-  try { await run('ALTER TABLE glossary_terms ADD COLUMN guarded_by TEXT NOT NULL DEFAULT \'\''); } catch (e) {}
+  await addColumnIfMissing('glossary_terms', 'is_guarded', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('glossary_terms', "guarded_by", "TEXT NOT NULL DEFAULT ''");
 
   await run(`CREATE INDEX IF NOT EXISTS idx_glossary_terms_lookup
         ON glossary_terms(target_lang, source_term, scope, mod_scope)`);
@@ -321,12 +332,8 @@ async function init() {
 // Migration: add risk_score if missing (safe on existing DBs)
 // Uses the promise-wrapped run() helper because the raw sqlite3 db.run() is callback-based.
 async function migrateRiskScore() {
-  try {
-    await run('ALTER TABLE translation_revisions ADD COLUMN risk_score INTEGER NOT NULL DEFAULT 0');
-    console.log('[DB] risk_score column added to translation_revisions');
-  } catch (e) {
-    if (!e.message.includes('duplicate column')) console.warn('[DB] risk_score migration:', e.message);
-  }
+  await addColumnIfMissing('translation_revisions', 'risk_score', 'INTEGER NOT NULL DEFAULT 0');
+  console.log('[DB] risk_score migration: checked (addColumnIfMissing).');
 }
 
 module.exports = {

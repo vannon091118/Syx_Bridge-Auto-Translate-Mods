@@ -93,7 +93,9 @@ class Router {
   }
 
   hasAccess(id) {
-    if (id === 'google_free') return true;
+    // R2-Fix: google_free abschaltbar via GOOGLE_FREE_ENABLED Config-Flag.
+    // Default: true (Backward-Compat). User kann google_free deaktivieren wenn LLM-Provider verfügbar.
+    if (id === 'google_free') return isEnabledFlag(this.config.GOOGLE_FREE_ENABLED, true);
     if (id === 'argos') return this.helpers.isArgosInstalled();
     // FCM: local daemon proxy — accessible unless explicitly disabled via FCM_ENABLED=false
     if (id === 'fcm') return isEnabledFlag(this.config.FCM_ENABLED, true);
@@ -137,17 +139,23 @@ class Router {
       provider.flaggedForReview = true;
       console.error(`[ROUTER] ${id}: 401/403 Auth-Fehler — Provider DEAKTIVIERT. Key prüfen!`);
     } else if (status === 429) {
-      // RATE LIMIT: kick provider out for the ENTIRE run.
-      // Rationale: 429 bedeutet der Key/das Kontingent ist ERSCHÖPFT.
-      // Rotation zum nächsten Key im Config-Runtime passiert automatisch.
-      // Den Provider trotzdem für diesen Lauf deaktivieren, damit der
-      // Dispatcher nicht endlos denselben ratelimiteden Provider probiert.
-      provider.enabled = false;
+      // RATE LIMIT: Escalating cooldown instead of permanent disable.
+      // Rationale: 429 means the current key/quotant is exhausted. Key rotation
+      // in config-runtime handles switching keys automatically. Using escalating
+      // cooldown (like 500 errors) allows the provider to recover after cooldown
+      // expires, instead of being permanently disabled for the entire run.
+      // Previous behavior (enabled=false) caused NVIDIA to have 0 entries in DB
+      // despite being configured as PRIMARY_PROVIDER — a single 429 killed it.
+      const baseCooldown429 = 30000; // 30s base for rate limits (longer than server errors)
+      const previousCooldown = provider.lastCooldownMs || baseCooldown429;
+      const escalatedCooldown = Math.min(previousCooldown * 2, 300000); // cap at 5 min
+      provider.cooldownUntil = Date.now() + escalatedCooldown;
+      provider.lastCooldownMs = escalatedCooldown;
       provider.flaggedForReview = (previousStatus === 429);
       if (provider.flaggedForReview) {
-        console.error(`[ROUTER] ${id}: WIEDERHOLTER 429 — Provider zur Review geflaggt. Alle Keys erschöpft?`);
+        console.error(`[ROUTER] ${id}: WIEDERHOLTER 429 — Escalated cooldown ${escalatedCooldown / 1000}s. Alle Keys erschoepft?`);
       } else {
-        console.warn(`[ROUTER] ${id}: 429 Rate-Limit — Provider für diesen Lauf deaktiviert.`);
+        console.warn(`[ROUTER] ${id}: 429 Rate-Limit — Cooldown ${escalatedCooldown / 1000}s (Key-Rotation aktiv).`);
       }
     } else if (status >= 500 || status === 0) {
       // Server/Network errors: double the previous cooldown (escalating backoff)

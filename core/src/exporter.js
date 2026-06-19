@@ -75,7 +75,8 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
     newContent = `__OVERWRITE: true,\n${newContent}`;
   }
 
-  // CRITICAL GATE: KEY_COUNT_MISMATCH means file structure is destroyed.
+
+    // CRITICAL GATE: KEY_COUNT_MISMATCH means file structure is destroyed.
   // The game engine would crash or produce garbage. Block the write.
   const hasCriticalSyntaxError = syntaxResult.issues.some(i => i.startsWith('KEY_COUNT_MISMATCH'));
 

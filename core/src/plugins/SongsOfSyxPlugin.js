@@ -12,6 +12,8 @@ const GamePlugin = require('./GamePlugin');
 const { escapeTextValue, unescapeTextValue } = require('../extractor');
 const path = require('path');
 
+const WATERMARK_CONFIG = require('../watermark-config');
+
 class SongsOfSyxPlugin extends GamePlugin {
 
   // ═══ GameAdapter methods (inherited from SongsOfSyxAdapter pattern) ═══
@@ -53,6 +55,13 @@ class SongsOfSyxPlugin extends GamePlugin {
     if (info.DESC) lines.push(`DESC: "${info.DESC}",`);
     if (info.AUTHOR) lines.push(`AUTHOR: "${info.AUTHOR}",`);
     if (info.INFO) lines.push(`INFO: "${info.INFO}",`);
+        // ZWSP-Fallback: unsichtbarer Marker in DESC (ueberlebt sed -i '/__SYXBRIDGE/d')
+    if (info.DESC) {
+      const fallbackIndex = lines.findIndex(l => l.startsWith('DESC:'));
+      if (fallbackIndex !== -1) {
+        lines[fallbackIndex] = `DESC: "${info.DESC}‌",`;
+      }
+    }
     return lines.join('\n') + '\n';
   }
 

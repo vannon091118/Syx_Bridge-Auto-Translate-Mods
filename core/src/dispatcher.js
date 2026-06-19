@@ -28,15 +28,6 @@ function createDispatcher(options) {
   }
 
 
-  /**
-   * Providers known to deliver superior quality for high-risk / audit tasks.
-   * Nvidia Nemotron/DeepSeek excel at reasoning and comparison;
-   * Gemini has strong multilingual capabilities.
-   */
-  function isQualityProvider(provider) {
-    return provider === 'nvidia' || provider === 'gemini';
-  }
-
   function buildStageRoutePlan(stage) {
     const preferred = resolveProviderModel(stage);
     return routingEngine.buildRoutePlan(stage, {
@@ -64,15 +55,31 @@ function createDispatcher(options) {
     // Falls kein LLM verfügbar → google_free/argos als absolute Fallbacks.
     const uiStringCount = items.filter(item => classifyPath(item.relativePath) === 'ui_string').length;
     if (uiStringCount >= items.length * 0.8) {
-      const freeLlmFirst = ['openrouter', 'groq', 'fcm', 'google_free', 'argos'];
-      for (const p of freeLlmFirst) {
-        if (routingEngine.isAvailable(p)) {
-          const model = p === 'openrouter' ? 'openrouter/free'
-            : p === 'google_free' ? 'google-translate-free'
-            : p === 'argos' ? 'argos-translate-local'
-            : 'auto';
-          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${p} (LLM-preferred)`);
-          return { provider: p, model, reason: 'ui_strings', stressTestRequired: false };
+      // NVIDIA-Fix: If NVIDIA is the user's PRIMARY_PROVIDER, it must be tried first
+      // even for UI-strings. Previously it was excluded from freeLlmFirst, causing
+      // silent bypass (0 NVIDIA entries in DB despite being configured as primary).
+      const uiCandidates = [];
+      if (preferred.provider === 'nvidia' && routingEngine.isAvailable('nvidia')) {
+        uiCandidates.push({ provider: 'nvidia', model: preferred.model });
+      }
+      // Standard free-tier fallback chain for UI-strings
+      const freeLlmFirst = [
+        { provider: 'openrouter', model: 'openrouter/free' },
+        { provider: 'groq',       model: 'auto' },
+        { provider: 'fcm',        model: 'auto' },
+        { provider: 'google_free', model: 'google-translate-free' },
+        { provider: 'argos',      model: 'argos-translate-local' }
+      ];
+      for (const c of freeLlmFirst) {
+        if (routingEngine.isAvailable(c.provider)) {
+          uiCandidates.push(c);
+        }
+      }
+      // Try candidates in order, use first available
+      for (const c of uiCandidates) {
+        if (routingEngine.isAvailable(c.provider)) {
+          console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${c.provider} (LLM-preferred)`);
+          return { provider: c.provider, model: c.model, reason: 'ui_strings', stressTestRequired: false };
         }
       }
     }

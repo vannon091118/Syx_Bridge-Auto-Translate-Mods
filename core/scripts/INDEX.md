@@ -1,4 +1,4 @@
-# 📖 INDEX — core/scripts/ (20 Dateien, 3.589 LOC)
+# 📖 INDEX — core/scripts/ (19 Dateien, 3.551 LOC)
 
 > **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release
 > **Zweck:** Referenzbuch für Utility-Scripts (Audit, Repair, Release, Cleanup)
@@ -8,7 +8,6 @@
 
 | Datei | LOC | Funktionen | Beschreibung |
 |-------|-----|------------|--------------|
-| audit_db.js | 733 | 5 | Umfassende DB-Analyse mit Tabellen |
 | build-review-base.js | 311 | 1 | Review-Base-Builder (Release-Snapshot) |
 | check_argos.js | 175 | 7 | Argos-Installation prüfen/installieren |
 | check_consistency.js | 323 | 7 | Konsistenz-Checks (Naming, Env, Versionen) |
