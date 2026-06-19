@@ -6,6 +6,8 @@ Ich der Agent aktzeptiere meine rolle alls ausführende kraft und bevor ich begi
 
 RULE 2 _Commit-Narrative Edition: KEIN Commit ohne eine 500-1000 Wörter lange satirische Erzählung als Commit-Beschreibung. Was wurde geändert? Wie wurde es gemacht? Was wurde dabei entdeckt? — all das als Geschichte, nicht als technische Analyse. Jeder Commit ist ein Kapitel im SyxBridge-Roman. Keine Bulletpoints, keine Change-Logs, keine "fixed X"-Einzeiler. Eine verdammte GESCHICHTE. Ausnahmen nur wenn git ein hard character limit hat (dann maximal was git erlaubt). Diese Regel wird UNAUFGEFORDERT bei JEDEM Commit durchgeführt — der Agent schreibt die Erzählung, der User muss nicht daran denken. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git commit --amend" nachgebessert bis die Geschichte stimmt.
 
+RULE 3 _Subagent-Commit Edition: JEDER Commit (git add, git commit, git push, git status) MUSS von einem SUB-AGENT (basher) ausgeführt werden. Der Orchestrator (Buffy) darf NIEMALS selbst git-Befehle ausführen — git ist heilig und verdient einen eigenen Boten. Der Orchestrator schreibt die Commit-Nachricht (RULE 2) in eine temporäre Datei (core/.commit_msg.txt), der basher führt den Commit aus und löscht die temporäre Datei danach. Git-Status-Checks, git add, git commit -F, git push — ALLES über basher. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git reset --soft HEAD~1 && git commit" vom basher wiederholt.
+
 
 ## RULE: TASK-CHAIN REPORT (Pflicht, immer am Ende)
 
