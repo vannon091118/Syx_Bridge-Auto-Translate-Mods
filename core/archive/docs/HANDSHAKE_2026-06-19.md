@@ -177,11 +177,12 @@
     noch TODO. Drift-WARNING erscheint nur wenn jemand den Vendored-Snapshot
     außerhalb von `npm run release` editiert (also: manuell).
 
-  F.B Plugin-Boundary Tests
-    Offen. `GamePlugin` vs `SongsOfSyxPlugin` ohne Contract-Tests.
-    Erste Massnahme: `validateFileMarkers`-Tests (49) berühren den Adapter,
-    sind aber Plugin-Coupling-neutral. Empfehlung: Contract-Test-Suite
-    parallel zu H1-Delegation (buildProofreadPrompt → Plugin).
+  F.B Plugin-Boundary Contract-Tests
+    ✅ BEHOBEN (BU-023) — `plugin-boundary-contract.js`: Dynamische
+    Interface-Erkennung via `Object.getOwnPropertyNames()`. 73/73 Checks.
+    Synthetischer Auto-Detection-Test beweist: neue Methoden werden
+    sofort erkannt. Signatur-Fix in `SongsOfSyxPlugin.applyPatchModifications()`
+    (2→3 Parameter). Siehe CHANGELOG [BU-023].
 
   F.C CodeRabbit-Auto-Fix aus PR #5
     Nicht manuell re-verifiziert. Empfehlung: Smoke-Review der geänderten
@@ -257,8 +258,6 @@
     FCM                | 1.5       | low          | local proxy daemon
     Ollama             | 1         | low          | opt-in offline
     Player2            | 1         | low          | opt-in desktop
-    Argos Translate    | 10        | UI strings   | fallback
-    NMT Local          | —         | low+mid      | opt-in NLLB-200 (nicht im Router registriert)
     Google Free        | 9         | UI strings   | no key (abschaltbar via GOOGLE_FREE_ENABLED)
 
 
@@ -317,7 +316,7 @@
   P1      | ✅     | Schema `quality_score` existiert bereits (db.js:125, MASTER_FREEZE §3.2) | —
   P1      | 🟡     | S4: Snap-16 Re-Audit mit Score-Buckets | ~2h
   P1      | 🟢     | F.C CodeRabbit-Auto-Fix-Smoke-Hook vor Merge           | 1-2h
-  P1      | 🟡     | F.B Plugin-Boundary Contract-Tests                     | 3h
+  P1      | ✅     | F.B Plugin-Boundary Contract-Tests                     | ✅ BEHOBEN (BU-023, 73/73 PASS)
   P2      | 🟡     | Bidirektionaler Vendor-Sync (F.A erweitert)            | 3-4h
   P2      | 🟢     | DB-Cleanup für 1.507 stale_retranslate                 | 2h
   P2      | 🟢     | Snapshot-18 nach echtem v0.20-Live-Run                | 30 Min
@@ -401,10 +400,11 @@
       Deliverable: `npm run redteam_baseline` als Pre-Merge-Gate. Auto-Fix-
                    Commits triggern Reviewer-Prompt.
   ──────────────────────────────────────────────────────────────────────────
-  S5. F.B Plugin-Boundary Contract-Tests (P1 🟡, ~3h)
-      Vorbedingung: H1 buildProofreadPrompt-Delegation steht.
-      Deliverable: `core/tests/plugin-contract.test.js` mit Interface-
-                   Validation zwischen GamePlugin und SongsOfSyxPlugin.
+  S5. ✅ ERLEDIGT — F.B Plugin-Boundary Contract-Tests (BU-023)
+      `core/tests/plugin-boundary-contract.js`: Dynamische Interface-
+      Erkennung via `Object.getOwnPropertyNames()`. 73/73 Checks.
+      Synthetischer Auto-Detection-Test. Signatur-Fix in `SongsOfSyxPlugin.js`.
+      Verifiziert: 73/73 PASS. CHANGELOG [BU-023].
   ──────────────────────────────────────────────────────────────────────────
   S6. DB-Cleanup stale_retranslate (P2 🟢, ~2h)
       Vorbedingung: Snap 18 vorhanden.
@@ -425,7 +425,7 @@
   OUT OF SCOPE (für später):
     - RimWorld-Prototyp (SongsOfSyxAdapter deprecate) — Roadmap v0.21
     - Circuit-Breaker für Provider — v0.22
-    - NMT Local Router-Integration (10. Provider) — v0.23
+    - NMT Local Router-Integration — v0.23 (NACH BU-040: warm-model.js retained, NMT_LOCAL_ENABLED removed)
     - Native-WASM-Sandbox für Plugin-Isolation — v0.24+
 
 
