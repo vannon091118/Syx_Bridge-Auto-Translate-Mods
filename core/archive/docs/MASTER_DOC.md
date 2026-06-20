@@ -1,7 +1,7 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
-**Stand:** 19.06.2026 | **Version:** v0.20.0-pre-release | **Autor:** Vannon & Sub-Agents
-**Destilliert aus:** MASTER_DOC.md (Basis), HANDSHAKE_2026-06-19.md, REDUNDANZ_AUDIT_V2_2026-06-19.md, LLM-AGENTS-EntryPoint.md
+**Stand:** 20.06.2026 | **Version:** v0.20.0 | **Autor:** Vannon & Sub-Agents
+**Destilliert aus:** MASTER_DOC.md (Basis), HANDSHAKE_2026-06-19.md, HANDSHAKE_2026-06-20.md, REDUNDANZ_AUDIT_V2_2026-06-19.md, LLM-AGENTS-EntryPoint.md
 
 ---
 
@@ -11,9 +11,12 @@
 
 - **Sprache:** Node.js (v18+)
 - **Dashboard:** Web-GUI auf `localhost:3000`
-- **Status:** Rollout-Phase. v0.20.0-pre-release ist RELEASE-FÄHIG ("Built accidentally. Runs intentionally.") *(Quelle: HANDSHAKE)*
+- **Status:** Rollout-Phase. v0.20.0 ist RELEASE-FÄHIG ("Built accidentally. Runs intentionally.") *(Quelle: HANDSHAKE)*
 - **Plugin-Architektur:** v0.20 Phase 1 abgeschlossen (8/8 Hardcodes entkoppelt)
 - **PREFLIGHT Analysis:** Automatischer DB-Health-Check vor jedem Sync (v0.20)
+- **better-sqlite3:** sqlite3→better-sqlite3 migriert (2026-06-20) — synchron, Promise-Wrapper, 0 VULN
+- **translateHttpError:** HTTP-Statuscodes→Deutsch — menschenlesbare Fehler in Logs (2026-06-20)
+- **Dev-Tools:** db_query.js, db_snapshot.js, export_stage2.js, test_providers.js (2026-06-20)
 - **Dual-Path-Copy:** Native Mode kopiert übersetzte Dateien in BEIDE Verzeichnisse (Steam/AppData)
 - **Routing-Hardening:** Argos CostClass 0→10, Nvidia/Groq priorisiert, Tier 2 Nvidia-Injection
 - **Error-Handler Smart:** 429→disable run, eskalierender Cooldown ×2, flaggedForReview
@@ -42,32 +45,20 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 3. Status: Erreicht & Offen
+## 3. Status: Offene Punkte
 
-### ✅ Erreicht (v0.20.0-pre-release)
-- **Build-Linien:** Workshop-Paket (v0.20.0-pre-release) & REVIEW-BASE-Paket fertig. Drift-Detection (.build-manifest.json) etabliert.
-- **Sandbox-Cleanup:** ~239 MB freigegeben (audit/.claude/tar.gz entfernt).
-- **Core Engine:** Shield-Token-Format (`__SHLD_N__`), Deep Polish A/B-System, 16 Unit-Tests (49 Checks).
-- **Plugin-Architektur:** GamePlugin.js Interface + SongsOfSyxPlugin.js Implementierung.
-- **Quality-Offensive:** 0 verbleibende Blocker. API-Key Race, nativeStale Endlosschleife, needsRefresh behoben.
+> **Behobene Bugs:** Siehe CHANGELOG — [STUFE2-QUICKBUGFIXES] (BU-018/021/027/028/029/034), [0.20.0-wip] (BUG-FS-003), [0.19.05b] (BUG-FS-006), [BU-023] (F.B).
+> **Erreichte Meilensteine:** Build-Linien, Sandbox-Cleanup, Core Engine, Plugin-Architektur, Quality-Offensive — alle in CHANGELOG [v0.20.0] dokumentiert.
 
 ### 🔴 Offene Bugs & Anomalien
 
-| ID | Schwere | Beschreibung |
-|---|---|---|
-| BUG-FS-003 | P0 | ~~Argos Placeholder-Korruption bei skipIndices~~ | ✅ BEHOBEN — DNT-Doppelshielding (Phase 3F) |
-| BUG-FS-006 | P1 | ~~`flagPotentialErrors()` gibt null statt false~~ | ✅ BEHOBEN — null→true (CHANGELOG 0.19.05b) |
-| F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) | 🟡 Drift-Detection existiert, bidirektionaler Sync fehlt |
-| F.B | P1 | Plugin-Boundary Contract-Tests fehlen | 🔴 OFFEN |
-| F.C | P1 | CodeRabbit-Auto-Fix unreviewed | 🔴 OFFEN |
-| #013 | P0 | Doc-/Live-Drift zwischen Snap 16/17 (163 Einträge) | 🟡 Beobachtung — Live-Run muss Klärung bringen |
-| #014 | — | **FALSIFIED ✅** — `quality_score` existiert (db.js:125, MASTER_FREEZE §3.2) | ✅ |
-| BU-018 | P1 | ~~ensureTranslations() 354-Zeilen-Monolith~~ | ✅ BEHOBEN — GOD-001: 5 Phasen-Funktionen (GOD-001) |
-| BU-021 | P2 | ~~14 ALTER TABLE bei jedem Startup~~ | ✅ BEHOBEN — addColumnIfMissing Helper (Stufe 2) |
-| BU-027 | P3 | ~~debug_payloads.txt in CWD~~ | ✅ BEHOBEN — Pfad nach logs/ verlagert (Stufe 2) |
-| BU-028 | P3 | ~~_properNounAllowlist dupliziert~~ | ✅ BEHOBEN — dedupliziert (Stufe 2) |
-| BU-029 | P3 | ~~console.warn bei leeren Caches~~ | ✅ BEHOBEN — console.log (Stufe 2) |
-| BU-034 | P1 | ~~polish_single Low-Score-Cluster~~ | ✅ BEHOBEN — needsRefresh erweitert (Stufe 2) |
+| ID | Schwere | Beschreibung | Status |
+|---|---|---|---|
+| F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) | 🟡 Drift-Detection existiert, bidirektionaler Sync fehlt — siehe CHANGELOG [VENDOR-DRIFT-FIX] |
+| F.C | P1 | CodeRabbit-Auto-Fix unreviewed | 🔴 OFFEN — siehe CHANGELOG [v0.20.0-pre-release] F.C |
+| — | P1 | sos-runtime.js Settings-Pfad hardcodiert (Plugin-Readiness-Audit A3) | ⚠️ OFFEN — GameAdapter.getLauncherSettingsPath() nötig |
+| — | P1 | index.js Plugin-Instanziierung hart codiert (Plugin-Readiness-Audit A3) | ⚠️ OFFEN — neue Plugins brauchen Einzeiler-Änderung |
+| — | P2 | ~~3× silent .catch(() => {})~~ in Kernfunktionen (Plugin-Readiness-Audit B4) | ✅ Erledigt — siehe CHANGELOG [B4-SILENT-CATCH-FIX] |
 
 ---
 
@@ -82,42 +73,28 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 5. DB-Stand (Snapshot 18 — 19.06.2026) + Live-Drift
+## 5. DB-Stand (2026-06-20 — Post Doku-Clean)
 
-> ⚠️ **Erwartbare Drift (W6):** Dieser Snapshot (6.540 Einträge) wurde vor dem letzten PREFLIGHT-Pass erstellt.
-> Die Live-DB (MASTER_FREEZE §3) zeigt 6.658 Einträge (+118, Δ durch PREFLIGHT-Reparaturen).
-> **SSoT für aktuellen DB-Zustand:** `FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` §3 (Live-Query).
-> Diese Drift ist erwartbar — PREFLIGHT läuft zwischen Doc-Updates und verändert Eintragszahlen.
-
-*(Quelle: HANDSHAKE §2.2)*
-
-| Metrik | Wert |
-|---|---|
-| Translations gesamt | 6.540 |
-| Stale (source = target) | 2.240 (34.3%) |
-| Flagged | 2.444 (37.4%) |
-| Stage 0 / 1 / 2 | 1.608 / 75* / 4.857 (24.6% / 1.1%* / 74.3%) |
-
-*Stage 1 geschätzt (nicht per Live-Query verifiziert — Audit U-004)
-
-**Stale-Verteilung nach Provider (Top 3):**
-- native_runtime: 1.973 (🔴 Großteil des Problems)
-- argos: 107
-- polish_single: 94
+> ⚠️ **DB-RESET 2026-06-19 (Doku-Divergenz-Audit DD-001):** Die Live-DB wurde nach Snapshot 19 auf ~1.508 Einträge zurückgesetzt.
+> **Aktuell (2026-06-20, Post v0.20.0-Doku-Clean):** 5.547 Einträge, 62.5% stale (3.466), 38.7% flagged (2.146), Ø Score 82.9.
+> 4.668 Stage-2 Einträge (audit_stage ≥ 2), 858 Stage 0, 21 Stage 1. Provider: native_runtime 3.219 (58.0%), google_free 899 (16.2%), polish_single 752 (13.6%), openrouter 307 (5.5%), ab_polish 225 (4.1%), argos 100 (1.8%), groq 42 (0.8%), native_fallback 3 (0.1%). **nvidia existiert NULL Mal**.
+> **Aktuelle SSoT:** `node core/scripts/db_query.js --report live` — nicht mehr der HANDSHAKE, der nur Snapshot-24-Zahlen enthält.
+> **better-sqlite3 aktiv** — Schema-Version 5. **PREFLIGHT:** ✅ HEALTHY, 0 Issues.
 
 ---
 
 ## 6. Roadmap & Nächste Effort Scopes
 
+> **Erledigte Items:** sqlite3→better-sqlite3 (✅ CHANGELOG [BETTER-SQLITE3-MIGRATION]), translateHttpError (✅ CHANGELOG [BETTER-SQLITE3-MIGRATION]), 4 Dev-Scripts (✅ CHANGELOG [BETTER-SQLITE3-MIGRATION]).
+
 | Prio | Aufgabe | Status/Aufwand |
 |---|---|---|
-| P0 | S1: REVIEW-BASE Naming-Bug fixen (#015) | ~15 Min |
-| P0 | S2: Erster echter v0.20 Live-Run & #013 Verifikation | ~60 Min |
-| — | S3: Schema-fix `quality_score` Spalte einführen | ✅ OBSOLET — Spalte existiert (db.js:125) |
-| P1 | S4: Snap-16 Re-Audit mit Score-Buckets | ~2h |
-| P1 | S5: Plugin-Boundary Contract-Tests (F.B) | ~3h |
-| P2 | S5: DB-Cleanup `stale_retranslate` | ~2h |
-| P2 | S6: Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
+| P0 | Erster echter v0.20 Live-Run (manueller Test ausstehend) | ~60 Min |
+| P1 | sos-runtime.js Settings-Pfad in GameAdapter abstrahieren | ~1h |
+| P1 | index.js Plugin-Instanziierung über Config/CLI-Flag | ~2h |
+| P2 | ~~3× silent .catch(() => {}) mit Logging versehen~~ ✅ Erledigt — siehe CHANGELOG [B4-SILENT-CATCH-FIX] | ~0.5h |
+| P2 | DB-Cleanup `stale_retranslate` | ~2h |
+| P2 | Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
 
 ---
 
@@ -139,21 +116,24 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 8. Redundanz-Audit (v2)
+## 8. Neue Dev-Tools (2026-06-20)
 
-*(Quelle: REDUNDANZ_AUDIT_V2_2026-06-19.md)*
+> **CHANGELOG:** [BETTER-SQLITE3-MIGRATION]
 
-- **5 von 8 Altfunden behoben.** Archive-Bloat: 239 MB → 4 MB.
-- **Offene Redundanzen:**
-  - Vendor-Drift: `FREEZE/`-Archiv versehentlich in Vendored Releases kopiert → `release.js` Excludes nötig.
-  - V70/V71 Verzeichnisse: DUMMY.txt-Platzhalter, Entscheidung ausstehend.
+| Tool | Befehl | Zweck |
+|------|--------|-------|
+| db_query.js | `node scripts/db_query.js --report` | SQLite Metrik-Reports (full/live/providers) |
+| db_snapshot.js | `node scripts/db_snapshot.js "label" --trend` | DB Snapshot + Trend-Report-Eintrag |
+| export_stage2.js | `node scripts/export_stage2.js --dry-run` | Reiner Export (Stage-2→Dateien, null API) |
+| test_providers.js | `node scripts/test_providers.js` | Provider Key Health-Check |
 
 ---
 
-## 9. Dokumentationsstruktur (Post-Konsolidierung Run #2)
+## 9. Dokumentationsstruktur (Post Doku-Clean v0.20.0)
 
-> **Stand:** 2026-06-19 — 60 → 16 Dokumente (10 aktiv + 6 FREEZE)
-> **44 FREEZE-Dokumente gelöscht** nach 100% Integritäts-Verifikation (33/33 Claims).
+> **Stand:** 2026-06-20 — 12 LIVE-Dokumente + FREEZE-Archiv mit 81 Glossary-Einträgen.
+> **62 Dokumente gelöscht** (44 aus vorherigen Runden + 18 Audit-Reports dieser Runde).
+> **18 Audit-Reports in FREEZE_INDEX.md §13 überführt** und aus dem LIVE-Verzeichnis gelöscht.
 > Alle Inhalte im FREEZE_INDEX.md als Glossary-Einträge rekonstruierbar.
 
 ```
@@ -163,14 +143,15 @@ core/archive/docs/
 ├── PREFLIGHT_LATEST.md        # Letzter PREFLIGHT-Report (LIVE)
 ├── LIVE_INDEX.md              # Index der LIVE- + Meta-Dokumente
 ├── WORKFLOW.md                # Agenten-Workflow (Session-Lifecycle, Doku-Clean, Eskalation)
-├── HANDSHAKE_2026-06-19.md    # Session-Übergabe (offene Punkte, DB-Stand, Roadmap)
-├── DIVERGENZ_REPORT.md        # Vendor-Drift-Analyse
-├── FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md  # Forensischer Full-Scan
-├── REDUNDANZ_AUDIT_V2_2026-06-19.md       # Redundanz-Analyse
+├── HANDSHAKE_2026-06-19.md    # Session-Übergabe (19.06.)
+├── HANDSHAKE_2026-06-20.md    # Session-Übergabe (20.06.)
+├── AGENTS.md                  # SSOT-Kopie der Agent-Regeln (Root-Sync)
+├── KNOWN_BUGS_REPORT.md       # Bug-Triage (34+ Bugs katalogisiert)
+├── DOKU_KONSOLIDIERUNG_2026-06-20.md # LIVE vs FREEZE Cross-Analyse
 ├── DOKU_KONSOLIDIERUNG_2026-06-19_RUN2.md # Konsolidierungsbericht
-├── INTEGRITY_AUDIT_2026-06-19.md          # Integritäts-Verifikation (100%)
+├── LLM-AGENTS-EntryPoint.md   # Sub-Agent-Referenz (archivierte SSOT-Kopie)
 ├── FREEZE/
-│   ├── FREEZE_INDEX.md        # Das Buch — 48 Glossary-Einträge
+│   ├── FREEZE_INDEX.md        # Das Buch — 81 Glossary-Einträge
 │   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # Single Source of Truth
 │   ├── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikations-Checkliste
 │   ├── README.md              # Verzeichnis-Doku

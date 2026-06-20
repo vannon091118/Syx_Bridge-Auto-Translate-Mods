@@ -159,11 +159,11 @@ PRAGMA busy_timeout = 5000;      -- 5s
 - **Dual-Path-Copy:** Workshop + AppData parallel (`runtime-ops.js:230-264`)
 - **RECOVERY-Block:** processed_files Clear bei fehlenden patches/ (`index.js`)
 
-### 4.7 NMT Local (Optional)
-- **Status:** Implementiert, NICHT als Provider registriert
-- **Modell:** Xenova/nllb-200-distilled-600M (~1.2 GB)
-- **Config:** `NMT_LOCAL_ENABLED=false` (Default)
-- **Warmup:** `npm run warm-model` (manuell)
+### 4.7 NMT Local (Optional) — ENTFERNT (BU-040)
+- **Status:** ❌ ENTFERNT — `NMT_LOCAL_ENABLED` aus `config-runtime.js`, `index.js`, `start.bat` entfernt
+- **Grund:** Verhinderte stille 1.2 GB Package-Installationen
+- **Verbleibend:** `warm-model.js` als Roadmap v0.23 (nicht aktiv)
+- **Modell:** Xenova/nllb-200-distilled-600M (~1.2 GB) — nicht mehr geladen
 
 ---
 
@@ -174,13 +174,39 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | BUG-FS-003 | P0 | Argos Placeholder-Korruption bei skipIndices | `translation-runtime.js:85-91` | ✅ DNT-Fix implementiert |
 | BUG-FS-006 | P1 | `flagPotentialErrors()` gibt null statt false | `translation-runtime.js:449` | ✅ Fix implementiert |
 | F.A | P2 | Vendor-Sync Drift (Live-Core vs Release) | README.md | ✅ Manifest + checkVendorDrift() |
-| F.B | P1 | Plugin-Boundary Contract-Tests | plugin-boundary-smoke.js | ✅ 100/100 PASS |
+| F.B | P1 | Plugin-Boundary Contract-Tests | plugin-boundary-contract.js | ✅ 73/73 PASS (BU-023) |
 | F.C | P1 | CodeRabbit-Auto-Fix aus PR #5 unreviewed | README.md | ⚠️ OFFEN |
 | ~~UI-STRING-P0~~ | ~~P0~~ | ~~Tier 1 Hardcoded umgeht User-Config~~ | dispatcher.js:66-72 | ✅ FCB-Fix (Free-LLM-first) |
 
 ---
 
-## 6. OFFENE PUNKTE (nächste Session)
+## 6. MASTER_DOC-Konsolidierung Durchlauf 1 (2026-06-20)
+
+> **Aktion:** 16 OBSOLETE-Einträge aus MASTER_DOC.md ins Buch (FREEZE_INDEX.md §11) überführt.
+> **Verbleibend in MASTER_DOC:** Nur aktuell gültige Aussagen mit CHANGELOG-Verweisen.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| KD-001 | ✅ Erreicht-Liste | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-002 | BUG-FS-003 | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-003 | BUG-FS-006 | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-004 | F.B Contract-Tests | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-005 | #014 FALSIFIED | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-006 | BU-018 Monolith | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-007 | BU-021 ALTER TABLE | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-008 | BU-027 debug_payloads | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-009 | BU-028 Allowlist | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-010 | BU-029 console.warn | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-011 | BU-034 Low-Score | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-012 | §5 Snap-18 Historie | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-013 | §6 S3 better-sqlite3 | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-014 | §6 translateHttpError | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-015 | §6 4 Dev-Scripts | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+| KD-016 | §8 Redundanz-Audit | [FREEZE_INDEX §11](#11-master_doc-konsolidierung-durchlauf-1) |
+
+---
+
+## 7. OFFENE PUNKTE (nächste Session)
 
 | Prio | Aufgabe | Aufwand |
 |------|---------|---------|
