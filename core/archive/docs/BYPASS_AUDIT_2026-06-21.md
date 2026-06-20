@@ -16,7 +16,7 @@
 | Continue (Arbeit überspringt) | 6 | 6 | 0 |
 | process.exit (nicht-Fehler) | 4 | 4 | 0 |
 | Test-Skips (optional) | 3 | 3 | 0 |
-| **Total** | **36** | **34** | **2** |
+| **Total** | **36** | **34** | ~~2~~ **1** (RISK-2 als FALSE ALARM korrigiert) |
 
 ---
 
@@ -340,16 +340,19 @@ Risiko:    Mittel — Feature ist deaktiviert aber Code existiert.
 
 ### ⚠️ RISK-2: `translation-runtime.js:1003` — GRAMMAR_CHECK DEAKTIVIERT QA-KOMPLETT
 ```
+STATUS: ❌ FALSE ALARM — korrigiert 2026-06-21
 Fundort: translation-runtime.js:1003 (qaPhase)
-Was:     Wenn GRAMMAR_CHECK=false, wird die GESAMTE qaPhase()
-         übersprungen. Keine Qualitätsprüfung, kein Deep-Polish,
-         keine Audit-Logik.
+Was:     Wenn GRAMMAR_CHECK=false, wird die qaPhase() übersprungen.
+         ABER: Der DEFAULT ist true (index.js:119).
+         process.env.GRAMMAR_CHECK !== 'false' → nur 'false' explizit deaktiviert.
+         Die .env hat GRAMMAR_CHECK="true".
+         Der User MUSS GRAMMAR_CHECK explizit auf false setzen um QA zu deaktivieren.
+         Dies ist ein User-Toggle, kein stiller Bypass.
 Ursprung: QUAL-OFFENSIVE Fix #1 (FREEZE_INDEX_2 §4: G1).
-          GRAMMAR_CHECK ist ein User-Toggle via GUI.
-Auswirkung: Übersetzungen gehen ungeprüft in die DB und in die
-            Ausgabedateien. Keine polish_status-Updates.
-Risiko:    Niedrig-Mittel — hängt vom User ab. Default in CLI
-           ist unklar (häufig false).
+          GRAMMAR_CHECK ist ein User-Toggle via GUI + .env.
+Auswirkung: QA läuft standardmässig. Nur bei expliziter User-Deaktivierung nicht.
+Risiko:    NULL — Default ist true, .env ist true. Funktioniert wie designed.
+Verifikation: node -e "process.env.GRAMMAR_CHECK='';console.log(process.env.GRAMMAR_CHECK!=='false')" → true
 ```
 
 ---
@@ -372,9 +375,9 @@ Risiko:    Niedrig-Mittel — hängt vom User ab. Default in CLI
 ## 8. FAZIT
 
 - **34 von 36 Bypasses sind geplant und dokumentiert** — entweder durch FREEZE_INDEX_2-Einträge, Code-Kommentare, oder offensichtliches Design (Gate-Counter, Auto-Mode, GUI-Shutdown).
-- **2 Bypasses haben ⚠️ Risiko:**
-  1. PATCH MODE Hard-Coded Disabled (`gui/public/app.js:994-998`) — nicht im FREEZE_INDEX dokumentiert, Ursprung unklar.
-  2. GRAMMAR_CHECK=false überspringt gesamte QA (`translation-runtime.js:1003`) — User-abhängig, CLI-Default ist false.
+- **1 Bypass hat ⚠️ Risiko:**
+  1. PATCH MODE Hard-Coded Disabled (`gui/public/app.js:994-998`) — nicht im FREEZE_INDEX dokumentiert gewesen, jetzt via Origin Trace (`bfba48b`) nachgetragen.
+  ~~2. GRAMMAR_CHECK=false überspringt gesamte QA~~ — **FALSE ALARM** (2026-06-21): Default ist `true` (`index.js:119`: `process.env.GRAMMAR_CHECK !== 'false'`). QA läuft im CLI-Mode standardmässig.
 - **0 ungeplante, undokumentierte Bypasses** die Code-Pfade stillschweigend deaktivieren (alle haben entweder Kommentare oder FREEZE-Einträge).
 - **Test-Coverage:** `v21_p0_live_verify.js:188` skipped DB-Tests wenn better-sqlite3 fehlt — dies ist der einzige Test-Skip der potenziell echte Probleme maskieren könnte.
 

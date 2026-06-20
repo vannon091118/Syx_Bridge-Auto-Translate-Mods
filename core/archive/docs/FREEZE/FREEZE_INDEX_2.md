@@ -18,8 +18,9 @@
 6. [Doku-Divergenz-Audit (🔵) — 7 DD-Einträge (2026-06-20)](#6-doku-divergenz-audit--7-dd-einträge)
 7. [V0.21 P0 Defense-in-Depth — normalizeWhitespace (2026-06-21)](#7-v021-p0-defense-in-depth--normalizewhitespace)
 8. [Patch Mode Hard-Coded Disabled — Origin Trace (2026-06-21)](#8-patch-mode-hard-coded-disabled--origin-trace)
+9. [GRAMMAR_CHECK CLI-Default — FALSE ALARM (2026-06-21)](#9-grammar_check-cli-default--false-alarm)
 
-> **Gesamtzahl dieser Runde:** 15 Fixes + 7 DD-Korrekturen + 1 P0 Hardening + 1 Bypass-Audit + 1 Origin-Trace, Commits `9a853ef` + `bcb6e1e` + `c1517ef` + `6cb5efb` + `575db6c`
+> **Gesamtzahl dieser Runde:** 15 Fixes + 7 DD-Korrekturen + 1 P0 Hardening + 1 Bypass-Audit + 1 Origin-Trace + 1 False-Alarm-Korrektur, Commits `9a853ef` + `bcb6e1e` + `c1517ef` + `6cb5efb` + `575db6c` + `bfba48b`
 
 ---
 
@@ -412,6 +413,19 @@
 
 ---
 
+## 9. GRAMMAR_CHECK CLI-Default — FALSE ALARM
+
+### ❌ FALSE ALARM — GRAMMAR_CHECK Default ist true, QA läuft im CLI-Mode
+- **Datum:** 2026-06-21 (verifiziert) | **Gemeldet:** BYPASS_AUDIT_2026-06-21.md RISK-2
+- **Kategorie:** False-Alarm-Korrektur (BYPASS-AUDIT Fehleinschätzung)
+- **Zusammenfassung:** Der BYPASS-AUDIT meldete GRAMMAR_CHECK als RISK-2 mit der Behauptung "CLI-Default ist false, QA-Phase läuft nie". Dies war FALSCH. Der Default in `index.js:119` ist `process.env.GRAMMAR_CHECK !== 'false'` — das ergibt `true` bei leerem, undefiniertem oder auf `"true"` gesetztem Environment. Nur die explizite Angabe `"false"` deaktiviert die QA. Die `.env` enthält `GRAMMAR_CHECK="true"`. Die QA-Phase läuft standardmässig in ALLEN Modi (CLI und GUI).
+- **Kausalität:** Fehlannahme im BYPASS-AUDIT — der Default wurde nicht im Code nachgeschlagen, sondern aus der Tatsache dass der smoke-test GRAMMAR_CHECK=false setzt fälschlich auf den CLI-Default geschlossen.
+- **Verifikation:** `node -e "process.env.GRAMMAR_CHECK='';console.log(process.env.GRAMMAR_CHECK !== 'false')" → true`, `node -e "process.env.GRAMMAR_CHECK=undefined;console.log(process.env.GRAMMAR_CHECK !== 'false')" → true`, `.env` enthält `GRAMMAR_CHECK="true"`
+- **Cross-Referenzen:** `index.js:119` (CONFIG GRAMMAR_CHECK), `translation-runtime.js:1003` (qaPhase Guard), `BYPASS_AUDIT_2026-06-21.md` §6 RISK-2 (korrigiert)
+- **Status:** ❌ FALSE ALARM — kein Fix nötig, BYPASS-AUDIT korrigiert.
+
+---
+
 ## 📋 Abgeschlossene Sessions
 
 | Datum | Session | Fixes | Commit | FREEZE-Einträge |
@@ -420,7 +434,8 @@
 | 2026-06-20 | Doku-Divergenz-Audit (🔵) | 7 DD-Einträge | `bcb6e1e` | 16-22 (dieses Dokument) |
 | 2026-06-21 | V0.21 P0 Defense-in-Depth | 1 Härtung (normalizeWhitespace) | `6cb5efb` | 23 (dieses Dokument) |
 | 2026-06-21 | BYPASS-AUDIT Projekt-weit | 36 Bypasses dokumentiert | `575db6c` | — |
-| 2026-06-21 | Patch Mode Origin Trace | 1 Ursprung recherchiert | — | 24 (dieses Dokument) |
+| 2026-06-21 | Patch Mode Origin Trace | 1 Ursprung recherchiert | `bfba48b` | 24 (dieses Dokument) |
+| 2026-06-21 | GRAMMAR_CHECK Verification | 1 False-Alarm korrigiert | — | 25 (dieses Dokument) |
 
 ---
 
