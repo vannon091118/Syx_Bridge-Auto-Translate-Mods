@@ -303,6 +303,22 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | HH-022 | §8 Signoff | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
 | HH-023 | §7 P0 DD-NEU-1+2 Roadmap | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
 
+### DOKU_KONSOLIDIERUNG_2026-06-20 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (12 Divergenzen, alle BEHOBEN) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — sämtliche 12 Divergenzen waren zum Zeitpunkt der Archivierung behoben. Das Dokument war ein Einmal-Konsolidierungslauf.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| DK-001 | Inventur: 28 LIVE + 5 FREEZE | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-002 | P0: BU-023 + NMT-Referenzen | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-003 | P1: LIVE_INDEX + MASTER_DOC Tree | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-004 | P1: KNOWN_BUGS Cluster D + §3 | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-005 | P2: CHECKLIST Phantom + Roadmap + DB | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-006 | P3: FREEZE_INDEX §7 + AGENTS.md + Audit | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-007 | Zusammenfassung: 12 Divergenzen | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+| DK-008 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:

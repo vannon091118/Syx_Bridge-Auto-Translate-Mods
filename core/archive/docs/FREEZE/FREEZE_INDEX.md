@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19-Einträge + 11 HANDSHAKE-20-Einträge = **90 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG = **98 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -26,8 +26,9 @@
 13. [Doku-Clean v0.20.0 (18)](#13-doku-clean-v0200)
 14. [HANDSHAKE_2026-06-19 — Partielle Archivierung (12)](#14-handshake_2026-06-19--partielle-archivierung)
 15. [HANDSHAKE_2026-06-20 — Partielle Archivierung (11)](#15-handshake_2026-06-20--partielle-archivierung)
+16. [DOKU_KONSOLIDIERUNG_2026-06-20 — Vollarchivierung (8)](#16-doku_konsolidierung_2026-06-20--vollarchivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11 = **104 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8 = **112 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -834,6 +835,76 @@
 - **Ursache der Obsoleszenz:** BEHOBEN. MASTER_DOC §3+§5+§6 auf aktuellem Stand.
 - **LIVE-Ersatz:** MASTER_DOC.md §3 + §5 + §6
 - **Status:** ✅ Archiviert
+
+---
+
+## 16. DOKU_KONSOLIDIERUNG_2026-06-20 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — ALLE 12 Divergenzen waren BEHOBEN.
+> **Quelle:** `core/archive/docs/DOKU_KONSOLIDIERUNG_2026-06-20.md` (Konsolidierungsbericht, 100 % OBSOLETE)
+> **Regel:** Ein Konsolidierungsbericht dessen sämtliche Findings behoben sind, hat keinen LIVE-Wert mehr.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 DK-001 — Inventur: 28 LIVE-Dokumente + 5 FREEZE (Snapshot)
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Inventur
+- **Zusammenfassung:** Dokumenten-Inventur vom 2026-06-20: 28 LIVE .md-Dateien (viele vom 19.06.) + 5 FREEZE-Dokumente + 1 preflight_history.log. FREEZE_INDEX damals bei 48 Glossary-Einträgen (jetzt 112).
+- **Ursache der Obsoleszenz:** Historischer Schnappschuss. Viele der gelisteten 28 LIVE-Dokumente wurden seither archiviert (18 Audit-Reports → FREEZE_INDEX §13). FREEZE_INDEX ist von 48 auf 112 Einträge gewachsen.
+- **LIVE-Ersatz:** FREEZE_INDEX.md (aktueller Stand) + MASTER_DOC.md §9 (aktueller Doku-Baum)
+- **Status:** ✅ Archiviert
+
+### 📋 DK-002 — P0: HANDSHAKE BU-023 Status-Divergenz + NMT-Referenzen
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Behobene P0-Divergenz
+- **Zusammenfassung:** Zwei P0-Funde: (1) HANDSHAKE_2026-06-19 listete F.B als "Offen", obwohl BU-023 (73/73 PASS) bereits implementiert war. (2) NMT Local Provider wurde in HANDSHAKE+MASTER_FREEZE noch als aktiv referenziert, obwohl BU-040 NMT_LOCAL_ENABLED entfernt hatte.
+- **Fix:** HANDSHAKE §4/§8/§10 → F.B ✅ BEHOBEN. HANDSHAKE §5.3 → NMT-Zeile entfernt. MASTER_FREEZE §4.7 → ENTFERNT (BU-040). HANDSHAKE §10 OUT OF SCOPE → NACH BU-040 ergänzt.
+- **Status:** ✅ Archiviert — BEHOBEN
+
+### 📋 DK-003 — P1: LIVE_INDEX "Max 3" vs 28 + MASTER_DOC §9 Tree unvollständig
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Behobene P1-Divergenzen
+- **Zusammenfassung:** Zwei P1-Funde: (1) LIVE_INDEX.md Header-Regel sagte "Max 3 LIVE-Dokumente", aber es existierten 28. (2) MASTER_DOC §9 Doku-Baum zeigte nur 10 Dokumente — 18 fehlten komplett.
+- **Fix:** LIVE_INDEX → "Max 3" auf "Max 10" gelockert + Doku-Clean-Referenz. MASTER_DOC §9 Tree → auf alle existierenden Docs erweitert (22 Audit-Reports als Block referenziert).
+- **Status:** ✅ Archiviert — BEHOBEN
+
+### 📋 DK-004 — P1: KNOWN_BUGS Cluster D + §3 BU-023 Status falsch
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Behobene P1-Divergenzen
+- **Zusammenfassung:** Zwei KNOWN_BUGS-Fehler: (1) Cluster D zeigte "0/5 behoben", obwohl BU-023 (und BU-021) bereits behoben waren. (2) §3 listete BU-023 als PERSISTENT statt GEHEILT.
+- **Fix:** Cluster D → "2/5 behoben" (BU-021 + BU-023). §3 → BU-023 GEHEILT, Zähler 14→15.
+- **Status:** ✅ Archiviert — BEHOBEN
+
+### 📋 DK-005 — P2: FREEZE_MASTER_CHECKLIST Phantom-Referenzen + MASTER_DOC Roadmap/DB
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Behobene P2-Divergenzen
+- **Zusammenfassung:** Drei P2-Funde: (1) FREEZE_MASTER_CHECKLIST referenzierte 5 nicht-existente Dateien (FREEZE_AUDIT_CONSOLIDATED.md etc.). (2) MASTER_DOC §6 listete S5 Plugin-Boundary noch als aktiv (3h). (3) MASTER_DOC §5 zeigte doppelte DB-Zahlen (6.540 historisch vs 1.508 aktuell).
+- **Fix:** FREEZE_MASTER_CHECKLIST → Phantom-Referenzen als GELÖSCHT markiert. MASTER_DOC §6 → S5 ✅ ERLEDIGT. MASTER_DOC §5 → Historische Tabelle hinter `<details>`.
+- **Status:** ✅ Archiviert — BEHOBEN
+
+### 📋 DK-006 — P3: FREEZE_INDEX §7 Zählung + AGENTS.md Sync + Audit-Report-Kandidaten
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Behobene P3-Divergenzen
+- **Zusammenfassung:** Drei P3-Funde: (1) FREEZE_INDEX §7 zeigte "(4)" im TOC aber nur 1 Eintrag. (2) AGENTS.md SSOT-Sync zwischen Root und core/archive/docs/ sollte verifiziert werden. (3) 22 einmalige Audit-Reports vom 19.06. waren Doku-Clean-Kandidaten — überschritten LIVE_INDEX-Regel.
+- **Fix:** FREEZE_INDEX §7 → "(4)"→"(1)", Gesamtzählung korrigiert. AGENTS.md → diff bestätigt identisch. Audit-Reports → als Doku-Clean-Kandidaten in MASTER_DOC + LIVE_INDEX referenziert (später in §13 DC-001–018 überführt).
+- **Status:** ✅ Archiviert — BEHOBEN
+
+### 📋 DK-007 — Zusammenfassung: 12 Divergenzen, alle BEHOBEN
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Meta
+- **Zusammenfassung:** Abschlusstabelle: 2× P0, 4× P1, 3× P2, 3× P3 — alle 12 als BEHOBEN markiert. Durchgeführte Korrekturen 1–12 im Detail aufgelistet.
+- **Ursache der Obsoleszenz:** Reine Ergebnis-Doku eines abgeschlossenen Konsolidierungslaufs. Alle Korrekturen sind implementiert und verifiziert.
+- **LIVE-Ersatz:** CHANGELOG.md + MASTER_DOC.md §9 (aktueller Stand)
+- **Status:** ✅ Archiviert
+
+### 📋 DK-008 — Gesamtdokument: DOKU_KONSOLIDIERUNG_2026-06-20.md
+- **Datum:** 2026-06-20 | **Version:** Post v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Komplettes LIVE-Dokument (28→1: Inventur + 12 Divergenz-Befunde + Zusammenfassung + 12 Korrekturen) vollständig ins Buch überführt. Methode: 2 unabhängige thinker-with-files-gemini analysierten LIVE- und FREEZE-Doku getrennt, dann Cross-Konsolidierung.
+- **Ursache der Obsoleszenz:** 100 % der Inhalte sind behoben/erledigt/überholt. Kein einziger ACTIVE Claim verbleibt. Das Dokument war ein Einmal-Konsolidierungslauf — sein Zweck ist erfüllt.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §16 (diese Einträge) + MASTER_DOC.md §9
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
 
 ---
 
