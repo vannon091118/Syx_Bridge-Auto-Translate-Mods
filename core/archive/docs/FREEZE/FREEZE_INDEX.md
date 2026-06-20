@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-Einträge = **79 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19-Einträge + 11 HANDSHAKE-20-Einträge = **90 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -25,8 +25,9 @@
 12. [Doku-Divergenz-Fixes (2)](#12-doku-divergenz-fixes-2026-06-20)
 13. [Doku-Clean v0.20.0 (18)](#13-doku-clean-v0200)
 14. [HANDSHAKE_2026-06-19 — Partielle Archivierung (12)](#14-handshake_2026-06-19--partielle-archivierung)
+15. [HANDSHAKE_2026-06-20 — Partielle Archivierung (11)](#15-handshake_2026-06-20--partielle-archivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12 = **93 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11 = **104 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -733,6 +734,105 @@
 - **Zusammenfassung:** Detaillierte Provider-Statistiken aus Snapshot 17: Stale-Verteilung (native_runtime 68.0 %, argos 28.5 %, polish_single 14.2 %), Provider-Shift-Delta (native_runtime +630, argos -273, google_free -59).
 - **Ursache der Obsoleszenz:** Durch Live-Run und V0.21-Audit komplett überholt. Aktuelle DB zeigt völlig andere Verteilung.
 - **LIVE-Ersatz:** MASTER_DOC.md §5 + PREFLIGHT_LATEST.md
+- **Status:** ✅ Archiviert
+
+---
+
+## 15. HANDSHAKE_2026-06-20 — Partielle Archivierung
+
+> **Aktion:** 11 OBSOLETE Sektionen aus HANDSHAKE_2026-06-20.md ins Buch überführt.
+> **Quelle:** `core/archive/docs/HANDSHAKE_2026-06-20.md` (8 Sektionen, ~65 % OBSOLETE)
+> **Regel:** HANDSHAKE = historisches Übergabe-Dokument. Was erledigt/veraltet ist, gehört ins Buch.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 HH-013 — §1 Executive Summary (Performance-HDD Session)
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Session-Übergabe
+- **Zusammenfassung:** Performance-HDD-Optimierung: Schema-Version (_schema_meta), PREFLIGHT aggregierte Query (8→1 Table-Scan), NATIVE_STALE relabeling (915 Einträge korrekt als ℹ️ deklariert), Snapshot-Gating (nur bei echten Issues). Parallel: B4-Silent-Dead-Loop-Fix (3× .catch beseitigt), MASTER_DOC-Konsolidierung Durchlauf 1 (KD-001–016). Commit bd9dee2.
+- **Ursache der Obsoleszenz:** Session ist abgeschlossen. Alle fünf Optimierungen sind implementiert und im CHANGELOG [PERFORMANCE-HDD] dokumentiert. Commit bd9dee2 ist längst durch neuere Commits überholt (Schema jetzt v6, aktuelle Arbeiten auf v21-experimental-workbench).
+- **LIVE-Ersatz:** CHANGELOG [PERFORMANCE-HDD] + [B4-SILENT-CATCH-FIX]
+- **Status:** ✅ Archiviert
+
+### 📋 HH-014 — §2.1 Version-Layer + §2.2 Live-DB (Snapshot 24)
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** DB-Metrik
+- **Zusammenfassung:** v0.20.0-pre-release, git HEAD bd9dee2, Schema-Version 5, PREFLIGHT HEALTHY. Live-DB: 4.185 Einträge, 51.3 % Stale, 39.5 % Flagged, Ø Score 81.2. Provider: native_runtime 2.123 (50.7 %), google_free 1.027 (24.5 %), polish_single 466 (11.1 %). Groq 429-Dauerfeuer (nur 16 Einträge).
+- **Ursache der Obsoleszenz:** Version überholt (v0.21 Scope definiert), Schema jetzt v6, DB-Stand durch V0.21-Audit (9.492 Einträge) und mehrere Runs überholt. Provider-Verteilung komplett anders (nvidia existiert NULL Mal im Snapshot 24).
+- **LIVE-Ersatz:** MASTER_DOC.md §5 + PREFLIGHT_LATEST.md + V0.21_SCOPE.md
+- **Status:** ✅ Archiviert
+
+### 📋 HH-015 — §2.3 Code-Änderungen dieser Session
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Commit-Historie
+- **Zusammenfassung:** Detaillierte Liste aller Datei-Änderungen in Commit bd9dee2: db.js (Schema-Version), preflight.js (aggregierte Query + NATIVE_STALE + Snapshot-Gating), translation-runtime.js (B4-Fix), CHANGELOG, MASTER_DOC, FREEZE_INDEX, DOKU_KONSOLIDIERUNG_2026-06-20.md, diverse aus Vorsession mitgezogene Dateien.
+- **Ursache der Obsoleszenz:** Reine Commit-Historie. Jede Änderung ist im CHANGELOG [PERFORMANCE-HDD] + [B4-SILENT-CATCH-FIX] dokumentiert. Doppelt zu CHANGELOG.
+- **LIVE-Ersatz:** CHANGELOG.md ([PERFORMANCE-HDD], [B4-SILENT-CATCH-FIX])
+- **Status:** ✅ Archiviert
+
+### 📋 HH-016 — §3 Bewegungen (Timeline 2026-06-19 → 2026-06-20)
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Chronik
+- **Zusammenfassung:** 12-Ereignis-Timeline: HANDSHAKE 19.06., better-sqlite3-Migration, translateHttpError, 4 Dev-Scripts, Plugin-Readiness-Audit, B4-Fix, DOKU-KONSOLIDIERUNG, MASTER_DOC-Konsolidierung, Performance-HDD, Live-Run (4.185 Einträge), Commit bd9dee2, HANDSHAKE 20.06.
+- **Ursache der Obsoleszenz:** Reine Historie. Jedes Ereignis ist im CHANGELOG.md dokumentiert. CHANGELOG ist die SSOT für Chronologie.
+- **LIVE-Ersatz:** CHANGELOG.md
+- **Status:** ✅ Archiviert
+
+### 📋 HH-017 — §4 DD-NEU-1: B4 in MASTER_DOC §3+§6
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Behobene Doku-Divergenz
+- **Zusammenfassung:** MASTER_DOC §3 listete "3× silent .catch(() => {})" als OFFEN, §6 als "~0.5h". ABER: Der Fix war bereits im Code (translation-runtime.js) und im CHANGELOG [B4-SILENT-CATCH-FIX]. MASTER_DOC wurde nach dem Fix nicht nachgezogen.
+- **Ursache der Obsoleszenz:** BEHOBEN. MASTER_DOC §3 zeigt jetzt "✅ Erledigt", §6 zeigt "Done". Kein offener Rest.
+- **LIVE-Ersatz:** MASTER_DOC.md §3 + §6 (aktueller Stand)
+- **Status:** ✅ Archiviert
+
+### 📋 HH-018 — §4 DD-NEU-2: MASTER_DOC §5 Provider-Zahlen falsch
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Behobene Doku-Divergenz
+- **Zusammenfassung:** MASTER_DOC §5 behauptete falsche Provider-Verteilung (openrouter 987, groq 980, nvidia 99). Live-DB zeigte: native_runtime 2.126, google_free 786, openrouter 391, nvidia NULL. Zahlen aus Live-DB wurden übernommen.
+- **Ursache der Obsoleszenz:** BEHOBEN. MASTER_DOC §5 wurde aus Live-DB aktualisiert (5.547 Einträge, aktuelle Provider-Verteilung).
+- **LIVE-Ersatz:** MASTER_DOC.md §5 (aktueller Stand)
+- **Status:** ✅ Archiviert
+
+### 📋 HH-019 — §4 Groq-Modellname + PREFLIGHT HEALTHY
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Erledigte Issues
+- **Zusammenfassung:** Groq-Modellname: `groq/auto`→`llama-3.1-8b-instant` (404-Fix). PREFLIGHT: HEALTHY, 0 Issues, 915 nativeStale als ℹ️. Beides Status-Notizen, keine offenen Probleme.
+- **Ursache der Obsoleszenz:** Groq-Modellname-Fix ist implementiert. PREFLIGHT-Status ist ein Zustands-Schnappschuss — aktueller Stand in PREFLIGHT_LATEST.md.
+- **LIVE-Ersatz:** PREFLIGHT_LATEST.md + CHANGELOG
+- **Status:** ✅ Archiviert
+
+### 📋 HH-020 — §6.3 Empfohlene Reihenfolge
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Veraltete Priorisierung
+- **Zusammenfassung:** Task-Reihenfolge: 1) DD-NEU-1 fixen (~5 Min), 2) DD-NEU-2 fixen (~5 Min), 3) --skip-preflight CLI-Flag (~30 Min), 4) saveTranslation-Batching (~1h), 5) Groq TPM-Limit lösen.
+- **Ursache der Obsoleszenz:** DD-NEU-1/2 sind längst behoben. Die restlichen Tasks sind in MASTER_DOC §6 priorisiert. Diese spezifische Reihenfolge war für die Session vom 20.06. gedacht — nicht mehr aktuell.
+- **LIVE-Ersatz:** MASTER_DOC.md §6 (aktuelle Roadmap)
+- **Status:** ✅ Archiviert
+
+### 📋 HH-021 — §7 P0 + Erledigt-Liste
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Erledigte Roadmap
+- **Zusammenfassung:** P0: DD-NEU-1 + DD-NEU-2 (beide ~5 Min, beide erledigt). Erledigt-Liste: Schema-Version, PREFLIGHT aggregierte Query, NATIVE_STALE relabeling, Snapshot-Gating, B4-Fix, MASTER_DOC-Konsolidierung, better-sqlite3-Migration, translateHttpError, 4 Dev-Scripts.
+- **Ursache der Obsoleszenz:** P0-Items sind erledigt. Erledigt-Liste ist reine Historie — alle Items im CHANGELOG dokumentiert.
+- **LIVE-Ersatz:** CHANGELOG.md (alle erledigten Items) + MASTER_DOC.md §6 (aktuelle Roadmap)
+- **Status:** ✅ Archiviert
+
+### 📋 HH-022 — §8 Signoff
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Meta
+- **Zusammenfassung:** Author: Buffy, Approved by: Vannon (TODO), READY FOR HANDOFF. Bemerkungen zu Schema-Version 5, PREFLIGHT HEALTHY, Live-Run 4.185 Einträge, Commit bd9dee2.
+- **Ursache der Obsoleszenz:** Reine Meta-Information. Schema-Version ist jetzt 6, Commit bd9dee2 ist überholt, DB-Stand veraltet. Dokument existiert als PARTIAL weiter — Signoff für die Ursprungsversion irrelevant.
+- **LIVE-Ersatz:** Keiner nötig — Meta des archivierten Dokuments.
+- **Status:** ✅ Archiviert
+
+### 📋 HH-023 — §7 P0 DD-NEU-1 + DD-NEU-2 (Roadmap-Detail)
+- **Datum:** 2026-06-20 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Erledigte P0-Items
+- **Zusammenfassung:** Zwei P0-Items à ~5 Min: DD-NEU-1 (B4 in MASTER_DOC durchstreichen) und DD-NEU-2 (Provider-Zahlen aktualisieren). Beide inzwischen erledigt.
+- **Ursache der Obsoleszenz:** BEHOBEN. MASTER_DOC §3+§5+§6 auf aktuellem Stand.
+- **LIVE-Ersatz:** MASTER_DOC.md §3 + §5 + §6
 - **Status:** ✅ Archiviert
 
 ---

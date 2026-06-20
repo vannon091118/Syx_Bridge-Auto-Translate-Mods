@@ -284,6 +284,25 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | HH-011 | §2.4 Naming-Bug #015 | [FREEZE_INDEX §14](#14-handshake_2026-06-19--partielle-archivierung) |
 | HH-012 | §2.2 Provider-Verteilung Snap 17 | [FREEZE_INDEX §14](#14-handshake_2026-06-19--partielle-archivierung) |
 
+### HANDSHAKE_2026-06-20 Partielle Archivierung (2026-06-20)
+
+> **Aktion:** 11 OBSOLETE Sektionen aus HANDSHAKE_2026-06-20.md ins Buch überführt.
+> **Begründung:** ~65 % des HANDSHAKE waren historisch/erledigt. Session-Zusammenfassung, DB-Snapshot 24, Code-Änderungen, Timeline, DD-NEU-1/2 (behoben), Erledigt-Liste, Signoff. ACTIVE-Anteile (Groq 429, F.A, F.C, Architektur, Re-Entry, P1/P2-Roadmap) bleiben im Dokument.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| HH-013 | §1 Executive Summary | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-014 | §2.1 Version-Layer + §2.2 DB Snapshot 24 | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-015 | §2.3 Code-Änderungen | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-016 | §3 Bewegungen Timeline | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-017 | §4 DD-NEU-1 B4 in MASTER_DOC | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-018 | §4 DD-NEU-2 Provider-Zahlen | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-019 | §4 Groq-Modellname + PREFLIGHT | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-020 | §6.3 Empfohlene Reihenfolge | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-021 | §7 P0 + Erledigt-Liste | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-022 | §8 Signoff | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+| HH-023 | §7 P0 DD-NEU-1+2 Roadmap | [FREEZE_INDEX §15](#15-handshake_2026-06-20--partielle-archivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:
