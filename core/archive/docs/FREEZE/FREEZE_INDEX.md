@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN + 4 REDUNDANZ_AUDIT = **107 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN + 4 REDUNDANZ_AUDIT + 5 CODE_VS_DOCS = **112 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -29,8 +29,9 @@
 16. [DOKU_KONSOLIDIERUNG_2026-06-20 — Vollarchivierung (8)](#16-doku_konsolidierung_2026-06-20--vollarchivierung)
 17. [FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 — Vollarchivierung (5)](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung)
 18. [REDUNDANZ_AUDIT_V2_2026-06-19 — Vollarchivierung (4)](#18-redundanz_audit_v2_2026-06-19--vollarchivierung)
+19. [CODE_VS_DOCS_AUDIT_2026-06-19 — Vollarchivierung (5)](#19-code_vs_docs_audit_2026-06-19--vollarchivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5+4 = **121 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5+4+5 = **126 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -1000,6 +1001,57 @@
 - **Zusammenfassung:** Redundanz-Audit v2: Full-scan `find . -name` + Hash-Vergleich + Code-Referenz-Check. 13 Duplikat-Cluster, 3 tote Dateien, Konsolidierungsplan (Sofort/Mittel/Langfristig), Statistik-Vergleich v1→v2.
 - **Ursache der Obsoleszenz:** 100 % der Cluster-Referenzen beziehen sich auf veraltete Release-Ordner und DB-Snapshots. Das Dokument war ein Einmal-Audit. Empfehlungen sind implementiert oder durch MASTER_DOC §6 überholt.
 - **LIVE-Ersatz:** FREEZE_INDEX.md §18 (diese Einträge)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
+## 19. CODE_VS_DOCS_AUDIT_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Einmal-Audit, bereits in DC-001 referenziert.
+> **Quelle:** `core/archive/docs/CODE_VS_DOCS_AUDIT_2026-06-19.md` (Code-vs-Docs-Audit, ~100 % OBSOLETE)
+> **Regel:** Einmaliger Code-Doku-Abgleich vom 19.06. 08:17 UTC — DB-Zahlen, Provider, Drift-Einträge alle historisch.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 CD-001 — §1 CODE TRUTH: Provider, CostClass, Pipeline, DB, Bug-Marker
+- **Datum:** 2026-06-19 08:17 UTC | **Version:** v0.20.0-pre-release
+- **Kategorie:** Code-Verifikation
+- **Zusammenfassung:** Systematischer Code-Abgleich: 9 Provider (router.js:4-14), CostClass (router.js:24-36), Inheritance Chain (GameAdapter→GamePlugin→SongsOfSyxPlugin), 5-Phasen-Pipeline (translation-runtime.js), DB-Schema (6.540 Einträge, 2.444 flagged, 2.240 stale), 10 Bug-Marker (7 verified, 3 unverified), PREFLIGHT + Dual-Path verifiziert, NMT Local existiert in config aber NICHT als Provider.
+- **Ursache der Obsoleszenz:** Historischer Schnappschuss. DB-Zahlen völlig veraltet (6.540→9.492). NMT_LOCAL_ENABLED durch BU-040 entfernt. Bug-Marker durch spätere Fixes überholt. Provider-Liste und CostClass sind noch aktuell, aber der Audit als Ganzes ist ein Zeitdokument.
+- **LIVE-Ersatz:** router.js (aktuelle Provider/CostClass) + MASTER_DOC.md §5 (aktuelle DB-Zahlen)
+- **Status:** ✅ Archiviert
+
+### 📋 CD-002 — §2 DOC TRUTH: README, AGENTS.md, LLM-AGENTS, MASTER_DOC Claims
+- **Datum:** 2026-06-19 08:17 UTC | **Version:** v0.20.0-pre-release
+- **Kategorie:** Doku-Verifikation
+- **Zusammenfassung:** Claims aus 4 Doku-Dateien gegen Code geprüft: README (6 Claims → 2 DRIFT), AGENTS.md (7 Claims → 5 DRIFT, u.a. Version v0.19.7 statt v0.20.0), LLM-AGENTS-EntryPoint (5 Claims → 4 DRIFT), MASTER_DOC §2-§5 (mehrere Claims → CostClass-Tabelle 6/8 Werte falsch, 10 Provider statt 9).
+- **Ursache der Obsoleszenz:** Alle geprüften Doku-Dateien wurden seither aktualisiert oder selbst archiviert. AGENTS.md Version ist jetzt aktuell. LLM-AGENTS-EntryPoint.md ist archival. MASTER_DOC §2 Provider-Tabelle wurde korrigiert.
+- **LIVE-Ersatz:** AGENTS.md (aktuell) + MASTER_DOC.md §2 (korrigierte Provider/CostClass)
+- **Status:** ✅ Archiviert
+
+### 📋 CD-003 — §3 DRIFT: 15 Abweichungen D-001–D-015 + §4 UNVERIFIZIERT U-001–U-006
+- **Datum:** 2026-06-19 08:17 UTC | **Version:** v0.20.0-pre-release
+- **Kategorie:** Drift-Inventur
+- **Zusammenfassung:** 15 Drift-Einträge: 4 CRITICAL (AGENTS.md Version, LLM-AGENTS Version, MASTER_DOC 10 Provider, BUG-FS-002), 5 HIGH (CostClass-Tabelle, translation-runtime.js LOC, NMT als Provider, AGENTS.md Datum, Agent-Tabelle), 3 MEDIUM, 3 LOW. 6 unverifizierte Claims (VISIONS.MD, BUG-FS-002/007, Stage 1, Hardcodes, #015).
+- **Ursache der Obsoleszenz:** Header des Dokuments selbst sagt: "4 CRITICAL + 5 HIGH + U-001 Einträge behoben." Restliche Drift-Einträge durch spätere Doku-Updates und diesen Doku-Konsolidierungs-Prozess überholt.
+- **LIVE-Ersatz:** MASTER_DOC.md (aktuell) + AGENTS.md (aktuell) + FREEZE_INDEX.md (archivierte Docs)
+- **Status:** ✅ Archiviert
+
+### 📋 CD-004 — §5 Veränderung + §6 Reconciliation + §7 Methodik
+- **Datum:** 2026-06-19 08:17 UTC | **Version:** v0.20.0-pre-release
+- **Kategorie:** Delta-Analyse + Empfehlungen
+- **Zusammenfassung:** MASTER_DOC §5 vs LIVE DB: Stage 0 −166 (−2.5pp), Stage 2 +166 (+2.6pp). 9 Reconciliation-Aktionen (4× P0, 3× P1, 2× P2) — alle inzwischen erledigt oder überholt. Methodik: 8 Code-Searcher + 2 Basher + manuelle Verifikation.
+- **Ursache der Obsoleszenz:** Delta-Analyse bezieht sich auf veraltete DB-Stände. Reconciliation-Aktionen sind implementiert (Provider-Tabelle korrigiert, Versionen aktualisiert, BUG-Marker bereinigt). Methodik-Beschreibung ist historisch.
+- **LIVE-Ersatz:** CHANGELOG.md + MASTER_DOC.md (aktuelle Reconciliation)
+- **Status:** ✅ Archiviert
+
+### 📋 CD-005 — Gesamtdokument: CODE_VS_DOCS_AUDIT_2026-06-19.md
+- **Datum:** 2026-06-19 08:17 UTC | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Systematischer Code-vs-Doku-Abgleich: 8 Subagenten + manuelle Verifikation + DB-Live-Query. 4 Doku-Dateien gegen 33 Code-Module geprüft. 15 Drift-Einträge, 6 unverifizierte Claims, 9 Reconciliation-Aktionen. Bereits als DC-001 in FREEZE_INDEX §13 katalogisiert.
+- **Ursache der Obsoleszenz:** 100 % der Claims sind historisch. DB-Zahlen, Provider-Listen, Drift-Einträge, Reconciliation-Empfehlungen — alles vom 19.06. 08:17 UTC. Das Dokument war ein Einmal-Audit, dessen Findings längst implementiert sind.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-001) + §19 (diese Einträge)
 - **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
 
 ---

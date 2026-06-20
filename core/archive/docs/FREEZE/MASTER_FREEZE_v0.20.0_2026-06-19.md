@@ -344,6 +344,19 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | RD-003 | §3 Tote Dateien + §4 Konsolidierungsplan | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
 | RD-004 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
 
+### CODE_VS_DOCS_AUDIT_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (15 Drift + 6 unverifiziert + Reconciliation) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Einmal-Audit vom 19.06. 08:17 UTC. DB-Zahlen, Drift-Einträge, Empfehlungen alle historisch.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| CD-001 | §1 CODE TRUTH: Provider, DB, Pipeline | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
+| CD-002 | §2 DOC TRUTH: 4 Doku-Dateien | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
+| CD-003 | §3 DRIFT D-001–D-015 + §4 UNVERIFIZIERT | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
+| CD-004 | §5 Veränderung + §6 Reconciliation + §7 Methodik | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
+| CD-005 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:
