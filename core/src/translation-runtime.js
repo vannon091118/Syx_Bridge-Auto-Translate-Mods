@@ -150,6 +150,11 @@ function createTranslationRuntime(options) {
   // Argos and Google Free translate __SHLD_N__ shield tokens as normal text,
   // corrupting the placeholder restoration. Apply a second "Do Not Translate"
   // layer using _DNT_N_ tokens which are even less likely to be translated.
+  //
+  // H1-Note: DNT is intentionally NOT applied to LLM providers (Gemini,
+  // Groq, OpenRouter, etc.). LLMs reliably preserve __SHLD_N__ tokens and
+  // understand "do not modify this token" instructions. DNT double-shielding
+  // would add unnecessary complexity and token-translation risk for LLMs.
   function dntShieldEntries(entries) {
     const dntMaps = [];
     const dntTexts = entries.map(e => {
@@ -475,8 +480,12 @@ function createTranslationRuntime(options) {
       const shieldResult = finalized._shieldResult || null;
 
       const warnings = assessTranslationWarnings(item.source, finalized.restored);
-      if (warnings.warnings.length > 0) {
-        console.log(`[ACCEPT-WARN] "${item.source.substring(0, 30)}" akzeptiert mit Warnings: ${warnings.warnings.join(', ')}`);
+      // D1-Fix: Merge warnings.critical (structure issues: UNBALANCED_QUOTES, extreme
+      // length changes) into softWarnings so they trigger Deep Polish. Previously
+      // only warnings.warnings was passed — structural defects were silently ignored.
+      const allWarnings = [...warnings.warnings, ...warnings.critical];
+      if (allWarnings.length > 0) {
+        console.log(`[ACCEPT-WARN] "${item.source.substring(0, 30)}" akzeptiert mit Warnings: ${allWarnings.join(', ')}`);
         warningCount++;
       }
 
@@ -485,7 +494,7 @@ function createTranslationRuntime(options) {
       }
       return {
         translation: finalized.restored,
-        softWarnings: warnings.warnings,
+        softWarnings: allWarnings,
         fallbackUsed: false,
         criticalReject: false,
         shieldResult,
@@ -636,6 +645,7 @@ function createTranslationRuntime(options) {
   }
 
   async function flagPotentialErrors(items) {
+    if (items.length === 0) return [];  // C1-Fix: Empty-guard prevents API call with empty prompt
     const entries = await enrichWithContext(items);
     const target = dispatcher.resolveProviderModel('audit');
     if (!target.model || target.model === 'default' || dispatcher.buildStageRoutePlan('audit').length === 0) {
@@ -664,10 +674,14 @@ function createTranslationRuntime(options) {
     } catch (e) {
       console.warn(`[!] Flagging fehlgeschlagen: ${e.message} -> Pruefe alle Texte.`);
     }
-    // BUG-FS-006-Fix: null → true. Bei Audit-Fehler ALLE Texte markieren
-    // (konservativer Ansatz). null wurde von downstream als 'kein Fehler'
-    // interpretiert → Texte mit riskScore < 4 wurden nie gepolished.
-    return items.map(() => true);
+    // G2-Fix: Better fallback instead of blindly marking ALL items for polish.
+    // isLikelyTargetLanguageText() is available via closure — only flag items
+    // that DON'T already look like target language text (avoids wasted API
+    // credits polishing already-correct translations on network error).
+    return items.map(item => {
+      const text = typeof item === 'string' ? item : (item.source || '');
+      return !isLikelyTargetLanguageText(text);
+    });
   }
 
   async function getBestAvailableQualityModel() {
@@ -904,14 +918,14 @@ function createTranslationRuntime(options) {
         for (const p of savePromises) { await p; }
         
         // Commit all saveTranslation calls in ONE transaction (HDD optimization)
-        try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
+        try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch (re) { console.warn('[TRANSACTION] Rollback nach Commit-Fehler fehlgeschlagen:', re.message); } }
         if (cli.isActive()) {
           cli.updateBatch(batchNumber, totalBatches, result.provider, result.model);
           cli.tick(ctx.translations.size, ctx.uniqueTexts.length);
         }
       } catch (e) {
         // Rollback any open transaction from the failed save-loop (HDD optimization)
-        try { await rollbackTransaction(); } catch {}
+        try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Rollback fehlgeschlagen:', e.message); }
         if (e.message === 'ABORTED' || axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') break;
         console.error(`[!] Batch fehlgeschlagen: ${extractErrorMessage(e)}`);
         const failPromises = [];
@@ -966,9 +980,18 @@ function createTranslationRuntime(options) {
             sourceHash: getEntryHash(item)
           });
         }
-        await Promise.all(failPromises);
-        // Commit fail-path saveTranslation calls in ONE transaction (HDD optimization)
-        try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
+        // J2-Fix: Wrap Promise.all + commitTransaction in try/catch.
+        // If ANY saveTranslation in failPromises crashes, Promise.all throws
+        // and commitTransaction() was never reached → transaction left open.
+        try {
+          await Promise.all(failPromises);
+          // Commit fail-path saveTranslation calls in ONE transaction (HDD optimization)
+          try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch (re) { console.warn('[TRANSACTION] Rollback nach Fail-Commit fehlgeschlagen:', re.message); } }
+        } catch (saveErr) {
+          // Rollback the open transaction — failPromises crash means we can't commit.
+          try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Rollback fehlgeschlagen:', e.message); }
+          console.error(`[!] Fail-Path Save fatal: ${saveErr.message}. Transaction rolled back.`);
+        }
         if (cli.isActive()) cli.addErr(currentBatch.length);
       }
     }
@@ -1097,15 +1120,47 @@ function createTranslationRuntime(options) {
           }
         } catch (e) {
           // Rollback any open transaction from failed polish (HDD optimization)
-          try { await rollbackTransaction(); } catch {}
+          try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Rollback fehlgeschlagen:', e.message); }
           if (e.message === 'ABORTED' || axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') break;
           console.warn(`[!] QA-Korrektur Batch fehlgeschlagen: ${e.message}`);
+          // G1-Fix: Mark entries as polish_status='failed' to prevent infinite retry loop.
+          // When the entire polish batch fails (both runAbPolishing and fixGrammarBatch),
+          // these entries would otherwise stay pending forever and be retried every run.
+          // Analog zu runDeepPolishBatch's endgültiger Fehlschlag-Markierung.
+          // G1-Hardening: 2 Retry-Versuche für das UPDATE (analog B4 in deepPolishBatch).
+          // Ohne Retry würde ein einzelner SQLITE_BUSY den Eintrag pending lassen.
+          for (const idx of problematicIdx) {
+            const key = batchKeys[idx];
+            let updateSucceeded = false;
+            for (let attempt = 0; attempt < 2 && !updateSucceeded; attempt++) {
+              try {
+                await dbRun(
+                  `UPDATE translations SET polish_status = 'failed' WHERE source_text = ? AND target_lang = ?`,
+                  [key, config.TARGET_LANG]
+                );
+                updateSucceeded = true;
+              } catch (updateErr) {
+                if (attempt < 1) {
+                  console.warn(`[QA-FAIL] polish_status='failed' UPDATE fehlgeschlagen (Versuch ${attempt + 1}/2) fuer "${(key || '').substring(0, 40)}": ${updateErr.message} — retry in 500ms...`);
+                  await sleep(500);
+                } else {
+                  console.error(`[QA-FAIL] KRITISCH: polish_status='failed' UPDATE endgueltig fehlgeschlagen fuer "${(key || '').substring(0, 40)}" — Eintrag bleibt pending.`);
+                }
+              }
+            }
+          }
+          // J1-Fix: Skip to next batch iteration. After rollback, batchUpdatePromises
+          // must NOT execute (they would run outside a transaction) and commitTransaction
+          // must NOT be called (there is no open transaction to commit).
+          // Clear the array to prevent any accidental await downstream.
+          batchUpdatePromises.length = 0;
+          continue;
         }
       }
       await Promise.all(batchUpdatePromises);
       // Commit all polish saveTranslation calls in ONE transaction (HDD optimization)
       // Skip commit if transaction was rolled back (e.g. problematicIdx processing failed)
-      try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
+      try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Commit fehlgeschlagen: ${e.message}`);          try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Fail-Rollback fehlgeschlagen:', e.message); } }
     }
   }
 
@@ -1153,7 +1208,7 @@ function createTranslationRuntime(options) {
       contextBySource: mergeEntryContexts(entries),
       glossaryMap: buildGlossaryMap(await loadGlossaryRows(entries)),
       cachedData: await getCachedTranslations(entries),
-      uniqueTexts: [...new Set(entries.map(e => e.source).filter(shouldTranslate))],
+      uniqueTexts: [...new Set(entries.map(e => e.source).filter(shouldTranslate))],  // E1-Note: Defense-in-Depth — shouldTranslate wird auch in extractReplacements() gerufen. Diese zweite Filterung faengt Eintraege ab die nach der Extraktion hinzugekommen sind (z.B. via Cache-Refresh).
       translations: new Map(),
       options,
       missing: [],
