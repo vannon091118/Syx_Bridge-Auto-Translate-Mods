@@ -447,6 +447,28 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | SR-003 | Offene Punkte + DB-Archivierung + Validierung | [FREEZE_INDEX §28](#28-session_report_2026-06-19--vollarchivierung) |
 | SR-004 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §28](#28-session_report_2026-06-19--vollarchivierung) |
 
+### DEAD_FLAG_REPORT_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (Flag-Analyse) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — NMT_LOCAL_ENABLED entfernt, GOOGLE_FREE_ENABLED gefixt.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| DF-001 | ENV/Config-Flags + DB-Spalten-Flags | [FREEZE_INDEX §29](#29-dead_flag_report_2026-06-19--vollarchivierung) |
+| DF-002 | Router/Runtime-Flags + Zusammenfassung | [FREEZE_INDEX §29](#29-dead_flag_report_2026-06-19--vollarchivierung) |
+| DF-003 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §29](#29-dead_flag_report_2026-06-19--vollarchivierung) |
+
+### FLAG_TAXONOMY_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (3 Flag-Systeme + Kollisionsregister) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Taxonomie-Prinzip lebt in AGENTS.md §18 weiter.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| FT-001 | 3 Flag-Systeme + Inventur + Cross-Reference | [FREEZE_INDEX §30](#30-flag_taxonomy_2026-06-19--vollarchivierung) |
+| FT-002 | Falsifikation + Kollisionsregister | [FREEZE_INDEX §30](#30-flag_taxonomy_2026-06-19--vollarchivierung) |
+| FT-003 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §30](#30-flag_taxonomy_2026-06-19--vollarchivierung) |
+
 ### REALITY_AUDIT_RECONCILIATION_2026-06-19 Vollarchivierung (2026-06-20)
 
 > **Aktion:** Komplettes Quelldokument (5 Divergenz-Fixes + Methodik) ins Buch überführt.
