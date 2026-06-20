@@ -357,6 +357,18 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | CD-004 | §5 Veränderung + §6 Reconciliation + §7 Methodik | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
 | CD-005 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §19](#19-code_vs_docs_audit_2026-06-19--vollarchivierung) |
 
+### INTEGRITY_AUDIT_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (33 Claims + Gap-Analyse + Lösch-Freigabe) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Pre-Lösch-Verifikation, Löschung der 44 Dokumente ist längst erfolgt.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| IG-001 | 33 Claims code-verified (6 Kategorien) | [FREEZE_INDEX §20](#20-integrity_audit_2026-06-19--vollarchivierung) |
+| IG-002 | 15 nicht verifizierbar + 3 Lücken | [FREEZE_INDEX §20](#20-integrity_audit_2026-06-19--vollarchivierung) |
+| IG-003 | Methodik + Fazit + Lösch-Freigabe | [FREEZE_INDEX §20](#20-integrity_audit_2026-06-19--vollarchivierung) |
+| IG-004 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §20](#20-integrity_audit_2026-06-19--vollarchivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:

@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN + 4 REDUNDANZ_AUDIT + 5 CODE_VS_DOCS = **112 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN + 4 REDUNDANZ_AUDIT + 5 CODE_VS_DOCS + 4 INTEGRITY_AUDIT = **116 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -30,8 +30,9 @@
 17. [FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 — Vollarchivierung (5)](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung)
 18. [REDUNDANZ_AUDIT_V2_2026-06-19 — Vollarchivierung (4)](#18-redundanz_audit_v2_2026-06-19--vollarchivierung)
 19. [CODE_VS_DOCS_AUDIT_2026-06-19 — Vollarchivierung (5)](#19-code_vs_docs_audit_2026-06-19--vollarchivierung)
+20. [INTEGRITY_AUDIT_2026-06-19 — Vollarchivierung (4)](#20-integrity_audit_2026-06-19--vollarchivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5+4+5 = **126 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5+4+5+4 = **130 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -1052,6 +1053,49 @@
 - **Zusammenfassung:** Systematischer Code-vs-Doku-Abgleich: 8 Subagenten + manuelle Verifikation + DB-Live-Query. 4 Doku-Dateien gegen 33 Code-Module geprüft. 15 Drift-Einträge, 6 unverifizierte Claims, 9 Reconciliation-Aktionen. Bereits als DC-001 in FREEZE_INDEX §13 katalogisiert.
 - **Ursache der Obsoleszenz:** 100 % der Claims sind historisch. DB-Zahlen, Provider-Listen, Drift-Einträge, Reconciliation-Empfehlungen — alles vom 19.06. 08:17 UTC. Das Dokument war ein Einmal-Audit, dessen Findings längst implementiert sind.
 - **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-001) + §19 (diese Einträge)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
+## 20. INTEGRITY_AUDIT_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Pre-Lösch-Verifikation, Löschung längst erfolgt.
+> **Quelle:** `core/archive/docs/INTEGRITY_AUDIT_2026-06-19.md` (Integritäts-Verifikation, 100 % OBSOLETE)
+> **Regel:** Einmalige Verifikation vor der Löschung der 44 FREEZE-Dokumente. Löschung ist abgeschlossen.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 IG-001 — 33 Claims code-verified (6 Kategorien)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Code-Verifikation
+- **Zusammenfassung:** 33 Claims in 6 Kategorien gegen echten Code verifiziert: Provider/Routing (7), Plugin/Architektur (6), Quality/Scoring (6), DB/Preflight (5), Pipeline/Export (6), Gap-Closer (3). Jeder Claim mit exakter Code-Evidence (Datei:Zeile). 100 % Integritäts-Score.
+- **Ursache der Obsoleszenz:** Die Verifikation war eine Voraussetzung für die Löschung der 44 FREEZE-Dokumente. Die Löschung ist längst erfolgt (Doku-Clean v0.20.0). Code-Evidence bezieht sich auf Code-Stand vom 19.06. — viele Zeilennummern haben sich verschoben.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §1–§13 (archivierte Docs) + MASTER_FREEZE (Verifikationsmatrix)
+- **Status:** ✅ Archiviert
+
+### 📋 IG-002 — 15 nicht verifizierbare Claims + 3 Lücken geschlossen
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Gap-Analyse
+- **Zusammenfassung:** 15 Claims als nicht code-verifizierbar klassifiziert: historische DB-Zahlen (5), Session-Aktionen (4), historische Bug-Zustände (3), manuelle Eingriffe (2), DB-Snapshot-Beschreibungen (1). 3 Lücken vor diesem Report geschlossen: Dual-Path-Copy (L1), NMT Local Provider (L2), SongsOfSyxAdapter Deprecation (L3).
+- **Ursache der Obsoleszenz:** Gap-Analyse bezog sich auf spezifische Claims aus den 44 zur Löschung anstehenden Dokumenten. NMT Local wurde später durch BU-040 entfernt. SongsOfSyxAdapter ist deprecated.
+- **LIVE-Ersatz:** FREEZE_INDEX.md (Glossary-Einträge für alle 44 gelöschten Dokumente)
+- **Status:** ✅ Archiviert
+
+### 📋 IG-003 — Methodik + Fazit + Lösch-Freigabe
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Prozess-Doku
+- **Zusammenfassung:** 4-Phasen-Methodik: Massen-Verifikation (5 Code-Searcher), Thinker-Analyse, Gap-Closing (3 Searcher), Final Report. Fazit: 100 % Integrität, alle 4 Doku-Clean-Kriterien erfüllt. Lösch-Freigabe: STATUS ERTEILT.
+- **Ursache der Obsoleszenz:** Die Lösch-Freigabe wurde erteilt und ausgeführt. Die 44 Dokumente sind gelöscht. Der Prozess ist abgeschlossen.
+- **LIVE-Ersatz:** Keiner — einmaliger Prozess, abgeschlossen.
+- **Status:** ✅ Archiviert
+
+### 📋 IG-004 — Gesamtdokument: INTEGRITY_AUDIT_2026-06-19.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Pre-Lösch-Integritäts-Verifikation: 5+3 Code-Searcher + 1 Thinker. 33/33 Claims code-verified (100 %), 15 Claims als nicht-verifizierbar dokumentiert, 3 Lücken geschlossen, Lösch-Freigabe erteilt. Bereits als DC-008 in FREEZE_INDEX §13 katalogisiert.
+- **Ursache der Obsoleszenz:** Zweck vollständig erfüllt — die Verifikation autorisierte die Löschung, die Löschung ist erfolgt. Das Dokument ist ein historisches Zertifikat.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-008) + §20 (diese Einträge)
 - **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
 
 ---
