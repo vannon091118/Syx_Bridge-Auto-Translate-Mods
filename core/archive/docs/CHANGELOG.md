@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## [STABILISIERUNGS-SCOPE] - 2026-06-21 — 0 Bypasses Needed: 9-Punkte-Plan für 85% → 95% Fremdsystem-Score
+
+Nach vier intensiven Audits — BYPASS-AUDIT (36 Funde, 34 geplant, 1 Risiko), FEATURE_VERIFICATION (14/14 README-Features, 175/175 Smoke-Tests, 85% Score), GRAMMAR_CHECK-False-Alarm-Korrektur, und Patch Mode Origin Trace — stand die Frage im Raum: Was jetzt? Der User hats auf den Punkt gebracht: "System so weit stabilisieren dass Bypasses nicht benötigt werden." Kein Pflaster, kein Workaround, kein "das machen wir später."
+
+Das Ergebnis ist ein ehrlicher 9-Punkte-Plan der genau die Stellen anpackt die das System auf Fremdsystemen behindern. better-sqlite3 Native-Compilation scheitert ohne Build-Tools — das kostet 5%. Patch Mode ist hard-coded tot seit 2026-06-15 — nochmal 3%. db_repair.js CLI crashed — 2%. Test-Skips die "DB tests skipped" melden und trotzdem PASS behaupten — das ist genau die Art von Fake die der User meinte.
+
+### Die 9 Tasks (P0 → P3)
+- **P0-1** (~2h): better-sqlite3 Fremdsystem-Fallback — prebuild/fallback damit npm install ohne C++ Build-Tools funktioniert
+- **P0-2** (~15min): verify_watermark.js Pre-commit-Hook-Warnung beseitigen (Datei umbenannt)
+- **P0-3** (~1h): db_repair.js CLI auf better-sqlite3 Sync-API umstellen (db.all is not a function)
+- **P1-1** (~3h): PATCH MODE von Hard-Coded Disabled zu User-Opt-Out (PATCH_MODE_ENABLED=false Default)
+- **P2-1** (~30min): v21_p0_live_verify.js — DB-Tests hart failen lassen statt "DB tests skipped" zu loggen
+- **P2-2** (~30min): Smoke-Tests — Kernmodule hart failen lassen statt null zuzuweisen
+- **P3-1** (~15min): gui/public/app.js silent .catch() mit Logging versehen
+- **P3-2** (~1h): e2e_bug1_native_mode.js Stub-Catches dokumentieren
+- **P3-3** (~15min): gui/server.js Stream-Catches mit console.debug versehen
+
+### Was NICHT gemacht wird
+- Gate-Counter silent catches (optionales Audit-Tool, kein kritischer Pfad)
+- continue-Statements (Filter-Logik, alle legitim)
+- process.exit in Auto-Mode/GUI (gewollte Exit-Pfade)
+- GRAMMAR_CHECK=false (User-Opt-Out, bereits so designed)
+
+### Ziel
+**95% Score auf Fremdsystemen.** Nur Python (Argos) und Ollama bleiben als optionale Komponenten die der User selbst installieren muss. Kein technischer Bypass maskiert mehr Fehler. Kein Test faked einen Pass. Jeder Skip ist ein User-Opt-Out mit dokumentiertem Default.
+
+### Files Changed
+- `core/archive/docs/STABILISIERUNGS_SCOPE_2026-06-21.md` — NEU: Vollständiger 9-Punkte-Plan (178 Zeilen)
+- `core/archive/docs/CHANGELOG.md` — Dieser Eintrag
+- `core/archive/docs/FREEZE/FREEZE_INDEX_2.md` — §10 + Session-Tabelle aktualisiert
+
+### Tests
+- Code-Review via RULE 3 verify_commit_msg.js: PASS (239 Wörter, trivial commit)
+- Cross-Referenz: BYPASS_AUDIT (36 Funde) + FEATURE_VERIFICATION (85%) als Basis
+
+### EFFORT TO NEXT SCOPE
+- P0-1: better-sqlite3 prebuild/fallback implementieren (~2h, +5% Score)
+- P0-3: db_repair.js CLI fixen (~1h, +2% Score)
+- P1-1: Patch Mode User-Opt-Out (~3h, +3% Score)
+
+---
+
 ## [FULLTEST-RUN-ENGLISH] - 2026-06-21 — E2E Fulltest mit English-Source-Mods: 27 fresh translations, DB 141→165, 0 Watermarks
 
 Der erste Fulltest mit German-Mods war eine Enttäuschung — 92% stale weil die Test-Mods schon auf Deutsch waren. Also hab ich zwei neue English-Source-Mods gebaut und den Test wiederholt. Diesmal mit echten Übersetzungen. Und es hat funktioniert.

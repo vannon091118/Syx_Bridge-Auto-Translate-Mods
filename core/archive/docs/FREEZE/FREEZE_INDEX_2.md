@@ -19,8 +19,9 @@
 7. [V0.21 P0 Defense-in-Depth — normalizeWhitespace (2026-06-21)](#7-v021-p0-defense-in-depth--normalizewhitespace)
 8. [Patch Mode Hard-Coded Disabled — Origin Trace (2026-06-21)](#8-patch-mode-hard-coded-disabled--origin-trace)
 9. [GRAMMAR_CHECK CLI-Default — FALSE ALARM (2026-06-21)](#9-grammar_check-cli-default--false-alarm)
+10. [Stabilisierungs-Scope — "0 Bypasses Needed" (2026-06-21)](#10-stabilisierungs-scope--0-bypasses-needed)
 
-> **Gesamtzahl dieser Runde:** 15 Fixes + 7 DD-Korrekturen + 1 P0 Hardening + 1 Bypass-Audit + 1 Origin-Trace + 1 False-Alarm-Korrektur, Commits `9a853ef` + `bcb6e1e` + `c1517ef` + `6cb5efb` + `575db6c` + `bfba48b`
+> **Gesamtzahl dieser Runde:** 15 Fixes + 7 DD-Korrekturen + 1 P0 Hardening + 1 Bypass-Audit + 1 Origin-Trace + 1 False-Alarm-Korrektur + 1 Feature-Verification + 1 Stabilisierungs-Scope, Commits `9a853ef` + `bcb6e1e` + `c1517ef` + `6cb5efb` + `575db6c` + `bfba48b` + `d497225`
 
 ---
 
@@ -436,6 +437,23 @@
 | 2026-06-21 | BYPASS-AUDIT Projekt-weit | 36 Bypasses dokumentiert | `575db6c` | — |
 | 2026-06-21 | Patch Mode Origin Trace | 1 Ursprung recherchiert | `bfba48b` | 24 (dieses Dokument) |
 | 2026-06-21 | GRAMMAR_CHECK Verification | 1 False-Alarm korrigiert | — | 25 (dieses Dokument) |
+| 2026-06-21 | Stabilisierungs-Scope | 1 Scope-Dokument (9 Tasks, ~9h) | `d497225` | 26 (dieses Dokument) |
+
+---
+
+## 10. Stabilisierungs-Scope — "0 Bypasses Needed"
+
+### 🎯 STABILISIERUNGS-SCOPE — Session 2026-06-21
+- **Datum:** 2026-06-21 | **Version:** v0.21 → v0.22 Ziel
+- **Kategorie:** Strategischer Scope — System so stabil dass kein technischer Bypass mehr nötig ist
+- **Zusammenfassung:** Aus den 36 BYPASS-Funden und dem 85%-Feature-Verification-Score einen 9-Punkte-Plan abgeleitet, der alle technischen Bypasses entweder eliminiert oder in User-Opt-Outs konvertiert. Ziel: 95% Score auf Fremdsystemen. Kein Test der einen Pass faked. Jeder Skip ein dokumentierter User-Toggle.
+- **Kausalität:** User-Auftrag: "System so weit stabilisieren dass Bypasses nicht benötigt werden, alle Bypasses als Opt-out für den Nutzer, keine technischen Skips um Tests zu faken."
+- **Methode:** BYPASS_AUDIT (36 Funde) + FEATURE_VERIFICATION (85%) → Klassifizierung in "eliminieren" / "User-Opt-Out" / "Test-Fake" → Priorisierung nach Impact auf Fremdsysteme → Scope mit 9 Tasks, ~9h.
+- **9 Tasks:** P0-1 better-sqlite3 Fremdsystem-Fallback (+5%), P0-2 verify_watermark.js Hook (+0%), P0-3 db_repair.js CLI (+2%), P1-1 Patch Mode User-Opt-Out (+3%), P2-1 v21_p0 harte DB-Checks, P2-2 Smoke-Tests harte Modul-Checks, P3-1 gui catch Logging, P3-2 e2e_bug1 Catch-Doku, P3-3 gui/server.js Stream debug
+- **Ziel-Score:** 85% → 95% (nur Python/Argos + Ollama bleiben als optionale Abzüge)
+- **Cross-Referenzen:** `BYPASS_AUDIT_2026-06-21.md`, `FEATURE_VERIFICATION_2026-06-21.md`, `STABILISIERUNGS_SCOPE_2026-06-21.md`
+- **Status:** ✅ SCOPE DEFINIERT — Commit `d497225`, noch keine Implementierung
+- **LIVE-Vorhanden:** `core/archive/docs/STABILISIERUNGS_SCOPE_2026-06-21.md` (178 Zeilen, 9 Tasks, ~9h)
 
 ---
 
