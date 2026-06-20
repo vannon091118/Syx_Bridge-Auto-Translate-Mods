@@ -319,6 +319,19 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | DK-007 | Zusammenfassung: 12 Divergenzen | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
 | DK-008 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §16](#16-doku_konsolidierung_2026-06-20--vollarchivierung) |
 
+### FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (Inventur + 15 Findings + 6 Fragen + Cluster) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Einmal-Audit vom 19.06. LOC-Zahlen veraltet, kritische Findings (F9/F14) in späteren Sessions behoben, Fragen durch Roadmap beantwortet.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| FF-001 | §1 Inventar: 27 Dateien, 11.535 LOC | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
+| FF-002 | §2 Importketten + §4 Diff | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
+| FF-003 | §3 15 Findings F1–F15 | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
+| FF-004 | §5 Fragen Q1–Q6 + §6 Cluster A–G | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
+| FF-005 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:

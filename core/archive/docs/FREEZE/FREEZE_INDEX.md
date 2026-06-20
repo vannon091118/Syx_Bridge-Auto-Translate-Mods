@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG = **98 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN = **103 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -27,8 +27,9 @@
 14. [HANDSHAKE_2026-06-19 — Partielle Archivierung (12)](#14-handshake_2026-06-19--partielle-archivierung)
 15. [HANDSHAKE_2026-06-20 — Partielle Archivierung (11)](#15-handshake_2026-06-20--partielle-archivierung)
 16. [DOKU_KONSOLIDIERUNG_2026-06-20 — Vollarchivierung (8)](#16-doku_konsolidierung_2026-06-20--vollarchivierung)
+17. [FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 — Vollarchivierung (5)](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8 = **112 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5 = **117 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -904,6 +905,57 @@
 - **Zusammenfassung:** Komplettes LIVE-Dokument (28→1: Inventur + 12 Divergenz-Befunde + Zusammenfassung + 12 Korrekturen) vollständig ins Buch überführt. Methode: 2 unabhängige thinker-with-files-gemini analysierten LIVE- und FREEZE-Doku getrennt, dann Cross-Konsolidierung.
 - **Ursache der Obsoleszenz:** 100 % der Inhalte sind behoben/erledigt/überholt. Kein einziger ACTIVE Claim verbleibt. Das Dokument war ein Einmal-Konsolidierungslauf — sein Zweck ist erfüllt.
 - **LIVE-Ersatz:** FREEZE_INDEX.md §16 (diese Einträge) + MASTER_DOC.md §9
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
+## 17. FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Einmal-Audit, alle Findings überholt.
+> **Quelle:** `core/archive/docs/FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md` (Forensischer Vollscan, ~100 % OBSOLETE)
+> **Regel:** Ein forensischer Scan vom 19.06. mit LOC-Zahlen, Findings und Fragen — alles durch spätere Entwicklung überholt.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 FF-001 — §1 Inventar: 27 Source-Dateien, Plugins, Tests, Scripts
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Inventar
+- **Zusammenfassung:** Vollständige Inventur: 27 core/src/-Dateien (11.535 LOC total), 3 Plugin-Dateien (GameAdapter/GamePlugin/SongsOfSyxPlugin), index.js (~800 LOC), 9 Tests (Smoke+E2E), 20 Scripts in core/scripts/. LOC-Tabelle pro Datei mit Exports.
+- **Ursache der Obsoleszenz:** Historischer Schnappschuss. LOC-Zahlen veraltet (db.js 339→376, translation-db.js 355→440, translation-runtime.js 1210→1300+, text-core.js 535→530+). Script-Liste unvollständig (db_query.js, db_snapshot.js, export_stage2.js, test_providers.js fehlen). Tests jetzt bei 100/100 (plugin-boundary-contract statt 73/73).
+- **LIVE-Ersatz:** core/src/INDEX.md (aktuelle LOC + Funktionen) + core/scripts/INDEX.md + core/tests/INDEX.md
+- **Status:** ✅ Archiviert
+
+### 📋 FF-002 — §2 Importketten + §4 Veränderung (Diff)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Architektur-Snapshot + Working-Tree-Diff
+- **Zusammenfassung:** Dependency-Flow: translation-runtime.js als Hub-and-Spoke-Wurzel, Factory-Composition via create*(), kein zirkulärer Import. Externe Deps: sqlite3 (jetzt better-sqlite3), axios, dotenv, inquirer (jetzt prompts), express. §4 listet Unstaged-Changes (db.js BU-021, dispatcher.js Tier-1-Fix, translation-runtime.js GOD-001, etc.) — alle längst committed.
+- **Ursache der Obsoleszenz:** sqlite3→better-sqlite3 migriert, inquirer→prompts migriert. Alle §4-Changes sind committed (BU-021, Tier-1-Fix, GOD-001). Architektur-Pattern (Factory-Composition) ist noch gültig, aber die spezifischen Datei-Referenzen und Paketnamen sind veraltet.
+- **LIVE-Ersatz:** core/src/INDEX.md + package.json + CHANGELOG [BETTER-SQLITE3-MIGRATION]
+- **Status:** ✅ Archiviert
+
+### 📋 FF-003 — §3 Auffälligkeiten: 15 Findings (F1–F15, P0–P3)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Forensische Findings
+- **Zusammenfassung:** 15 Findings: F1 Watermark-Code BROKEN (P0), F2 Duplicate require (P1), F3 Indentation-Artefakt (P1), F4 PREFLIGHT HEALTHY bei WAL-Lock (P1), F5 ROUTING_AUDIT §4 alt (P1), F6 ZWSP undokumentiert (P2), F7 171× console.log (P2), F8 3× process.exit (P2), F9 5× swallowed .catch (P2), F10 localhost-URLs hardcoded (P2), F11 34× leere catch (P2), F12 12× .catch mit Fallback (P2), F13 PRAGMA hardcoded (P3), F14 MAX_REVIEW_COUNT hardcoded (P3), F15 Adapter-Interface ohne Validation (P3).
+- **Ursache der Obsoleszenz:** F9 (swallowed .catch) → BEHOBEN durch B4-SILENT-CATCH-FIX. F14 (MAX_REVIEW_COUNT) → BEHOBEN durch REVIEW-LIMIT-PIPELINE. F1 (Watermark) → adressiert in V0.21 P0-1/P0-3. F15 (Adapter-Validation) → adressiert durch plugin-boundary-contract (BU-023). F2-F8, F10-F13 sind Beobachtungen ohne Aktionswert. Rest durch Code-Evolution überholt.
+- **LIVE-Ersatz:** CHANGELOG [B4-SILENT-CATCH-FIX] + [REVIEW-LIMIT-PIPELINE] + V0.21_SCOPE.md
+- **Status:** ✅ Archiviert
+
+### 📋 FF-004 — §5 Offene Fragen (Q1–Q6) + §6 Konsolidierung (Cluster A–G)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Entscheidungsfragen + Cluster-Analyse
+- **Zusammenfassung:** 6 offene Fragen: Q1 Watermark fixen/entfernen (→ V0.21 beantwortet), Q2 ZWSP dokumentieren (→ obsolet), Q3 Test-Framework (→ jest?), Q4 config-runtime.js splitten (→ alter Vorschlag), Q5 Client-Factory Strategy-Pattern (→ alter Vorschlag), Q6 DB-Backup konsolidieren (→ Snapshot-Lage hat sich weiterentwickelt). §6: 7 Cluster (A: Dead Code, B: Code-Hygiene, C: Doku-Drift, D: Undokumentiert, E: Logging, F: Error-Handling, G: Hardcoded Config).
+- **Ursache der Obsoleszenz:** Q1/Q2 durch V0.21 beantwortet. Q3–Q6 sind historische Vorschläge — aktuelle Roadmap in MASTER_DOC §6. Cluster-Analyse basiert auf veralteten Findings.
+- **LIVE-Ersatz:** MASTER_DOC.md §6 (aktuelle Roadmap) + V0.21_SCOPE.md
+- **Status:** ✅ Archiviert
+
+### 📋 FF-005 — Gesamtdokument: FORENSIC_FULLSCAN_v0.20_2026-06-19_V2.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Forensischer Vollscan: 10 Code-Searcher-Subagenten parallel, 15 Such-Patterns, 27 Dateien gescannt. Methode: Nur Ist-Zustand dokumentieren, nichts im selben Lauf ändern. 15 Findings (1×P0, 4×P1, 7×P2, 3×P3), 6 offene Fragen, 7 Ursachen-Cluster.
+- **Ursache der Obsoleszenz:** 100 % der Inhalte sind überholt. LOC-Zahlen veraltet, alle kritischen Findings (F1/F9/F14/F15) in späteren Sessions behoben, Fragen durch Roadmap-Entwicklung beantwortet. Das Dokument war ein Einmal-Audit — sein Zweck ist erfüllt.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §17 (diese Einträge) + core/src/INDEX.md (aktueller Code-Stand)
 - **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
 
 ---
