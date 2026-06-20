@@ -1316,6 +1316,41 @@
 
 ---
 
+## 27. VERIFICATION_REPORT_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Dynamische Verifikation, 7/7 Claims bestätigt.
+> **Quelle:** `core/archive/docs/VERIFICATION_REPORT_2026-06-19.md` (Verifikations-Report, 100 % OBSOLETE)
+> **Regel:** Einmaliger Verifikationslauf — 7 Claims (BU-035 bis BU-039 + 2 Dead Flags) alle mit echtem Befehl+Output verifiziert.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 VR-001 — BU-035–BU-039 Verifikation (Claims 1-5)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Dynamische Verifikation
+- **Zusammenfassung:** 5 Bug-Verifikationen mit echtem Runtime-Output: BU-035 Watermark ZWSP/ZWNJ Injection ✅, BU-036 GOOGLE_FREE_ENABLED Verdrahtung ✅, BU-037 Keine Doppelprüfung ✅, BU-038 Logger console.error ✅, BU-039 NUL gelöscht ✅. Jeder Claim mit node -e Befehl + rohem Output.
+- **Ursache der Obsoleszenz:** Alle 5 Bugs sind behoben und verifiziert. Die Verifikation war ein Einmal-Durchlauf. Kein offener Rest.
+- **LIVE-Ersatz:** CHANGELOG [BU-035–039] + aktueller Code
+- **Status:** ✅ Archiviert
+
+### 📋 VR-002 — Dead Flag Verifikation (Claims 6-7) + Zusammenfassung
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Dead Flag Check
+- **Zusammenfassung:** Claim 6: NMT_LOCAL_ENABLED VERWAIST ✅ (6 Dateien durchsucht, 0 Treffer in Routing/Decision-Code). Claim 7: last_checked_at/stress_tested_at TOT ✅ (nur Write-Pfade, 0 WHERE/SELECT). Gesamtergebnis: 7/7 Claims bestätigt durch tatsächliche Ausführung.
+- **Ursache der Obsoleszenz:** NMT_LOCAL_ENABLED wurde durch BU-040 entfernt. TOT-Flags wurden später in preflight.js integriert (BU-035 Fix hat READ-Pfade für last_checked_at/stress_tested_at hinzugefügt).
+- **LIVE-Ersatz:** CHANGELOG [BU-040] + [BU-035]
+- **Status:** ✅ Archiviert
+
+### 📋 VR-003 — Gesamtdokument: VERIFICATION_REPORT_2026-06-19.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Verifikations-Report: 7 Claims dynamisch verifiziert (echter Befehl + Output, kein Static-Grep). BU-035–BU-039 + 2 Dead Flags. Bereits als DC-018 in FREEZE_INDEX §13 katalogisiert.
+- **Ursache der Obsoleszenz:** 100 % der Claims sind verifiziert und behoben. Das Dokument war ein Einmal-Verifikationslauf. "Keine Behauptung ohne Befehl+Output-Paar" — das Prinzip lebt weiter, das Dokument nicht.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-018) + §27 (diese Einträge)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
 ## 📌 Verbleibende Dokumente im FREEZE-Verzeichnis
 
 | Dokument | Status | Aktion |
