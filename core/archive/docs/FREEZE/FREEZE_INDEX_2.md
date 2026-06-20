@@ -15,8 +15,9 @@
 3. [Schwerwiegende Fixes — G1, D1, C1, C2, H2 (P1)](#3-schwerwiegende-fixes--g1-d1-c1-c2-h2)
 4. [Mittlere Fixes — A1, A2, G2, H1, I1 (P2)](#4-mittlere-fixes--a1-a2-g2-h1-i1)
 5. [Bagatellen — D2, E1, E2 (P3)](#5-bagatellen--d2-e1-e2)
+6. [Doku-Divergenz-Audit (🔵) — 7 DD-Einträge (2026-06-20)](#6-doku-divergenz-audit--7-dd-einträge)
 
-> **Gesamtzahl dieser Runde:** 15 Fixes in 7 Dateien, Commit `9a853ef`
+> **Gesamtzahl dieser Runde:** 15 Fixes + 7 DD-Korrekturen, Commits `9a853ef` + `bcb6e1e`
 
 ---
 
@@ -201,11 +202,189 @@
 
 ---
 
+---
+
+## 6. Doku-Divergenz-Audit (🔵) — 7 DD-Einträge
+
+### 🧊 DOKU-DIVERGENZ-AUDIT — Session 2026-06-20
+- **Datum:** 2026-06-20 | **Version:** v0.21-experimental-workbench
+- **Kategorie:** Systemische Doku-Divergenz-Analyse
+- **Zusammenfassung:** Vollständiges Doku-Divergenz-Audit (🔵) per AGENTS.md-Spezifikation. 8 Doku-Dateien (README.md, AGENTS.md, MASTER_DOC.md, CHANGELOG.md, PREFLIGHT_LATEST.md, KNOWN_BUGS_REPORT.md, 2× HANDSHAKE) gegen aktuellen Live-Code geprüft. 120+ testbare Claims extrahiert, 7 Divergenzen identifiziert und durch die 4-Stationen-Kette (DIVERGENZ→URSACHE→LANGZEITLÖSUNG→NUTZEN) geschleust. Alle 7 korrigiert.
+- **Kausalität:** User-Auftrag: "Führe ein vollständiges Doku-Divergenz-Audit (🔵) durch — prüfe alle Doku-Dateien gegen den aktuellen Live-Code-Stand nach den 15 Fixes."
+- **Methode:** 8 parallele code-searcher extrahierten testbare Claims → basher verifizierten gegen Live-Code (wc -l, node -e, diff) → 7 Divergenzen durchliefen die 4-Stationen-Kette → code-reviewer-deepseek prüfte Korrekturen → Commit `bcb6e1e`
+- **Cross-Referenzen:** `README.md`, `AGENTS.md`, `core/archive/docs/AGENTS.md`, `core/archive/docs/MASTER_DOC.md`, `core/archive/docs/PREFLIGHT_LATEST.md`
+- **Status:** ✅ ABGESCHLOSSEN — 7/7 DD-Einträge korrigiert, Commit `bcb6e1e`
+- **LIVE-Vorhanden:** Alle Korrekturen in den genannten 5 Dateien
+- **Verifikation:** diff AGENTS.md core/archive/docs/AGENTS.md = IDENTICAL (SSOT), Syntax-Check 5 Dateien, Code-Review approved
+
+---
+
+### 🔀 DD-001 — MASTER_DOC: Schema-Version 5 → 6
+
+🔀 DIVERGENZ
+  MASTER_DOC §5 Zeile 82: "better-sqlite3 aktiv — Schema-Version 5."
+  Live-Code `db.js:89`: `CURRENT_SCHEMA_VERSION = '6'` (seit SCHEMA-FIX 2026-06-20).
+
+🧬 URSACHE
+  MASTER_DOC wurde nach dem SCHEMA-FIX-Commit nicht nachgezogen. Die Schema-Version
+  ist eine händisch gepflegte Zahl — kein automatisierter Sync.
+
+🛠️ LANGZEITLÖSUNG
+  Schema-Version auf 6 korrigiert. Zusätzlich automatisierbaren Check erwägen:
+  Preflight könnte `CURRENT_SCHEMA_VERSION` aus `db.js` parsen und gegen
+  MASTER_DOC abgleichen (DOKU-FLAG).
+
+💡 NUTZEN + BEGRÜNDUNG
+  Wenn die Doku Schema 5 sagt während der Code Schema 6 hat, führt das zu
+  falschen Annahmen über existierende DB-Spalten (z.B. placeholder_review_count).
+  Ein Agent könnte denken die Spalte existiert nicht und sie "neu" anlegen.
+
+---
+
+### 🔀 DD-002 — MASTER_DOC: translation-runtime.js LOC ~1211 → ~1370
+
+🔀 DIVERGENZ
+  MASTER_DOC §4 Zeile 72: "translation-runtime.js (~1211 LOC)"
+  Live `wc -l`: 1.370 LOC.
+
+🧬 URSACHE
+  Der Sinnhaftigkeitsanalyse-Commit (`9a853ef`) fügte ~160 Zeilen hinzu
+  (J1, J2, G1, D1, C1, A1, G2, H1, E1). MASTER_DOC wurde nicht aktualisiert.
+
+🛠️ LANGZEITLÖSUNG
+  Auf 1.370 LOC korrigiert. Kein struktureller Fix nötig — LOC in MASTER_DOC
+  sind als "~"-Schätzung markiert. Bei nächstem größerem Refactoring bewusst
+  nachziehen.
+
+💡 NUTZEN + BEGRÜNDUNG
+  Eine Abweichung von 159 Zeilen bei 1.211 angenommenen Zeilen ist 13% —
+  das verfälscht Architekturentscheidungen ("die Datei ist zu gross, wir
+  müssen aufteilen" vs "sie ist schon grösser als gedacht").
+
+---
+
+### 🔀 DD-003 — MASTER_DOC: translation-db.js LOC ~356 → ~456
+
+🔀 DIVERGENZ
+  MASTER_DOC §4 Zeile 71: "translation-db.js (~356 LOC)"
+  Live `wc -l`: 456 LOC.
+
+🧬 URSACHE
+  REVIEW-LIMIT-PIPELINE P4 fügte ~100 Zeilen hinzu (Dual Counter-Routing,
+  Guard-Logik, Recovery). MASTER_DOC blieb auf dem Stand davor.
+
+🛠️ LANGZEITLÖSUNG
+  Auf 456 LOC korrigiert. Siehe DD-002.
+
+💡 NUTZEN + BEGRÜNDUNG
+  100 Zeilen Abweichung, die DB-Interface-Datei ist 28% grösser als
+  dokumentiert. Beeinflusst Einschätzung der Modul-Komplexität.
+
+---
+
+### 🔀 DD-004 — MASTER_DOC: DB-Zahlen 5.547 Einträge (veraltet)
+
+🔀 DIVERGENZ
+  MASTER_DOC §5 Zeile 79: "5.547 Einträge, 62.5% stale (3.466),
+  38.7% flagged (2.146), Ø Score 82.9"
+  Live-DB: wurde nach Doku-Clean auf ~100 Test-Einträge zurückgesetzt.
+  Die 5.547-Zahlen sind ein Snapshot vom 2026-06-20 vor dem Reset.
+
+🧬 URSACHE
+  DB-Reset (DD-001 aus dem ersten Doku-Divergenz-Audit) wurde in §5 als
+  Warnhinweis dokumentiert, aber die konkreten Zahlen wurden nicht
+  aktualisiert — sie standen als "aktuell" obwohl sie historisch waren.
+
+🛠️ LANGZEITLÖSUNG
+  Zahlen durch Verweis auf DB-Reset + V0.21-Audit (9.492 Einträge) ersetzt.
+  Klarer Vermerk: "nicht repräsentativ für Produktion." Strukturell:
+  DB-Statistiken in MASTER_DOC sollten IMMER mit Datum + Source versehen
+  sein (PREFLIGHT_LATEST oder DB_TREND_REPORT).
+
+💡 NUTZEN + BEGRÜNDUNG
+  Ohne Datum und Source sehen DB-Zahlen aus wie eine Live-Metrik, sind
+  aber eine historische Momentaufnahme. Ein Agent der plant "wir haben
+  5.547 Einträge also brauchen wir X" plant auf Basis toter Daten.
+
+---
+
+### 🔀 DD-005 — README: Source-Files 70 → 35
+
+🔀 DIVERGENZ
+  README Zeile 209/428: "70 source files, ~10k LOC" (EN + DE)
+  Live `find core/src -name "*.js" | wc -l`: 35.
+
+🧬 URSACHE
+  README wurde seit v0.20.0-pre-release nicht neu gezählt. Nach Doku-Clean
+  und dem Release-Build liegen nur noch 35 Source-Dateien in core/src/.
+  Die Zahl 70 zählte vermutlich ALLE .js-Dateien im Gesamtprojekt (inkl.
+  Scripts, Tests, Archive, etc.).
+
+🛠️ LANGZEITLÖSUNG
+  Auf 35 korrigiert (nur core/src/, wie es die README-Tabelle suggeriert).
+  Idee: build-review-base.js könnte Source-Count + LOC automatisch in
+  README schreiben — dann ist die Zahl nie wieder falsch.
+
+💡 NUTZEN + BEGRÜNDUNG
+  70 vs 35 ist eine Verdopplung der Projektgrösse auf dem Papier — ein
+  neuer Entwickler liest 70 Source-Dateien und bekommt Angst, dabei sind
+  es nur 35. Umgekehrt: wenn's mal 140 sind, steht immer noch 70 da.
+
+---
+
+### 🔀 DD-006 — README: LOC ~10k → ~12k
+
+🔀 DIVERGENZ
+  README Zeile 209/428: "~10k LOC"
+  Live `find core/src -name "*.js" -exec cat {} + | wc -l`: 12.227.
+
+🧬 URSACHE
+  Die 15 Sinnhaftigkeitsanalyse-Fixes + REVIEW-LIMIT-PIPELINE P4 fügten
+  rund 2.200 Zeilen hinzu. README wurde seit v0.20.0-pre-release nicht
+  aktualisiert.
+
+🛠️ LANGZEITLÖSUNG
+  Auf ~12k korrigiert. Automatisierung wie bei DD-005.
+
+💡 NUTZEN + BEGRÜNDUNG
+  2.200 Zeilen Abweichung — das ist ein ganzes Modul das "nicht existiert"
+  laut Doku. Bei Kostenschätzungen oder Architekturentscheidungen fatal.
+
+---
+
+### 🔀 DD-007 — AGENTS.md: Version v0.20.0 → v0.21-workbench
+
+🔀 DIVERGENZ
+  AGENTS.md Zeile 53: "Version: v0.20.0 | Stand: 2026-06-20"
+  Live: Branch `v21-experimental-workbench`, package.json Version `0.21.0`.
+
+🧬 URSACHE
+  AGENTS.md wurde bei der Eröffnung dieser Session kopiert/erstellt mit
+  v0.20.0 als Version. Seitdem: Schema-Fix, REVIEW-LIMIT-PIPELINE P4,
+  V0.21-SCOPE, Sinnhaftigkeitsanalyse 15 Fixes — aber die Version im
+  Header blieb unangetastet.
+
+🛠️ LANGZEITLÖSUNG
+  Version auf "v0.20.0 → v0.21 (workbench)" aktualisiert. ZUSÄTZLICH:
+  SSOT-Regel geprüft — Root `AGENTS.md` und `core/archive/docs/AGENTS.md`
+  waren IDENTICAL (diff = kein Output). Beide synchron aktualisiert.
+  Strukturell: `sync-version.js` könnte die Version in AGENTS.md automatisch
+  aus package.json ziehen und bei Divergenz warnen.
+
+💡 NUTZEN + BEGRÜNDUNG
+  AGENTS.md ist das Playbook für JEDEN Sub-Agenten. Wenn da v0.20.0 steht
+  während wir auf v0.21 arbeiten, könnte ein Agent denken er ist im
+  falschen Branch. Die Header-Version ist der erste Check den ein
+  LLM-Agent macht.
+
+---
+
 ## 📋 Abgeschlossene Sessions
 
 | Datum | Session | Fixes | Commit | FREEZE-Einträge |
 |-------|---------|-------|--------|-----------------|
 | 2026-06-20 | Sinnhaftigkeitsanalyse | 15 (P0×2, P1×5, P2×5, P3×3) | `9a853ef` | 1-15 (dieses Dokument) |
+| 2026-06-20 | Doku-Divergenz-Audit (🔵) | 7 DD-Einträge | `bcb6e1e` | 16-22 (dieses Dokument) |
 
 ---
 
