@@ -188,7 +188,7 @@ Syx_bridge-/
 
 | Version | Date | Highlights |
 |---|---|---|
-| **v0.20.0** | 2026-06-20 | Global Bump + Chain Hardening — BU-035 to BU-039, Plugin Architecture, Version stable |
+| **v0.20.0** | 2026-06-19 | MERGE PREPARE-0.20-WIP → MAIN | Global Bump + Chain Hardening — BU-035 to BU-039, Plugin Architecture, Version stable |
 | v0.20.0-pre-release | 2026-06-19 | Plugin Architecture, PREFLIGHT, INFO-Block fix, Write-Loss recovery |
 | v0.19.7 | 2026-06-18 | PREFLIGHT fix + Routing hardening + smart Error-Handler |
 | v0.19.6 | 2026-06-18 | Release: Version unified, docs consolidated, 6 bugs fixed |
@@ -206,7 +206,7 @@ Syx_bridge-/
 |---|---|
 | **Version** | v0.20.0 |
 | **Maturity** | Alpha · Solo project · In daily use |
-| **Latest Release** | v0.20.0 (2026-06-20) — 70 source files, ~10k LOC |
+| **Latest Release** | v0.20.0 (2026-06-19) — 70 source files, ~10k LOC ||
 | **Limitations** | Patch Mode disabled — everything else works |
 
 <details>
@@ -425,7 +425,7 @@ Syx_bridge-/
 |---|---|
 | **Version** | v0.20.0 |
 | **Reifegrad** | Alpha · Solo-Projekt · im Daily-Use |
-| **Letztes Release** | v0.20.0 (2026-06-20) — 70 Quellcode-Dateien, ~10k LOC |
+| **Letztes Release** | v0.20.0 (2026-06-19) — 70 Quellcode-Dateien, ~10k LOC ||
 | **Einschränkungen** | Patch Mode deaktiviert — Rest funktioniert |
 
 <details>

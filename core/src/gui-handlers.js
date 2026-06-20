@@ -3,7 +3,6 @@
 const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
-const dbRepair = require('../scripts/db_repair');
 
 /**
  * Reads the display name from a mod's metadata file.
@@ -566,6 +565,14 @@ function registerGuiHandlers(ctx) {
 
   global.guiServer.on('run-db-repair', async (callback) => {
     try {
+      let dbRepair;
+      try {
+        dbRepair = require('../scripts/db_repair');
+      } catch (e) {
+        console.error('[DB-REPAIR] db_repair.js nicht gefunden — Bitte core/scripts/ aus Git-Historie restaurieren.');
+        return callback({ ok: false, error: 'db_repair.js nicht gefunden' });
+      }
+
       let totalFixed = 0;
       // Run all 5 repair functions (skip orphanedRevisions — rare, separate audit)
       // dbRun (= dbManager.run) returns { changes } — exactly what repair functions expect
@@ -610,7 +617,13 @@ function registerGuiHandlers(ctx) {
     else if (type === 'full_reset') await fullReset();
     else if (type === 'workshop') {
       console.log('[GUI] Starte Steam Workshop Export...');
-      const exportToWorkshop = require('../scripts/workshop_export');
+      let exportToWorkshop;
+      try {
+        exportToWorkshop = require('../scripts/workshop_export');
+      } catch (e) {
+        console.error('[WORKSHOP] workshop_export.js nicht gefunden — Bitte core/scripts/ aus Git-Historie restaurieren.');
+        return;
+      }
       await exportToWorkshop().catch(e => console.error(e.message));
     }
     else if (type === 'install-argos') await ensureArgos();

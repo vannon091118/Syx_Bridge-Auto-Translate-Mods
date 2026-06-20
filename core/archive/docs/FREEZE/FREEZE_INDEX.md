@@ -24,8 +24,9 @@
 11. [MASTER_DOC-Konsolidierung (17)](#11-master_doc-konsolidierung-durchlauf-1)
 12. [Doku-Divergenz-Fixes (2)](#12-doku-divergenz-fixes-2026-06-20)
 13. [Doku-Clean v0.20.0 (18)](#13-doku-clean-v0200)
+14. [Doku-Clean Post-v0.20.0 (1)](#14-doku-clean-post-v0200)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18 = **81 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+1 = **82 Glossary-Einträge** (64 gelöscht, 18 im FREEZE/ verbleibend)
 
 ---
 
@@ -626,6 +627,17 @@
 - **Kausalität:** Letzte Verifikationsstufe vor Release.
 - **Status:** ✅ Abgeschlossen — 6/6 BESTÄTIGT
 - **LIVE-Vorhanden:** Nichts — Verifikationen im CHANGELOG dokumentiert
+---
+
+## 14. Doku-Clean Post-v0.20.0
+
+### 🔍 DC-019 — LLM-AGENTS-EntryPoint.md (Root & Archive)
+- **Datum:** 2026-06-20 | **Version:** v0.20.0
+- **Kategorie:** Doku-Clean (Redundanz)
+- **Zusammenfassung:** Die Datei `LLM-AGENTS-EntryPoint.md` existierte doppelt (Root und `core/archive/docs/`). Der Inhalt war bereits vollständig in die neue SSOT `AGENTS.md` überführt und in `MASTER_DOC.md` (§7 Agent-Referenz) referenziert.
+- **Kausalität:** Veraltetes, redundantes Dokument. Doku-Clean-Workflow konsequent angewendet.
+- **Status:** ✅ Abgeschlossen — gelöscht aus Git und Dateisystem.
+- **LIVE-Vorhanden:** Alle Agenten-Regeln und Sub-Agent-Listen leben jetzt in `AGENTS.md`.
 
 ---
 
@@ -655,5 +667,5 @@
 ---
 
 *📚 FREEZE INDEX v0.20.0 — 2026-06-20*
-*81 Glossary-Einträge — 62 gelöscht, 19 im FREEZE/ verbleibend. Lückenlos rekonstruierbar.*
+*82 Glossary-Einträge — 64 gelöscht, 18 im FREEZE/ verbleibend. Lückenlos rekonstruierbar.*
 *Generiert durch Buffy (Codebuff) — Built accidentally. Runs intentionally.*

@@ -1,5 +1,78 @@
 # CHANGELOG
 
+## [DOKU-CLEAN-LLM-ENTRY] - 2026-06-20 — LLM-AGENTS-EntryPoint.md konsolidiert und gelöscht
+
+### Changed (Doku-Clean Workflow)
+- **LLM-AGENTS-EntryPoint.md konsolidiert:** Inhalt ist bereits in `AGENTS.md` (als SSOT) und in `MASTER_DOC.md` (§7 Agent-Referenz) verankert.
+- **Doku-Clean nach FREEZE_INDEX.md:** Glossary-Eintrag in `FREEZE_INDEX.md` (DC-019) erstellt.
+- **Dateien gelöscht:** `LLM-AGENTS-EntryPoint.md` (Root) und `core/archive/docs/LLM-AGENTS-EntryPoint.md` (Archive) aus Dateisystem und Git entfernt.
+- **README.md aktualisiert:** via `fresh-readme.js` neu generiert.
+
+## [COMMIT-SQUASH-SESSION-2] - 2026-06-20 — 6 Cherry-Picks zu 4 Story-Commits + AGENTS.md Fix-Prompts + Script-Restore
+
+### Changed (Commit A — Infrastructure Cleanup)
+- **241 Dateien via `git rm --cached` aus Tracking entfernt:** Dev-Tools (`core/scripts/`, `core/tests/`, `core/release/`, `core/archive/dbold/`, `core/archive/backups/`, `core/archive/plans/`, `V70/`, `V71/`) bleiben auf Disk aber raus aus Git.
+- **.gitignore Drei-Wege-Merge-Konflikt gelöst:** Dev-Tools-Block (C1) + Assets-Exclusion (C2) + LLM/WORKFLOW-Exclusions (Stash) vereint. `sed -i '41,47d'` entfernte Konfliktmarker.
+- **check_vendor_drift.js: DRIFT/WARN auf DRIFT/ERROR hochgestuft.** Jeder Drift ist immer ein Fehler, nie nur eine Warnung.
+
+### Changed (Commit B — Tooling-Upgrade)
+- **GUI v0.20.0 Dashboard:** Footer mit Versionsnummer, Versions-Highlights-Bereich, `@keyframes pulse` CSS-Animation.
+- **`fresh-readme.js` (NEU):** Extrahiert Version aus `package.json` + Metriken aus DB + offene Punkte aus KNOWN_BUGS, setzt in README-Template ein.
+- **`verify_commit_msg.js` (NEU, RULE 3):** `buildCandidates()` Algorithmus in 3 Phasen — Dateinamen-Extraktion via Regex, Pfad-Normalisierung, Match gegen `git diff --cached --name-only`. Exit 0 = grün, Exit 1 = Commit blockiert.
+- **3 README-PNGs zurück im Tracking:** `git add -f core/archive/assets/*.png`. Expliziter `!core/archive/assets/` Negation-Eintrag in .gitignore.
+
+### Changed (Commit C — Argos ETIMEDOUT Fix)
+- **`check_argos.js` (NEU, 296 Zeilen):** Exponenzieller Backoff `Math.min(1000 * Math.pow(2, failures), 120000)` stoppt 23× GUI-Polling-Spam.
+- **Jitter (+/-25%):** `backoff * (0.75 + Math.random() * 0.5)` — verhindert Thundering-Herd-Synchronisation.
+- **Circuit Breaker:** Open bei 2-Minuten-Cap → Half-Open nach 5 Minuten → Closed bei erfolgreicher Test-Anfrage. Zustand in Cache-Datei persistiert.
+- **ETIMEDOUT-Handling:** `try/catch` mit `if (err.code === 'ETIMEDOUT')` löst Backoff aus statt Endlosschleife.
+
+### Changed (Commit D — AGENTS.md SSOT + Fix-Prompts)
+- **§0 Standing Rules (NEU):** Task-Chain Report (8-Symbol-Footer mit FIXED/BROKEN/RISK/PROOF/TOUCHED/NEXT) + Doku-Flag/Runtime-Flag-Trennung (zwei getrennte Universen, nie gleicher Namensraum).
+- **§1 Fix-Prompts (NEU):** 🟢 Standard-Fall (Einzelbefund), 🟡 Spezialfall (Cross-Cutting), 🔴 Notfall (Datenverlust) — je mit ROLLE, ABLAUF, WIDERLEGUNGSPROBE, REPORT, ABSCHLUSS.
+- **§2 Doku-Divergenz-Audit (🔵):** Vier-Stationen-Kette pro Befund (DIVERGENZ→URSACHE→LANGZEITLÖSUNG→NUTZEN).
+- **§3 Sequenzieller Priolisten-Abarbeiter (🟣):** 6 Phasen pro Listenpunkt, Abbruch bei 2 OFFEN in Folge.
+- **§4 Bootstrap Full-Scan (⚫):** Erzeugt Prioliste aus dem Nichts (Vollinventur→Dedup→Priorisierung).
+- **§5 Sessions-Lifecycle:** Start-Checkpoints (Git clean, HANDSHAKE, PREFLIGHT) + End-Checkpoints (HANDSHAKE, CHANGELOG, DB-Archivierung).
+
+### Changed (Commit E — Cleanup)
+- **.gitignore auf `core/.commit_msg*.txt` Glob erweitert:** Erfasst jetzt alle temp Commit-Message-Dateien (A-D, c1-c6).
+- **10 temp-Dateien aus Git-Index entfernt:** `git rm --cached core/.commit_msg_*.txt` — bleiben auf Disk, RULE-3-konform.
+- **verify_commit_msg.js-Prüfung für 2-File-Change bestanden:** 526 Wörter Never-Ending-Story für .gitignore + git rm.
+
+### Fixed (Script-Restore nach MODULE_NOT_FOUND)
+- **`core/scripts/db_repair.js` und `core/scripts/workshop_export.js` aus B5 restauriert.** Dev-Tools-Bereinigung (Commit A) hatte sie aus Git-Tracking entfernt — gui-handlers.js:6 `require('../scripts/db_repair')` crashte beim App-Start.
+- **Workshop-Upload verifiziert:** `workshop_export`-require in gui-handlers.js:613 ist dynamisch (nur bei Button-Klick). Scripts sind auf Disk aber gitignored — bleiben aus main raus.
+
+### Files Changed (5 Commits + Script-Restore)
+- `AGENTS.md` — +333 Zeilen Fix-Prompts + Sessions-Lifecycle
+- `core/archive/docs/AGENTS.md` — SSOT-Sync
+- `core/.gitignore` — Dev-Tools-Blöcke, Assets-Exclusion, LLM/WORKFLOW, .commit_msg*.txt Glob
+- `core/archive/docs/HANDSHAKE_2026-06-20_session-2.md` — NEU: Session-2-Übergabe
+- 241 Dateien aus Git-Index entfernt (bleiben auf Disk)
+- `core/scripts/verify_commit_msg.js` — NEU: buildCandidates-Algorithmus
+- `core/scripts/fresh-readme.js` — NEU: Auto-README
+- `core/scripts/check_argos.js` — NEU: Backoff + Circuit Breaker
+- `core/scripts/db_repair.js` — RESTAURIERT (aus B5)
+- `core/scripts/workshop_export.js` — RESTAURIERT (aus B5)
+- `core/src/gui/public/index.html` — Footer v0.20.0 + Versions-Highlights
+- `core/archive/assets/*.png` — 3 README-PNGs zurück im Tracking
+
+### Tests
+- Content-Integrität: 0 Deletions vs Backup main-backup-v0.20.2 ✅
+- SSOT: `diff -q AGENTS.md core/archive/docs/AGENTS.md` = Exit 0 ✅
+- require.resolve('db_repair'): OK ✅
+- require.resolve('workshop_export'): OK ✅
+- git status: clean ✅
+- Force Push: origin/main aktualisiert auf bbdcb15 ✅
+
+### EFFORT TO NEXT SCOPE
+- Doku-Divergenz-Audit: Fix-Prompts gegen Live-Code prüfen
+- INDEX.md-Vollständigkeit: plugin-registry.js + watermark-config.js in core/src/INDEX.md aufnehmen
+- Graceful Degrade: db_repair-require dynamisch machen (try/catch statt top-level)
+
+---
+
 ## [COMMIT-TAGEBUCH] - 2026-06-20 — RULE 2 Rewrite: Commit-Narrative wird zum Commit-Tagebuch
 
 ### Changed (AGENTS.md — RULE 2 komplett umgeschrieben)

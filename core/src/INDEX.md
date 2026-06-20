@@ -1,4 +1,4 @@
-# 📖 INDEX — core/src/ (27 Dateien, ~10.000 LOC)
+# 📖 INDEX — core/src/ (29 Dateien, ~10.049 LOC)
 
 > **Generiert:** 2026-06-20 | **Version:** v0.20.0-pre-release
 > **Zuletzt verifiziert:** 2026-06-20 (better-sqlite3-Migration + translateHttpError)
@@ -27,6 +27,7 @@
 | [model-registry.js](#model-registryjs) | 210 | 6 | Modell-Status, Install, Ollama-Pull |
 | [parser.js](#parserjs) | 190 | 7 | Format-Parser (SoS, Raw, JSON) |
 | [planner.js](#plannerjs) | 210 | 9 | Run-Orchestrierung, File-Processing |
+| [plugin-registry.js](#plugin-registryjs) | 28 | 2 | Game-Plugin Registry + Factory |
 | [polish-arbiter.js](#polish-arbiterjs) | 195 | 6 | Multi-Provider A/B Polish |
 | [preflight.js](#preflightjs) | 260 | 6 | DB-Health-Check, Auto-Repair, Snapshots |
 | [router.js](#routerjs) | 180 | 4 | Provider-Routing, Cost-Class, Error-Handler |
@@ -39,6 +40,7 @@
 | [translation-runtime.js](#translation-runtimejs) | 1210 | 18 | Pipeline-Kern: Translate, Polish, Deep-Polish |
 | [ui.js](#uijs) | 65 | 3 | CLI-Menü, Mod-Auswahl, Bestätigung |
 | [validator.js](#validatorjs) | 240 | 8 | Marker-Validation, Syntax-Check, QA-Score |
+| [watermark-config.js](#watermark-configjs) | 21 | 2 | Watermark-Konfiguration, ZWSP/ZWNJ-Marker |
 
 ---
 
@@ -360,6 +362,19 @@
 
 ---
 
+## plugin-registry.js (28 LOC)
+*Game Plugin Registry + Factory — erzeugt Plugin-Instanzen basierend auf GAME-Env-Var*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 3-8 | `PLUGIN_REGISTRY` | Map: game-name → PluginClass (z.B. songs_of_syx → SongsOfSyxPlugin) |
+| 18 | `createPlugin(gameName)` | Factory: erzeugt Plugin-Instanz, Fallback auf SongsOfSyxPlugin |
+
+**CHANGELOG-Ref:**
+- Kein separater CHANGELOG-Eintrag — erstellt im Rahmen der Plugin-Architektur (v0.19.9)
+
+---
+
 ## polish-arbiter.js (195 LOC)
 *Multi-Provider A/B Polish via Promise.allSettled*
 
@@ -622,6 +637,20 @@
 
 ---
 
-*📖 INDEX v0.20.0-pre-release — 2026-06-19*
-*27 Dateien, ~10.089 LOC, 243 Function/Class-Definitionen (verifiziert via wc -l + grep).*
+## watermark-config.js (21 LOC)
+*Shared Watermark Configuration — Single Source of Truth für unsichtbare Unicode-Marker (ZWSP/ZWNJ)*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 7-13 | `WATERMARK_CONFIG` (Object.freeze) | Gefrorenes Config-Objekt |
+| 12 | `ZW_MARKERS` | Array mit 2 Markern: Zero-Width Space + Zero-Width Non-Joiner |
+| 16 | `randomZWMarker()` | Zufälligen Marker aus ZW_MARKERS auswählen |
+
+**CHANGELOG-Ref:**
+- [CL:WATERMARK-FIX] WATERMARK_CONFIG eingeführt — randomZWMarker() ersetzt manuelles Array-Indexing in text-core.js
+
+---
+
+*📖 INDEX v0.20.0 — 2026-06-20*
+*29 Dateien, ~10.138 LOC, 245 Function/Class-Definitionen (verifiziert via wc -l + grep).*
 *Generiert durch Buffy (Codebuff) — Built accidentally. Runs intentionally.*

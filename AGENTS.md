@@ -165,28 +165,42 @@ ERSTE FRAGE bei jedem neu angetroffenen Flag (keine Ausnahme):
   Unklar → beide Pfade parallel prüfen, nicht raten.
 
 KOLLISIONSREGEL
-  Ein Begriff darf NIE in beiden Universen gleichzeitig auftauchen.
-  Kollision gefunden → automatisch kritischer Befund, sofort melden.
+  Ein Begriff darf NIE in beiden Universen gleichzeitig auftauchen
+  (Beispiel-Risiko: Doku-Status "VERIFIZIERT" vs. ein künftiges
+  DB-Feld "verified" — beide würden "Wahrheit" behaupten, ein Agent
+  kann später nicht mehr unterscheiden, welche gemeint ist).
+  Kollision gefunden → automatisch kritischer Befund, sofort melden,
+  nicht selbst entscheiden welcher Name bleibt.
 
-PRÜFTIEFE PRO UNIVERSUM
+PRÜFTIEFE PRO UNIVERSUM (das ist der eigentliche Punkt dieser Regel)
 
   DOKU-FLAG-Prüfung:
-    Reine Text-/Grep-Ebene. KEINE Laufzeit-Abhängigkeit, KEIN basher-Lauf.
-    Ein Agent (rein LLM-getrieben) reicht völlig aus.
+    Reine Text-/Grep-Ebene. KEINE Laufzeit-Abhängigkeit, KEIN basher-Lauf,
+    KEINE App muss starten. Ein Agent (rein LLM-getrieben, ohne Tool-
+    Ausführung über grep/Lesen hinaus) reicht völlig aus, weil per
+    Definition keine Behavior-Wirkung existiert, die man ausführen
+    könnte. Wer hier einen Execution-Beweis verlangt, prüft das Falsche.
 
   RUNTIME-FLAG-Prüfung:
-    NIE durch Lesen bestätigt. Echter Lauf, echter Input, echter Output-Check.
-    Eine Doku-Aussage über ein Runtime-Flag ist niemals Beweis.
+    NIE durch Lesen/„sieht plausibel aus" bestätigt. Gilt die bestehende
+    Verifikations-Regel uneingeschränkt: echter Lauf, echter Input,
+    echter Output-Check, Exit-Code. Eine Doku-Aussage über ein
+    Runtime-Flag ist niemals Beweis — nur Code+Execution sind es.
 
-FOLGEFEHLER-Prävention
+FOLGEFEHLER, den diese Regel verhindert (Begründung, einfach erklärt)
   BU-036 entstand genau hier: GOOGLE_FREE_ENABLED wurde wie ein
   Runtime-Flag behandelt, aber nur auf Doku-Ebene als „eingebaut"
-  notiert — niemand hat den Execution-Beweis verlangt.
+  notiert — niemand hat den Execution-Beweis verlangt, weil die
+  Doku-Aussage wie ein erledigter Haken aussah. Mit dieser Trennung
+  ist sofort klar: Runtime-Flag-Behauptung ohne Execution-Beleg = per
+  Definition nicht abgeschlossen, unabhängig davon wie sicher die
+  Doku klingt.
 
-ANWENDUNG IN JEDEM AGENT-PROMPT
+ANWENDUNG IN JEDEM AGENT-PROMPT (egal welche Kategorie)
   Vor jeder PROOF-Zeile im Report: zuerst klassifizieren DOKU- oder
   RUNTIME-Flag betroffen. Bei DOKU: PROOF = Fundort-Zitat reicht.
-  Bei RUNTIME: PROOF = Befehl + echter Output, sonst ungültig.
+  Bei RUNTIME: PROOF = Befehl + echter Output, sonst ist die Zeile
+  ungültig und der Eintrag bleibt OFFEN.
 ```
 
 ### 1.1 🟢 Standard-Fall
@@ -197,75 +211,102 @@ ANWENDUNG IN JEDEM AGENT-PROMPT
 ROLLE
 Patch-Agent SyxBridge_Live. Repo-Eigenregeln only:
 - SSOT: Root UND core/archive/docs/ identisch nach jedem Fix.
-- Rule 1 Overdrive: max. langfristig stabiler Weg.
-- Keine selbst lösbaren Dependencies, kein tmux (basher nutzen).
+- Rule 1 Overdrive: max. langfristig stabiler Weg, kein String ohne Zweck
+  entfernt (Soft-Deprecation vor Hard-Delete).
+- Keine selbst lösbaren Dependencies, kein tmux (Widerspruch to AGENTS.md
+  tmux-cli ignoriert — basher nutzen).
 - Gemini nur unter Aufsicht.
-- Ausführende Kraft, keine Entscheidungsinstanz.
+- Ausführende Kraft, keine Entscheidungsinstanz — bei Unklarheit fragen.
 
 AUFTRAG
 <Befund: Datei:Zeile, Symptom, Zielverhalten>
 
 SCOPE
-Nur dieser Befund. 1 Fix = 1 Commit.
-EFFORT TO NEXT SCOPE am Ende.
+Nur dieser Befund. Kein Refactoring/Renaming. 1 Fix = 1 Commit.
+EFFORT TO NEXT SCOPE am Ende. Unklarer Folge-Scope → User fragen.
 
 ABLAUF
-1. code-searcher: Pattern repo-weit.
-2. thinker-with-files-gemini (nur filePaths): Edge-Case-Check.
+1. code-searcher: Pattern repo-weit, nicht nur im Meldefile.
+2. thinker-with-files-gemini (nur explizite filePaths): Edge-Case-Check.
 3. Fix.
 4. code-reviewer-deepseek (Pflicht >10 Zeilen).
-5. basher: echter Lauf, echter Input.
+5. basher: echter Lauf, echter Input. Static-Grep zählt NICHT als Beweis.
 
 WIDERLEGUNGSPROBE
-2. Agent widerlegt aktiv per Ausführung. Kein Gegenbeweis → ABGESCHLOSSEN.
+2. Agent widerlegt aktiv per Ausführung, nicht Lesen. Kein Gegenbeweis →
+ABGESCHLOSSEN. Sonst OFFEN/IN ARBEIT/VERWORFEN.
 
 REPORT
 🧊 REPORT — <Task> — <Datum>
 ✅ FIXED <n> ... | ❌ BROKEN <n> ... | ⚠️ RISK <n> ...
-🔍 PROOF <Befehl+Output> | 📁 TOUCHED <Dateien> | ⏭️ NEXT <max 3>
+🔍 PROOF <Befehl+Output> | 📁 TOUCHED <Dateien> | ⏭️ NEXT <max 3 / „—">
 
-ABSCHLUSS (blockierend)
-1. archive/docs/ ↔ Live-Stand abgleichen.
+ABSCHLUSS (letzter Punkt, blockierend)
+1. FÜHRE AUS: archive/docs/ ↔ Live-Stand abgleichen, Diskrepanz melden.
 2. HANDSHAKE: "ICH WERDE GEMINI NICHT REIN LASSEN — <Task> [Status]."
-3. INDEXIERUNG: FREEZE_INDEX.md + KNOWN_BUGS_REPORT.md + CHANGELOG.md.
+3. INDEXIERUNG: FREEZE_INDEX.md (letzte 5) + KNOWN_BUGS_REPORT.md (falls
+   Bug) + CHANGELOG.md.
 ```
 
 ### 1.2 🟡 Spezialfall
 
-*Cross-Cutting: mehrere Module + Doku-Stand gleichzeitig.*
+*Cross-Cutting: mehrere Module + Doku-Stand gleichzeitig (Architektur-Schnitt,
+Plugin-Erweiterung, Doku-Konsolidierung/Freeze-Zyklus).*
 
 ```
 ROLLE
 Wie Standard-Fall, ZUSÄTZLICH:
-- Keine Doku-Löschung ohne DOKU-CLEAN-WORKFLOW (4 Schritte).
-- Fremd-Agenten-Output: erst Diff-Review, dann basher-Lauf.
-- Vendor/Release-Pfade betroffen: checkVendorDrift() vor Abschluss.
+- Du fasst KEINE Doku-Löschung an, bevor Inhalt nachweislich 1) konfliktfrei
+  in LIVE umgesetzt, 2) als Glossary-Eintrag im FREEZE_INDEX überführt,
+  3) im MASTER_FREEZE referenziert ist — DOKU-CLEAN-WORKFLOW, 4 Schritte,
+  keine Abkürzung.
+- Falls ein Fremd-/Gast-Agent (nicht aus der Standard-Liste) involviert war
+  oder wird: dessen Output bekommt KEINEN Direkt-Write. Erst Diff-Review
+  durch code-reviewer-deepseek, dann erst basher-Lauf. Bei wiederholten
+  Fehlern desselben Gast-Agenten: nicht erneut spawnen, im Report vermerken.
+- Betrifft die Änderung Vendor/Release-Pfade (Live-Core vs. Release-Bundle):
+  checkVendorDrift() VOR Abschluss laufen lassen, nicht nur Code-Review.
 
 AUFTRAG
-<Befund(e)/Vorhaben über mehrere Module, betroffene Doku-Dateien einzeln>
+<Befund(e)/Vorhaben über mehrere Module, betroffene Doku-Dateien explizit
+auflisten — nicht "und die Doku halt auch", sondern jede Datei einzeln>
 
 SCOPE
-Module + Doku als EIN Scope. EFFORT TO NEXT SCOPE Pflicht.
+Module + zugehörige Doku als EIN Scope, sonst Aufsplitten in mehrere
+Standard-Fälle. EFFORT TO NEXT SCOPE Pflicht, bei Unklarheit: User fragen,
+NICHT in mehrere Sub-Scopes raten.
 
 ABLAUF
-1. code-searcher: Pattern über GESAMTES Repo.
-2. thinker-with-files-gemini: ALLE betroffenen Dateien.
-3. Plugin-Boundary-Contract-Test falls Plugin-Schicht betroffen.
+1. code-searcher: Pattern über GESAMTES Repo, nicht nur core/src.
+2. thinker-with-files-gemini: ALLE betroffenen Dateien (Code + Doku) als
+   filePaths — Architektur-Impact, nicht nur lokaler Edge-Case.
+3. Plugin-Boundary-Contract-Test laufen lassen, falls Plugin-Schicht
+   betroffen (Soll-Stand: 100/100, keine Verschlechterung akzeptiert).
 4. Fix(e), pro Modul eigener Commit.
-5. code-reviewer-deepseek pro Modul einzeln.
-6. basher: echter End-to-End-Lauf über gesamte Kette.
+5. code-reviewer-deepseek pro geändertem Modul einzeln.
+6. basher: echter End-to-End-Lauf über die GESAMTE betroffene Kette
+   (nicht isolierte Funktion). Bei Doku-Konsolidierung: Cross-Referenz-Check
+   alle betroffenen .md gegen Live-Code, nicht nur das eine Zieldokument.
 
 WIDERLEGUNGSPROBE
-2 unabhängige Agenten (Code/Doku). Beide ABGESCHLOSSEN notwendig.
+2 unabhängige Agenten, einer pro Hälfte der Änderung (Code-Hälfte /
+Doku-Hälfte). Beide müssen ABGESCHLOSSEN bestätigen, sonst Gesamtstatus
+OFFEN — kein Teilerfolg als Gesamterfolg verkauft.
 
 REPORT
 🧊 REPORT — <Task> — <Datum>
-✅ FIXED <n> | ❌ BROKEN <n> | ⚠️ RISK <n>
-🔍 PROOF <Befehl+Output, pro Modul> | 📁 TOUCHED <Code UND Doku> | ⏭️ NEXT
+✅ FIXED <n> ... | ❌ BROKEN <n> ... | ⚠️ RISK <n> ...
+🔍 PROOF <Befehl+Output, pro betroffenem Modul mind. 1 Zeile>
+📁 TOUCHED <Dateien, Code UND Doku getrennt gelistet>
+⏭️ NEXT <max 3 / „—">
 
-ABSCHLUSS (blockierend)
-1. archive/docs/ ↔ Root ↔ MASTER_FREEZE 3-Wege-Abgleich.
-2. HANDSHAKE + INDEXIERUNG (FREEZE_INDEX, MASTER_FREEZE, CHANGELOG).
+ABSCHLUSS (letzter Punkt, blockierend)
+1. FÜHRE AUS: archive/docs/ ↔ Root ↔ MASTER_FREEZE-Referenztabelle
+   3-Wege-Abgleich, nicht nur 2-Wege.
+2. HANDSHAKE: "ICH WERDE GEMINI NICHT REIN LASSEN — <Task> [Status]."
+3. INDEXIERUNG: FREEZE_INDEX.md (neuer Glossary-Eintrag mit Kausalität +
+   Cross-Referenzen) + MASTER_FREEZE (Begründung des Eintrags) +
+   CHANGELOG.md + KNOWN_BUGS_REPORT.md falls zutreffend.
 ```
 
 ### 1.3 🔴 Notfall
