@@ -611,6 +611,29 @@
 
 ---
 
+## 12. Doku-Divergenz-Fixes (2026-06-20)
+
+> **Aktion:** DD-NEU-1 + DD-NEU-2 aus HANDSHAKE_2026-06-20 §4 behoben.
+> **Quelle:** `core/archive/docs/MASTER_DOC.md` §3, §5, §6
+
+### 📋 DD-NEU-1 — B4 in MASTER_DOC §3+§6 durchgestrichen
+- **Datum:** 2026-06-20 | **Quelle:** HANDSHAKE_2026-06-20 §4
+- **Divergenz:** MASTER_DOC §3 listete "3× silent .catch(() => {})" als ⚠️ OFFEN und §6 als Roadmap-Item ~0.5h. ABER: Der Fix war bereits in translation-runtime.js (Zeile 1142/1216/1226/1230) und im CHANGELOG [B4-SILENT-CATCH-FIX] dokumentiert. MASTER_DOC wurde vor dem Fix konsolidiert und danach nicht nachgezogen.
+- **Ursache:** Doku-Drift — MASTER_DOC-Konsolidierung Durchlauf 1 lief VOR dem B4-Fix, danach wurde nur der CHANGELOG aktualisiert.
+- **Fix:** §3: Status ⚠️ OFFEN → ✅ Erledigt (siehe CHANGELOG [B4-SILENT-CATCH-FIX]). §6: Roadmap-Item durchgestrichen + Erledigt-Vermerk.
+- **Verifikation:** grep "B4-SILENT-CATCH" → beide Zeilen zeigen "✅ Erledigt"
+- **Cross-Refs:** `translation-runtime.js`, CHANGELOG [B4-SILENT-CATCH-FIX]
+
+### 📋 DD-NEU-2 — MASTER_DOC §5 Provider-Zahlen aus Live-DB aktualisiert
+- **Datum:** 2026-06-20 | **Quelle:** HANDSHAKE_2026-06-20 §4
+- **Divergenz:** MASTER_DOC §5 behauptete: "openrouter 987, groq 980, native_runtime 289, nvidia 99, polish_single 51" (Snapshot 23). Live-DB zeigte: native_runtime 2.004, polish_single 826, google_free 726, openrouter 265, ab_polish 225, argos 100, groq 36, native_fallback 3. nvidia existiert NULL Mal. google_free und ab_polish fehlten komplett in der alten Liste.
+- **Ursache:** Doku-Drift — §5 wurde nach Snapshot 23 nicht auf den Post-Run-Stand aktualisiert. Der Performance-HDD-Live-Run produzierte 4.185 Einträge, aber MASTER_DOC blieb bei Snapshot-23-Zahlen (2.406).
+- **Fix:** §5 komplett auf Post-Run-Stand aktualisiert: 4.185 Einträge, alle 8 Provider mit Prozent-Anteilen, nvidia als "existiert NULL Mal" markiert, PREFLIGHT HEALTHY + Schema-Version 5 ergänzt, db_query.js --report live als SSoT-Quelle hinzugefügt.
+- **Verifikation:** grep "native_runtime 2.004" → bestätigt. `node core/scripts/db_query.js --report live` = Quelle.
+- **Cross-Refs:** `core/scripts/db_query.js`, CHANGELOG [PERFORMANCE-HDD], HANDSHAKE_2026-06-20 §2.2
+
+---
+
 ## 📌 Verbleibende Dokumente im FREEZE-Verzeichnis
 
 | Dokument | Status | Aktion |

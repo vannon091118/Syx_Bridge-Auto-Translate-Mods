@@ -11,12 +11,21 @@
 const GamePlugin = require('./GamePlugin');
 const { escapeTextValue, unescapeTextValue } = require('../extractor');
 const path = require('path');
+const os = require('os');
 
 const WATERMARK_CONFIG = require('../watermark-config');
 
 class SongsOfSyxPlugin extends GamePlugin {
 
   // ═══ GameAdapter methods (inherited from SongsOfSyxAdapter pattern) ═══
+
+  getLauncherSettingsPath() {
+    const os = require('os');
+    const path = require('path');
+    return process.platform === 'win32'
+      ? path.join(process.env.APPDATA || '', 'songsofsyx', 'settings', 'LauncherSettings.txt')
+      : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'settings', 'LauncherSettings.txt');
+  }
 
   getMetadataFileName() {
     return '_Info.txt';

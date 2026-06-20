@@ -18,7 +18,7 @@
 | cleanup_zombies.js | 15 | 1 | Zombie-Prozesse bereinigen |
 | db_audit.js | 733 | 5 | DB-Audit mit Metriken |
 | **db_query.js** | **200** | **4** | **SQLite CLI Query-Runner & Report-Generator** |
-| db_repair.js | 160 | 7 | **DB-Repair** — 6 Repair-Funktionen + Main |
+| db_repair.js | 230 | 8 | **DB-Repair** — 7 Repair-Funktionen + Main |
 | **db_snapshot.js** | **200** | **2** | **One-Click DB Snapshot & Trend-Report Logger** |
 | **export_stage2.js** | **250** | **6** | **Reiner Export-Run — keine API-Calls** |
 | package.js | 80 | 1 | NPM-Paketierung |
@@ -31,6 +31,7 @@
 | **test_providers.js** | **300** | **7** | **Provider Key Health-Check** |
 | verify_commit_msg.js | 105 | 1 | **RULE 3 Härtung** — Commit-Message vs Diff-Abgleich |
 | verify_integrity.js | 50 | 1 | Integritäts-Verifikation |
+| **vendor-sync.js** | **310** | **8** | **Bidirektionaler Vendor-Sync (Phase 2)** — Forward/Reverse/Auto |
 | warm-model.js | 40 | 1 | NMT-Modell-Warmup |
 | workshop_export.js | 50 | 3 | Workshop-Export |
 
@@ -60,10 +61,12 @@
 | 100 | `async repairJavaNoise(run)` | Java-Noise reparieren |
 | 115 | `async repairOrphanedRevisions(run)` | Verwaiste Revisionen |
 | 126 | `async main()` | Haupt-Reparatur |
+| 177 | `async repairCleanupStaleRetranslate(run)` | **#7** — Stale-Retranslate-Cleanup (Orphan-Flags + Still-Stale-Reset) |
 
-**CHANGELOG-Ref (2× db_repair.js):**
+**CHANGELOG-Ref (3× db_repair.js):**
 - [CL:0.19.7-chain] PREFLIGHT Auto-Repair implementiert (6 Repair-Funktionen)
 - [CL:0.19.8] 548 Einträge markiert (nativeStale, unflaggedStale, shieldLeaks, lowScore, javaNoise, orphanedRevisions)
+- [CL:VENDOR-SYNC-PHASE2] PRIOLISTE Pkt 8: 76 Orphan-Flags + 658 Still-Stale-Reset
 
 ### reset_now.js (180 LOC)
 | Zeile | Funktion | Beschreibung |
@@ -91,6 +94,25 @@
 | 301 | CLI | Argument-Parsing (--release) |
 
 **CHANGELOG-Ref:** [CL:AGENTS-PLAYBOOK] 🟡 Spezialfall — checkVendorDrift() als Pflicht-Check vor Abschluss
+
+---
+
+### vendor-sync.js (310 LOC)
+*Bidirektionaler Vendor-Sync (Phase 2) — löst Drift zwischen Live-Core und Release-Bundle auf*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 86 | `findLatestRelease()` | Letztes Release-Verzeichnis finden |
+| 98 | `isExcludedByBasename(filePath)` | Exclude-Check: Basename |
+| 106 | `isExcludedByDir(filePath)` | Exclude-Check: Verzeichnis-Struktur |
+| 114 | `releaseToSource(relPath)` | Release-Pfad → Source-Pfad mappen |
+| 167 | `walkRelease(dir, baseDir)` | Release-Verzeichnis rekursiv scannen |
+| 184 | `syncForward(src, dest, dryRun)` | Source → Release kopieren |
+| 203 | `syncReverse(src, dest, dryRun)` | Release → Source (+ .bak-Backup) |
+| 238 | `updateManifest(releasePath)` | .build-manifest.json nach Sync aktualisieren |
+| 255 | `runVendorSync(release, dir, dry)` | **Haupt-Sync** — Analyse + Ausführung |
+
+**CHANGELOG-Ref:** [CL:VENDOR-SYNC-PHASE2]
 
 ---
 

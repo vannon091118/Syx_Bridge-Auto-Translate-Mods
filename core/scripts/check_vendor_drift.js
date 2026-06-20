@@ -11,9 +11,11 @@
  * 3. ORPHANED — Release-Datei hat kein Source-Pendant (Build-Artefakt?)
  * 4. STALE_MANIFEST — Manifest-Hash passt nicht zu tatsächlicher Release-Datei
  *
- * Usage:   node scripts/check_vendor_drift [--release <name>]
+ * Usage:   node scripts/check_vendor_drift [--release <name>] [--sync] [--direction forward|reverse|auto]
  * Example: node scripts/check_vendor_drift
  *          node scripts/check_vendor_drift --release SyxBridge_v0.20.0-pre-release
+ *          node scripts/check_vendor_drift --sync --apply             # Bidirektionalen Sync ausführen
+ *          node scripts/check_vendor_drift --sync --dry-run           # Preview was synct wuerde
  *
  * Exit: 0 = kein Drift, 1 = Drift gefunden (Rebuild nötig)
  *
@@ -379,11 +381,29 @@ function checkVendorDrift(targetRelease) {
 // ── CLI ────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 let targetRelease = null;
+let doSync = false;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--release' && i + 1 < args.length) {
     targetRelease = args[++i];
+  } else if (args[i] === '--sync') {
+    doSync = true;
   }
 }
 
-checkVendorDrift(targetRelease);
+if (doSync) {
+  // Delegiere an vendor-sync.js für bidirektionalen Sync
+  // Filtere --sync aus den args und reiche den Rest durch
+  const syncArgs = process.argv.slice(2).filter(a => a !== '--sync');
+  const syncScript = path.join(__dirname, 'vendor-sync.js');
+  if (!fs.existsSync(syncScript)) {
+    console.error('❌ vendor-sync.js nicht gefunden. Phase 2 Sync-Script fehlt.');
+    process.exit(1);
+  }
+  // Starte vendor-sync.js als Child-Prozess
+  const { spawnSync } = require('child_process');
+  const result = spawnSync('node', [syncScript, ...syncArgs], { stdio: 'inherit' });
+  process.exit(result.status || 0);
+} else {
+  checkVendorDrift(targetRelease);
+}

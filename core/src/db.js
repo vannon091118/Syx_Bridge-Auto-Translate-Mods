@@ -336,6 +336,27 @@ async function migrateRiskScore() {
   console.log('[DB] risk_score migration: checked (addColumnIfMissing).');
 }
 
+// ── Transaction Batching (HDD-Optimierung) ────────────────────────────
+// better-sqlite3 ist synchron — BEGIN/COMMIT via SQL funktioniert auf der
+// gemeinsamen this.db-Connection. Alle saveTranslation-Aufrufe innerhalb
+// eines BEGIN...COMMIT-Blocks werden in EINER Transaktion ausgeführt →
+// ein fsync() statt N× für den gesamten Batch. Auf HDD: ~50% Write-Zeit.
+
+async function beginTransaction() {
+  db.prepare('BEGIN').run();
+  return Promise.resolve();
+}
+
+async function commitTransaction() {
+  db.prepare('COMMIT').run();
+  return Promise.resolve();
+}
+
+async function rollbackTransaction() {
+  db.prepare('ROLLBACK').run();
+  return Promise.resolve();
+}
+
 module.exports = {
   migrateRiskScore,
 
@@ -345,5 +366,8 @@ module.exports = {
   all,
   connectReadOnly,
   allReadOnly,
+  beginTransaction,
+  commitTransaction,
+  rollbackTransaction,
   db: () => db
 };

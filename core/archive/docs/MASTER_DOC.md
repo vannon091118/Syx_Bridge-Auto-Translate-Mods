@@ -58,7 +58,7 @@ Scan → Extract → Translate → Audit → Polish → Export
 | F.C | P1 | CodeRabbit-Auto-Fix unreviewed | 🔴 OFFEN — siehe CHANGELOG [v0.20.0-pre-release] F.C |
 | — | P1 | sos-runtime.js Settings-Pfad hardcodiert (Plugin-Readiness-Audit A3) | ⚠️ OFFEN — GameAdapter.getLauncherSettingsPath() nötig |
 | — | P1 | index.js Plugin-Instanziierung hart codiert (Plugin-Readiness-Audit A3) | ⚠️ OFFEN — neue Plugins brauchen Einzeiler-Änderung |
-| — | P2 | 3× silent .catch(() => {}) in Kernfunktionen (Plugin-Readiness-Audit B4) | ⚠️ OFFEN — console.warn nötig |
+| — | P2 | ~~3× silent .catch(() => {})~~ in Kernfunktionen (Plugin-Readiness-Audit B4) | ✅ Erledigt — siehe CHANGELOG [B4-SILENT-CATCH-FIX] |
 
 ---
 
@@ -76,10 +76,11 @@ Scan → Extract → Translate → Audit → Polish → Export
 ## 5. DB-Stand (Snapshot 23 — 20.06.2026) + Live-Drift
 
 > ⚠️ **DB-RESET 2026-06-19 (Doku-Divergenz-Audit DD-001):** Die Live-DB wurde nach Snapshot 19 auf ~1.508 Einträge zurückgesetzt.
-> **Aktuell (2026-06-20, Snapshot 23):** 2.406 Einträge, 80.7% stale (1.942), 1.0% flagged, Ø Score 88.9.
-> 1.068 Stage-2 Einträge (davon 320 export-bereit). Provider: openrouter 987, groq 980, native_runtime 289, nvidia 99, polish_single 51.
-> **better-sqlite3 aktiv** seit 2026-06-20 — translations.db ~5.0 MB.
-> **SSoT:** `archive/dbold/DB_TREND_REPORT.md` §Snapshot 23 + PREFLIGHT_LATEST.md
+> **Aktuell (2026-06-20, Post-Run nach Snapshot 23):** 4.185 Einträge, 51.3% stale (2.237), 49.1% flagged, Ø Score 80.4.
+> 2.427 Stage-2 Einträge (audit_stage ≥ 2). Provider: native_runtime 2.004 (47.9%), polish_single 826 (19.7%), google_free 726 (17.3%), openrouter 265 (6.3%), ab_polish 225 (5.4%), argos 100 (2.4%), groq 36 (0.9%), native_fallback 3 (0.1%). **nvidia existiert NULL Mal** (war in §3 als Provider fälschlich gelistet).
+> **better-sqlite3 aktiv** seit 2026-06-20 — translations.db ~5.1 MB. Schema-Version 5.
+> **PREFLIGHT:** ✅ HEALTHY, 0 Issues, 1.101ms.
+> **SSoT:** `archive/dbold/DB_TREND_REPORT.md` + PREFLIGHT_LATEST.md + `node core/scripts/db_query.js --report live`
 
 ---
 
@@ -92,7 +93,7 @@ Scan → Extract → Translate → Audit → Polish → Export
 | P0 | Erster echter v0.20 Live-Run (manueller Test ausstehend) | ~60 Min |
 | P1 | sos-runtime.js Settings-Pfad in GameAdapter abstrahieren | ~1h |
 | P1 | index.js Plugin-Instanziierung über Config/CLI-Flag | ~2h |
-| P2 | 3× silent .catch(() => {}) mit Logging versehen | ~0.5h |
+| P2 | ~~3× silent .catch(() => {}) mit Logging versehen~~ ✅ Erledigt — siehe CHANGELOG [B4-SILENT-CATCH-FIX] | ~0.5h |
 | P2 | DB-Cleanup `stale_retranslate` | ~2h |
 | P2 | Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
 

@@ -15,7 +15,10 @@ const { createRuntimeOps } = require('./src/runtime-ops');
 // Songs-of-Syx surface (metadata, version dirs, classifyFile, formatMetadata, ...).
 // The legacy SongsOfSyxAdapter class has been removed — engine code consumes
 // the plugin through the GameAdapter interface.
-const SongsOfSyxPlugin = require('./src/plugins/SongsOfSyxPlugin');
+// plugin-registry: Dynamic plugin loading via GAME config flag.
+// Replaces hardcoded `new SongsOfSyxPlugin()` with `createPlugin(CONFIG.GAME)`.
+// Default is 'songs_of_syx' — backward compatible. New games register in plugin-registry.js.
+const { createPlugin } = require('./src/plugin-registry');
 const { createTranslationRuntime } = require('./src/translation-runtime');
 const { 
   ConfigRuntime, 
@@ -86,7 +89,7 @@ let translationRuntime;
 // BU-002: Single game-authority — the plugin IS the adapter. runtime-ops.js,
 // planner.js, and parser.js consume this through the GameAdapter interface,
 // while buildBatchPrompt / serializer hooks use it through the GamePlugin.
-let activePlugin = new SongsOfSyxPlugin();
+let activePlugin = createPlugin(envFirst('GAME') || 'songs_of_syx');
 let gameAdapter = activePlugin;
 // Wire plugin into buildBatchPrompt for game-specific LLM prompts
 buildBatchPrompt._plugin = activePlugin;
@@ -106,6 +109,7 @@ const DEFAULT_GAME_MOD_ROOT = process.platform === 'win32'
 
 // Configuration
 let CONFIG = {
+  GAME: envFirst('GAME') || 'songs_of_syx',
   MOD_ROOT: envFirst('MOD_PATH', 'MOD_ROOT') || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750',
   GAME_MOD_ROOT: envFirst('OUTPUT_PATH', 'GAME_MOD_ROOT') || DEFAULT_GAME_MOD_ROOT,
   PATCH_ROOT: path.join(__dirname, 'patches'),
@@ -313,6 +317,11 @@ const dbRun = (sql, params = []) => dbManager.run(sql, params);
 const dbGet = (sql, params = []) => dbManager.get(sql, params);
 const dbAll = (sql, params = []) => dbManager.all(sql, params);
 const dbAllReadOnly = (sql, params = []) => dbManager.allReadOnly(sql, params);
+// Transaction Batching (HDD-Optimierung): Alle saveTranslation-Aufrufe
+// innerhalb eines BEGIN...COMMIT-Blocks werden in EINER Transaktion ausgeführt.
+const beginTransaction = () => dbManager.beginTransaction();
+const commitTransaction = () => dbManager.commitTransaction();
+const rollbackTransaction = () => dbManager.rollbackTransaction();
 
 async function initDbRo() {
   try {
@@ -344,6 +353,7 @@ function applyEnvToConfig() {
   CONFIG.MOD_ROOT = envFirst('MOD_PATH', 'MOD_ROOT') || CONFIG.MOD_ROOT;
   CONFIG.GAME_MOD_ROOT = envFirst('OUTPUT_PATH', 'GAME_MOD_ROOT') || CONFIG.GAME_MOD_ROOT;
   CONFIG.TARGET_LANG = envFirst('TARGET_LANG') || CONFIG.TARGET_LANG;
+  CONFIG.GAME = envFirst('GAME') || CONFIG.GAME;
   CONFIG.NATIVE_MODE = parseEnvFlag(process.env.NATIVE_MODE, CONFIG.NATIVE_MODE);
   CONFIG.GRAMMAR_CHECK = parseEnvFlag(process.env.GRAMMAR_CHECK, CONFIG.GRAMMAR_CHECK);
   CONFIG.LOCAL_MODELS_ENABLED = parseEnvFlag(process.env.LOCAL_MODELS_ENABLED, CONFIG.LOCAL_MODELS_ENABLED);
@@ -789,6 +799,9 @@ async function main() {
     _dbGet: dbGet,
     dbAll, 
     dbRun,
+    beginTransaction,
+    commitTransaction,
+    rollbackTransaction,
     isAborting: () => isAborting,
     // BU-020: Pass AbortController signal so provider clients can cancel
     // in-flight HTTP requests when the user presses Ctrl+C.

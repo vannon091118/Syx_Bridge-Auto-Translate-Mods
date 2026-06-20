@@ -860,7 +860,8 @@ const PERSISTED_KEYS = [
   ['PLAYER2_KEY',           (c) => (c.PLAYER2_KEYS || []).join(',')],
   ['PLAYER2_ENABLED',       (c) => String(!!c.PLAYER2_ENABLED)],
   ['PLAYER2_URL',           (c) => firstDefined(c.PLAYER2_URL, PLAYER2_DEFAULT_URL)],
-  ['BATCH_SIZE',            (c) => firstDefined(c.BATCH_SIZE)]
+  ['BATCH_SIZE',            (c) => firstDefined(c.BATCH_SIZE)],
+  ['GAME',                  (c) => firstDefined(c.GAME, 'songs_of_syx')],
 ];
 
 async function persistConfigToEnv(config) {

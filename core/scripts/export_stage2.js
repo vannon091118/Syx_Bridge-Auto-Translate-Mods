@@ -43,12 +43,13 @@ const { applyTranslations } = require('../src/text-core');
 const { getHash } = require('../src/extractor');
 const { shouldTranslate } = require('../src/text-core');
 const { validateFileSyntax, validateFileMarkers } = require('../src/validator');
-const SongsOfSyxPlugin = require('../src/plugins/SongsOfSyxPlugin');
+// Dynamic plugin loading via GAME env var (default: songs_of_syx)
+const { createPlugin } = require('../src/plugin-registry');
+const plugin = createPlugin(process.env.GAME || 'songs_of_syx');
 const { getActiveMods, syncLauncherSettings, parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../src/sos-runtime');
 
 let dbRW;  // lazy-init DB-Write-Connection für processed_files (nur bei !DRY_RUN)
 
-const plugin = new SongsOfSyxPlugin();
 const gameAdapter = plugin;
 
 // ── DB: Stage-2 Translations laden ──────────────────────────────────────

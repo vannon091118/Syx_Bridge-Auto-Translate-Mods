@@ -41,6 +41,9 @@ function createTranslationRuntime(options) {
     _dbGet,
     dbAll,
     dbRun,
+    beginTransaction,
+    commitTransaction,
+    rollbackTransaction,
     isAborting,
     // BU-020: AbortController signal passed through to provider clients
     // so in-flight HTTP requests can be cancelled on Ctrl+C.
@@ -826,6 +829,11 @@ function createTranslationRuntime(options) {
           }
         }
 
+        // Begin transaction BEFORE the save-loop for this batch (HDD optimization)
+        // Alle saveTranslation-Aufrufe in diesem Batch werden in EINER
+        // Transaktion ausgeführt → 1 fsync() statt N× auf HDD.
+        try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] Begin fehlgeschlagen: ${e.message}`); }
+
         for (let j = 0; j < currentBatch.length; j++) {
           const entry = currentBatch[j];
           const source = entry.source;
@@ -882,14 +890,21 @@ function createTranslationRuntime(options) {
           savePromises.push(learnGlossary(source, translated, entry));
         }
         for (const p of savePromises) { await p; }
+        
+        // Commit all saveTranslation calls in ONE transaction (HDD optimization)
+        try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
         if (cli.isActive()) {
           cli.updateBatch(batchNumber, totalBatches, result.provider, result.model);
           cli.tick(ctx.translations.size, ctx.uniqueTexts.length);
         }
       } catch (e) {
+        // Rollback any open transaction from the failed save-loop (HDD optimization)
+        try { await rollbackTransaction(); } catch {}
         if (e.message === 'ABORTED' || axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') break;
         console.error(`[!] Batch fehlgeschlagen: ${extractErrorMessage(e)}`);
         const failPromises = [];
+        // Begin transaction BEFORE fail-path save-loop (HDD optimization)
+        try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Begin fehlgeschlagen: ${e.message}`); }
         for (const item of currentBatch) {
           ctx.translations.set(item.source, item.source);
           const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
@@ -935,6 +950,8 @@ function createTranslationRuntime(options) {
           });
         }
         await Promise.all(failPromises);
+        // Commit fail-path saveTranslation calls in ONE transaction (HDD optimization)
+        try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
         if (cli.isActive()) cli.addErr(currentBatch.length);
       }
     }
@@ -973,6 +990,9 @@ function createTranslationRuntime(options) {
       const flags = await flagPotentialErrors(batchValues);
       const problematicIdx = [];
       const batchUpdatePromises = [];
+
+      // Begin transaction BEFORE the polish save-loop (HDD optimization)
+      try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Begin fehlgeschlagen: ${e.message}`); }
 
       for (let j = 0; j < batchKeys.length; j++) {
         const key = batchKeys[j];
@@ -1043,11 +1063,16 @@ function createTranslationRuntime(options) {
             batchUpdatePromises.push(learnGlossary(key, improved, entry));
           }
         } catch (e) {
+          // Rollback any open transaction from failed polish (HDD optimization)
+          try { await rollbackTransaction(); } catch {}
           if (e.message === 'ABORTED' || axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') break;
           console.warn(`[!] QA-Korrektur Batch fehlgeschlagen: ${e.message}`);
         }
       }
       await Promise.all(batchUpdatePromises);
+      // Commit all polish saveTranslation calls in ONE transaction (HDD optimization)
+      // Skip commit if transaction was rolled back (e.g. problematicIdx processing failed)
+      try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch {} }
     }
   }
 

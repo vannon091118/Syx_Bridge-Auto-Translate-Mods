@@ -1,9 +1,9 @@
 ================================================================================
   SyxBridge — HANDSHAKE (AUSFÜHRLICH)
   Datum:       2026-06-20
-  Stand:       v0.20.0-pre-release / LIVE translations.db (Snapshot 23)
+  Stand:       v0.20.0-pre-release / LIVE translations.db (Post-Run)
   Autor:       Buffy (Codebuff) im Auftrag von Vannon
-  Zweck:       Vollständige Übergabe nach better-sqlite3-Migration + Dev-Tools + Plugin-Audit
+  Zweck:       Vollständige Übergabe nach Performance-HDD-Optimierung + B4-Fix + Doku-Konsolidierung
   Pfad:        core/archive/docs/HANDSHAKE_2026-06-20.md
 ================================================================================
 
@@ -12,88 +12,95 @@
   1. EXECUTIVE SUMMARY
 ────────────────────────────────────────────────────────────────────────────────
 
-  Diese Session hat drei große Baustellen abgearbeitet, die alle in der
-  vorherigen HANDSHAKE (2026-06-19) als offene Punkte oder Roadmap-Items
-  standen:
+  Diese Session hat SyxBridge auf HDD + AMD FX lauffähig gemacht. Der User
+  hatte die Schnauze voll: "Ein Run dauert ewig, ich laufe auf HDD und AMD FX."
+  Die Ursachenanalyse deckte fünf Bottlenecks auf, vier wurden heute behoben.
 
-  1. **sqlite3→better-sqlite3 Migration** (CHANGELOG P3/Roadmap)
-     - db.js: Promise-Wrapper für run/get/all, connect() mit {timeout:5000}
-     - logger.js: callback-basierte DB-Calls auf sync prepare().run()
-     - preflight.js: q1/run-Callback-Wrapper → dbManager.get/run
-     - package.json: sqlite3 6.0.1 entfernt, better-sqlite3 11.9.1 hinzugefügt
-     - NET: −285 Zeilen in package-lock.json, 0 VULNERABILITIES
-     - Hot-Path-Analyse bestätigt: Kein Event-Loop-Freeze-Risiko
-       (DB-Writes passieren NUR nach await HTTP, nie parallel)
+  Die Kernmaßnahmen:
 
-  2. **translateHttpError** — menschenlesbare HTTP-Fehler
-     - router.js: translateHttpError(status) — 10 Status-Codes → Deutsch
-     - config-runtime.js: checkCloudKey/checkLocalProvider nutzen translateHttpError
-     - Fatal-Error-Disable: 400/401/402/403/404 → Provider wird für Session deaktiviert
-     - 429→eskalierender Cooldown statt Permanent-Disable
+  1. **Schema-Version in db.js** — `_schema_meta`-Tabelle speichert `schema_version`.
+     Bei aktuellem Stand werden ALLE 14 `addColumnIfMissing`-Checks + 2 Bulk-UPDATE-
+     Migrationen + 8 CREATE TABLE/INDEX bei JEDEM Start übersprungen.
+     Spart 2-5 Sekunden pro Start auf HDD.
 
-  3. **4 neue Dev-Scripts**
-     - db_query.js: SQLite CLI Query-Runner & Report-Generator
-     - db_snapshot.js: One-Click DB Snapshot & Trend-Report Logger
-     - export_stage2.js: Reiner Export-Run (null API-Calls, Stage-2→Dateien)
-     - test_providers.js: Provider Key Health-Check
+  2. **PREFLIGHT aggregierte Query** — 8 parallele COUNT(*)-Queries erzeugten
+     Disk-Head-Thrashing auf HDD. Jetzt: 1 aggregierte SUM(CASE WHEN)-Query
+     (1 Table-Scan statt 8). Gemessene Ersparnis: ~50% PREFLIGHT-Zeit.
 
-  Zusätzlich: Plugin-Readiness-Audit (A1-A4, B1-B4) vollständig durchgeführt.
-  Ergebnis: Core ist nachweislich Plugin-neutral. 3 konkrete Lücken identifiziert
-  (sos-runtime.js Settings-Pfad, index.js Plugin-Instanziierung, 3× silent .catch).
+  3. **NATIVE_STALE relabeling** — Proper Nouns (native_runtime src=tgt) waren
+     historisch als "Issues" klassifiziert und lösten falsche CRITICAL/WARNING-
+     Meldungen aus. Jetzt: ℹ️ Info, kein Issue, keine Reparatur, kein Fehlalarm.
+     915 Einträge korrekt als "expected, no errors" deklariert.
+
+  4. **Snapshot-Gating** — createSnapshot() (5 MB copyFileSync auf HDD) nur noch
+     wenn echte Issues repariert werden, nicht bei jedem PREFLIGHT.
+
+  Parallel dazu:
+  - **B4-Silent-Dead-Loop-Fix**: 3× `.catch(() => {})` in translation-runtime.js
+    beseitigt. Einer davon war ein stiller API-Credit-Dead-Loop.
+  - **MASTER_DOC-Konsolidierung Durchlauf 1**: 16 OBSOLETE-Einträge ins
+    FREEZE_INDEX §11 überführt (KD-001 bis KD-016). MASTER_DOC ist jetzt SSOT.
+
+  Commit: `bd9dee2` — gepusht nach origin/Governance.
 
 
 ────────────────────────────────────────────────────────────────────────────────
-  2. PROJEKT-STATE (Snapshot 23)
+  2. PROJEKT-STATE (Post-Run: ~4.185 Einträge)
 ────────────────────────────────────────────────────────────────────────────────
 
   2.1 Version-Layer
   ─────────────────────────────────────────────────────────────────────────────
     package.json.version           = 0.20.0-pre-release
-    git HEAD                       = Governance (ahead of origin by 1 commit)
-    DB-Engine                      = better-sqlite3 11.9.1 (seit 2026-06-20)
-    Branch                         = Governance
-    Vorheriger Commit              = "feat: inquirer→prompts Migration + Dependency-Cleanup (−150 Pakete, 0 VULN)"
+    git HEAD                       = bd9dee2 (Governance, ahead of origin)
+    DB-Engine                      = better-sqlite3 11.9.1
+    Schema-Version                 = 5 (_schema_meta)
+    PREFLIGHT                      = ✅ HEALTHY, 0 Issues, 1.101ms
 
-  2.2 Live-DB (Snapshot 23 — 2026-06-20, ~0046 UTC)
+  2.2 Live-DB (Post-Run — 2026-06-20, ~01:30 UTC)
   ─────────────────────────────────────────────────────────────────────────────
-    Total Translations             = 2.406
-    Stale (src=tgt)                = 1.942 (80.7%)
-    Flagged                        = 24 (1.0%)
-    Ø Quality-Score               = 88.9
-    Stage 0 / 1 / 2               = 99 / 1.239 / 1.068 (4.1% / 51.5% / 44.4%)
-    Stage-2 export-bereit          = 320 (polish_status='completed')
-    DB-Größe                      = ~5.0 MB
+    Total Translations             = 4.185
+    Stale (src=tgt)                = 2.147 (51.3%)
+    Flagged                        = 1.652 (39.5%)
+    Ø Quality-Score               = 81.2
+    Stage 0 / 1 / 2               = 1.736 / 22 / 2.427 (41.5% / 0.5% / 58.0%)
+    Stage-2 export-bereit          = 2.427
+    DB-Größe                      = ~5.1 MB
 
-    Provider-Verteilung (Top 5):
-      openrouter    987 (41.0%)  — Ø 88.9, 27.2% stale
-      groq          980 (40.7%)  — Ø 89.6, 24.7% stale
-      native_runtime 289 (12.0%) — Ø 91.3, 87.9% stale
-      nvidia          99 (4.1%)  — Ø 89.8, 20.2% stale
-      polish_single   51 (2.1%)  — Ø 91.2, 15.7% stale
+    Provider-Verteilung:
+      native_runtime   2.123 (50.7%)  — 90.6% stale (Proper Nouns, erwartet)
+      google_free      1.027 (24.5%)  — 2.4% stale (Stress-Test bestanden)
+      polish_single      466 (11.1%)  — QA-Phase Output
+      openrouter         225 ( 5.4%)  — stabil
+      ab_polish          225 ( 5.4%)  — A/B-Polish
+      argos              100 ( 2.4%)  — initial 100, dann nicht mehr
+      groq                16 ( 0.4%)  — 🔴 429-Rate-Limit-Dauerfeuer
+      native_glossary      7 ( 0.2%)
+      native_fallback      3 ( 0.1%)
 
-    PREFLIGHT-Status: ✅ HEALTHY — 0 Issues (262 auto-repaired, 409ms)
+    ⚠️  Groq: TPM-Limit 6000 erschöpft → 429 bei jedem Call. Nur 16 Einträge
+        im gesamten Run. google_free + openrouter haben die Last getragen.
 
-  2.3 Code-Änderungen dieser Session
+  2.3 Code-Änderungen dieser Session (Commit bd9dee2)
   ─────────────────────────────────────────────────────────────────────────────
-    Geändert (16 Dateien):
-      core/src/db.js              — sqlite3→better-sqlite3 (+63/−64)
-      core/src/logger.js          — dbInstance.run(cb)→prepare().run() (+5/−5)
-      core/src/preflight.js       — q1/run via dbManager.get/run (+6/−6)
-      core/src/router.js          — translateHttpError (+44/−35)
-      core/src/config-runtime.js  — translateHttpError-Integration (+10/−10)
-      core/package.json           — better-sqlite3 (+2/−2)
-      core/package-lock.json      — dependency tree (−285)
-      Doku-Dateien (9×)           — CHANGELOG, INDEX, MASTER_DOC, etc.
+    Performance-HDD:
+      core/src/db.js              — Schema-Version _schema_meta + init()-Skip
+      core/src/preflight.js       — Aggregierte Query + NATIVE_STALE relabeling
+                                    + Snapshot-Gating
 
-    Neu (5 Dateien):
-      core/scripts/db_query.js        — SQLite CLI Query-Runner (~200 LOC)
-      core/scripts/db_snapshot.js     — DB Snapshot Tool (~200 LOC)
-      core/scripts/export_stage2.js   — Export-Run ohne API (~250 LOC)
-      core/scripts/test_providers.js  — Provider Health-Check (~300 LOC)
-      core/archive/docs/HANDSHAKE_2026-06-20.md  — DIESER DOC
+    B4-Fix:
+      core/src/translation-runtime.js — 3× .catch(() => {}) beseitigt
+                                         (Retry-Loop + Logging + Counter)
 
-    Gelöscht (1 Datei):
-      core/_db_scan_temp.js           — temporäres Script, durch db_query.js ersetzt
+    Doku:
+      core/archive/docs/CHANGELOG.md   — [PERFORMANCE-HDD] + [B4-SILENT-CATCH-FIX]
+      core/archive/docs/MASTER_DOC.md  — LIVE-Bereinigung (OBSOLETE→CHANGELOG)
+      core/archive/docs/FREEZE/        — FREEZE_INDEX §11 KD-001–016
+                                         MASTER_FREEZE §6 KD-Tabelle
+      core/archive/docs/DOKU_KONSOLIDIERUNG_2026-06-20.md — 12 Divergenzen BEHOBEN
+
+    Mitgezogen aus Vorsession (war bereits modified, jetzt committed):
+      core/src/router.js, core/src/logger.js, core/src/config-runtime.js,
+      core/package.json, diverse Doku-Dateien, 4 neue Dev-Scripts
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -102,73 +109,83 @@
 
   Datum      | Ereignis
   -----------+----------------------------------------------------------------
-  2026-06-19 | HANDSHAKE_2026-06-19.md geschrieben (v0.20.0-pre-release)
-  2026-06-19 | inquirer→prompts Migration (−150 Pakete, 0 VULN)
-  2026-06-20 | DOKU_KONSOLIDIERUNG_2026-06-20 — 12 Divergenzen LIVE vs FREEZE
-  2026-06-20 | RULE 3 Härtung — verify_commit_msg.js im basher
-  2026-06-20 | Vendor-Drift-Fix — Release synchronisiert
-  2026-06-20 | BU-040 NMT_LOCAL_ENABLED entfernt
-  2026-06-20 | PREFLIGHT HEALTHY — 0 Issues, 262 auto-repaired
-  2026-06-20 | DB-Snapshot 23 — 2.406 Einträge (Baseline vor Testrun)
-  2026-06-20 | **sqlite3→better-sqlite3 Migration** ← HEUTE
-  2026-06-20 | **translateHttpError in Router + config-runtime** ← HEUTE
-  2026-06-20 | **4 Dev-Scripts (db_query, db_snapshot, export_stage2, test_providers)** ← HEUTE
-  2026-06-20 | **Plugin-Readiness-Audit (A1-A4, B1-B4)** ← HEUTE
+  2026-06-19 | HANDSHAKE_2026-06-19.md geschrieben
+  2026-06-20 | better-sqlite3-Migration (db.js, logger.js, preflight.js)
+  2026-06-20 | translateHttpError (router.js, config-runtime.js)
+  2026-06-20 | 4 Dev-Scripts (db_query, db_snapshot, export_stage2, test_providers)
+  2026-06-20 | Plugin-Readiness-Audit (A1-A4, B1-B4)
+  2026-06-20 | B4-Silent-Dead-Loop-Fix (3× .catch beseitigt)
+  2026-06-20 | DOKU-KONSOLIDIERUNG 2026-06-20 (12 Divergenzen → ALLE BEHOBEN)
+  2026-06-20 | MASTER_DOC-Konsolidierung Durchlauf 1 (KD-001–016 ins Buch)
+  2026-06-20 | **Performance-HDD-Optimierung** ← HEUTE (Schema-Version, PREFLIGHT, NATIVE_STALE)
+  2026-06-20 | Live-Run mit 4.185 Einträgen (Groq 429-Dauerfeuer)
+  2026-06-20 | Commit bd9dee2 → origin/Governance
   2026-06-20 | *HANDSHAKE aktuell (dieser Doc hier)* ← HEUTE
 
 
 ────────────────────────────────────────────────────────────────────────────────
-  4. KNOWN ISSUES (aus Plugin-Readiness-Audit + HANDSHAKE_2026-06-19)
+  4. KNOWN ISSUES & OFFENE PUNKTE
 ────────────────────────────────────────────────────────────────────────────────
 
-  P0 — Live-Run ausstehend
-    better-sqlite3 ist aktiv, translateHttpError ist drin, PREFLIGHT ist HEALTHY.
-    Der User wird manuell testen (node index.js --auto).
+  ⚠️  Groq 429 — TPM-Limit 6000
+    Jeder Groq-Call im letzten Run schlug mit 429 fehl. TPM-Limit (6000) ist
+    für diesen Durchsatz zu knapp. Nur 16/4.185 Einträge via Groq.
+    translateHttpError erkennt 404/400/402 als fatal, aber 429 als transient
+    (eskalierender Cooldown). Der Cooldown greift, aber das TPM-Limit ist
+    einfach zu niedrig. Optionen: 1) Groq-Tier upgraden, 2) Batch-Größe
+    reduzieren, 3) Groq nur für High-Risk/Polish einsetzen.
 
-  P1 — sos-runtime.js Settings-Pfad hardcodiert
-    SETTINGS_PATH ist hart auf songsofsyx/settings/LauncherSettings.txt codiert.
-    Gehört in den GameAdapter als getLauncherSettingsPath(). Blockiert kein
-    neues Plugin (Plugin kann eigenen sos-runtime.js-Wrapper mitbringen),
-    aber ist eine Lecke in der Plugin-Grenze.
+  🔴 DD-NEU-1 — B4 in MASTER_DOC §3+§6 noch ⚠️ OFFEN
+    MASTER_DOC §3 Tabelle listet "3× silent .catch(() => {})" als OFFEN.
+    MASTER_DOC §6 Roadmap listet es als "~0.5h".
+    ABER: Der Fix IST im Code (translation-runtime.js:1142/1216/1226/1230)
+    und im CHANGELOG [B4-SILENT-CATCH-FIX]. MASTER_DOC wurde vor dem Fix
+    konsolidiert und danach nicht nachgezogen.
+    → Fix: In §3 durchstreichen + "✅ Erledigt (siehe CHANGELOG [B4-SILENT-CATCH-FIX])"
+    → Fix: In §6 Roadmap entfernen oder durchstreichen.
 
-  P1 — index.js Plugin-Instanziierung hart codiert
-    new SongsOfSyxPlugin() in index.js. Core-Module (router, dispatcher,
-    translation-runtime) sind Plugin-neutral — nur index.js müsste geändert
-    werden. Einzeiler-Änderung bei neuem Plugin.
+  🔴 DD-NEU-2 — MASTER_DOC §5 Provider-Zahlen komplett falsch
+    Behauptet: "openrouter 987, groq 980, native_runtime 289, nvidia 99, polish_single 51"
+    Live-DB:   native_runtime 2.126, google_free 786, openrouter 391, ab_polish 225,
+               polish_single 190, argos 100, groq 4. nvidia existiert NULL Mal.
+    → Fix: Zahlen aus Live-DB (db_query.js --report providers) übernehmen.
 
-  P2 — 3× silent .catch(() => {}) in Kernfunktionen
-    gui-handlers.js:30, model-registry.js:49+67. Fehler werden stillschweigend
-    geschluckt → Risiko für unentdeckte Datenverluste (BU-020-Muster).
-    Mindestmaßnahme: console.warn im catch-Block.
+  🟡 F.A — Vendor-Sync Drift (Live-Core vs Release)
+    Drift-Detection existiert (.build-manifest.json + checkVendorDrift()).
+    Bidirektionaler Sync fehlt. P2, ~3-4h.
 
-  F.B — Plugin-Boundary Contract-Tests
-    ✅ BEHOBEN (BU-023). 73/73 PASS. Dynamische Interface-Erkennung.
-    Siehe HANDSHAKE_2026-06-19 §4.
+  🟡 F.C — CodeRabbit-Auto-Fix unreviewed
+    Aus PR #5. Manuelles Re-Verify empfohlen. P1, ~1-2h.
 
-  Anomalie #013 — Doc-/Live-Drift Snap 16/17
-    🟡 Beobachtung. Live-Run muss Klärung bringen.
+  🟡 Groq-Modellname — `groq/auto` lieferte 404 im abgebrochenen Run (Snapshot 21)
+    Wurde auf `llama-3.1-8b-instant` geändert. Im aktuellen Run (Snapshot 24)
+    war der Modellname OK (keine 404), aber TPM-Limit blockiert.
+    → Status: Modellname-Fix OK, TPM-Limit offen.
+
+  🟢 PREFLIGHT HEALTHY — 0 Issues, 915 nativeStale (ℹ️ Info)
+    Keine PREFLIGHT-Blocker mehr. Keine falschen CRITICAL-Meldungen.
 
 
 ────────────────────────────────────────────────────────────────────────────────
   5. ARCHITEKTUR-SCHNITTSTELLEN
 ────────────────────────────────────────────────────────────────────────────────
 
-  5.1 DB-Layer (better-sqlite3)
+  5.1 DB-Layer (better-sqlite3 + Schema-Version)
   ─────────────────────────────────────────────────────────────────────────────
     db.js: connect() → new Database(path, {timeout:5000})
-    db.js: run/get/all → Promise-wrapped stmt.run()/get()/all()
-    db.js: connectReadOnly/allReadOnly → Redirect auf Haupt-Connection
-    logger.js: dbInstance.prepare().run() (sync, kein Callback)
-    preflight.js: q1/run via dbManager.get/run (Promise-basiert)
-    Alle 30+ await run()/get()/all()-Caller: KEINE Änderung nötig
-    (Promise-Signatur identisch)
+    db.js: run/get/all → Promise-wrapped prepare().run()/get()/all()
+    db.js: _schema_meta → CURRENT_SCHEMA_VERSION = '5'
+           Bei Version-Match: init() returned early (überspringt alle Migrationen)
+    db.js: addColumnIfMissing() → PRAGMA table_info + ALTER TABLE (idempotent)
+    PREFLIGHT nutzt dbManager.get/run (Promise-basiert)
 
-  5.2 translateHttpError
+  5.2 PREFLIGHT (optimiert für HDD)
   ─────────────────────────────────────────────────────────────────────────────
-    router.js: translateHttpError(status) → {severity, meaning, action}
-    config-runtime.js: checkCloudKey/checkLocalProvider nutzen translateHttpError
-    test_providers.js: Fallback-Copy von translateHttpError (kein require nötig)
-    db_query.js: read-only, kein translateHttpError nötig
+    preflight.js: countIssues() → 1 aggregierte SUM(CASE WHEN)-Query
+    preflight.js: totalIssues exkludiert nativeStale + diagnostics
+    preflight.js: repairNativeStale() DEAKTIVIERT
+    preflight.js: createSnapshot() nur bei criticalIssues > 0
+    preflight.js: Report: NATIVE_STALE in "ℹ️ Native Entries"-Sektion
 
   5.3 Neue Dev-Tools
   ─────────────────────────────────────────────────────────────────────────────
@@ -177,50 +194,67 @@
     export_stage2.js → node scripts/export_stage2.js [--dry-run] [--target German]
     test_providers.js→ node scripts/test_providers.js [--json]
 
-  5.4 Plugin-Readiness
-  ─────────────────────────────────────────────────────────────────────────────
-    Interface: 23/23 Methoden in SongsOfSyxPlugin via hasOwnProperty überschrieben
-    Contract-Test: 73/73 PASS (dynamische Interface-Erkennung)
-    Core-Module: Nachweislich Plugin-neutral (0 game-spezifische Logik)
-    Lücken: sos-runtime.js Settings-Pfad + index.js Plugin-Instanziierung
-
 
 ────────────────────────────────────────────────────────────────────────────────
   6. RE-ENTRY PFAD (für "Was mache ich wenn ich morgen wieder reinkomme?")
 ────────────────────────────────────────────────────────────────────────────────
 
-  6.1 Schnell-Check (5 Minuten)
+  6.1 Schnell-Check (3 Minuten)
   ─────────────────────────────────────────────────────────────────────────────
-    # 1. Branch + Working-Tree clean?
+    # 1. Git-Status (muss clean sein)
     git status --short
 
-    # 2. DB-Status (sollte Snapshot 23 entsprechen: ~2.406 Einträge)
+    # 2. DB-Status (sollte ~4.185 Einträge)
     node core/scripts/db_query.js --report live
 
-    # 3. PREFLIGHT
-    node -e "const{createPreflight}=require('./core/src/preflight');const dbm=require('./core/src/db');(async()=>{await dbm.init();const pf=createPreflight(dbm);const r=await pf.runPreflight({gui:false});console.log(r.ok?'HEALTHY':'BLOCKED',r.report.health,r.report.issues?.total||0,'issues');dbm.db().close();})()"
-
-    # 4. Provider-Status
-    node core/scripts/test_providers.js
+    # 3. PREFLIGHT (muss HEALTHY sein, 0 Issues)
+    node core/scripts/db_query.js --report live | grep -E "total|native"
 
   6.2 Erste Schritte nach Eintritt
   ─────────────────────────────────────────────────────────────────────────────
     a) HANDSHAKE_2026-06-20.md lesen (dieser Doc) — offene Punkte §4
-    b) DB_TREND_REPORT.md prüfen — letzter Snapshot
-    c) CHANGELOG.md lesen — letzter Eintrag ([BETTER-SQLITE3-MIGRATION])
+    b) CHANGELOG.md lesen — letzter Eintrag ([PERFORMANCE-HDD])
+    c) DD-NEU-1 + DD-NEU-2 fixen (MASTER_DOC.md §3/§5/§6)
 
   6.3 Empfohlene Reihenfolge der nächsten Tasks
   ─────────────────────────────────────────────────────────────────────────────
-    1. Live-Run: node index.js --auto (manueller Test durch User)
-    2. Post-Run: db_query.js --report + db_snapshot.js "nach_testrun" --trend
-    3. export_stage2.js --dry-run (prüfen ob Stage-2-Export funktioniert)
-    4. sos-runtime.js Settings-Pfad in GameAdapter abstrahieren (P1)
-    5. index.js Plugin-Instanziierung über Config/CLI (P1)
-    6. 3× silent .catch mit console.warn versehen (P2)
+    1. DD-NEU-1 fixen: B4 in MASTER_DOC §3+§6 durchstreichen (~5 Min)
+    2. DD-NEU-2 fixen: MASTER_DOC §5 Provider-Zahlen aus Live-DB aktualisieren (~5 Min)
+    3. --skip-preflight CLI-Flag implementieren (~30 Min)
+    4. saveTranslation-Batching für HDD (~1h)
+    5. Groq TPM-Limit lösen (Key-Upgrade oder Batch-Reduktion)
 
 
 ────────────────────────────────────────────────────────────────────────────────
-  7. SIGNOFF
+  7. ROADMAP (NEXT SCOPE)
+────────────────────────────────────────────────────────────────────────────────
+
+  Prio | Aufgabe                                          | Aufwand
+  -----+--------------------------------------------------+--------
+  P0   | DD-NEU-1: B4 in MASTER_DOC §3+§6 durchstreichen  | ~5 Min
+  P0   | DD-NEU-2: MASTER_DOC §5 Zahlen aktualisieren      | ~5 Min
+  P1   | --skip-preflight CLI-Flag                         | ~30 Min
+  P1   | saveTranslation-Batching (1 Transaktion statt 6×) | ~1h
+  P1   | Groq TPM-Limit: Batch-Größe halbieren             | ~30 Min
+  P1   | sos-runtime.js Settings-Pfad in GameAdapter        | ~1h
+  P2   | index.js Plugin-Instanziierung via Config/CLI      | ~2h
+  P2   | Bidirektionaler Vendor-Sync Phase 2 (F.A)          | ~3-4h
+  P2   | DB-Cleanup stale_retranslate                       | ~2h
+
+  ✅ ERLEDIGT diese Session:
+    - Schema-Version _schema_meta (init()-Skip)
+    - PREFLIGHT aggregierte Query
+    - NATIVE_STALE relabeling (kein Fehlalarm mehr)
+    - Snapshot-Gating
+    - B4-Silent-Dead-Loop-Fix
+    - MASTER_DOC-Konsolidierung Durchlauf 1 (KD-001–016)
+    - better-sqlite3-Migration
+    - translateHttpError
+    - 4 Dev-Scripts
+
+
+────────────────────────────────────────────────────────────────────────────────
+  8. SIGNOFF
 ────────────────────────────────────────────────────────────────────────────────
 
     Author:       Buffy (Codebuff)
@@ -230,12 +264,11 @@
     Status:       READY FOR HANDOFF
 
     Bemerkungen:
-    - better-sqlite3 ist aktiv und getestet (PREFLIGHT: 409ms, 262 Issues repaired)
-    - translateHttpError ist aktiv (wird im nächsten Live-Run sichtbar)
-    - 4 Dev-Scripts sind betriebsbereit
-    - Plugin-Readiness-Audit abgeschlossen (Core ist Plugin-neutral, 3 Lücken dokumentiert)
-    - DB-Snapshot 23 ist die Baseline (2.406 Einträge, Ø 88.9)
-    - User testet manuell mit node index.js --auto
+    - Schema-Version '5' ist aktiv — init() skipped Migrationen nach erstem Durchlauf
+    - PREFLIGHT ist HEALTHY (0 Issues, 915 nativeStale als ℹ️ Info)
+    - Live-Run hat 4.185 Einträge produziert (Groq nur 16 — TPM-Limit-Problem)
+    - MASTER_DOC ist SSOT (keine OBSOLETE mehr), aber DD-NEU-1/2 müssen noch gefixt werden
+    - Commit bd9dee2 ist auf origin/Governance
 
 ════════════════════════════════════════════════════════════════════════════════
   ENDE — SyxBridge HANDSHAKE 2026-06-20

@@ -76,10 +76,13 @@ function createProviderClients(ctx) {
     if (provider === 'openrouter' && isLarge) return { maxItems: mode === 'polish' ? 12 : 18, maxChars: 2800 };
     if (provider === 'openrouter')            return { maxItems: mode === 'polish' ? 8  : 14, maxChars: 2200 };
 
-    // Groq: fast but quality-per-item matters more than throughput
-    if (provider === 'groq' && isLarge) return { maxItems: mode === 'polish' ? 12 : 18, maxChars: 2400 };
-    if (provider === 'groq' && isLite)  return { maxItems: mode === 'polish' ? 10 : 14, maxChars: 2000 };
-    if (provider === 'groq')            return { maxItems: mode === 'polish' ? 8  : 12, maxChars: 1800 };
+    // Groq: TPM-Limit 6000 — Batch-Größe halbiert (2026-06-20)
+    // Bei voller Batch (18 Items × ~200 Zeichen = ~3600 Tokens Input + Output)
+    // wird das 6000 TPM-Limit schnell erreicht → 429-Dauerfeuer. Halbierte Batches
+    // verteilen die Last über mehrere Minuten und bleiben im Rate-Limit.
+    if (provider === 'groq' && isLarge) return { maxItems: mode === 'polish' ? 6 : 9, maxChars: 1200 };
+    if (provider === 'groq' && isLite)  return { maxItems: mode === 'polish' ? 5 : 7, maxChars: 1000 };
+    if (provider === 'groq')            return { maxItems: mode === 'polish' ? 4 : 6, maxChars: 900 };
 
     // Gemini: large context window — reduce for quality
     if (provider === 'gemini' && isLite)  return { maxItems: mode === 'polish' ? 12 : 18, maxChars: 2600 };
