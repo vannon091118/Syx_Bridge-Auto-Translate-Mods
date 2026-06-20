@@ -1281,6 +1281,41 @@
 
 ---
 
+## 26. TRIPLE_AUDIT_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — 3-Rollen-Audit, alle Widersprüche behoben.
+> **Quelle:** `core/archive/docs/TRIPLE_AUDIT_2026-06-19.md` (Triple-Audit, 100 % OBSOLETE)
+> **Regel:** Einmaliger 3-Rollen-Audit (Routing, Repo-Struktur, Doku). 10 Widersprüche gefunden und behoben, 6 Modularisierungen empfohlen, 5 Top-Empfehlungen — alle erledigt oder überholt.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 TA-001 — Rolle 1 (Routing) + Rolle 2 (Repo-Struktur)
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Routing + Architektur
+- **Zusammenfassung:** Routing: KRITISCHE ERKENNTNIS — altes ROUTING_AUDIT war veraltet (cheapProviders existiert nicht, freeLlmFirst ist implementiert). Provider-Schieflage als historisches Artefakt identifiziert. DB-Zahlen (openrouter 0.9%, nvidia 0%) aus Läufen vor dem Fix. 5 Anpassungsvorschläge. Repo-Struktur: 6 Monolithen identifiziert (config-runtime.js 975 LOC, client-factory.js 754 LOC, translation-runtime.js 1.210 LOC, gui-handlers.js, text-core.js, db.js).
+- **Ursache der Obsoleszenz:** Live-Run durchgeführt (V0.21-Audit, 9.492 Einträge). Modularisierungsvorschläge sind in MASTER_DOC §6 Roadmap überführt. DB-Zahlen komplett überholt.
+- **LIVE-Ersatz:** MASTER_DOC.md §6 + V0.21_SCOPE.md + PREFLIGHT_LATEST.md
+- **Status:** ✅ Archiviert
+
+### 📋 TA-002 — Rolle 3 (Doku-Konsolidierung) + Globale Zusammenführung
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Doku-Abgleich
+- **Zusammenfassung:** 10 Widersprüche gefunden (W1-W10): DB-Eintragszahl divergiert, quality_score existiert, BUG-FS-003/006 Status, CostClasses falsch, Tier-1-Code veraltet, BU-018/GOD-001 Status. Alle durch Stufe 1 behoben. 5 Top-Empfehlungen: Live-Run, ROUTING_AUDIT ersetzen, config-runtime.js split, MASTER_DOC aktualisieren, NVIDIA Key prüfen.
+- **Ursache der Obsoleszenz:** Alle 10 Widersprüche sind behoben. Alle 5 Top-Empfehlungen sind erledigt (Live-Run done, ROUTING_AUDIT archiviert, MASTER_DOC aktualisiert, NVIDIA Key geprüft).
+- **LIVE-Ersatz:** CHANGELOG [STUFE1] + [STUFE2] + MASTER_DOC.md
+- **Status:** ✅ Archiviert
+
+### 📋 TA-003 — Gesamtdokument: TRIPLE_AUDIT_2026-06-19.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Triple Audit: 3 Rollen × 7 Sub-Agents parallel. Routing-Auditor, Repo-Strukturierung, Doku-Konsolidierung + globale Zusammenführung. 10 Widersprüche, 6 Modularisierungen, 5 Top-Empfehlungen. Bereits als DC-017 in FREEZE_INDEX §13 katalogisiert.
+- **Ursache der Obsoleszenz:** 100 % der Findings sind behoben oder überholt. Das Dokument war ein Einmal-Audit als Grundlage für Stufe 1-3 Implementierung. Alle Empfehlungen sind umgesetzt.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-017) + §26 (diese Einträge)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
 ## 📌 Verbleibende Dokumente im FREEZE-Verzeichnis
 
 | Dokument | Status | Aktion |
