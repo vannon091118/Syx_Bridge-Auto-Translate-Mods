@@ -221,6 +221,183 @@
         .db-edit-textarea:focus { background: #000; border-color: var(--accent); outline: none; }
         .db-table td:first-child { white-space: pre-wrap; word-break: break-word; }
 
+        /* 𝗩𝗲𝗿𝘀𝗶𝗼𝗻-𝗛𝗶𝗴𝗵𝗹𝗶𝗴𝗵𝘁𝘀 𝗕𝘂𝘁𝘁𝗼𝗻 & 𝗠𝗼𝗱𝗮𝗹 */
+        .version-highlight-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(216, 151, 60, 0.12);
+            border: 1px solid rgba(216, 151, 60, 0.35);
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: auto;
+            letter-spacing: 0.3px;
+            margin-left: 15px;
+            position: relative;
+        }
+        .version-highlight-btn:hover {
+            background: rgba(216, 151, 60, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 12px rgba(216, 151, 60, 0.25);
+        }
+        .version-highlight-btn .new-dot {
+            width: 7px;
+            height: 7px;
+            background: #64d5c4;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 2px rgba(100, 213, 196, 0.3); }
+            50% { opacity: 1; box-shadow: 0 0 8px rgba(100, 213, 196, 0.7); }
+        }
+
+        .version-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        .version-modal-overlay.open { display: flex; }
+
+        .version-modal {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 28px 32px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(216,151,60,0.08);
+            animation: modal-slide-in 0.3s ease-out;
+        }
+        @keyframes modal-slide-in {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .version-modal .vm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .version-modal .vm-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .version-modal .vm-title .vm-version {
+            color: var(--accent);
+            font-family: 'Consolas', monospace;
+        }
+        .version-modal .vm-title .vm-date {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: normal;
+            margin-top: 2px;
+        }
+        .version-modal .vm-close-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--muted);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .version-modal .vm-close-btn:hover {
+            background: rgba(239, 107, 96, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .version-modal .vm-subtitle {
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .version-modal .vm-highlights {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .version-modal .vm-highlights li {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text);
+            align-items: flex-start;
+        }
+        .version-modal .vm-highlights li:last-child { border-bottom: none; }
+        .version-modal .vm-highlights .vm-icon {
+            flex-shrink: 0;
+            width: 22px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 1px;
+        }
+        .version-modal .vm-highlights .vm-cat {
+            display: inline-block;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-right: 6px;
+            font-weight: 600;
+        }
+        .cat-fix { background: rgba(100, 213, 196, 0.15); color: var(--success); }
+        .cat-feat { background: rgba(216, 151, 60, 0.15); color: var(--accent); }
+        .cat-docs { background: rgba(100, 213, 196, 0.08); color: var(--muted); }
+        .cat-infra { background: rgba(239, 107, 96, 0.12); color: var(--danger); }
+
+        .version-modal .vm-footer-text {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.6;
+        }
+        .version-modal .vm-footer-text a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .version-modal .vm-footer-text a:hover {
+            text-decoration: underline;
+        }
+
         /* DB Sample Stream */
         .right-sidebar { background: var(--panel-bg); display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
         .sample-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
@@ -340,7 +517,11 @@
     </svg>
 
     <header>
-        <div class="brand">SONGS OF SYX <span style="color:white">AI BRIDGE</span> <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; color: #ef6b60; margin-left: 10px; text-transform: none; text-shadow: 0 0 5px rgba(239, 107, 96, 0.3);">by Vannon</span></div>
+        <div class="brand">SONGS OF SYX <span style="color:white">AI BRIDGE</span> <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; color: #ef6b60; margin-left: 10px; text-transform: none; text-shadow: 0 0 5px rgba(239, 107, 96, 0.3);">by Vannon</span>
+            <button class="version-highlight-btn" onclick="openVersionHighlights()" title="Was ist neu in v0.20.0 — Versions-Highlights anzeigen">
+                <span class="new-dot"></span> v0.20.0
+            </button>
+        </div>
         
         <!-- TOP SETTINGS DROPDOWN -->
         <div id="top-settings-container" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1001; top: 12px;">
@@ -549,6 +730,33 @@
             </div>
         </div>
 
+        <!-- VERSION HIGHLIGHTS MODAL -->
+        <div id="version-modal" class="version-modal-overlay" onclick="if(event.target===this) closeVersionHighlights()">
+            <div class="version-modal">
+                <div class="vm-header">
+                    <div class="vm-title">
+                        <span class="vm-version">v0.20.0</span>
+                        <span class="vm-date">Released 2026-06-20</span>
+                    </div>
+                    <button class="vm-close-btn" onclick="closeVersionHighlights()" title="Schließen">✕</button>
+                </div>
+                <div class="vm-subtitle">📌 Highlights</div>
+                <ul class="vm-highlights">
+                    <li><span class="vm-icon">🎯</span><span><span class="vm-cat cat-fix">Fix</span>Global Version Bump — Alle Version-Strings auf v0.20.0 vereinheitlicht</span></li>
+                    <li><span class="vm-icon">🧩</span><span><span class="vm-cat cat-feat">Feature</span>Plugin-Architektur — GamePlugin + SongsOfSyxPlugin als abstrakte Layer</span></li>
+                    <li><span class="vm-icon">🔍</span><span><span class="vm-cat cat-feat">Feature</span>PREFLIGHT Analysis — DB-Health-Check vor jedem Sync mit Auto-Repair</span></li>
+                    <li><span class="vm-icon">🛡️</span><span><span class="vm-cat cat-fix">Fix</span>BU-035-039 — Tot-Flag-Detector, GOOGLE_FREE_ENABLED-Verdrahtung, Dispatcher-Doppelprüfung entfernt, Logger Silent-Catch behoben</span></li>
+                    <li><span class="vm-icon">⏹️</span><span><span class="vm-cat cat-fix">Fix</span>BU-020 — AbortController für saubere Task-Abbrüche</span></li>
+                    <li><span class="vm-icon">✅</span><span><span class="vm-cat cat-fix">Fix</span>BU-023 — Plugin-Boundary-Contract-Tests (73/73 PASS)</span></li>
+                    <li><span class="vm-icon">📦</span><span><span class="vm-cat cat-infra">Infra</span>−150 Dependencies entfernt — 0 VULN nach npm audit</span></li>
+                    <li><span class="vm-icon">📄</span><span><span class="vm-cat cat-docs">Docs</span>Doku-Clean — 18 Audit-Reports in FREEZE überführt, Dev-Tools aus GitHub entfernt</span></li>
+                </ul>
+                <div class="vm-footer-text">
+                    Vollständiges Changelog: <a href="https://github.com/vannon091118/Syx_bridge-/blob/main/core/archive/docs/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+                </div>
+            </div>
+        </div>
+
         <!-- KEY MODAL -->
         <div id="key-modal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
             <div class="modal-content panel" style="width: 680px; max-height: 85vh; overflow-y: auto; background: var(--panel-bg);">
@@ -668,12 +876,26 @@
     </div>
 
     <footer style="background: rgba(0,0,0,0.8); padding: 5px 20px; font-size: 0.7rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--muted); z-index: 100;">
-        <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon"><span id="fcm-status-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#666; margin-right:4px;"></span>Syx-Bridge v0.19.6 - V71 Ready | NVIDIA NIM + FCM Live</div>
+        <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon"><span id="fcm-status-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#666; margin-right:4px;"></span>Syx-Bridge v0.20.0 - V71 Ready | NVIDIA NIM + FCM Live</div>
         <div title="Fehler oder Feedback bitte per E-Mail melden">Kontakt &amp; Bug-Reports: <span style="color: var(--accent);">vannon858@gmail.com</span></div>
     </footer>
 
     <script src="/public/app.js"></script>
     <script>
+        function openVersionHighlights() {
+            document.getElementById('version-modal').classList.add('open');
+        }
+        function closeVersionHighlights() {
+            document.getElementById('version-modal').classList.remove('open');
+        }
+        // ESC-Taste zum Schließen
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVersionHighlights();
+                closeKeyModal();
+                closeRevisionModal();
+            }
+        });
         function toggleSettings() {
             if (window.liveStats && window.liveStats.isRunning) {
                 alert("Einstellungen können während eines aktiven Laufs nicht geändert werden!");

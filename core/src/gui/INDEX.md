@@ -1,6 +1,6 @@
 # 📖 INDEX — core/src/gui/ (2 Dateien, 2.167 LOC)
 
-> **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release
+> **Generiert:** 2026-06-20 | **Version:** v0.20.0
 > **Zweck:** Referenzbuch für die GUI-Schicht (HTTP-Server + Client-Dashboard)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
@@ -102,3 +102,5 @@
 ---
 
 *📖 GUI-INDEX v0.20.0 — 2 Dateien, 2.167 LOC, ~45 Funktionen*
+
+> **Letztes Update:** 2026-06-20 — Version auf v0.20.0 aktualisiert, Versions-Highlights in GUI integriert

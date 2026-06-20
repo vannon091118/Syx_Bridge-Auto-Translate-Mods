@@ -14,6 +14,8 @@
     "release": "node scripts/release.js",
     "sync": "node scripts/sync-version.js",
     "sync:dry": "node scripts/sync-version.js --dry-run",
+    "fresh-readme": "node scripts/fresh-readme.js",
+    "fresh-readme:dry": "node scripts/fresh-readme.js --dry-run",
     "consistency": "node scripts/check_consistency.js",
     "package": "node scripts/package.js",
     "workshop": "node scripts/workshop_export.js",
