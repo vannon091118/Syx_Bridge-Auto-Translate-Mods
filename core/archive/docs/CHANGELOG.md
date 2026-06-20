@@ -2,7 +2,9 @@
 
 ## [V0.21-P0-FIXES] - 2026-06-20 — P0-1/P0-2/P0-3: Watermark-Stripping, Config-Blocker, Output-Only
 
-Nach dem dritten Kaffee und vier Sub-Agenten später: Alle drei P0-Release-Blocker sind durch. Und weisst du was das Beste ist? P0-3 brauchte keinen einzigen neuen Code. Die fünf Schichten aus P0-1 haben den Watermark-Fluss so dicht gemacht dass die DB von alleine sauber bleibt. Das ist die Art von Architektur die man feiert wenn sie hält — Defense-in-Depth die tatsächlich verteidigt.
+Nach dem dritten Kaffee und vier Sub-Agenten später: Alle drei P0-Release-Blocker sind durch. Und weisst du was das Beste ist? P0-3 brauchte keinen einzigen neuen Code. Die fünf Schichten aus P0-1 haben den Watermark-Fluss so dicht gemacht dass die DB von alleine sauber bleibt.
+
+Nachtrag: Der User warnte dass der Stripper an der falschen Position in der Verarbeitungskette sitzen könnte. Er hatte Recht. In `unescapeTextValue()` war der Watermark-Strip GANZ AM ENDE der Chain — NACH dem `\\n`→`\n`-Unescaping. Ein Watermark zwischen `\` und `n` (z.B. `\`+ZWSP+`n`) sabotierte das Unescaping: die Regex `/\\n/g` matcht nicht `\`+ZWSP+`n`, das `\n` blieb als Escape-Sequenz im Text stecken. Unsichtbare Korruption. Der Fix: Strip an die ERSTE Position, VOR allem Unescaping. 11/11 Edge-Case-Tests passed. Der Code-Reviewer bestätigte: Reihenfolge Strip→`\\n`→`\\"`→`\\\\` ist korrekt, `\\\\`→`\\` bleibt sicher als letztes (Doppel-Unescape-Schutz). Das ist die Art von Architektur die man feiert wenn sie hält — Defense-in-Depth die tatsächlich verteidigt.
 
 ### P0-1: Watermark-Stripping — 5-Schichten-Defense
 423 Watermark-maskierte Strings. Jeder Re-Run hat neue ZWSP/ZWNJ-Marker in den Source-Text auf Disk injiziert. Beim nächsten Run: "Oh, der Text ist ja schon Deutsch" → stale → nie wieder übersetzt. Der Teufelskreis.
