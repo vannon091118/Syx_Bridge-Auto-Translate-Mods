@@ -117,6 +117,7 @@ let CONFIG = {
   TARGET_LANG: process.env.TARGET_LANG || 'German',
   NATIVE_MODE: parseEnvFlag(process.env.NATIVE_MODE, true),
   GRAMMAR_CHECK: process.env.GRAMMAR_CHECK !== 'false', // BUG-004: Default true — ensures Polish/Audit runs for all entries
+  PATCH_MODE_ENABLED: parseEnvFlag(process.env.PATCH_MODE_ENABLED, false), // P1-1: Patch Mode ist User-Opt-Out — default false weil SoS OVERRIDE-basiertes Mod-Loading verwendet (keine .patch-Dateien). Native Mode ist architektonisch korrekt.
   GRAMMAR_PROMPT_FILE: 'grammar_context.txt',
   LOCAL_MODELS_ENABLED: parseEnvFlag(process.env.LOCAL_MODELS_ENABLED, false),
   // NMT_LOCAL_ENABLED removed (BU-040): was VERWAIST — no provider client, router entry,
@@ -362,6 +363,7 @@ function applyEnvToConfig() {
   CONFIG.GAME = envFirst('GAME') || CONFIG.GAME;
   CONFIG.NATIVE_MODE = parseEnvFlag(process.env.NATIVE_MODE, CONFIG.NATIVE_MODE);
   CONFIG.GRAMMAR_CHECK = parseEnvFlag(process.env.GRAMMAR_CHECK, CONFIG.GRAMMAR_CHECK);
+  CONFIG.PATCH_MODE_ENABLED = parseEnvFlag(process.env.PATCH_MODE_ENABLED, CONFIG.PATCH_MODE_ENABLED);
   CONFIG.LOCAL_MODELS_ENABLED = parseEnvFlag(process.env.LOCAL_MODELS_ENABLED, CONFIG.LOCAL_MODELS_ENABLED);
   // NMT_LOCAL_ENABLED removed (BU-040): see NMT_LOCAL_ENABLED comment in CONFIG block.
   CONFIG.PRIMARY_PROVIDER = envFirst('PRIMARY_PROVIDER') || CONFIG.PRIMARY_PROVIDER;

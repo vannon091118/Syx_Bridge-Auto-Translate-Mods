@@ -838,6 +838,7 @@ const PERSISTED_KEYS = [
   ['TARGET_LANG',           (c) => firstDefined(c.TARGET_LANG)],
   ['NATIVE_MODE',           (c) => String(!!c.NATIVE_MODE)],
   ['GRAMMAR_CHECK',         (c) => String(!!c.GRAMMAR_CHECK)],
+  ['PATCH_MODE_ENABLED',    (c) => String(!!c.PATCH_MODE_ENABLED)], // P1-1: Patch Mode User-Opt-Out — SoS OVERRIDE-Loading
   ['LOCAL_MODELS_ENABLED',  (c) => String(!!c.LOCAL_MODELS_ENABLED)],
   // NMT_LOCAL_ENABLED removed (BU-040): was VERWAIST — no provider client, router entry, or dispatcher path existed.
   // warm-model.js remains as roadmap v0.23. Re-add here when NMT provider is implemented.

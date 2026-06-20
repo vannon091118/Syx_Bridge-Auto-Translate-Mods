@@ -226,15 +226,14 @@ async function main() {
 
   await dbManager.init();
   const db = dbManager.db();
-  const q = (sql, params) => new Promise((res, rej) => {
-    db.all(sql, params || [], (e, r) => e ? rej(e) : res(r));
-  });
-  const run = (sql, params) => new Promise((res, rej) => {
-    db.run(sql, params || [], function(e) { e ? rej(e) : res(this); });
-  });
-  const q1 = (sql, params) => new Promise((res, rej) => {
-    db.get(sql, params || [], (e, r) => e ? rej(e) : res(r));
-  });
+  // P0-3 Fix: better-sqlite3 ist synchron — kein Callback-Pattern.
+  // Die alten Promise-Wrapper riefen db.all(sql, params, callback) auf,
+  // was mit better-sqlite3 zu "db.all is not a function" führte.
+  // Fix: prepare().all()/get()/run() direkt aufrufen. await auf nicht-Promise
+  // Werte ist harmlos (gibt den Wert sofort zurück).
+  const q = (sql, params) => db.prepare(sql).all(...(params || []));
+  const run = (sql, params) => db.prepare(sql).run(...(params || []));
+  const q1 = (sql, params) => db.prepare(sql).get(...(params || []));
 
   let totalFixed = 0;
 
