@@ -37,7 +37,7 @@ V71/
 nul
 
 # Commit-Message Temporary (RULE 3)
-core/.commit_msg.txt
+core/.commit_msg*.txt
 
 # Root Docs (Proxy-Kopien, nicht auf GitHub)
 WORKFLOW.md
