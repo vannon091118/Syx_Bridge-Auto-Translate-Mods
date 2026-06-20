@@ -68,18 +68,20 @@ Scan → Extract → Translate → Audit → Polish → Export
 - `plugins/GamePlugin.js`: Interface (getPromptContext, getGameTerms, getLoreTerms, getPathRules, serializeTranslation, validateTranslation)
 - `plugins/SongsOfSyxPlugin.js`: Implementierung mit 12 Lore-Begriffen + 9 Gameplay-Begriffen
 - `translation-quality.js` (~187 LOC): 6 extrahierte Quality/Scoring-Funktionen
-- `translation-db.js` (~356 LOC): 8 extrahierte DB/Cache/Glossary-Funktionen
-- `translation-runtime.js` (~1211 LOC): 5 fokussierte Phasen-Funktionen (GOD-001 Refactoring)
+- `translation-db.js` (~456 LOC): 8 extrahierte DB/Cache/Glossary-Funktionen + Dual-Counter
+- `translation-runtime.js` (~1370 LOC): 5 fokussierte Phasen-Funktionen (GOD-001 Refactoring + 15 Fixes)
 
 ---
 
 ## 5. DB-Stand (2026-06-20 — Post Doku-Clean)
 
 > ⚠️ **DB-RESET 2026-06-19 (Doku-Divergenz-Audit DD-001):** Die Live-DB wurde nach Snapshot 19 auf ~1.508 Einträge zurückgesetzt.
-> **Aktuell (2026-06-20, Post v0.20.0-Doku-Clean):** 5.547 Einträge, 62.5% stale (3.466), 38.7% flagged (2.146), Ø Score 82.9.
-> 4.668 Stage-2 Einträge (audit_stage ≥ 2), 858 Stage 0, 21 Stage 1. Provider: native_runtime 3.219 (58.0%), google_free 899 (16.2%), polish_single 752 (13.6%), openrouter 307 (5.5%), ab_polish 225 (4.1%), argos 100 (1.8%), groq 42 (0.8%), native_fallback 3 (0.1%). **nvidia existiert NULL Mal**.
+> ⚠️ **DB-RESET 2026-06-20:** DB wurde nach Doku-Clean auf 100 Einträge zurückgesetzt (Test-Stand).
+> **Letzter produktiver Stand (V0.21-Audit):** 9.492 Einträge, 66.9% NATIVE_STALE (6.351).
+> **Aktuell (Post-RESET):** 100 Einträge (Test-DB — nicht repräsentativ für Produktion).
+> Für aktuelle DB-Metriken siehe PREFLIGHT_LATEST.md nach nächstem Live-Run.
 > **Aktuelle SSoT:** `node core/scripts/db_query.js --report live` — nicht mehr der HANDSHAKE, der nur Snapshot-24-Zahlen enthält.
-> **better-sqlite3 aktiv** — Schema-Version 5. **PREFLIGHT:** ✅ HEALTHY, 0 Issues.
+> **better-sqlite3 aktiv** — Schema-Version **6**. **PREFLIGHT:** ✅ HEALTHY, 0 Issues.
 
 ---
 
@@ -89,13 +91,14 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 | Prio | Aufgabe | Status/Aufwand |
 |---|---|---|
-| P0 | **[V0.21] Watermark-Stripping vor Classification** (423 maskierte Strings) | ✅ DONE — P0-1 |
-| P0 | **[V0.21] shouldTranslate() Config-Blocker** (23+5 False Positives) | ✅ DONE — P0-2 |
-| P0 | **[V0.21] Watermark nur in Output, nicht in DB** (Akkumulations-Bug) | ✅ DONE — durch P0-1 abgedeckt |
-| P1 | **[V0.21] polish_single "no-change"-Erkennung** (129 stale/663) | ~1h |
-| P1 | **[V0.21] DB-Sanitization: Watermarks aus alten Einträgen** | ~1h |
+| P0 | **[V0.21] Watermark-Stripping vor Classification** (423 maskierte Strings) | ✅ DONE — P0-1 (ZSWP-Strip in isProperNoun/shouldTranslate/extractReplacements) |
+| P0 | **[V0.21] shouldTranslate() Config-Blocker** (23+5 False Positives) | ✅ DONE — P0-2 (strukturelle Delimiter-Checks in shouldTranslate) |
+| P0 | **[V0.21] Watermark nur in Output, nicht in DB** (Akkumulations-Bug) | ✅ DONE — P0-1+Defense-in-Depth in saveTranslation |
+| P1 | **[V0.21] polish_single "no-change"-Erkennung** (129 stale/663) | ✅ DONE — implemented in qaPhase (isNoChange + skipReviewIncrement) |
+| P1 | **[V0.21] DB-Sanitization: Watermarks aus alten Einträgen** | ~1h (benötigt Live-Run mit DB) |
 | P1 | sos-runtime.js Settings-Pfad in GameAdapter abstrahieren | ~1h |
 | P1 | index.js Plugin-Instanziierung über Config/CLI-Flag | ~2h |
+| ✅ | ~~Sinnhaftigkeitsanalyse 15 Fixes~~ — J1/J2, G1/D1/C1/C2, A1/A2/G2/H1/I1, D2/E1/E2 | Done (Commit 9a853ef) |
 | P2 | DB-Cleanup `stale_retranslate` | ~2h |
 | P2 | Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
 | ✅ | ~~Erster echter v0.20 Live-Run~~ — 8 Mods, 9.492 Einträge, HEALTHY | Done |
@@ -138,7 +141,7 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 > **Stand:** 2026-06-20 — **7 LIVE + 3 FREEZE + 1 PLAN_MASTER**
 > **20 Doku-Konsolidierungs-Durchläufe abgeschlossen.**
-> **~150 Glossary-Einträge** im FREEZE_INDEX.md (Das Buch) — alle mit Kausalität, Cross-Referenzen und CHANGELOG-Verweisen.
+> **142 Glossary-Einträge** im FREEZE_INDEX.md (archiviert) + **15 Einträge** in FREEZE_INDEX_2.md (Sinnhaftigkeitsanalyse) — alle mit Kausalität, Cross-Referenzen und CHANGELOG-Verweisen.
 > **76 Dokumente gelöscht** (62 + 14 VOLLARCHIVIERT-Stubs) — alle Inhalte rekonstruierbar.
 > **Archiv-Regeln:** `.ArchiveRules` im Projekt-Root.
 
@@ -153,7 +156,9 @@ core/archive/docs/
 ├── LIVE_INDEX.md              # Index aller LIVE-/FREEZE-/Plan-Dokumente
 ├── preflight_history.log      # PREFLIGHT-Verlauf (Log)
 ├── FREEZE/
-│   ├── FREEZE_INDEX.md        # Das Buch — ~150 Glossary-Einträge mit CHANGELOG-Verweisen
+│   ├── FREEZE_INDEX.md        # Das Buch [ARCHIVIERT] — 142 Glossary-Einträge (16.06.–20.06.2026)
+│   ├── FREEZE_INDEX_2.md      # Das Buch (Fortsetzung) — 15 Einträge (Sinnhaftigkeitsanalyse)
+│   ├── FREEZE_INDEX_v0.20.0_archived.md  # Archivkopie (112 KB)
 │   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # TOC — referenziert alle gelöschten Einträge
 │   └── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikations-Checkliste (42 Claims)
 └── plans/

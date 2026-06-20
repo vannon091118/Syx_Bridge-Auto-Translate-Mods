@@ -7,7 +7,7 @@
 <p align="center">
   <a href="#-what-is-syxbridge"><img src="https://img.shields.io/badge/lang-English-blue?style=flat-square" alt="English"></a>
   <a href="#-was-ist-syxbridge"><img src="https://img.shields.io/badge/lang-Deutsch-grey?style=flat-square" alt="Deutsch"></a>
-  <img src="https://img.shields.io/badge/version-v0.20.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-v0.21--experimental-blue?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-Alpha-red?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen?style=flat-square" alt="Node">
@@ -204,9 +204,9 @@ Syx_bridge-/
 
 | | |
 |---|---|
-| **Version** | v0.20.0 |
+| **Version** | v0.20.0 → v0.21-experimental (15 systemische Fixes) |
 | **Maturity** | Alpha · Solo project · In daily use |
-| **Latest Release** | v0.20.0 (2026-06-20) — 70 source files, ~10k LOC |
+| **Latest Release** | v0.20.0 (2026-06-20) — 35 source files, ~12k LOC |
 | **Limitations** | Patch Mode disabled — everything else works |
 
 <details>
@@ -423,9 +423,9 @@ Syx_bridge-/
 
 | | |
 |---|---|
-| **Version** | v0.20.0 |
+| **Version** | v0.20.0 → v0.21-experimental (15 systemische Fixes) |
 | **Reifegrad** | Alpha · Solo-Projekt · im Daily-Use |
-| **Letztes Release** | v0.20.0 (2026-06-20) — 70 Quellcode-Dateien, ~10k LOC |
+| **Letztes Release** | v0.20.0 (2026-06-20) — 35 Quellcode-Dateien, ~12k LOC |
 | **Einschränkungen** | Patch Mode deaktiviert — Rest funktioniert |
 
 <details>

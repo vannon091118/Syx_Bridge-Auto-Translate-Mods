@@ -1,6 +1,7 @@
 # 🛫 PREFLIGHT ANALYSIS
 
 > **2026-06-20 19:17:29** | Mode: **CLI** | Health: ✅ **HEALTHY** | 431ms
+> ⚠️ **Pre-Fix-Stand:** Dieser PREFLIGHT-Report repräsentiert den DB-Stand VOR der Sinnhaftigkeitsanalyse (15 systemische Fixes, Commit `9a853ef`). Nächster PREFLIGHT nach Live-Run spiegelt Post-Fix-Zustand wider.
 
 ---
 
