@@ -402,6 +402,17 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | RA-002 | DRIFT D1–D8 + Veränderung | [FREEZE_INDEX §23](#23-reality_audit_2026-06-19--vollarchivierung) |
 | RA-003 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §23](#23-reality_audit_2026-06-19--vollarchivierung) |
 
+### ROUTING_AUDIT_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (Routing-Analyse + Vorschläge) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Header sagt selbst "SUPERSEDED BY TRIPLE_AUDIT", referenziert Code der nicht mehr existiert.
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| RT-001 | IST-Routing + Provider-Gate + Nutzung | [FREEZE_INDEX §25](#25-routing_audit_2026-06-19--vollarchivierung) |
+| RT-002 | Anpassungsvorschläge P0/P1/P2 + DB-Vergleich | [FREEZE_INDEX §25](#25-routing_audit_2026-06-19--vollarchivierung) |
+| RT-003 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §25](#25-routing_audit_2026-06-19--vollarchivierung) |
+
 ### REALITY_AUDIT_RECONCILIATION_2026-06-19 Vollarchivierung (2026-06-20)
 
 > **Aktion:** Komplettes Quelldokument (5 Divergenz-Fixes + Methodik) ins Buch überführt.

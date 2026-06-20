@@ -1246,6 +1246,41 @@
 
 ---
 
+## 25. ROUTING_AUDIT_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Routing-Analyse, durch TRIPLE_AUDIT ersetzt.
+> **Quelle:** `core/archive/docs/ROUTING_AUDIT_2026-06-19.md` (Routing-Audit, 100 % OBSOLETE)
+> **Regel:** Einmaliger Routing-Audit — referenziert Code (`cheapProviders`) der nicht mehr existiert. Header sagt selbst "SUPERSEDED BY TRIPLE_AUDIT".
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 RT-001 — IST-Routing + Provider-Gate + Nutzungsverteilung
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Routing-Analyse
+- **Zusammenfassung:** Detaillierte Analyse des Routing-Systems: hasAccess() für 9 Provider, Key-Loading via index.js:125-128, Routing-Pipeline in dispatcher.js:56-133 (Tier 1-4). Nutzungsverteilung: google_free 574 (8.6%), argos 366 (5.5%), openrouter 60 (0.9%) — Schieflage dokumentiert.
+- **Ursache der Obsoleszenz:** Tier-1-Fix (cheapProviders→freeLlmFirst) ist längst implementiert. Die Root-Cause-Analyse referenziert `cheapProviders = ['google_free', 'argos']` — dieser Code existiert nicht mehr. Der Header des Dokuments sagt selbst "SUPERSEDED BY TRIPLE_AUDIT".
+- **LIVE-Ersatz:** TRIPLE_AUDIT_2026-06-19.md + CHANGELOG [TIER-1-UI-STRING-FIX]
+- **Status:** ✅ Archiviert
+
+### 📋 RT-002 — Anpassungsvorschläge P0/P1/P2 + DB-Vergleich
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vorschläge
+- **Zusammenfassung:** 3 Routing-Vorschläge: P0 Tier-1-Hardcoding entfernen (umgesetzt), P1 google_free abschaltbar machen (umgesetzt via BU-036/GOOGLE_FREE_ENABLED), P2 UI-String-Klassifikation prüfen. DB-Vergleich Vorher/Nachher: Sync-Run reduzierte google_free/argos-Nutzung nur minimal.
+- **Ursache der Obsoleszenz:** P0 und P1 sind implementiert. P2 ist eine optionale Verbesserung ohne akuten Handlungsbedarf. Der DB-Vergleich basiert auf veralteten Snapshots (6.540→6.659).
+- **LIVE-Ersatz:** CHANGELOG [TIER-1-UI-STRING-FIX] + [BU-036]
+- **Status:** ✅ Archiviert
+
+### 📋 RT-003 — Gesamtdokument: ROUTING_AUDIT_2026-06-19.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Routing-Audit: DB-Live-Query + Code-Pfad-Verifikation + Thinker-Root-Cause-Analyse. Entdeckte Tier-1-UI-String-Hardcoding als Ursache der Provider-Schieflage. Bereits als DC-014 in FREEZE_INDEX §13 katalogisiert. Header sagt selbst "SUPERSEDED BY TRIPLE_AUDIT — Dieses Dokument ist veraltet."
+- **Ursache der Obsoleszenz:** 100 % der Findings basieren auf Code der nicht mehr existiert. Das Dokument deklariert sich selbst als veraltet. TRIPLE_AUDIT hat es ersetzt.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §13 (DC-014) + §25 (diese Einträge)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
 ## 📌 Verbleibende Dokumente im FREEZE-Verzeichnis
 
 | Dokument | Status | Aktion |
