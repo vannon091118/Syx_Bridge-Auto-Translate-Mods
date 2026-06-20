@@ -332,6 +332,18 @@ PRAGMA busy_timeout = 5000;      -- 5s
 | FF-004 | §5 Fragen Q1–Q6 + §6 Cluster A–G | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
 | FF-005 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §17](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung) |
 
+### REDUNDANZ_AUDIT_V2_2026-06-19 Vollarchivierung (2026-06-20)
+
+> **Aktion:** Komplettes Quelldokument (13 Cluster + Konsolidierungsplan) ins Buch überführt.
+> **Begründung:** 100 % OBSOLETE — Einmal-Audit mit veralteten Release-Ordner-Referenzen (v0.19.7/v0.20.0-pre-release).
+
+| ID | Kurztitel | Buch-Verweis |
+|----|-----------|-------------|
+| RD-001 | §1 Tendenz v1→v2: 6 Metriken | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
+| RD-002 | §2 Duplikat-Cluster C1–C13 | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
+| RD-003 | §3 Tote Dateien + §4 Konsolidierungsplan | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
+| RD-004 | Gesamtdokument: Vollarchiviert | [FREEZE_INDEX §18](#18-redundanz_audit_v2_2026-06-19--vollarchivierung) |
+
 ### Lösch-Kandidaten (44 Dokumente — INDEX-Überführung abgeschlossen)
 
 > **Regel:** Eine FREEZE-Datei wird NUR gelöscht wenn:

@@ -5,7 +5,7 @@
 > Jeder gelöschte FREEZE-Eintrag wird hier als Glossary-Eintrag überführt — MIT Kausalität, Beobachtungen, Cross-Referenzen.
 > **Rekonstruierbarkeit:** Aus diesem Dokument kann der gesamte Entwicklungsprozess (16.06. – 20.06.2026) lückenlos nachvollzogen werden.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
-> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN = **103 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
+> **Umfang:** 44 Lösch-Kandidaten + 5 permanente Dokumente + 18 Doku-Clean Reports + 12 HANDSHAKE-19 + 11 HANDSHAKE-20 + 8 DOKU-KONSOLIDIERUNG + 5 FORENSIC_FULLSCAN + 4 REDUNDANZ_AUDIT = **107 total katalogisiert** (62 gelöscht, 5 im FREEZE/ verbleibend).
 
 ---
 
@@ -28,8 +28,9 @@
 15. [HANDSHAKE_2026-06-20 — Partielle Archivierung (11)](#15-handshake_2026-06-20--partielle-archivierung)
 16. [DOKU_KONSOLIDIERUNG_2026-06-20 — Vollarchivierung (8)](#16-doku_konsolidierung_2026-06-20--vollarchivierung)
 17. [FORENSIC_FULLSCAN_v0.20_2026-06-19_V2 — Vollarchivierung (5)](#17-forensic_fullscan_v020_2026-06-19_v2--vollarchivierung)
+18. [REDUNDANZ_AUDIT_V2_2026-06-19 — Vollarchivierung (4)](#18-redundanz_audit_v2_2026-06-19--vollarchivierung)
 
-> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5 = **117 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
+> **Gesamtzahl:** 8+10+4+5+4+2+1+5+3+2+17+2+18+12+11+8+5+4 = **121 Glossary-Einträge** (62 gelöscht, 19 im FREEZE/ verbleibend + 12 neu aus HANDSHAKE)
 
 ---
 
@@ -956,6 +957,49 @@
 - **Zusammenfassung:** Forensischer Vollscan: 10 Code-Searcher-Subagenten parallel, 15 Such-Patterns, 27 Dateien gescannt. Methode: Nur Ist-Zustand dokumentieren, nichts im selben Lauf ändern. 15 Findings (1×P0, 4×P1, 7×P2, 3×P3), 6 offene Fragen, 7 Ursachen-Cluster.
 - **Ursache der Obsoleszenz:** 100 % der Inhalte sind überholt. LOC-Zahlen veraltet, alle kritischen Findings (F1/F9/F14/F15) in späteren Sessions behoben, Fragen durch Roadmap-Entwicklung beantwortet. Das Dokument war ein Einmal-Audit — sein Zweck ist erfüllt.
 - **LIVE-Ersatz:** FREEZE_INDEX.md §17 (diese Einträge) + core/src/INDEX.md (aktueller Code-Stand)
+- **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
+
+---
+
+## 18. REDUNDANZ_AUDIT_V2_2026-06-19 — Vollarchivierung
+
+> **Aktion:** Komplettes Quelldokument ins Buch überführt — Einmal-Audit, alle Cluster-Referenzen veraltet.
+> **Quelle:** `core/archive/docs/REDUNDANZ_AUDIT_V2_2026-06-19.md` (Redundanz-Audit, ~100 % OBSOLETE)
+> **Regel:** Ein Redundanz-Audit mit Release-Ordner-Referenzen von v0.19.7/v0.20.0-pre-release — alles durch neue Releases überholt.
+> **Datum der Archivierung:** 2026-06-20
+
+---
+
+### 📋 RD-001 — §1 Tendenz seit v1: 6 Metriken
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Trend-Analyse
+- **Zusammenfassung:** Vergleich v1 (18.06.) vs v2 (19.06.): Root stale-Dateien 4→0 ✅, nul-Artefakt 1→1 🔴, Release-Ordner 3→3 (andere Versionen), Root-Duplikate ~8→~10 ↗️, Archive-Bloat 7+→3 ✅, Untracked 1→0 ✅. 5 von 8 v1-Findings behoben.
+- **Ursache der Obsoleszenz:** Historischer Vergleich zweier Zeitpunkte. Release-Ordner sind jetzt v0.20.0 (nicht mehr v0.19.7/v0.20.0-pre-release). Archive-Bloat hat sich weiterentwickelt. Die spezifischen Zahlen sind für den 19.06. — kein aktueller Wert.
+- **LIVE-Ersatz:** Keiner — einmalige Trend-Analyse ohne aktuellen Bezug.
+- **Status:** ✅ Archiviert
+
+### 📋 RD-002 — §2 Duplikat-Cluster C1–C13
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Duplikat-Inventur
+- **Zusammenfassung:** 13 Cluster: C1 start.bat (5×), C2 README.md (6×), C3 package.json (4×), C4 index.js (4×), C5 _Info.txt (4+×), C6 LICENSE (4×), C7 TREE.md (3×), C8 AGENTS.md (2×), C9 TUTORIAL.txt (2×), C10 eslint.config.mjs (2×), C11 check_workshop_damage.ps1 (2×), C12 .db Dateien (3×), C13 nul (1×). Kanonische Pfade identifiziert, Release-Snapshots als erwartbar bewertet.
+- **Ursache der Obsoleszenz:** Release-Ordner-Referenzen (v0.19.7, v0.20.0-pre-release, v0.20.0-pre-review-base) sind veraltet — aktuelles Release ist v0.20.0. DB-Snapshots haben sich weiterentwickelt. Die Cluster-Analyse ist eine Momentaufnahme.
+- **LIVE-Ersatz:** Keiner — Duplikate sind Release-Artefakte, keine LIVE-Doku.
+- **Status:** ✅ Archiviert
+
+### 📋 RD-003 — §3 Tote Dateien + §4 Konsolidierungsplan
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Cleanup-Empfehlungen
+- **Zusammenfassung:** Tote Dateien: nul (löschen), start.bat Redirect-Relikt (ignorieren), archive/ in Vendored Releases (release.js prüfen). Konsolidierungsplan: Sofort (S1 nul löschen, S2 alte Releases löschen), Mittelfristig (M1 archive/-Ausschluss, M2 --clean-old Flag), Langfristig (L1 ZIP-Only, L2 V70/V71 verschieben).
+- **Ursache der Obsoleszenz:** Empfehlungen aus einem spezifischen Audit. S1 (nul) mag noch relevant sein, aber der Audit selbst ist historisch. Der Konsolidierungsplan ist durch MASTER_DOC §6 Roadmap überholt.
+- **LIVE-Ersatz:** MASTER_DOC.md §6 (aktuelle Roadmap)
+- **Status:** ✅ Archiviert
+
+### 📋 RD-004 — Gesamtdokument: REDUNDANZ_AUDIT_V2_2026-06-19.md
+- **Datum:** 2026-06-19 | **Version:** v0.20.0-pre-release
+- **Kategorie:** Vollarchiviertes Quelldokument
+- **Zusammenfassung:** Redundanz-Audit v2: Full-scan `find . -name` + Hash-Vergleich + Code-Referenz-Check. 13 Duplikat-Cluster, 3 tote Dateien, Konsolidierungsplan (Sofort/Mittel/Langfristig), Statistik-Vergleich v1→v2.
+- **Ursache der Obsoleszenz:** 100 % der Cluster-Referenzen beziehen sich auf veraltete Release-Ordner und DB-Snapshots. Das Dokument war ein Einmal-Audit. Empfehlungen sind implementiert oder durch MASTER_DOC §6 überholt.
+- **LIVE-Ersatz:** FREEZE_INDEX.md §18 (diese Einträge)
 - **Status:** ✅ Vollarchiviert — LIVE-Dokument auf Stub reduziert
 
 ---

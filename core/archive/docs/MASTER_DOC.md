@@ -1,7 +1,7 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
 **Stand:** 20.06.2026 | **Version:** v0.20.0 → v0.21 (Scope definiert) | **Autor:** Vannon & Sub-Agents
-**Destilliert aus:** MASTER_DOC.md (Basis), HANDSHAKE_2026-06-19.md (PARTIAL — OBSOLETE archiviert nach FREEZE_INDEX §14), HANDSHAKE_2026-06-20.md (PARTIAL — OBSOLETE archiviert nach FREEZE_INDEX §15), REDUNDANZ_AUDIT_V2_2026-06-19.md, LLM-AGENTS-EntryPoint.md, V0.21_SCOPE.md
+**Destilliert aus:** MASTER_DOC.md (Basis), HANDSHAKE_2026-06-19.md (PARTIAL — OBSOLETE archiviert nach FREEZE_INDEX §14), HANDSHAKE_2026-06-20.md (PARTIAL — OBSOLETE archiviert nach FREEZE_INDEX §15), REDUNDANZ_AUDIT_V2_2026-06-19.md (VOLLARCHIVIERT nach FREEZE_INDEX §18), LLM-AGENTS-EntryPoint.md, V0.21_SCOPE.md
 
 ---
 
