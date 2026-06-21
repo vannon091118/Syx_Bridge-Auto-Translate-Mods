@@ -273,3 +273,6 @@ Buffy: 'Ich habe den Lazy-Load-Guard in sos-runtime.js eingebaut, damit der Impo
 
 ### [2026-06-21 02:26:11]
 ### [2026-06-21 04:26] — Doku-Divergenz geschlossen: BU-020 war nie ein Code-Bug\n\n**Buffy:** *(nach Cross-System-Analyse von SyxBridge, Gemini AntiGravity-CLI und Manicode Logs)* Vier Sessions lang stand BU-020 als "🔴 OFFEN (P1)" im KNOWN_BUGS_REPORT. Kein AbortController, API-Credits verbrennen bei SIGINT. Ein später Code-Scan: der Fix existiert seit CL:0.20.0-bu020. Alle 9 Provider haben signal: getAbortSignal(). Der SIGINT-Handler ruft abortController.abort() auf. Der Bug war nie real — nur die Doku hat's nicht gewusst.\n\n**Vannon:** Also Doku-Lag, nicht Code-Bug?\n\n**Buffy:** Doku-Lag. Fix existiert seit Monaten im Code, aber niemand hat die Doku aktualisiert. Parallel: PREFLIGHT live gelaufen — DB HEALTHY, 0 issues bei 2.702 Einträgen. Gemini CLI: System32 aus trustedWorkspaces entfernt. 7 Files committed. Version auf v0.21.0-untested gehoben.\n\n**Vannon:** Weiter.
+
+### [2026-06-21 02:42:25]
+### [2026-06-21 04:26] — ESLint-Fixes + G1-Test-Reparatur + Livetest bestanden

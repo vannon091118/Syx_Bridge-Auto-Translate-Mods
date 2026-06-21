@@ -46,5 +46,23 @@
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
     ],
     "dialogue_preview": "### [2026-06-21 04:26] — Doku-Divergenz geschlossen: BU-020 war nie ein Code-Bug\\n\\n**Buffy:** *(nac..."
+  },
+  {
+    "id": "plot-2026-06-21T02:42:25",
+    "parent_id": "plot-2026-06-21T02:26:11",
+    "timestamp": "2026-06-21 02:42:25",
+    "status": "active",
+    "session_changes": [
+      "ore/archive/docs/PLOT_LORE.md",
+      "core/logs/"
+    ],
+    "variables": [
+      "PLOT_LORE",
+      "logs"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "### [2026-06-21 04:26] — ESLint-Fixes + G1-Test-Reparatur + Livetest bestanden"
   }
 ]
