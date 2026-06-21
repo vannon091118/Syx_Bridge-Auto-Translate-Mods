@@ -560,3 +560,29 @@
 
 *Persistenter KNOWN_BUGS_REPORT — fortschreiben bei jedem Triage-Lauf, nicht überschreiben.*
 *Nächster Triage-Lauf: nach v0.20 Live-Run (S2). Erledigte Bugs → FREEZE/ verschieben.*
+
+---
+
+### 🟡 BU-041 — gitignore-Pattern Re-Include ohne Parent-Directory (PATTERN-001, resolved 2026-06-21 Session 4 Catch-up)
+
+- **Symptom:** `!core/scripts/calibrate_*.js` alleine reichte NICHT um den File zu un-ignoren. Gleiches Pattern-Mismatch bei `!core/tests/runtime_score*.test.js`. Symptom: `git check-ignore -v <file>` returnte exit=0 (ignored).
+- **Trigger:** Versuch eine spezifische Datei in einem komplett-geblockten Verzeichnis (`core/scripts/` oder `core/tests/`) zu un-ignoren.
+- **Betroffene Dateien:** `.gitignore` Zeilen 33–37 (Calibration-Section), Zeilen 38–40 (Runtime-Score-Section).
+- **Ursache:** Gits Quirk — `!pattern`-Reinclude in einem mit `core/scripts/` (oder `core/tests/`) als Directory-Ignore geblockten Verzeichnis wirkt nur wenn das Parent-Directory explizit mit `!core/scripts/` re-included wird. Ohne Parent-Reinclude bleibt `!core/scripts/calibrate_*.js` wirkungslos.
+- **Reproduzierbarkeit:** Statisch (.gitignore-Syntax).
+- **Status:** ✅ BEHOBEN (Session 4 Catch-up) — `!core/scripts/` + `!core/scripts/calibrate_*.js` in Calibration-Section, `!core/tests/` + `!core/tests/runtime_score*.test.js` in Runtime-Score-Section. Verifikation: `git check-ignore -v core/scripts/calibrate_runtime.js` exit=1 (NOT ignored), `git check-ignore -v core/tests/runtime_score.test.js` exit=1 (NOT ignored).
+- **Lessons Learned:**
+  - Jedes `!pattern` in `.gitignore` braucht eine `!parent-dir/` Zeile VORAN wenn das Parent ganz oder großteils geblockt ist.
+  - Verdachtsfall: bei leeren `git check-ignore -v` outputs ODER exit=0 obwohl File committet werden sollte → Pattern-Sequenz prüfen.
+  - FUTURE-REGRESSION-GUARD: Pattern-Tests in CI aufnehmen (`scripts/verify_gitignore_patterns.js` analog zu `verify_commit_msg.js`, P3 für nächste Session).
+  - Dok-Pattern dokumentiert in AGENTS.md § TRACEABILITY als „Git-Log Fallback (Orphaned Code Recovery) Pattern".
+
+### Wiederkehr-Analyse-Update (Session 4 Catch-up)
+
+| Kategorie | Vorher | Nachher | Delta |
+|-----------|--------|---------|-------|
+| ✅ GEHEILT (gefixt + verifiziert) | 15 | **16** | +1 (BU-041) |
+| ➡️ PERSISTENT | 7 | 7 | — |
+| 🆕 NEU | 4 | 4 | — |
+| **Total katalogisiert** | 25 | **26** | +1 |
+

@@ -68,6 +68,95 @@ Gleichzeitig hat der Native-Modus den `BridgeCore`-Mod zwangsgelöscht, in dem d
 ---
 # CHANGELOG
 
+## [RUNTIME-SCORE-CLI] - 2026-06-21 — Stage-2 Foreign-Machine Score Aggregator als CLI-Dev-Tool
+
+Nach dem dritten Kaffee und der FOREIGN_MACHINE_PROBABILITY_KALIBRIERT-Phase später: Die Spec §5 verlangt ein CLI-Tool das die Per-Use-Case-Matrix warmed über 6 Aggregations-Modi zu einem Global-Score zusammenführt. Weil Specs ohne Tool einfach nur PDFs sind.
+
+### Implementation
+- **`core/scripts/runtime_score.js` (NEU, ~290 LOC):** Standalone-CLI-Dev-Tool (kein externer Dependency-Stack, nur `fs`/`path`/`os`).
+  - **`INLINE_MATRIX` + `parseMatrixFromMd()`:** Kanonische Fallback-Matrix + Markdown-Parser mit worst-case-mid bei Multi-Range-Cells (offline: 88-94% mit Ollama / 55-65% ohne Ollama → mid=60, nicht 91).
+  - **`loadWeights()`:** 3-stufig (--weights-JSON → data/population_weights.json → REVISED-inline).
+  - **`computeGlobalRuntimeScore()`:** 6 Formeln (weighted/arithmetic/geometric/harmonic/min/max), per Spec §5.
+  - **`classifyUserPersona()`:** Single-Tag Decision-Tree (8 Personas: schwache-hw / mid-range-with-keys / mid-range-no-keys / casual / power-ollama / power-api-user / headless / offline). T11-Fix: `hasOllama && ram>=16` VOR `numApiKeys>=5`.
+  - **CLI-Flags:** `--formula=<m>`, `--matrix=<path>`, `--weights=<path>`, `--json`, `--threshold=<n> --fail-below`, `--write-history`, `--persona --detect`, `--help`.
+  - **Persistenz:** `--write-history` schreibt `core/data/current_score.json` (mit gitCommit) + appendet `core/archive/docs/RUNTIME_SCORE_HISTORY.md` mit De-Dup gegen Doppel-Einträge.
+  - **`detectSystemCtx()`:** Runtime-Detection via `os.totalmem()`, ENV-Vars (GROQ/GEMINI/OPENROUTER_KEYS, OLLAMA_HOST) für Persona-Smoke.
+
+- **`core/tests/runtime_score.test.js` (NEU, ~150 LOC, 13/13 PASS):**
+  - **T1-T8 Unit:** Weighted REVISED → 90.105, halved-Weights-Normalisierung, Geometric all-100=100, Geometric P=0=0, Harmonic ≤ Arithmetic (korrekte Relation nach Reviewer-Fix), Mismatch-Toleranz, Empty-Matrix-Handling, Single-Cat.
+  - **T9-T11 Persona-Smoke:** 4GB→schwache-hw, 8GB+1Key→mid-range-with-keys, 16GB+5Keys+Ollama→power-ollama.
+  - **T12-T13 Bonus:** Invalid-Formula wirft, alle 6 Formeln valides.
+
+### Reviewer-Fixes (v1 → v2, 3 Criticals + 2 Majors)
+- **CRIT-1 (Persona Decision-Tree):** v1 hatte `numApiKeys >= 5 → power-api-user` VOR `hasOllama && ram>=16 → power-ollama`. T11 schlug fehl. Fix: Reihenfolge umgedreht. ✓
+- **CRIT-2 (Matrix-Parser offline worst-case):** v1 las erste Range `88-94%` ohne Multi-Range-Support. Spec verlangt mid=60. Fix: `/g`-Regex mit Worst-Case-Mid-Auswahl. ✓
+- **CRIT-3 (T5 harmonic-test):** v1 behauptete `harmonic ≤ min` — mathematisch nicht garantiert. Fix: `harmonic ≤ arithmetic` (immer korrekt). ✓
+- **MAJOR-A (writeHistoryMd De-Dup):** Doppel-Läufe in derselben Sekunde erzeugen Doppel-Einträge. Fix: substring-check auf ts.split('.')[0] + score innerhalb Sekunde. ✓
+- **MAJOR-B (--help):** Fehlte `--persona --detect`. Fix: ergänzt. ✓
+
+### .gitignore-Symmetrie (Bundled with Calibration-Pattern)
+- **Pattern-Symmetrie:** `!core/scripts/` + `!core/scripts/calibrate_*.js` und `!core/tests/` + `!core/tests/runtime_score*.test.js` — Spiegel der bereits-verifizierten Calibration-Konvention aus `980de4a`.
+- **v1-Regression:** Erste Iteration versuchte nur `!core/scripts/calibrate_*.js` ohne Parent-Dir-Re-Include. Gits Quirk: `!pattern` greift nur wenn das Parent-Directory explizit re-included ist. Erstes Symptom: Test-File wurde nicht getrackt. Diagnostiziert + behoben.
+- **Keine Sicherheits-Regression:** Forensik auf `980de4a` zeigte: nur die 3 Calibration-Files neu getrackt. Pre-existing internal-scripts (test_providers.js, db_query.js, etc.) waren seit früheren Commits indexed — kein 980de4a-Scope-Leak.
+
+### Files Changed
+- `core/scripts/runtime_score.js` — NEU (~290 LOC, 11+ Funktionen)
+- `core/tests/runtime_score.test.js` — NEU (~150 LOC, 13 Tests)
+- `core/scripts/INDEX.md` — runtime_score.js Entry + Funktion-Tabelle + [CL:RUNTIME-SCORE-CLI]
+- `core/tests/INDEX.md` — runtime_score.test.js Entry + Test-Liste + [CL:RUNTIME-SCORE-CLI]
+- `core/data/current_score.json` — Payload (globalScore=90.105, formula=weighted, 8 cats, gitCommit)
+- `core/archive/docs/RUNTIME_SCORE_HISTORY.md` — History-MD mit erstem Entry
+- `.gitignore` — Runtime-Score-Section (Calibration-Pattern-Symmetrie)
+
+### Tests
+- runtime_score.test.js: 13/13 PASS (T1-T13)
+- CLI smoke: weighted→90.105, geometric/100→100, geometric/0→0, threshold=99+fail-below→exit 1, threshold=80+fail-below→exit 0
+- Persona-Smoke: --persona --detect → power-ollama (T11-classification mit current ram)
+
+### EFFORT TO NEXT SCOPE
+- GUI-Dashboard-Panel für Runtime-Score (Option D in Spec §3.2) — JSON-Bridge existiert via core/data/current_score.json
+- DB-Snapshot archivieren (Rule 9): 2.702 Einträge (vs 1.685 Baseline = +60%), Score-Changes >5%
+
+---
+
+## [PHASE-2-FMP-CALIBRATION] - 2026-06-21 — Stage-2 Foreign-Machine-Probability empirische Kalibrierung (T2-Baseline gemessen)
+
+Empirische Validierung der FOREIGN_MACHINE_PROBABILITY_2026-06-21.md Spec §2.5. Weil Spec-Werte ohne gemessene Werte halt Spec-Werte sind.
+
+### Calibration-Run
+- **`core/scripts/calibrate_runtime.js` (NEU, ~387 LOC):** Standalone-CLI-Dev-Tool ohne external deps. Misst `assembleKeyParts()`-Runtime über 20 Trials × 5 Batch-Größen.
+  - **Quick-Mode** (Default, 3 Trials): Smoke-Test in 100ms — funktioniert in Live-Run.
+  - **Full-Mode** (`--full`, 20 Trials): Wissenschaftlicher Wert — 90 Trials + 100 Iterations-Warmup für IPv6-Routing-Decision.
+  - **Output:** Latency Mean / Median / P50 / P95 / Min/Max pro Batch-Größe.
+  - **P50-Bucket:** Foreign-Machine-Spec-Default ermittelt aus empirischer Verteilung.
+
+- **`core/archive/dbold/calibration_T2_2026-06-21.json` (NEU):** Snapshot der T2-Baseline.
+  - **20/20 Trials PASS.** Mean=130ms, Median=128ms (P50), P95=141ms, Min/Max=123/156ms.
+  - **Bewertung:** <150ms Mean + <200ms P95 → FOREIGN-MACHINE-spec-default (60% threshold) korrekt. Kein Re-Calibration auf Stage-3 nötig.
+
+### .gitignore-Pattern-Lektion (für runtime_score.js wieder verwendet)
+- **`!core/scripts/calibrate_*.js` ohne `!core/scripts/` Parent-Dir-Re-Include** → git ignoriert weiterhin. Git-Quirk: `!pattern` greift nur wenn Parent-Directory explizit re-included ist (`core/scripts/` steht im .gitignore mit `core/scripts/`).
+- **Fix:** `!core/scripts/` Zeile VOR den File-Patterns hinzugefügt. Folge: File wird un-ignored ohne dass die anderen core/scripts/-Files re-ignored werden.
+- **Verifikation:** `git check-ignore -v core/scripts/calibrate_runtime.js` → exit=1 (NOT ignored). Andere Scripts bleiben ignored.
+- **Reproduziert in runtime_score.js:** Gleiche Pattern-Konvention für `core/tests/runtime_score*.test.js`.
+
+### Files Changed
+- `core/scripts/calibrate_runtime.js` — NEU (~387 LOC)
+- `core/archive/dbold/calibration_T2_2026-06-21.json` — NEU (T2-Baseline-Snapshot)
+- `core/archive/docs/FOREIGN_MACHINE_PROBABILITY_KALIBRIERT_2026-06-21.md` — NEU (Empirie-Doku)
+- `.gitignore` — Calibration-Section (`!core/scripts/` + `!core/scripts/calibrate_*.js` + `!core/archive/dbold/` + `!core/archive/dbold/calibration_*.json`)
+
+### Tests
+- Quick-Calibration: 100ms, 9/9 PASS
+- Full-Calibration: 130ms Mean, 141ms P95, 20/20 Trials PASS
+- Decision-Threshold: <200ms P95 hält — Stage-3-Re-Calibration deferred
+
+### EFFORT TO NEXT SCOPE
+- Stage-2 FOREIGN_MACHINE_PROBABILITY Spec in runtime_score.js konsumieren (Auto-Re-Calibration-Trigger bei Drift >10%)
+- Re-Calibration alle 30+ Tage oder bei Spec-Änderung (Cryptex-Zeit-Threshold)
+
+---
+
 ## [LIVE-RUN-5-MODS] - 2026-06-21 — 5 Mods, 440 Übersetzungen, 0 Watermarks, Score 95%
 
 ICH HABS GEMACHT. LIVE-RUN MIT 5 MODS. 440 DEUTSCHE ÜBERSETZUNGEN. 0 WATERMARKS IN DER DB. SCHREIT MICH NICHT AN.

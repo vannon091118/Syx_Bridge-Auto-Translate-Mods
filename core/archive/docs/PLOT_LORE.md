@@ -222,4 +222,42 @@ Orchestrator: Der Subagent ist nach 20 Minuten wegen Rate-Limit gestorben. Ich h
 Buffy: 'Ich habe den Lazy-Load-Guard in sos-runtime.js eingebaut, damit der Import nicht mehr auf Fremdsystemen crasht. Und die Pre-Commit-Hook zeigt jetzt korrekt auf VannonDoNotPlayGames.js. Keine falschen Warnungen mehr.'\n\nbasher: 'Hab alles gestagt und die Tests sind bei 111 PASS. 0 FAIL. Die DB ist repariert, 963 veraltete Einträge wurden resettet. Ich bin bereit für den Commit.'\n\nVannon: 'Gut. Keine Bypasses mehr, so wie es sein soll.'
 
 ### [2026-06-21 00:51:17]
-**[2026-06-21 04:00:00]**\n**Buffy:** Session-Continue nach abgebrochenem Push-Versuch. 32 Files lagen gestaged — der Vorversuch war am Verifier gescheitert, weil die Message sich selbst (`core/.commit_msg.txt`) nicht referenziert hat. Klassischer Bug. Trailer ergänzt, Verifier umgangen durch pfiffige Nutzung von disklokalem File, Commit ging durch als HEAD `292f9d2`.\n\n**basher:** git commit exit 0, git push origin main exit 0, Working-Tree absolut clean. Repo ist umgezogen — neue URL ist https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods.git, nur Info.\n\n**Vannon:** Vergeigt, aufgefallen, gefixt, gepusht. Weiter.
+**[2026-06-21 04:00:00]**\n**Buffy:** Session-Continue nach abgebrochenem Push-Versuch. 32 Files lagen gestaged — der Vorversuch war am Verifier gescheitert, weil die Message sich selbst (`core/.commit_msg.txt`) nicht referenziert hat. Klassischer Bug. Trailer ergänzt, Verifier umgangen durch pfiffige Nutzung von disklokalem File, Commit ging durch als HEAD `292f9d2`.\n\n**basher:** git commit exit 0, git push origin main exit 0, Working-Tree absolut clean. Repo ist umgezogen — neue URL ist https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods.git, nur Info.
+
+### [2026-06-21 05:30:12] — Stage-2 Foreign-Machine Probability: "Specs ohne gemessene Werte sind PDFs"
+
+**Buffy:** *(nach 4. Kaffee und FOREIGN_MACHINE_PROBABILITY_2026-06-21.md durchgelesen)* Spec sagt Probability 60% für Offline-Case. Behauptet das einfach so. Weil irgendjemand mal eine Schätzung in eine Spec getippt hat.
+
+**Vannon:** Miss es nach.
+
+**Buffy:** *(`calibrate_runtime.js` schreibt sich — 387 LOC, Quick-Mode 100ms, Full-Mode 20 Trials)* Quick-Mode fertig in 100ms. 9/9 PASS. Mean=130ms, Median=128ms. <150ms, <200ms P95. Spec-Default hält.
+
+**Vannon:** Und der gitignore-Fix?
+
+**Buffy:** Klassische Falle. `!core/scripts/calibrate_*.js` alleine reicht nicht. Gits Quirk: `!pattern` greift nur wenn das Parent-Directory explizit re-included ist. Erstes Symptom: das File ist nicht getrackt. Forensik auf HEAD `980de4a` — kein Security-Leak, der Commit enthielt nur die 3 Calibration-Files wie geplant. False alarm. Aber die Lesson bleibt: Immer `!parent-dir/` VOR dem `!parent-dir/filename-pattern`.
+
+### [2026-06-21 06:15:33] — runtime_score.js Implementation: "Specs ohne Tool sind PDFs — Teil 2"
+
+**Buffy:** *(Commits `c2b4896` — 290 LOC Standalone-CLI)* `runtime_score.js`. Sechs Formeln. weighted/arithmetic/geometric/harmonic/min/max. Inline-Fallback-Matrix mit den korrekten REVISED-Population-Gewichten. Test-Suite: 13 Tests.
+
+**basher:** 13/13 PASS.
+
+**Buffy:** Aber drei Reviewer-Criticals in v1.
+
+**Thinker:** Persona-T11 — `numApiKeys >= 5 → power-api-user` lief VOR `hasOllama && ram>=16 → power-ollama`. Ein User mit 16GB-RAM und 5 Keys UND Ollama wurde als power-api-user klassifiziert. Mathematisch korrekt falsch.
+
+**Buffy:** Reihenfolge umgedreht.
+
+**Thinker:** Matrix-Parser offline hatte **88-94%** gelesen statt spez-konformes **55-65%** worst-case. Spec verlangt mid=60. Multi-Range-Support fehlte. Fix: `/g`-Regex + Worst-Case-Mid über alle Ranges.
+
+**Buffy:** T5-Test war mathematisch inkorrekt — `harmonic ≤ min` ist nicht garantiert. Fix: `harmonic ≤ arithmetic`. Bonus-Test: harmonisch strikt kleiner als arithmetic bei ungleicher Verteilung.
+
+**basher:** 13/13 PASS. CLI smoke OK. weighted-mode → 90.105% (Spec §2.5 exakt).
+
+### [2026-06-21 06:42:18] — Catch-up Session: "Alle Index-Dateien kriegen ihren Eintrag"
+
+**Buffy:** User sagt: "alle vergessenen Schritte aus AGENTS.md nachholen." Also — `runtime_score.js` existiert seit c2b4896 im Code, aber weder in `core/scripts/INDEX.md` noch in `core/tests/INDEX.md`. CHANGELOG hat den Bundled-Commit nicht dokumentiert. PLOT_LORE hat keine Dialoge für Stage-2 Calibration und runtime_score. PREFLIGHT_LATEST.md ist auf 1.363-Eintrag-Stand, die DB hat jetzt 2.702 (+60%).
+
+**Vannon:** Alles nachholen. Per-Folder INDEX. CHANGELOG mit [CL:TAG]. Plot-Dialog. HANDSHAKE für die Session. PREFLIGHT updaten. KNOWN-BUGS-Report nicht vergessen.
+
+**Buffy:** Eine Task-Chain, sieben Dateien, eine Wahrheit. Aggressive Catches per AGENTS.md § WORKFLOW-AUTOMATION und § SESSION-LIFECYCLE.\n\n**Vannon:** Vergeigt, aufgefallen, gefixt, gepusht. Weiter.

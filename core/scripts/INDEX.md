@@ -1,7 +1,7 @@
-# 📖 INDEX — core/scripts/ (24 Dateien, ~4.700 LOC)
+# 📖 INDEX — core/scripts/ (25 Dateien, ~5.000 LOC)
 
-> **Generiert:** 2026-06-20 | **Version:** v0.20.0-pre-release
-> **Zweck:** Referenzbuch für Utility-Scripts (Audit, Repair, Release, Cleanup, Dev-Tools)
+> **Generiert:** 2026-06-21 | **Version:** v0.21-experimental (Session 4 Catch-up)
+> **Zweck:** Referenzbuch für Utility-Scripts (Audit, Repair, Release, Cleanup, Dev-Tools, Score-Aggregator)
 > **CL-Refs:** Kanonische Quelle ist `core/archive/docs/CHANGELOG.md`. Lokale CL-Refs sind Kurzform.
 
 ---
@@ -34,6 +34,7 @@
 | **vendor-sync.js** | **310** | **8** | **Bidirektionaler Vendor-Sync (Phase 2)** — Forward/Reverse/Auto |
 | warm-model.js | 40 | 1 | NMT-Modell-Warmup |
 | workshop_export.js | 50 | 3 | Workshop-Export |
+| **runtime_score.js** | **290** | **11+** | **Global-Score-Aggregator** — REVISED Population Weighted (Spec §2.5) |
 
 ---
 
@@ -172,4 +173,26 @@
 
 ---
 
-*📖 Scripts-INDEX v0.20.0 — 24 Dateien, ~4.700 LOC*
+### runtime_score.js (290 LOC, ~11 Funktionen)
+*Global-Score-Aggregator (Phase 2 CLI-Dev-Tool) — REVISED Default-Population, weighted|arithmetic|geometric|harmonic|min|max, Persona-Classifier, JSON+History-Persistenz*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 50 | `INLINE_MATRIX` | Kanonische Fallback-Matrix (8 Personas mit mid/Pmin/Pmax) |
+| 60 | `DEFAULT_POPULATION` | REVISED Population-Gewichte (Casual 35%, Mid-keys 15%, …) |
+| 78 | `parseMatrixFromMd(mdPath)` | Markdown-Parser für FOREIGN_MACHINE_PROBABILITY_*.md (worst-case mid) |
+| 124 | `LABEL_TO_ID` + `labelToId(label)` | Human-Label → Canonical-ID Mapping (mit Substring-Fallback) |
+| 154 | `loadWeights(customPath)` | Weights-Loader: --weights override → data/population_weights.json → REVISED-default |
+| 188 | `classifyUserPersona(ctx)` | Single-Tag Decision-Tree (8 Personas: schwache-hw, power-ollama, …) |
+| 209 | `computeGlobalRuntimeScore(matrix, weights, formula)` | Aggregations-Kern: 6 Formeln (weighted/arithmetic/geometric/harmonic/min/max) |
+| 295 | `formatResultTable(result)` | Human-Output (Console-Table mit Per-Category Breakdown) |
+| 316 | `writeHistoryMd(result, src, formula)` | History-Persistenz mit De-Dup gegen Doppel-Einträge |
+| 348 | `writeCurrentScoreJson(result, src, formula)` | current_score.json mit gitCommit, computedAt, perCategory |
+| 470 | `main()` | CLI-Dispatcher (parseArgs, weighted-Default, --threshold --fail-below) |
+
+**CHANGELOG-Ref (1× runtime_score.js):**
+- [CL:RUNTIME-SCORE-CLI] Stage-2 Foreign-Machine-Score Aggregator — 6 Formeln, Persona-Classifier, 13/13 Tests PASS
+
+---
+
+*📖 Scripts-INDEX v0.21 — 25 Dateien, ~5.000 LOC*
