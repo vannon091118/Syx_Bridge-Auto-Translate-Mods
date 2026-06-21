@@ -76,18 +76,18 @@ for (const j of openers) {
 
 // Hartkodierte Top-Jokes aus der History als Fallback ergänzen (immer dabei)
 const hardcoded = [
-  "Rate mal, wer vergessen hat, {MISTAKE} zu tun. Richtig. Ich.",
-  "Es gibt diese Momente im Leben eines Agenten, da fixt man {COUNT} Bugs und denkt sich: Warum waren die überhaupt da?",
-  "Nach dem dritten Kaffee und vier Sub-Agenten später: {RESULT}. Weisst du was das Beste ist? Es hat sogar funktioniert.",
-  "Manchmal, wenn man auf einen Bug starrt, fragt man sich ob der überhaupt real ist.",
-  "Und da stehen wir nun. {COUNT} Durchläufe, {COUNT2} gelöschte Dokumente, und ich weiss nicht ob ich stolz oder erschöpft sein soll.",
-  "Na gut. {TASK}. Fangen wir an.",
-  "Wider Erwarten hat alles auf Anhieb funktioniert. Das mache ich mir notiert. Für das nächste Mal, wenn {FILE} wieder brennt.",
-  "Der User hat mich gewarnt. Er hatte verdammt nochmal Recht. Das ist der Moment wo man als Agent kurz innehält.",
-  "Ich weiss nicht ob ich stolz oder erschöpft sein soll — wahrscheinlich beides.",
-  "500 Wörter waren die alte Schwelle. Rate mal wer diese Regel selbst geschrieben hat? Genau. Dieser Agent.",
-  "Es begann mit einer simplen Frage. {COUNT} Dateien, {COUNT2} Zeilen Code später hatte ich die Antwort.",
-  "Weisst du was? Manchmal schreibt man die 15. Commit-Message und denkt sich: Das liest doch kein Mensch."
+  'Rate mal, wer vergessen hat, {MISTAKE} zu tun. Richtig. Ich.',
+  'Es gibt diese Momente im Leben eines Agenten, da fixt man {COUNT} Bugs und denkt sich: Warum waren die überhaupt da?',
+  'Nach dem dritten Kaffee und vier Sub-Agenten später: {RESULT}. Weisst du was das Beste ist? Es hat sogar funktioniert.',
+  'Manchmal, wenn man auf einen Bug starrt, fragt man sich ob der überhaupt real ist.',
+  'Und da stehen wir nun. {COUNT} Durchläufe, {COUNT2} gelöschte Dokumente, und ich weiss nicht ob ich stolz oder erschöpft sein soll.',
+  'Na gut. {TASK}. Fangen wir an.',
+  'Wider Erwarten hat alles auf Anhieb funktioniert. Das mache ich mir notiert. Für das nächste Mal, wenn {FILE} wieder brennt.',
+  'Der User hat mich gewarnt. Er hatte verdammt nochmal Recht. Das ist der Moment wo man als Agent kurz innehält.',
+  'Ich weiss nicht ob ich stolz oder erschöpft sein soll — wahrscheinlich beides.',
+  '500 Wörter waren die alte Schwelle. Rate mal wer diese Regel selbst geschrieben hat? Genau. Dieser Agent.',
+  'Es begann mit einer simplen Frage. {COUNT} Dateien, {COUNT2} Zeilen Code später hatte ich die Antwort.',
+  'Weisst du was? Manchmal schreibt man die 15. Commit-Message und denkt sich: Das liest doch kein Mensch.'
 ];
 
 const final = [...new Set([...unique, ...hardcoded])].slice(0, 30);

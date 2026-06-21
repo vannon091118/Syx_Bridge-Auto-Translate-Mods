@@ -63,7 +63,7 @@ function loadEnv() {
     const key = trimmed.slice(0, eqIdx).trim();
     let val = trimmed.slice(eqIdx + 1).trim();
     // Strip quotes
-    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith('\'') && val.endsWith('\''))) {
       val = val.slice(1, -1);
     }
     env[key] = val;
@@ -312,7 +312,7 @@ async function main() {
     const parts = [`✅ ${ok} OK`];
     if (fail > 0) parts.push(`❌ ${fail} FAIL`);
     if (skip > 0) parts.push(`⚠️ ${skip} SKIP`);
-    console.log(`  ${parts.join("  │  ")}  │  Total: ${results.length}`);
+    console.log(`  ${parts.join('  │  ')}  │  Total: ${results.length}`);
     console.log(`${'═'.repeat(60)}`);
   }
 }

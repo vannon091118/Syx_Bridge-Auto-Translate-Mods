@@ -125,7 +125,7 @@ async function init() {
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
   )`);
-  const versionRow = db.prepare("SELECT value FROM _schema_meta WHERE key = 'schema_version'").get();
+  const versionRow = db.prepare('SELECT value FROM _schema_meta WHERE key = \'schema_version\'').get();
   if (versionRow && versionRow.value === CURRENT_SCHEMA_VERSION) {
     console.log(`[DB] Schema v${CURRENT_SCHEMA_VERSION} aktuell — überspringe Migrationen (HDD-Optimierung).`);
     return;
@@ -159,9 +159,9 @@ async function init() {
     // Some older schemas may not have both columns available yet.
   }
   await addColumnIfMissing('translations', 'source_hash', 'TEXT');
-  await addColumnIfMissing('translations', "provider", "TEXT NOT NULL DEFAULT ''");
+  await addColumnIfMissing('translations', 'provider', 'TEXT NOT NULL DEFAULT \'\'');
   await addColumnIfMissing('translations', 'flagged', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumnIfMissing('translations', "flag_reason", "TEXT NOT NULL DEFAULT ''");
+  await addColumnIfMissing('translations', 'flag_reason', 'TEXT NOT NULL DEFAULT \'\'');
   await addColumnIfMissing('translations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
   await addColumnIfMissing('translations', 'last_checked_at', 'TEXT');
   await addColumnIfMissing('translations', 'review_count', 'INTEGER NOT NULL DEFAULT 0');
@@ -174,7 +174,7 @@ async function init() {
   await run('CREATE INDEX IF NOT EXISTS idx_translations_lang_flagged ON translations(target_lang, flagged, audit_stage)');
 
   // --- v0.19.8 Deep Polish / Preserve-Content-First Flags ---
-  await addColumnIfMissing('translations', "polish_status", "TEXT NOT NULL DEFAULT 'completed'");
+  await addColumnIfMissing('translations', 'polish_status', 'TEXT NOT NULL DEFAULT \'completed\'');
   await addColumnIfMissing('translations', 'requires_deep_polish', 'INTEGER NOT NULL DEFAULT 0');
   await addColumnIfMissing('translations', 'overwrite_fallback_used', 'INTEGER NOT NULL DEFAULT 0');
   await run('CREATE INDEX IF NOT EXISTS idx_translations_deep_polish ON translations(target_lang, requires_deep_polish, polish_status)');
@@ -285,7 +285,7 @@ async function init() {
 
   // Migration: add guarded columns if they don't exist
   await addColumnIfMissing('glossary_terms', 'is_guarded', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumnIfMissing('glossary_terms', "guarded_by", "TEXT NOT NULL DEFAULT ''");
+  await addColumnIfMissing('glossary_terms', 'guarded_by', 'TEXT NOT NULL DEFAULT \'\'');
 
   await run(`CREATE INDEX IF NOT EXISTS idx_glossary_terms_lookup
         ON glossary_terms(target_lang, source_term, scope, mod_scope)`);
@@ -347,7 +347,7 @@ async function init() {
   }
 
   // --- Schema-Version speichern (nach erfolgreichen Migrationen) ---
-  db.prepare("INSERT OR REPLACE INTO _schema_meta (key, value) VALUES ('schema_version', ?)").run(CURRENT_SCHEMA_VERSION);
+  db.prepare('INSERT OR REPLACE INTO _schema_meta (key, value) VALUES (\'schema_version\', ?)').run(CURRENT_SCHEMA_VERSION);
   console.log(`[DB] Migrationen abgeschlossen — Schema v${CURRENT_SCHEMA_VERSION} gespeichert.`);
 }
 

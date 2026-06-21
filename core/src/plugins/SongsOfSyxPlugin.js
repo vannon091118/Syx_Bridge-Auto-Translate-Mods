@@ -64,7 +64,7 @@ class SongsOfSyxPlugin extends GamePlugin {
     if (info.DESC) lines.push(`DESC: "${info.DESC}",`);
     if (info.AUTHOR) lines.push(`AUTHOR: "${info.AUTHOR}",`);
     if (info.INFO) lines.push(`INFO: "${info.INFO}",`);
-        // ZWSP-Fallback: unsichtbarer Marker in DESC (ueberlebt sed -i '/__SYXBRIDGE/d')
+    // ZWSP-Fallback: unsichtbarer Marker in DESC (ueberlebt sed -i '/__SYXBRIDGE/d')
     if (info.DESC) {
       const fallbackIndex = lines.findIndex(l => l.startsWith('DESC:'));
       if (fallbackIndex !== -1) {

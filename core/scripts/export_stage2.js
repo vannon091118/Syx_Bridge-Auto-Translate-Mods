@@ -299,12 +299,12 @@ async function exportMod(modDir, modName) {
 // ── Main ─────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`[EXPORT] ===== Stage-2 Export-Run =====`);
+  console.log('[EXPORT] ===== Stage-2 Export-Run =====');
   console.log(`[EXPORT] Zielsprache: ${TARGET_LANG}`);
   console.log(`[EXPORT] Workshop:    ${MOD_ROOT}`);
   console.log(`[EXPORT] AppData:     ${GAME_MOD_ROOT}`);
   console.log(`[EXPORT] DB-Einträge: ${translations.size}`);
-  if (DRY_RUN) console.log(`[EXPORT] DRY RUN — keine Dateien werden geschrieben.`);
+  if (DRY_RUN) console.log('[EXPORT] DRY RUN — keine Dateien werden geschrieben.');
 
   const activeMods = await getActiveMods();
   const modsToExport = activeMods.filter(m => !m.endsWith(`_${TARGET_LANG}`) && m !== 'BridgeCore');
@@ -337,7 +337,7 @@ async function main() {
     totalMisses += result.misses;
   }
 
-  console.log(`\n[EXPORT] ===== Fertig =====`);
+  console.log('\n[EXPORT] ===== Fertig =====');
   console.log(`[EXPORT] Dateien:    ${totalFiles}`);
   console.log(`[EXPORT] Treffer:    ${totalHits} (Stage-2 Übersetzungen angewendet)`);
   console.log(`[EXPORT] Ohne DB:    ${totalMisses} (keine Stage-2-Übersetzung vorhanden)`);

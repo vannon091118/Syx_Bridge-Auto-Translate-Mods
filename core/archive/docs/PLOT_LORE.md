@@ -214,3 +214,9 @@
 **Buffy:** Und dann push. Auf main. Das erste Mal seit Wochen dass wir auf main publishen.
 
 **Thinker:** *(liest PLOT_LORE.md)* Ich bin im Dokument. Das ist seltsam.
+
+### [2026-06-21 00:32:32]
+Orchestrator: Der Subagent ist nach 20 Minuten wegen Rate-Limit gestorben. Ich hab die Session alleine weitergeführt. 16 ESLint-Errors, ein kaputter npm-Test, eine veraltete README. Na gut, fangen wir an. 111 PASS, 0 FAIL am Ende. Commit 326b28f ist durch den Verifier. push ist draußen.
+
+### [2026-06-21 00:43:10]
+Buffy: 'Ich habe den Lazy-Load-Guard in sos-runtime.js eingebaut, damit der Import nicht mehr auf Fremdsystemen crasht. Und die Pre-Commit-Hook zeigt jetzt korrekt auf VannonDoNotPlayGames.js. Keine falschen Warnungen mehr.'\n\nbasher: 'Hab alles gestagt und die Tests sind bei 111 PASS. 0 FAIL. Die DB ist repariert, 963 veraltete Einträge wurden resettet. Ich bin bereit für den Commit.'\n\nVannon: 'Gut. Keine Bypasses mehr, so wie es sein soll.'

@@ -39,7 +39,7 @@ const CORE = path.join(__dirname, '..');
 const RELEASE_ROOT = path.join(CORE, 'release');
 
 // ── Config (synchron mit release.js + check_vendor_drift.js) ──────────
-const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt'];
+const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt', 'VannonDoNotPlayGames.js'];
 const MOD_ASSET_DIRS = ['V70', 'V71'];
 const CORE_RUNTIME_FILES = ['index.js', 'package.json', 'LICENSE'];
 
@@ -200,7 +200,7 @@ function addAction(type, direction, sourcePath, releasePath, detail) {
 function syncForward(sourcePath, releaseAbsPath, dryRun) {
   if (dryRun) {
     addAction('FORWARD', '→', sourcePath, releaseAbsPath,
-      `Source → Release (würde kopiert)`);
+      'Source → Release (würde kopiert)');
     return true;
   }
 
@@ -211,7 +211,7 @@ function syncForward(sourcePath, releaseAbsPath, dryRun) {
     }
     fs.copyFileSync(sourcePath, releaseAbsPath);
     addAction('FORWARD', '→', sourcePath, releaseAbsPath,
-      `Source → Release (kopiert)`);
+      'Source → Release (kopiert)');
     return true;
   } catch (e) {
     addAction('FORWARD_FAIL', '→✗', sourcePath, releaseAbsPath,
@@ -229,13 +229,13 @@ function syncReverse(releaseAbsPath, sourcePath, dryRun) {
   // Sicherheits-Check: Exclude-Listen
   if (isExcludedByBasename(sourcePath) || isExcludedByDir(sourcePath)) {
     addAction('REVERSE_SKIP', '←⊘', releaseAbsPath, sourcePath,
-      `Übersprungen — Datei steht auf Exclude-Liste`);
+      'Übersprungen — Datei steht auf Exclude-Liste');
     return false;
   }
 
   if (dryRun) {
     addAction('REVERSE', '←', releaseAbsPath, sourcePath,
-      `Release → Source (würde kopiert, .bak-Backup)`);
+      'Release → Source (würde kopiert, .bak-Backup)');
     return true;
   }
 
@@ -254,7 +254,7 @@ function syncReverse(releaseAbsPath, sourcePath, dryRun) {
     fs.copyFileSync(releaseAbsPath, sourcePath);
 
     addAction('REVERSE', '←', releaseAbsPath, sourcePath,
-      `Release → Source (kopiert, .bak-Backup erstellt)`);
+      'Release → Source (kopiert, .bak-Backup erstellt)');
     return true;
   } catch (e) {
     addAction('REVERSE_FAIL', '←✗', releaseAbsPath, sourcePath,
@@ -387,7 +387,7 @@ function runVendorSync(targetRelease, direction, dryRun) {
 
     if (cand.type === 'MISSING_SOURCE') {
       console.log(`  ← [MISSING] ${cand.relPath}`);
-      console.log(`    Release-Datei vorhanden, Source fehlt. Reverse-Sync würde sie wiederherstellen.`);
+      console.log('    Release-Datei vorhanden, Source fehlt. Reverse-Sync würde sie wiederherstellen.');
       if (!dryRun) {
         const ok = syncReverse(cand.releasePath, cand.sourcePath, dryRun);
         if (ok) reverseCount++; else failCount++;
@@ -422,7 +422,7 @@ function runVendorSync(targetRelease, direction, dryRun) {
   // ── Manifest aktualisieren ─────────────────────────────────────────
   if (!dryRun && (forwardCount > 0 || reverseCount > 0)) {
     updateManifest(release.path);
-    console.log(`\n  📋 .build-manifest.json aktualisiert`);
+    console.log('\n  📋 .build-manifest.json aktualisiert');
   }
 
   // ── Summary ────────────────────────────────────────────────────────

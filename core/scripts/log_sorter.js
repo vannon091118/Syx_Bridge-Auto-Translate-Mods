@@ -49,14 +49,14 @@ const flags = {
 for (let i = 0; i < args.length; i++) {
   const val = args[i + 1];
   switch (args[i]) {
-    case '--run':     flags.run = val; i++; break;
-    case '--level':   flags.level = val.toUpperCase(); i++; break;
-    case '--tag':     flags.tag = val.toUpperCase(); i++; break;
-    case '--search':  flags.search = val; i++; break;
-    case '--summary': flags.summary = true; break;
-    case '--json':    flags.json = true; break;
-    case '--tail':    flags.tail = parseInt(val, 10); i++; break;
-    case '--help':    flags.help = true; break;
+  case '--run':     flags.run = val; i++; break;
+  case '--level':   flags.level = val.toUpperCase(); i++; break;
+  case '--tag':     flags.tag = val.toUpperCase(); i++; break;
+  case '--search':  flags.search = val; i++; break;
+  case '--summary': flags.summary = true; break;
+  case '--json':    flags.json = true; break;
+  case '--tail':    flags.tail = parseInt(val, 10); i++; break;
+  case '--help':    flags.help = true; break;
   }
 }
 

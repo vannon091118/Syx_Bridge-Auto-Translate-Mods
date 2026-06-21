@@ -92,7 +92,7 @@ function captureDirectoryState() {
     // core/src/ Struktur (die wichtigste für Agenten)
     const srcDir = path.join(cwd, 'core', 'src');
     if (fs.existsSync(srcDir)) {
-      fs.appendFileSync(LOG_PATH, `\n--- core/src/ ---\n`, 'utf-8');
+      fs.appendFileSync(LOG_PATH, '\n--- core/src/ ---\n', 'utf-8');
       const srcEntries = fs.readdirSync(srcDir, { withFileTypes: true });
       for (const e of srcEntries.sort((a, b) => a.name.localeCompare(b.name))) {
         const prefix = e.isDirectory() ? '[DIR] ' : '[FILE]';

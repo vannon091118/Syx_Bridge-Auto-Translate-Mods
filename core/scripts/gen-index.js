@@ -120,9 +120,9 @@ function generateIndex(dirPath, dirLabel) {
   if (files.length === 0) return '';
   
   let content = `# 📖 INDEX — ${dirLabel}\n\n`;
-  content += `> **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release\n`;
-  content += `> **Zweck:** Referenzbuch — jede Funktion mit START+ENDE Zeilennummer. Kein Code-Durchsuchen nötig.\n`;
-  content += `> **CL-Refs:** Kanonische Quelle ist \`core/archive/docs/CHANGELOG.md\`. Lokale CL-Refs sind Kurzform.\n\n`;
+  content += '> **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release\n';
+  content += '> **Zweck:** Referenzbuch — jede Funktion mit START+ENDE Zeilennummer. Kein Code-Durchsuchen nötig.\n';
+  content += '> **CL-Refs:** Kanonische Quelle ist `core/archive/docs/CHANGELOG.md`. Lokale CL-Refs sind Kurzform.\n\n';
   
   // Build the function index for each file
   for (const file of files) {
@@ -134,16 +134,16 @@ function generateIndex(dirPath, dirLabel) {
     if (funcs.length === 0) continue;
     
     content += `## ${file} (${loc} LOC)\n\n`;
-    content += `| Zeilen | Funktion | Beschreibung |\n`;
-    content += `|--------|----------|-------------|\n`;
+    content += '| Zeilen | Funktion | Beschreibung |\n';
+    content += '|--------|----------|-------------|\n';
     
     for (const f of funcs) {
       const range = f.start === f.end ? `${f.start}` : `${f.start}-${f.end}`;
       content += `| ${range} | \`${f.name}()\` | ${getDescription(f.name, file)} |\n`;
     }
     
-    content += `\n**CHANGELOG-Ref:** *(wird von CHANGELOG-Grep automatisch ergänzt)*\n\n`;
-    content += `---\n\n`;
+    content += '\n**CHANGELOG-Ref:** *(wird von CHANGELOG-Grep automatisch ergänzt)*\n\n';
+    content += '---\n\n';
   }
   
   content += `*📖 ${path.basename(dirPath)}/ INDEX — ${files.length} Dateien*\n`;

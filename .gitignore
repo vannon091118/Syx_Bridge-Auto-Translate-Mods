@@ -6,7 +6,7 @@ core/.env
 *.db-wal
 *.log
 log.txt
-runs.jsonl
+*.jsonl
 logs/log_*.txt
 core/backups/
 core/patches/

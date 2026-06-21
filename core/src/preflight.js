@@ -47,9 +47,9 @@ function createPreflight(dbManager) {
         report.aborted = true;
         report.warnings.push(`DB INTEGRITY FAILED: ${integrity.integrity_check}`);
         writeReport(report);
-        console.error(`[PREFLIGHT] 🚨 CRITICAL: DB integrity check failed.`);
-        console.error(`[PREFLIGHT]    → Run "node scripts/db_repair.js --execute" manually.`);
-        console.error(`[PREFLIGHT]    → See core/archive/docs/PREFLIGHT_LATEST.md`);
+        console.error('[PREFLIGHT] 🚨 CRITICAL: DB integrity check failed.');
+        console.error('[PREFLIGHT]    → Run "node scripts/db_repair.js --execute" manually.');
+        console.error('[PREFLIGHT]    → See core/archive/docs/PREFLIGHT_LATEST.md');
         return { ok: false, report };
       }
     } catch (e) {
@@ -58,7 +58,7 @@ function createPreflight(dbManager) {
       report.aborted = true;
       report.warnings.push(`Integrity check query failed: ${e.message}`);
       writeReport(report);
-      console.error(`[PREFLIGHT] 🚨 CRITICAL: Cannot run integrity check — DB may be broken.`);
+      console.error('[PREFLIGHT] 🚨 CRITICAL: Cannot run integrity check — DB may be broken.');
       console.error(`[PREFLIGHT]    → ${e.message}`);
       return { ok: false, report };
     }
@@ -104,7 +104,7 @@ function createPreflight(dbManager) {
     if (nativePct > 0.5) {
       report.warnings.push(
         `High NATIVE_STALE count (${(nativePct * 100).toFixed(1)}% of DB). ` +
-        `Expected when syncing a large new file with many non-translatable entries.`
+        'Expected when syncing a large new file with many non-translatable entries.'
       );
     }
 
@@ -163,11 +163,11 @@ function createPreflight(dbManager) {
       };
       report.warnings.push(
         `>5% of DB has CRITICAL issues (${criticalIssues}/${total} = ${(pct * 100).toFixed(1)}%). ` +
-        `GUI shows repair button.`
+        'GUI shows repair button.'
       );
       console.warn(`[PREFLIGHT] ⚠️ WARNING: ${criticalIssues}/${total} critical issues (${(pct * 100).toFixed(1)}%) — exceeds 5% threshold.`);
       console.warn(`[PREFLIGHT]    → (${issues.nativeStale} NATIVE_STALE excluded — these are expected.)`);
-      console.warn(`[PREFLIGHT]    → GUI repair button available. Sync continues.`);
+      console.warn('[PREFLIGHT]    → GUI repair button available. Sync continues.');
     }
 
     // ── 6. Write report ────────────────────────────────────────────
@@ -176,7 +176,7 @@ function createPreflight(dbManager) {
     writeReport(report);
 
     if (report.aborted) {
-      console.error(`[PREFLIGHT]    → Sync BLOCKED. See core/archive/docs/PREFLIGHT_LATEST.md`);
+      console.error('[PREFLIGHT]    → Sync BLOCKED. See core/archive/docs/PREFLIGHT_LATEST.md');
       return { ok: false, report };
     }
 
@@ -205,7 +205,7 @@ function createPreflight(dbManager) {
 
     // Separate Query für orphanedRevisions (andere Tabelle)
     const orphanedRevs = await q1(
-      "SELECT COUNT(*) as c FROM translation_revisions WHERE source_text NOT IN (SELECT source_text FROM translations)"
+      'SELECT COUNT(*) as c FROM translation_revisions WHERE source_text NOT IN (SELECT source_text FROM translations)'
     );
 
     // Separate Query für watermarkRevs (andere Tabelle)
@@ -298,11 +298,11 @@ function createPreflight(dbManager) {
 
     const healthIcon = report.health === 'healthy' ? '✅'
       : report.health === 'auto-repaired' ? '🔧'
-      : report.health === 'warning' ? '⚠️'
-      : '🚨';
+        : report.health === 'warning' ? '⚠️'
+          : '🚨';
 
     const lines = [
-      `# 🛫 PREFLIGHT ANALYSIS`,
+      '# 🛫 PREFLIGHT ANALYSIS',
       '',
       `> **${report.timestamp}** | Mode: **${report.mode}** | Health: ${healthIcon} **${report.health.toUpperCase()}** | ${report.elapsedMs}ms`,
       '',

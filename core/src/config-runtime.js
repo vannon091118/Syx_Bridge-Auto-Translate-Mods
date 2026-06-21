@@ -907,7 +907,7 @@ function readEnvValue(lines, key) {
     if (line.startsWith(keyPrefix)) {
       let val = line.slice(keyPrefix.length);
       // Strip surrounding quotes if present
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith('\'') && val.endsWith('\''))) {
         val = val.slice(1, -1);
       }
       return val;

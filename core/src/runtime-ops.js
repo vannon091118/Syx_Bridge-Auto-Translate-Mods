@@ -261,7 +261,7 @@ function createRuntimeOps(options) {
           // Wenn ja: Lock freigeben und dessen Backup akzeptieren.
           shouldBackup = !fs.existsSync(backupPath) || !fs.existsSync(path.join(backupPath, '.backup_info.json'));
           if (shouldBackup) {
-            console.log(`[INFO] Erstelle Sicherheits-Backup (Erstlauf)...`);
+            console.log('[INFO] Erstelle Sicherheits-Backup (Erstlauf)...');
             // Vorgaenger-Backup ohne .backup_info.json ist ein Altlast oder ein
             // halbfertiger Kopiervorgang eines frueheren Run-Crashes — entfernen.
             if (fs.existsSync(backupPath)) {
@@ -277,7 +277,7 @@ function createRuntimeOps(options) {
             );
             console.log(`[INFO] Backup gespeichert: ${backupPath}`);
           } else {
-            console.log(`[INFO] Backup existiert bereits — paralleler Run war schneller, wird uebernommen.`);
+            console.log('[INFO] Backup existiert bereits — paralleler Run war schneller, wird uebernommen.');
           }
         } finally {
           // Lock IMMER freigeben, auch wenn fsp.cp wirft (sonst 30s Deadlock).
@@ -390,7 +390,7 @@ function createRuntimeOps(options) {
           const appDataDest = path.join(config.GAME_MOD_ROOT, path.basename(modDir));
           console.log(`[NATIVE] Kopiere gesamte Mod ins AppData-Verzeichnis: ${appDataDest}`);
           await fsp.cp(stagingPath, appDataDest, { recursive: true, force: true });
-          console.log(`[NATIVE] Mod-Kopie in AppData abgeschlossen.`);
+          console.log('[NATIVE] Mod-Kopie in AppData abgeschlossen.');
         }
         console.log(`[NATIVE] ${stagingEntries.length} Dateien ins AppData-Verzeichnis kopiert.`);
       }

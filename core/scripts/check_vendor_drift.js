@@ -31,7 +31,7 @@ const CORE = path.join(__dirname, '..');
 const RELEASE_ROOT = path.join(CORE, 'release');
 
 // ── Config ────────────────────────────────────────────────────────────
-const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt'];
+const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt', 'VannonDoNotPlayGames.js'];
 const MOD_ASSET_DIRS = ['V70', 'V71'];
 const CORE_RUNTIME_FILES = ['index.js', 'package.json', 'LICENSE'];
 
@@ -235,7 +235,7 @@ function checkVendorDrift(targetRelease) {
           `Source neuer (${sourceMtime.toISOString().slice(0, 19)}) als Release (${releaseMtime.toISOString().slice(0, 19)}) — REBUILD NÖTIG`);
       } else if (releaseMtime > sourceMtime) {
         addFinding('DRIFT', 'ERROR', mapping.sourcePath, rf.relPath,
-          `Release neuer als Source — wurde Release direkt editiert? Änderungen gehören in core/src/`);
+          'Release neuer als Source — wurde Release direkt editiert? Änderungen gehören in core/src/');
       } else {
         addFinding('DRIFT', 'ERROR', mapping.sourcePath, rf.relPath,
           'Inhalt abweichend (gleiche mtime, unterschiedlicher Hash) — REBUILD NÖTIG');

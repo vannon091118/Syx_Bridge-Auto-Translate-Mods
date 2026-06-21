@@ -350,7 +350,7 @@ function buildProofreadPrompt(items, targetLang = 'German', grammarContext = '',
     // Alle normalen Caller (ensureTranslations, Deep Polish) setzen originalSource.
     const hasExplicitOriginal = !!item.originalSource;
     if (!hasExplicitOriginal) {
-      console.warn(`[PROOFREAD] Eintrag ohne originalSource — Meaning-Drift moeglich.`);
+      console.warn('[PROOFREAD] Eintrag ohne originalSource — Meaning-Drift moeglich.');
     }
     const originalLine = item.originalSource ? `Original English: "${item.originalSource}"\n` : '';
     return `ID:${index + 1}${metaLine}\n${originalLine}Current ${targetLang}: "${item.protectedText}"\nImproved ${targetLang}:`;

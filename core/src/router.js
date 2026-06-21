@@ -80,7 +80,7 @@ function translateHttpError(status) {
   };
   // Status 0 = Netzwerkfehler (keine HTTP-Response erhalten)
   if (status === 0) return { severity: 'transient', meaning: 'Netzwerkfehler', action: 'Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.' };
-  return map[status] || { severity: 'unknown', meaning: `HTTP ${status}`, action: `Unbekannter Status-Code. Doku des Providers konsultieren.` };
+  return map[status] || { severity: 'unknown', meaning: `HTTP ${status}`, action: 'Unbekannter Status-Code. Doku des Providers konsultieren.' };
 }
 
 module.exports.translateHttpError = translateHttpError;

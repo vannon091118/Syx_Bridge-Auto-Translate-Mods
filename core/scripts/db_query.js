@@ -206,13 +206,13 @@ if (isReport) {
     : 'full';
 
   switch (mode) {
-    case 'live':      reportLive(); break;
-    case 'post-run':  reportPostRun(); break;
-    case 'providers': reportProviders(); break;
-    case 'full':      reportFull(); break;
-    default:
-      console.warn(`⚠️  Unbekannter Report-Modus "${mode}" — nutze "full".`);
-      reportFull(); break;
+  case 'live':      reportLive(); break;
+  case 'post-run':  reportPostRun(); break;
+  case 'providers': reportProviders(); break;
+  case 'full':      reportFull(); break;
+  default:
+    console.warn(`⚠️  Unbekannter Report-Modus "${mode}" — nutze "full".`);
+    reportFull(); break;
   }
 } else {
   // Raw SQL mode

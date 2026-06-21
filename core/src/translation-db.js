@@ -247,7 +247,7 @@ function createTranslationDb(options) {
     const isNativeGlossary = provider === 'native_glossary';
     const qualityScore = isNativeRuntime ? NATIVE_RUNTIME_DEFAULT_QUALITY
       : isNativeGlossary ? NATIVE_GLOSSARY_DEFAULT_QUALITY
-      : Number(meta.qualityScore || scoreTranslationQuality(sourceText, translation));
+        : Number(meta.qualityScore || scoreTranslationQuality(sourceText, translation));
     // QUAL-OFFENSIVE Fix #5: MAX_REVIEW_COUNT Guard gegen Re-Translation-Loops.
     // Wenn ein Eintrag mehr als MAX_REVIEW_COUNT mal gespeichert wurde, ist das
     // ein Indikator für einen Endlos-Loop (z.B. "Food To Fetch" mit 18 Revisionen,
@@ -289,7 +289,7 @@ function createTranslationDb(options) {
       if (qualityCount >= MAX_REVIEW_COUNT) {
         console.warn(`[REVIEW-LIMIT] "${sourceText.substring(0, 40)}" hatte ${qualityCount} Quality-Revisionen (>=${MAX_REVIEW_COUNT}). Loop unterbrochen.`);
         await dbRun(
-          `UPDATE translations SET flagged = 1, flag_reason = 'max_revisions_exceeded', requires_deep_polish = 0, polish_status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?`,
+          'UPDATE translations SET flagged = 1, flag_reason = \'max_revisions_exceeded\', requires_deep_polish = 0, polish_status = \'failed\', updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
           [sourceText, config.TARGET_LANG]
         );
         return;
@@ -297,7 +297,7 @@ function createTranslationDb(options) {
       if (placeholderCount >= MAX_REVIEW_COUNT) {
         console.warn(`[REVIEW-LIMIT] "${sourceText.substring(0, 40)}" hatte ${placeholderCount} Placeholder-Revisionen (>=${MAX_REVIEW_COUNT}). Loop unterbrochen.`);
         await dbRun(
-          `UPDATE translations SET flagged = 1, flag_reason = 'max_placeholder_revisions', requires_deep_polish = 0, polish_status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?`,
+          'UPDATE translations SET flagged = 1, flag_reason = \'max_placeholder_revisions\', requires_deep_polish = 0, polish_status = \'failed\', updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
           [sourceText, config.TARGET_LANG]
         );
         return;
@@ -411,7 +411,7 @@ function createTranslationDb(options) {
       for (const row of candidates) {
         try {
           await dbRun(
-            `DELETE FROM translation_revisions WHERE source_text = ? AND target_lang = ?`,
+            'DELETE FROM translation_revisions WHERE source_text = ? AND target_lang = ?',
             [row.source_text, config.TARGET_LANG]
           );
           await dbRun(

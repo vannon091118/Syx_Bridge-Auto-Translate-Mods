@@ -32,7 +32,7 @@ async function analyzeDb(filePath) {
     file: path.basename(filePath),
     total: q('SELECT COUNT(*) FROM translations'),
     flagged: q('SELECT COUNT(*) FROM translations WHERE flagged=1'),
-    stale: q("SELECT COUNT(*) FROM translations WHERE translation=source_text"),
+    stale: q('SELECT COUNT(*) FROM translations WHERE translation=source_text'),
     stage0: q('SELECT COUNT(*) FROM translations WHERE audit_stage=0'),
     stage1: q('SELECT COUNT(*) FROM translations WHERE audit_stage=1'),
     stage2: q('SELECT COUNT(*) FROM translations WHERE audit_stage=2'),
@@ -60,10 +60,10 @@ async function analyzeDb(filePath) {
         END as bucket, COUNT(*) as cnt
       FROM translations GROUP BY bucket ORDER BY bucket
     `),
-    shieldLeaks: q("SELECT COUNT(*) FROM translations WHERE translation LIKE '%__SHLD_%' OR translation LIKE '%[[%'"),
-    nativeStale: q("SELECT COUNT(*) FROM translations WHERE provider='native_runtime' AND source_text=translation"),
-    polishPending: q("SELECT COUNT(*) FROM translations WHERE requires_deep_polish=1 AND polish_status='pending'"),
-    polishCompleted: q("SELECT COUNT(*) FROM translations WHERE polish_status='completed'"),
+    shieldLeaks: q('SELECT COUNT(*) FROM translations WHERE translation LIKE \'%__SHLD_%\' OR translation LIKE \'%[[%\''),
+    nativeStale: q('SELECT COUNT(*) FROM translations WHERE provider=\'native_runtime\' AND source_text=translation'),
+    polishPending: q('SELECT COUNT(*) FROM translations WHERE requires_deep_polish=1 AND polish_status=\'pending\''),
+    polishCompleted: q('SELECT COUNT(*) FROM translations WHERE polish_status=\'completed\''),
   };
   db.close();
   return result;

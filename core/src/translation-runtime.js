@@ -523,12 +523,12 @@ function createTranslationRuntime(options) {
       const meta = batchResults.map(r => typeof r === 'string'
         ? { softWarnings: [], fallbackUsed: false, criticalReject: false, shieldResult: null, wasProperNounOverride: false }
         : {
-            softWarnings: r.softWarnings || [],
-            fallbackUsed: r.fallbackUsed || false,
-            criticalReject: r.criticalReject || false,
-            shieldResult: r.shieldResult || null,
-            wasProperNounOverride: !!r.wasProperNounOverride
-          }
+          softWarnings: r.softWarnings || [],
+          fallbackUsed: r.fallbackUsed || false,
+          criticalReject: r.criticalReject || false,
+          shieldResult: r.shieldResult || null,
+          wasProperNounOverride: !!r.wasProperNounOverride
+        }
       );
       return {
         provider: route.provider,
@@ -1135,7 +1135,7 @@ function createTranslationRuntime(options) {
             for (let attempt = 0; attempt < 2 && !updateSucceeded; attempt++) {
               try {
                 await dbRun(
-                  `UPDATE translations SET polish_status = 'failed' WHERE source_text = ? AND target_lang = ?`,
+                  'UPDATE translations SET polish_status = \'failed\' WHERE source_text = ? AND target_lang = ?',
                   [key, config.TARGET_LANG]
                 );
                 updateSucceeded = true;
@@ -1325,7 +1325,7 @@ function createTranslationRuntime(options) {
               for (let updateAttempt = 0; updateAttempt < 3 && !updateSucceeded; updateAttempt++) {
                 try {
                   await dbRun(
-                    `UPDATE translations SET polish_status = 'failed' WHERE source_text = ? AND target_lang = ?`,
+                    'UPDATE translations SET polish_status = \'failed\' WHERE source_text = ? AND target_lang = ?',
                     [row.source_text, targetLang]
                   );
                   updateSucceeded = true;

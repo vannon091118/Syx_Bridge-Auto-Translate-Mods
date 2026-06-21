@@ -4,8 +4,13 @@ const path = require('path');
 const os = require('os');
 const { createPlugin } = require('./plugin-registry');
 
-const activePlugin = createPlugin(process.env.GAME || 'songs_of_syx');
-const SETTINGS_PATH = activePlugin.getLauncherSettingsPath();
+let _activePlugin = null;
+function getActivePlugin() {
+  if (!_activePlugin) {
+    _activePlugin = createPlugin(process.env.GAME || 'songs_of_syx');
+  }
+  return _activePlugin;
+}
 
 /**
  * Parses the Songs of Syx LauncherSettings.txt content.
@@ -32,10 +37,11 @@ function stringifySoSConfig(originalContent, mods) {
 /**
  * Reads the active mods from LauncherSettings.txt.
  */
-async function getActiveMods(settingsPath = SETTINGS_PATH) {
-  if (!fs.existsSync(settingsPath)) return [];
+async function getActiveMods(settingsPath = null) {
+  const resolvedPath = settingsPath || getActivePlugin().getLauncherSettingsPath();
+  if (!fs.existsSync(resolvedPath)) return [];
   try {
-    const content = await fsp.readFile(settingsPath, 'utf-8');
+    const content = await fsp.readFile(resolvedPath, 'utf-8');
     return parseSoSConfig(content).mods;
   } catch (e) {
     console.error(`[!] Fehler beim Lesen von LauncherSettings: ${e.message}`);
@@ -47,11 +53,12 @@ async function getActiveMods(settingsPath = SETTINGS_PATH) {
  * Updates LauncherSettings.txt to enable/disable BridgeCore and clean up patches.
  */
 async function syncLauncherSettings(options) {
-  const { activePatchesCount, targetLang, nativeMode, settingsPath = SETTINGS_PATH } = options;
-  if (!fs.existsSync(settingsPath)) return;
+  const { activePatchesCount, targetLang, nativeMode } = options;
+  const resolvedPath = options.settingsPath || getActivePlugin().getLauncherSettingsPath();
+  if (!fs.existsSync(resolvedPath)) return;
 
   try {
-    const content = await fsp.readFile(settingsPath, 'utf-8');
+    const content = await fsp.readFile(resolvedPath, 'utf-8');
     const { mods } = parseSoSConfig(content);
     // Clean up old patch mod formats and backups
     const cleanMods = mods.filter(m => 
@@ -68,7 +75,7 @@ async function syncLauncherSettings(options) {
     }
         
     const newContent = stringifySoSConfig(content, newMods);
-    await fsp.writeFile(settingsPath, newContent, 'utf-8');
+    await fsp.writeFile(resolvedPath, newContent, 'utf-8');
     console.log(`[INFO] LauncherSettings.txt wurde aktualisiert (${activePatchesCount > 0 && !nativeMode ? 'BridgeCore aktiv' : 'BridgeCore entfernt'}).`);
   } catch (e) {
     console.error(`[!] Fehler beim Aktualisieren von LauncherSettings: ${e.message}`);
@@ -80,5 +87,7 @@ module.exports = {
   syncLauncherSettings,
   parseSoSConfig,
   stringifySoSConfig,
-  SETTINGS_PATH
+  get SETTINGS_PATH() {
+    return getActivePlugin().getLauncherSettingsPath();
+  }
 };

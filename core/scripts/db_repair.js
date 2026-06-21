@@ -240,7 +240,7 @@ async function main() {
   // ── 1. NATIVE_STALE: native_runtime src=tgt → re-translate ──────────
   console.log('\n── 1. NATIVE_STALE (native_runtime, src=tgt) ──');
   const nativeStale = await q(
-    "SELECT COUNT(*) as c FROM translations WHERE provider='native_runtime' AND source_text=translation"
+    'SELECT COUNT(*) as c FROM translations WHERE provider=\'native_runtime\' AND source_text=translation'
   );
   console.log(`  Gefunden: ${nativeStale[0].c}`);
 
@@ -349,10 +349,10 @@ async function main() {
   // ── 7. STALE_RETRANSLATE_CLEANUP ───────────────────────────────────
   console.log('\n── 7. STALE_RETRANSLATE_CLEANUP (Orphan-Flags + Still-Stale-Reset) ──');
   const staleOrphans = await q(
-    "SELECT COUNT(*) as c FROM translations WHERE flag_reason='stale_retranslate' AND source_text != translation"
+    'SELECT COUNT(*) as c FROM translations WHERE flag_reason=\'stale_retranslate\' AND source_text != translation'
   );
   const staleStillStale = await q(
-    "SELECT COUNT(*) as c FROM translations WHERE flag_reason='stale_retranslate' AND source_text = translation"
+    'SELECT COUNT(*) as c FROM translations WHERE flag_reason=\'stale_retranslate\' AND source_text = translation'
   );
   console.log(`  Orphan-Flags (src!=tgt, Flag löschen): ${staleOrphans[0].c}`);
   console.log(`  Still-Stale  (src=tgt, Reset für Re-Translation): ${staleStillStale[0].c}`);
@@ -370,13 +370,13 @@ async function main() {
   // Probes in main() (wie alle anderen Schritte), reiner UPDATE-Executor in repairWatermarkSanitize()
   console.log('\n── 8. WATERMARK_SANITIZE (ZWSP/ZWNJ aus source_text + translation) ──');
   const wmSrcProbe = await q(
-    `SELECT COUNT(*) as c FROM translations WHERE source_text LIKE '%' || CHAR(0x200B) || '%' OR source_text LIKE '%' || CHAR(0x200C) || '%'`
+    'SELECT COUNT(*) as c FROM translations WHERE source_text LIKE \'%\' || CHAR(0x200B) || \'%\' OR source_text LIKE \'%\' || CHAR(0x200C) || \'%\''
   );
   const wmTransProbe = await q(
-    `SELECT COUNT(*) as c FROM translations WHERE translation LIKE '%' || CHAR(0x200B) || '%' OR translation LIKE '%' || CHAR(0x200C) || '%'`
+    'SELECT COUNT(*) as c FROM translations WHERE translation LIKE \'%\' || CHAR(0x200B) || \'%\' OR translation LIKE \'%\' || CHAR(0x200C) || \'%\''
   );
   const wmRevProbe = await q(
-    `SELECT COUNT(*) as c FROM translation_revisions WHERE source_text LIKE '%' || CHAR(0x200B) || '%' OR source_text LIKE '%' || CHAR(0x200C) || '%' OR translation LIKE '%' || CHAR(0x200B) || '%' OR translation LIKE '%' || CHAR(0x200C) || '%'`
+    'SELECT COUNT(*) as c FROM translation_revisions WHERE source_text LIKE \'%\' || CHAR(0x200B) || \'%\' OR source_text LIKE \'%\' || CHAR(0x200C) || \'%\' OR translation LIKE \'%\' || CHAR(0x200B) || \'%\' OR translation LIKE \'%\' || CHAR(0x200C) || \'%\''
   );
 
   const wmSrcTotal = wmSrcProbe[0]?.c || 0;
@@ -395,9 +395,9 @@ async function main() {
     if (wmResult.revTransCleaned > 0) console.log(`  ✓ ${wmResult.revTransCleaned} revision translation Einträge bereinigt.`);
     totalFixed += wmResult.sourceCleaned + wmResult.transCleaned + wmResult.revSrcCleaned + wmResult.revTransCleaned;
   } else if (DRY_RUN && (wmSrcTotal > 0 || wmTransTotal > 0 || wmRevTotal > 0)) {
-    console.log(`  → Würde source_text + translation + revisions bereinigen.`);
+    console.log('  → Würde source_text + translation + revisions bereinigen.');
   } else {
-    console.log(`  Keine Watermarks gefunden — DB ist bereits sauber.`);
+    console.log('  Keine Watermarks gefunden — DB ist bereits sauber.');
   }
 
   // ── Zusammenfassung ─────────────────────────────────────────────────

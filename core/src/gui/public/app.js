@@ -1389,20 +1389,20 @@ function updateDbRepairButton() {
     `• ${w.unflaggedStale} ungeflaggte Stale\n` +
     `• ${w.lowScore} Low-Score (<30)\n` +
     `• ${w.nativeStale} Native Stale (erwartet)\n` +
-    `Klicken zum Reparieren — markiert Einträge für Re-Translation.`;
+    'Klicken zum Reparieren — markiert Einträge für Re-Translation.';
 }
 
 async function runDbRepair() {
   const btn = document.getElementById('db-repair-btn');
   if (!btn) return;
   const confirmed = confirm(
-    `🔧 DATENBANK-REPARATUR\n\n` +
+    '🔧 DATENBANK-REPARATUR\n\n' +
     `${_preflightWarning.criticalIssues} Einträge werden für Re-Translation markiert.\n` +
-    `Keine Übersetzungen gehen verloren!\n\n` +
+    'Keine Übersetzungen gehen verloren!\n\n' +
     `• ${_preflightWarning.unflaggedStale} ungeflaggte Stale\n` +
     `• ${_preflightWarning.lowScore} Low-Score\n` +
     `• ${_preflightWarning.nativeStale} Native Stale\n\n` +
-    `Fortfahren?`
+    'Fortfahren?'
   );
   if (!confirmed) return;
 
@@ -1424,7 +1424,7 @@ async function runDbRepair() {
         `• ${result.details.nativeStale} Native Stale\n` +
         `• ${result.details.unflaggedStale} Ungeflaggte Stale\n` +
         `• ${result.details.lowScore} Low-Score\n\n` +
-        `Beim nächsten Sync werden diese Einträge neu übersetzt.`);
+        'Beim nächsten Sync werden diese Einträge neu übersetzt.');
     } else {
       alert(`❌ Reparatur fehlgeschlagen: ${result.error || 'Unbekannter Fehler'}`);
       btn.textContent = '🔧 DB-REPARATUR';
