@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "commit_diary": {
+      "description": "Each commit must be a diary entry in the style of a storyteller.",
+      "tones": ["euphorisch", "zynisch", "passiv-aggressiv", "stolz", "muede"],
+      "min_words": {
+        "STANDARD": 200,
+        "TEST-ASSET": 100,
+        "TRIVIAL": 50
+      },
+      "stretching_policy": "NO artificial stretching. If short, work on other files (docs, verify, index) first.",
+      "no_changelogs_no_bullet_lists": true
+    },
+    "sidejoke_pool": {
+      "description": "First sentence must adapt a sidejoke from the pool seamlessly.",
+      "required": true,
+      "pool_path": "core/scripts/commit_lore/sidejoke_pool.json"
+    },
+    "plot_documentation": {
+      "description": "Dialog text must be added to the persistent PLOT_LORE.md.",
+      "required": true,
+      "script": "node core/scripts/commit_lore/update_plot.js",
+      "plot_path": "core/archive/docs/PLOT_LORE.md"
+    },
+    "model_signature": {
+      "description": "Commit message must contain [MODEL:<name>] token identifying the LLM that created the commit.",
+      "required": true,
+      "token_format": "[MODEL:<model-name>]",
+      "regex": "\\[MODEL:([a-z0-9._-]+)\\]",
+      "example": "[MODEL:claude-sonnet-4-6]",
+      "note": "The regex is enforced in verify_commit_msg.js — this JSON documents the spec only."
+    },
+    "cross_references": {
+      "description": "Must reference at least one persistent plot variable or past commit hash from the registry.",
+      "required": true,
+      "db_path": "core/scripts/commit_lore/cross_references.json"
+    }
+  }
+}

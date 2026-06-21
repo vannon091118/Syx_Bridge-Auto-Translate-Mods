@@ -261,3 +261,12 @@ Buffy: 'Ich habe den Lazy-Load-Guard in sos-runtime.js eingebaut, damit der Impo
 **Vannon:** Alles nachholen. Per-Folder INDEX. CHANGELOG mit [CL:TAG]. Plot-Dialog. HANDSHAKE für die Session. PREFLIGHT updaten. KNOWN-BUGS-Report nicht vergessen.
 
 **Buffy:** Eine Task-Chain, sieben Dateien, eine Wahrheit. Aggressive Catches per AGENTS.md § WORKFLOW-AUTOMATION und § SESSION-LIFECYCLE.\n\n**Vannon:** Vergeigt, aufgefallen, gefixt, gepusht. Weiter.
+
+## 🤖 Modell-Lore (RULE 3.7 ab Session 5, 2026-06-21)
+
+| Modell | Erst-Eintrag | Letzter-Eintrag | Anzahl-Dialoge | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| legacy-unknown | N/A | N/A | 0 | archived |
+| minimax-m3 | 2026-06-21 | 2026-06-21 | 0 | active |
+
+> **Migration-Footnote:** Pre-existierende Dialoge (vor Session 5, 2026-06-21) behalten ihren Original-Header ohne Model/Ref-Felder. Sie sind implizit `Model: legacy-unknown` und `Verweis auf: none`. Beim nachträglichen Lesen darf das nicht als Datenverlust gewertet werden — die Migration ist additiv.

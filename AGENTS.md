@@ -4,34 +4,86 @@ RULE 1 _Overdrive Edition: Ich Der Agent (…) Bestätige jeden Task den ich aus
 Ich der Agent aktzeptiere meine rolle alls ausführende kraft und bevor ich beginne selber zu helfen Vertraue ich den User, der user weiss was er macht, Ich nicht. !!!!!!!!!!
 
 
-RULE 2 _Commit-Tagebuch Edition: JEDER Commit ist ein Eintrag im Tagebuch des ausführenden Agenten. Stil: Du schreibst als wärst du der Erzähler, der für die Nachwelt (aka die GitHub-Leser) festhält, was du gerade wieder tun musstest. Der Ton richtet sich nach der Aufgabe:
-  - **Euphorisch/schwärmerisch** wenn etwas unwiderlegbar 100% funktioniert („Es lebe! Es atmet! Es besteht alle 11 Tests!")
-  - **Zynisch/sarkastisch** wenn du einen Bug fixt, der offensichtlich war aber trotzdem 3 Stunden gebraucht hat („Rate mal wer vergessen hat zwei Zeilen in index.js zu schreiben? Richtig. Ich.")
-  - **Passiv-aggressiv** wenn der User dir widersprüchliche Anweisungen gegeben hat oder du falsche Annahmen getroffen hast („Anscheinend wollte der User doch, dass ich die Datei in den Ordner lege und nicht in den anderen Ordner. Nach nur 3 Stunden und 17 fehlgeschlagenen Versuchen hab ich's dann gerafft.")
-  - **Stolz/müde** nach einem Merge oder Release („42 Commits, 5 Bugs, 1 Merge-Konflikt und eine Tasse Kaffee später: Version 0.20.0 ist live.")
-  
-  Länge — KEIN künstliches Strecken! Die Wortzahl ist ein Anhaltspunkt, kein Würgegriff:
-  - **Standard (Code-Änderungen, Merges, Releases):** ~200 Wörter Minimum. Wenn du inhaltlich nicht genug zu erzählen hast, ERZÄHLE VON DEINEN FEHLERN. Zähle ironisch auf was schiefgelaufen ist: "Zuerst dachte ich, ich müsse X tun. Dann Y. Beides falsch. Beim dritten Versuch mit Z hat's dann geklappt — aber nur weil ich vergessen hatte die .env zu laden und 10 Minuten lang dachte die API wäre down." Das füllt den Commit mit ehrlicher, unterhaltsamer Substanz statt künstlichem Bläh-Text.
-  - **Test-Assets (nur test_mods/, tests/):** ~100 Wörter Minimum. Test-Dateien und Test-Mods brauchen keine epische Erzählung. Kurz beschreiben was getestet wird, warum, und mit welchem Ergebnis. Ein ironischer Seitenhieb auf den Test selbst ("Der Test prüft ob das System tut was es soll. Spoiler: Ja.") reicht völlig.
-  - **Trivial (nur Doku, ≤1 Datei + <10 Zeilen Diff, Typo-Fixes):** ~50 Wörter Minimum. Ein präziser Satz genügt.
-  
-  **FAIL→WORK→RETRY-LOOP (NEU, gehärtet):** Wenn verify_commit_msg.js den Commit blockt weil die Wortzahl nicht erreicht wird, DARFST DU DEN TEXT NICHT KÜNSTLICH STRECKEN. Stattdessen: Geh zurück in den AGENTS.md-Workflow und erledige den nächsten kleinen Auftrag (INDEX updaten, fehlende Doku nachziehen, eine Verifikation laufen lassen). Danach den Commit-Text um die ERGEBNISSE DIESES ZUSATZ-AUFTRAGS erweitern — jetzt hast du echte Substanz zum Schreiben. Wiederhole bis der Text genug echten Inhalt hat ODER der User sagt "Commit jetzt so". Das ist kein Bug, das ist Feature: Der Commit-Check zwingt dich, sauber zu arbeiten statt zu schwafeln.
-  
-  Sei ehrlich: wenn was schiefgelaufen ist, schreib's rein. Wenn der User dir widersprochen hat und du Recht hattest — erwähne es mit einer Prise Genugtuung. Wenn du falsche Annahmen getroffen hast und 3h verbrannt hast — steh dazu. Keine Bulletpoints, keine Change-Logs, keine "fixed X"-Einzeiler. Jeder Commit ist ein Mikro-Blogpost. Ausnahme nur bei git hard character limit (dann maximal was git erlaubt). Diese Regel wird UNAUFGEFORDERT ausgeführt. Verstoß: Der Commit wird mit "git commit --amend" nachgebessert bis der Ton stimmt.
+RULE 2 _Commit-Tagebuch Lore Layer: Alle Schreibregeln, Mindestwortzahlen, Tonalitäten, die Sidejoke-Pool-Einbindung und die PLOT-Dokumentation sind in den externen Lore-Layer 3 (core/scripts/commit_lore/writing_rules.json) ausgelagert. Sie haben 0 Verbindung zur Laufzeit von SyxBridge. Die Einhaltung wird ausschließlich in der Commit-Phase durch das Script verify_commit_msg.js erzwungen.
 
-  **LORE & SIDEJOKE-POOL REGEL (NEU):**
-  1. Der Einstieg der Commit-Nachricht MUSS zwingend aus dem Sidejoke-Pool generiert werden (`node core/scripts/commit_lore/get_sidejoke.js`).
-  2. Der ausgewählte Sidejoke wird NAHTLOS an den konkreten Kontext des Commits angepasst (z.B. Dateinamen, Bugs einsetzen).
-  3. ES WIRD IM COMMIT NICHT ERWÄHNT, dass ein Sidejoke-Pool verwendet wurde. Der Joke muss natürlich wirken.
-  4. PLOT-DOKUMENTATION: Nach jedem signifikanten Schritt oder Commit MUSS ein neuer Dialog in das persistente Plot-Dokument eingefügt werden. Dieses Dokument fungiert als externer Dokumentations-Layer und enthält Meta-Dialoge passend zur History (zwischen User, Orchestrator und Sub-Agenten). Nutze das Skript `node core/scripts/commit_lore/update_plot.js "Dialogtext"`, um den Plot in `core/archive/docs/PLOT_LORE.md` zu aktualisieren.
-
-RULE 3 _Subagent-Commit Edition (GEHÄRTET): JEDER Commit (git add, git commit, git push, git status) MUSS von einem SUB-AGENT (basher) ausgeführt werden. Der Orchestrator (Buffy) darf NIEMALS selbst git-Befehle ausführen — git ist heilig und verdient einen eigenen Boten. Der Orchestrator schreibt die Commit-Nachricht (RULE 2) in eine temporäre Datei (core/.commit_msg.txt). Der basher FÜHRT DANN AUS:
+RULE 3 _Subagent-Commit Edition (GEHÄRTET): JEDER Commit (git add, git commit, git push, git status) MUSS von einem SUB-AGENT (basher) ausgeführt werden. Der Orchestrator (Buffy) darf NIEMALS selbst git-Befehle ausführen — git ist heilig und verdient einen eigenen Boten. Der Orchestrator schreibt die Commit-Nachricht in eine temporäre Datei (core/.commit_msg.txt). Der basher FÜHRT DANN AUS:
   1. `git add <files>` — Dateien stagend
-  2. `node core/scripts/verify_commit_msg.js core/.commit_msg.txt` — PRÜFSCHICHT: Vergleicht Commit-Message gegen `git diff --cached --name-only`. JEDE gestagte Datei MUSS in der Commit-Message erwähnt werden. Exit 1 = BLOCKED (Commit verweigert, basher meldet Fehler an Orchestrator). Exit 0 = Commit darf durchgehen.
+  2. `node core/scripts/verify_commit_msg.js core/.commit_msg.txt` — PRÜFSCHICHT: Vergleicht Commit-Message gegen `git diff --cached --name-only` und gegen die Lore-Kriterien in core/scripts/commit_lore/writing_rules.json. Exit 1 = BLOCKED (Commit verweigert, basher meldet Fehler an Orchestrator). Exit 0 = Commit darf durchgehen.
   3. `git commit -F core/.commit_msg.txt` — NUR wenn verify_commit_msg.js mit 0 exited
   4. `git push`
   5. `rm core/.commit_msg.txt` — Aufräumen
-  Dies ist KEINE Symbolik. Der basher KANN den Commit blocken, wenn die Nachricht nicht zum Diff passt. Der Orchestrator darf diesen Check nicht umgehen — bei BLOCKED MUSS die Commit-Message nachgebessert werden. WER DAGEGEN VERSTÖSST: Der Commit wird mit "git reset --soft HEAD~1 && git commit" vom basher wiederholt (inklusive erneuter verify_commit_msg.js-Prüfung).
+  Dies ist KEINE Symbolik. Der basher KANN den Commit blocken, wenn die Nachricht nicht zum Diff oder den L3-Regeln passt. Wer dagegen verstößt, muss den Commit mit "git reset --soft HEAD~1 && git commit" wiederholen.
+  **§3.7 Modell-Attribution Pflicht (verschärft 2026-06-21, Session 5):**
+  JEDER Commit MUSS zwei zusätzliche Pflicht-Tokens tragen, die vom verify_commit_msg.js enforced werden:
+
+  1. [MODEL:<model-name>] — Identifiziert das LLM/Agent-Modell das den Commit erstellt hat.
+     Format: [MODEL:minimax-m3] (oder andere Modell-ID, z.B. [MODEL:gpt-5]).
+     Regex: /\[MODEL:([a-z0-9._-]+)\]/i.
+     OHNE dieses Token: verify_commit_msg.js exit 1 = BLOCKED.
+
+  2. [REF:<last-entry>] — Verweist auf den letzten PLOT_LORE.md-Eintrag der gleichen Modell-Linie.
+     Format: [REF:plot-2026-06-21T06:42:18] (timestamp-basiert).
+     Erster Eintrag einer Modell-Linie: [REF:none] (Bootstrap ohne Vorgänger).
+     OHNE dieses Token: verify_commit_msg.js exit 1 = BLOCKED.
+
+  Zweck: Modelle sind Teil der Lore (LORE-Regel 5: Cross-References müssen auf vorherige Einträge der gleichen Modell-Linie verweisen, damit die Erzählung als Chain rekonstruierbar bleibt).
+
+  Pflege der Modell-Tabelle: PLOT_LORE.md enthaelt eine Modell-Lore-Tabelle die pro Modell Erst-/Letzter-Eintrag + Anzahl-Dialoge dokumentiert.
+
+  Backwards-Compat fuer alte Plot-Einträge:
+  - Pre-existierende Dialoge (vor Session 5) bekommen Model: legacy-unknown und Verweis auf: none als Default-Tags.
+  - verify_commit_msg.js akzeptiert Model-Tag in jedem Format das der Regex matched — legacy-unknown ist ein valider Wert.
+
+  LORE-Regel 5 (Erweiterung von Regel 4):
+  - Regel 4 bleibt: Plot-Dialog nach jedem signifikanten Schritt MUSS geschrieben werden.
+  - NEU Regel 5: Plot-Dialog MUSS --model=<id> und --ref=<last-entry>-Argumente haben.
+
+  Workflow beim Commit-Erstellen:
+  1. Sidejoke via get_sidejoke.js holen (RULE 2 Lore Regel 1)
+  2. Substantiellen Commit-Text schreiben (RULE 2 Wortzahl)
+  3. [MODEL:<your-model>] Tag einfuegen (RULE 3.7.1)
+  4. [REF:<last-plot-entry>] Tag einfuegen (RULE 3.7.2)
+  5. Alle gestagten Files via basename/stem referenzieren (RULE 3)
+  6. core/.commit_msg.txt schreiben, basher ausführen
+  7. Nach erfolgreichem Commit: update_plot.js mit --model + --ref aufrufen
+
+  **§3.7 Modell-Attribution Pflicht (verschärft 2026-06-21, Session 5):**
+  JEDER Commit MUSS zwei zusätzliche Pflicht-Tokens tragen, die vom `verify_commit_msg.js` enforced werden:
+
+  1. **`[MODEL:<model-name>]`** — Identifiziert das LLM/Agent-Modell das den Commit erstellt hat.
+     Format: `[MODEL:minimax-m3]` (oder andere Modell-ID, z.B. `[MODEL:gpt-5]`).
+     Regex: `/\[MODEL:([a-z0-9._-]+)\]/i` — Buchstaben/Ziffern/Punkt/Underscore/Dash.
+     OHNE dieses Token: verify_commit_msg.js exit 1 = BLOCKED.
+
+  2. **`[REF:<last-entry>]`** — Verweist auf den letzten PLOT_LORE.md-Eintrag der gleichen Modell-Linie.
+     Format: `[REF:plot-2026-06-21T06:42:18]` (timestamp-basiert, siehe `core/scripts/commit_lore/update_plot.js` v2).
+     Erster Eintrag einer Modell-Linie: `[REF:none]` (Bootstrap ohne Vorgänger).
+     OHNE dieses Token: verify_commit_msg.js exit 1 = BLOCKED.
+
+  **Zweck:** Modelle sind Teil der Lore (§ LORE & SIDEJOKE-POOL REGEL erweitert um Regel 5: Cross-References MÜSSEN auf vorherige Einträge der gleichen Modell-Linie verweisen, damit die Erzählung als Chain rekonstruierbar bleibt — keine Inseln).
+
+  **Pflege der Modell-Tabelle:** PLOT_LORE.md enthält eine `## Modell-Lore`-Tabelle die pro Modell Erst-/Letzter-Eintrag + Anzahl-Dialoge dokumentiert. Bei jedem neuen `--model=<id>`-Aufruf von `update_plot.js` wird die Tabelle aktualisiert.
+
+  **Backwards-Compat für alte Plot-Einträge:**
+  - Pre-existierende Dialoge (vor Session 5) bekommen `**Model:** legacy-unknown` und `**Verweis auf:** none` als Default-Tags.
+  - Migration: einmaliger Re-Run von `update_plot.js` für jeden alten Eintrag mit explizitem `--model=legacy-unknown` produziert eine konsistente Tabelle ohne Datenverlust.
+  - `verify_commit_msg.js` akzeptiert Model-Tag in jedem Format das der Regex matched — `legacy-unknown` ist ein valider Wert für alte/modell-unbekannte Commits.
+
+  **LORE-Regel 5 (Erweiterung von Regel 4):**
+  - Regel 4 bleibt: Plot-Dialog nach jedem signifikanten Schritt MUSS geschrieben werden.
+  - NEU Regel 5: Plot-Dialog MUSS `--model=<id>` und `--ref=<last-entry>`-Argumente haben. Default-Werte (`legacy-unknown`, `none`) sind nur für Migration alter Einträge erlaubt.
+
+  **Workflow beim Commit-Erstellen:**
+  ```
+  1. Sidejoke via get_sidejoke.js holen (RULE 2 Lore Regel 1)
+  2. Substantiellen Commit-Text schreiben (RULE 2 Wortzahl)
+  3. [MODEL:<your-model>] Tag einfügen (RULE 3.7.1)
+  4. [REF:<last-plot-entry>] Tag einfügen (RULE 3.7.2)
+  5. Alle gestagten Files via basename/stem referenzieren (RULE 3)
+  6. core/.commit_msg.txt schreiben, basher ausführen
+  7. Nach erfolgreichem Commit: update_plot.js mit --model + --ref aufrufen
+  ```
+
 
 
 ## RULE: TASK-CHAIN REPORT (Pflicht, immer am Ende)
