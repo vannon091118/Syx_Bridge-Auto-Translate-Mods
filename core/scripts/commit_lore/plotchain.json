@@ -124,5 +124,24 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit — Session 2026-06-21"
+  },
+  {
+    "id": "plot-2026-06-21T03:05:59",
+    "parent_id": "plot-2026-06-21T02:59:06",
+    "timestamp": "2026-06-21 03:05:59",
+    "status": "active",
+    "session_changes": [
+      "ore/archive/docs/PLOT_LORE.md",
+      "core/logs/"
+    ],
+    "variables": [
+      "da5b7d8",
+      "PLOT_LORE",
+      "logs"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8"
   }
 ]

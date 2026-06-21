@@ -145,39 +145,63 @@ function stripJsonFence(text) {
   return String(text || '').trim().replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
 }
 
+/**
+ * Minimal JSON repair for common LLM artifacts.
+ * Extracted to module level to avoid re-creating on every extractJsonPayload call.
+ */
+function tryRepairJson(raw) {
+  if (!raw || raw.length < 2) return null;
+  let fixed = raw.replace(/'/g, '"');
+  // Remove trailing commas before closing brackets/braces
+  fixed = fixed.replace(/,([\s\n]*[}\]])/g, '$1');
+  fixed = fixed.replace(/,\s*$/, '');
+  try { JSON.parse(fixed); return fixed; } catch (_) {}
+  // Close unclosed braces/brackets
+  const openBraces = (fixed.match(/{/g) || []).length;
+  const closeBraces = (fixed.match(/}/g) || []).length;
+  const totOpenBrack = (fixed.match(/\[/g) || []).length;
+  const totCloseBrack = (fixed.match(/\]/g) || []).length;
+  for (let i = 0; i < openBraces - closeBraces; i++) fixed += '}';
+  for (let i = 0; i < totOpenBrack - totCloseBrack; i++) fixed += ']';
+  try { JSON.parse(fixed); return fixed; } catch (_) {}
+  return null;
+}
+
 function extractJsonPayload(text) {
-  const clean = stripJsonFence(text).trim();
+  let clean = stripJsonFence(text).trim();
+
+  // ── Attempt 1: Standard extraction via bracket matching ──────────
   const starts = ['[', '{'];
   for (const start of starts) {
     const startIndex = clean.indexOf(start);
     const endIndex = clean.lastIndexOf(start === '[' ? ']' : '}');
     if (startIndex >= 0 && endIndex > startIndex) {
-      return clean.slice(startIndex, endIndex + 1);
+      const candidate = clean.slice(startIndex, endIndex + 1);
+      try { JSON.parse(candidate); return candidate; } catch (_) { /* fall through */ }
     }
   }
 
-  // Try to repair truncated JSON arrays (e.g. from cheap/free OpenRouter models)
+  // ── Attempt 2: Truncation recovery for JSON arrays ───────────────
   if (clean.startsWith('[') && !clean.endsWith(']')) {
     let repaired = clean;
-    // Count occurrences of unescaped double quotes
     let quoteCount = 0;
     for (let i = 0; i < repaired.length; i++) {
       if (repaired[i] === '"' && (i === 0 || repaired[i-1] !== '\\')) {
         quoteCount++;
       }
     }
-    if (quoteCount % 2 !== 0) {
-      repaired += '"';
-    }
+    if (quoteCount % 2 !== 0) { repaired += '"'; }
     repaired = repaired.trim().replace(/,\s*$/, '');
     repaired += ']';
-    try {
-      JSON.parse(repaired);
-      return repaired;
-    } catch (e) {
-      // Repair failed, fallback to original clean string
-    }
+    try { JSON.parse(repaired); return repaired; } catch (_) {}
+    const rep = tryRepairJson(repaired);
+    if (rep) return rep;
   }
+
+  // ── Attempt 3: Full repair on clean text ─────────────────────────
+  const rep = tryRepairJson(clean);
+  if (rep) return rep;
+
   return clean;
 }
 
@@ -375,7 +399,7 @@ function buildProofreadPrompt(items, targetLang = 'German', grammarContext = '',
     'INSTRUCTIONS:',
     '1. FIX: Grammar, spelling, and unnatural phrasing.',
     consistencyNote,
-    '3. SAFETY: Keep all [[0]], [[1]] tokens unchanged.',
+    '3. SAFETY: Only fix grammar and phrasing — do NOT add new placeholders, tags, or markup.',
     '4. FORMAT: Respond ONLY with a JSON array of strings.',
     ''
   ];
@@ -423,9 +447,14 @@ function placeholdersValid(sourceOrPlaceholders, target) {
 function translationCriticalCheck(source, target, placeholders = null) {
   const restored = String(target || '');
   if (!restored) return { ok: false, reason: 'empty_translation' };
-  // Shield tokens not restored — would leak __SHLD_0__ (or legacy [[0]]) into game files
-  // Check BOTH new format (__SHLD_) and legacy format ([[N]]) for backward compat.
-  if (restored.includes('__SHLD_') || restored.includes('[[') || restored.includes(']]')) {
+  // Shield tokens not restored — would leak __SHLD_0__ into game files.
+  // Modern format (__SHLD_): always indicates failed restoration.
+  if (restored.includes('__SHLD_')) {
+    return { ok: false, reason: 'shield_leak' };
+  }
+  // Legacy [[N]] format: only flag if source doesn't contain [[ — prevents
+  // false-positives when LLMs hallucinate [[N]] tokens during polish (BU-041).
+  if (!source.includes('[[') && (restored.includes('[[') || restored.includes(']]'))) {
     return { ok: false, reason: 'shield_leak' };
   }
   // BUG-002 Fix: Pure numbers (batch indices, IDs) are never valid translations.

@@ -845,14 +845,7 @@
                 <div class="stat-label">DB Einträge: <span id="stat-db-total">-</span></div>
             </div>
 
-            <div class="panel" id="runtime-score-panel">
-                <h3>Runtime-Score <span id="runtime-score-badge" style="font-size:0.5rem; color:var(--muted); font-weight:normal;"></span></h3>
-                <div id="runtime-score-container" style="font-size:0.7rem; font-family:monospace;">
-                    <div id="runtime-score-loading" style="color:var(--muted); padding:6px 0; text-align:center;">Lade Runtime-Score...</div>
-                    <div id="runtime-score-content" style="display:none;"></div>
-                    <div id="runtime-score-empty" style="display:none; color:var(--muted); padding:6px 0; text-align:center; font-size:0.6rem;">Keine Daten — führe <code style="color:var(--accent)">runtime_score.js --write-history</code> aus.</div>
-                </div>
-            </div>
+
 
             <div class="panel">
                 <h3>Mod-Backups</h3>
@@ -862,9 +855,26 @@
             </div>
 
             <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0;">
-                <h3>DB Translation Stream</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="margin:0;">DB Translation Stream</h3>
+                    <div style="display:flex; gap:4px;">
+                        <button id="stream-toggle-btn" onclick="toggleStreamView()" title="Umschalten zwischen DB-Livestream und LLM Output-Ansicht" style="width:auto; padding:2px 8px; font-size:0.55rem; background:rgba(100,213,196,0.15); border:1px solid rgba(100,213,196,0.3); color:var(--success);">LLM →</button>
+                    </div>
+                </div>
+                <!-- DB Samples View (default) -->
                 <div id="db-samples" class="sample-list" style="overflow-y: auto; flex: 1;">
                     <div class="stat-label" style="text-align:center; padding: 20px;">Noch keine neuen Übersetzungen in dieser Sitzung.</div>
+                </div>
+                <!-- LLM Output View (hidden by default) -->
+                <div id="stream-llm-view" style="display:none; overflow-y:auto; flex:1; font-size:0.7rem; font-family:monospace;">
+                    <div id="stream-llm-request" style="margin-bottom:8px; padding:6px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:4px;">
+                        <div style="font-size:0.55rem; color:var(--muted); margin-bottom:3px;">LLM REQUEST <span id="stream-llm-provider" style="color:var(--accent);">-</span></div>
+                        <div id="stream-llm-req-content" style="color:var(--text); white-space:pre-wrap; word-break:break-word; font-size:0.65rem;">Warte auf Daten...</div>
+                    </div>
+                    <div id="stream-llm-response" style="padding:6px; background:rgba(100,213,196,0.05); border:1px solid rgba(100,213,196,0.2); border-radius:4px;">
+                        <div style="font-size:0.55rem; color:var(--muted); margin-bottom:3px;">LLM RESPONSE <span id="stream-llm-time" style="color:var(--muted);">-</span></div>
+                        <div id="stream-llm-res-content" style="color:var(--success); white-space:pre-wrap; word-break:break-word; font-size:0.65rem;">...</div>
+                    </div>
                 </div>
             </div>
 
@@ -888,6 +898,34 @@
         <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon"><span id="fcm-status-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#666; margin-right:4px;"></span>Syx-Bridge v0.20.0 - V71 Ready | NVIDIA NIM + FCM Live</div>
         <div title="Fehler oder Feedback bitte per E-Mail melden">Kontakt &amp; Bug-Reports: <span style="color: var(--accent);">vannon858@gmail.com</span></div>
     </footer>
+
+    <!-- Floating Runtime Score Panel (unten rechts, fixiert) -->
+    <div id="runtime-score-floating" style="position:fixed; bottom:40px; right:20px; z-index:500; width:380px; max-height:50vh; overflow-y:auto; background:rgba(13,11,10,0.95); border:1px solid var(--accent); border-radius:10px; padding:14px; box-shadow:0 8px 40px rgba(0,0,0,0.8); backdrop-filter:blur(8px); transition:all 0.3s ease; cursor:default;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:bold;">Runtime-Score</span>
+                <span id="rs-badge" style="font-size:0.5rem; color:var(--muted);"></span>
+            </div>
+            <div style="display:flex; gap:4px; align-items:center;">
+                <button id="rs-refresh-btn" onclick="fetchRuntimeScore()" style="width:auto; padding:1px 6px; font-size:0.5rem; background:rgba(216,151,60,0.1); border:1px solid rgba(216,151,60,0.3); color:var(--accent); border-radius:3px; cursor:pointer;">↻</button>
+                <button id="rs-minimize-btn" onclick="toggleRuntimeScoreMin()" style="width:auto; padding:1px 6px; font-size:0.5rem; background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:3px; cursor:pointer;">_</button>
+            </div>
+        </div>
+        <div id="rs-container" style="font-size:0.7rem; font-family:monospace;">
+            <div id="rs-loading" style="color:var(--muted); padding:6px 0; text-align:center;">Lade Runtime-Score...</div>
+            <!-- FOREIGN_MACHINE_PROBABILITY Score (theoretisch) -->
+            <div id="rs-content" style="display:none;"></div>
+            <div id="rs-empty" style="display:none; color:var(--muted); padding:6px 0; text-align:center; font-size:0.6rem;">Keine Daten — führe <code style="color:var(--accent)">runtime_score.js --write-history</code> aus.</div>
+            <!-- Run Self-Evaluation (tatsächlicher Durchlauf) -->
+            <div id="re-section" style="display:none; margin-top:6px; border-top:1px solid rgba(100,213,196,0.2); padding-top:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:0.55rem; color:var(--success); text-transform:uppercase; letter-spacing:0.5px; font-weight:bold;">⚡ Letzter Durchlauf</span>
+                    <span id="re-timestamp" style="font-size:0.45rem; color:var(--muted);"></span>
+                </div>
+                <div id="re-content"></div>
+            </div>
+        </div>
+    </div>
 
     <script src="/public/app.js"></script>
     <script>

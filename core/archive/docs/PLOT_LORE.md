@@ -363,3 +363,6 @@ Buffy: 'Ich habe den Lazy-Load-Guard in sos-runtime.js eingebaut, damit der Impo
 
 ### [2026-06-21 02:59:06]
 Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit — Session 2026-06-21
+
+### [2026-06-21 03:05:59]
+Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8

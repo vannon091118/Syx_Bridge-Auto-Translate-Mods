@@ -578,9 +578,19 @@ function connectLogs() {
         reqProvider.textContent = data.provider.toUpperCase();
         termRes.textContent = 'Warte auf Antwort...';
         resTime.textContent = '-';
+        // Auch in Stream-LLM-View pushen
+        const llmProv = document.getElementById('stream-llm-provider');
+        const llmReq = document.getElementById('stream-llm-req-content');
+        if (llmProv) llmProv.textContent = data.provider.toUpperCase();
+        if (llmReq) llmReq.textContent = typeof data.content === 'string' ? data.content.substring(0, 2000) : JSON.stringify(data.content, null, 2).substring(0, 2000);
       } else {
         termRes.textContent = data.content;
         resTime.textContent = new Date().toLocaleTimeString();
+        // Auch in Stream-LLM-View pushen
+        const llmTime = document.getElementById('stream-llm-time');
+        const llmRes = document.getElementById('stream-llm-res-content');
+        if (llmTime) llmTime.textContent = new Date().toLocaleTimeString();
+        if (llmRes) llmRes.textContent = typeof data.content === 'string' ? data.content.substring(0, 2000) : JSON.stringify(data.content, null, 2).substring(0, 2000);
       }
     }
 
@@ -1518,24 +1528,54 @@ async function restoreBackup(modId) {
 }
 
 // Global exposure (HTML onclick handlers refer to these names)
-// ── Runtime Score Dashboard ──────────────────────────────────────────
+// ── Runtime Score Dashboard (Floating Panel) ─────────────────────────
 let _runtimeScoreData = null;
+let _runEvalData = null;
+let _rsMinimized = false;
+
+// Kategorie-Erklärungen für die 8 Personas
+const RS_CATEGORY_DESCRIPTIONS = {
+  'casual': 'Gelegenheitsnutzer mit 1-2 Mods. Meist Standard-Konfiguration, niedriges Volumen.',
+  'mid-range-with-keys': 'Fortgeschrittener Nutzer mit API-Keys (Groq/Gemini/OpenRouter). Mehrere Mods, aber nicht maximale Auslastung.',
+  'mid-range-no-keys': 'Fortgeschrittener Nutzer OHNE API-Keys. Verlässt sich auf Free-Tier + Argos/Google Free — niedrigere Erfolgsrate.',
+  'schwache-hw': 'Schwache Hardware (z.B. Steam Deck, 4GB RAM). Kein Ollama, keine lokalen Modelle. Argos/Google Free limitiert.',
+  'power-ollama': 'Power Workstation mit Ollama (≥16GB RAM, GPU). Höchste lokale Qualität, aber abhängig von installierten Modellen.',
+  'headless': 'Headless Linux Server / CI/CD. Kein Display, keine manuelle Intervention. Automatisierte Runs mit Fallbacks.',
+  'power-api-user': 'Power-API-User mit ≥5 API-Keys. Maximale Parallelität, aber Rate-Limits bremsen oft aus (402/429).',
+  'offline': 'Offline / Air-gapped. Strengster Fallback-Pfad: Argos + Google Free nur wenn installiert. Häufig keine Übersetzung möglich.'
+};
+
+function toggleRuntimeScoreMin() {
+  _rsMinimized = !_rsMinimized;
+  const container = document.getElementById('rs-container');
+  const btn = document.getElementById('rs-minimize-btn');
+  if (!container) return;
+  container.style.display = _rsMinimized ? 'none' : 'block';
+  btn.textContent = _rsMinimized ? '+' : '_';
+  btn.title = _rsMinimized ? 'Maximieren' : 'Minimieren';
+}
+window.toggleRuntimeScoreMin = toggleRuntimeScoreMin;
 
 async function fetchRuntimeScore() {
   try {
     const res = await fetch('/api/runtime-score');
     if (!res.ok) {
-      document.getElementById('runtime-score-loading').style.display = 'none';
-      document.getElementById('runtime-score-empty').style.display = 'block';
-      document.getElementById('runtime-score-content').style.display = 'none';
+      const el1 = document.getElementById('rs-loading');
+      const el2 = document.getElementById('rs-empty');
+      const el3 = document.getElementById('rs-content');
+      if (el1) el1.style.display = 'none';
+      if (el2) el2.style.display = 'block';
+      if (el3) el3.style.display = 'none';
       return;
     }
     const data = await res.json();
     if (data.error) {
-      document.getElementById('runtime-score-loading').style.display = 'none';
-      document.getElementById('runtime-score-empty').style.display = 'block';
-      document.getElementById('runtime-score-content').style.display = 'none';
-      document.getElementById('runtime-score-empty').innerHTML = data.error;
+      const el1 = document.getElementById('rs-loading');
+      const el2 = document.getElementById('rs-empty');
+      const el3 = document.getElementById('rs-content');
+      if (el1) el1.style.display = 'none';
+      if (el2) { el2.style.display = 'block'; el2.innerHTML = data.error; }
+      if (el3) el3.style.display = 'none';
       return;
     }
     _runtimeScoreData = data;
@@ -1546,10 +1586,10 @@ async function fetchRuntimeScore() {
 }
 
 function renderRuntimeScore(data) {
-  const loadingEl = document.getElementById('runtime-score-loading');
-  const contentEl = document.getElementById('runtime-score-content');
-  const emptyEl = document.getElementById('runtime-score-empty');
-  const badgeEl = document.getElementById('runtime-score-badge');
+  const loadingEl = document.getElementById('rs-loading');
+  const contentEl = document.getElementById('rs-content');
+  const emptyEl = document.getElementById('rs-empty');
+  const badgeEl = document.getElementById('rs-badge');
 
   if (!contentEl) return;
 
@@ -1565,37 +1605,38 @@ function renderRuntimeScore(data) {
 
   // Timestamp
   const computedAt = data.computedAt ? new Date(data.computedAt).toLocaleString() : '—';
-  if (badgeEl) badgeEl.textContent = `(${data.coverage || 0} Kategorien, ${data.formula || 'weighted'})`;
+  if (badgeEl) badgeEl.textContent = `${data.coverage || 0} Cats · ${data.formula || 'weighted'}`;
 
   let html = `
     <div style="text-align:center; margin-bottom:10px;">
       <div style="font-size:1.6rem; font-weight:bold; color:${scoreColor}; line-height:1.2;">
         ${score.toFixed(1)}%
-        <span style="font-size:0.5rem; color:var(--muted); display:block; font-weight:normal;">${scoreLabel}</span>
+        <span style="font-size:0.45rem; color:var(--muted); display:block; font-weight:normal; letter-spacing:0.5px;">${scoreLabel}</span>
       </div>
-      <div style="font-size:0.55rem; color:var(--muted); margin-top:2px;">${computedAt}</div>
+      <div style="font-size:0.5rem; color:var(--muted); margin-top:1px;">${computedAt}</div>
     </div>
     <div style="border-top:1px solid var(--border); padding-top:8px;">
   `;
 
   // Per-category breakdown
   if (data.perCategory && data.perCategory.length > 0) {
-    // Sort by contribution descending
     const sorted = [...data.perCategory].sort((a, b) => b.contribution - a.contribution);
     for (const cat of sorted) {
       const barColor = cat.p >= 85 ? 'var(--success)' : (cat.p >= 70 ? 'var(--accent)' : 'var(--danger)');
       const label = cat.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const desc = RS_CATEGORY_DESCRIPTIONS[cat.id] || 'Keine Beschreibung verfügbar.';
       html += `
-        <div style="margin-bottom:6px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.6rem; margin-bottom:2px;">
-            <span title="Gewichtung: ${(cat.w * 100).toFixed(0)}%">${label}</span>
+        <div style="margin-bottom:5px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.55rem; margin-bottom:1px;">
+            <span style="cursor:help;" title="${desc}">${label} ⓘ</span>
             <span style="color:${barColor};">${cat.p.toFixed(1)}%</span>
           </div>
-          <div class="progress-bar" style="height:4px; margin:0; background:rgba(255,255,255,0.05);">
+          <div class="progress-bar" style="height:3px; margin:0; background:rgba(255,255,255,0.05);">
             <div class="progress-fill" style="width:${cat.p}%; background:${barColor}; box-shadow:none; animation:none;"></div>
           </div>
-          <div style="font-size:0.5rem; color:var(--muted); margin-top:1px; text-align:right;">
-            Anteil: ${cat.contribution.toFixed(2)}% · Gewicht: ${(cat.w * 100).toFixed(0)}%
+          <div style="font-size:0.45rem; color:var(--muted); margin-top:1px; display:flex; justify-content:space-between;">
+            <span>${desc.substring(0, 60)}${desc.length > 60 ? '…' : ''}</span>
+            <span>${(cat.w * 100).toFixed(0)}%</span>
           </div>
         </div>
       `;
@@ -1605,6 +1646,114 @@ function renderRuntimeScore(data) {
   html += '</div>';
   contentEl.innerHTML = html;
 }
+
+// ── Run Self-Evaluation ────────────────────────────────────────────
+const RUN_EVAL_DESCRIPTIONS = {
+  'cache-efficiency': 'Anteil aus Cache — wenig API-Kosten',
+  'translation-success': 'Erfolgreich übersetzt ohne Fallback',
+  'quality-depth': 'Deep Polish erreicht — hohe Qualität',
+  'native-efficiency': 'Ohne API-Request gelöst (Proper-Nouns, Glossary)',
+  'shield-health': 'Platzhalter-Restoration erfolgreich',
+  'batch-stability': 'Fehlerfreie Batches — keine Provider-Ausfälle',
+  'coverage': 'Strings gefunden vs. übersetzt',
+  'db-integrity': 'Nicht-flagged Einträge in der DB'
+};
+
+async function fetchRunEvaluation() {
+  try {
+    const res = await fetch('/api/run-evaluation');
+    if (!res.ok) {
+      document.getElementById('re-section').style.display = 'none';
+      return;
+    }
+    const data = await res.json();
+    if (data.error || data.empty) {
+      document.getElementById('re-section').style.display = 'none';
+      return;
+    }
+    _runEvalData = data;
+    renderRunEvaluation(data);
+  } catch (e) {
+    // Silent
+  }
+}
+
+function renderRunEvaluation(data) {
+  const section = document.getElementById('re-section');
+  const content = document.getElementById('re-content');
+  if (!section || !content) return;
+
+  section.style.display = 'block';
+
+  const score = data.globalScore || 0;
+  const scoreColor = score >= 85 ? 'var(--success)' : (score >= 70 ? 'var(--accent)' : 'var(--danger)');
+  const scoreLabel = score >= 85 ? 'EXCELLENT' : (score >= 70 ? 'GOOD' : (score >= 50 ? 'FAIR' : 'POOR'));
+
+  let html = `
+    <div style="text-align:center; margin:8px 0 6px 0;">
+      <div style="font-size:1.2rem; font-weight:bold; color:${scoreColor}; line-height:1.2;">
+        ${score.toFixed(1)}%
+        <span style="font-size:0.45rem; color:var(--muted); display:block; font-weight:normal;">${scoreLabel}</span>
+      </div>
+    </div>
+  `;
+
+  if (data.perCategory && data.perCategory.length > 0) {
+    for (const cat of data.perCategory) {
+      const barColor = cat.p >= 85 ? 'var(--success)' : (cat.p >= 70 ? 'var(--accent)' : 'var(--danger)');
+      const label = cat.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const desc = RUN_EVAL_DESCRIPTIONS[cat.id] || '';
+      html += `
+        <div style="margin-bottom:4px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.5rem; margin-bottom:1px;">
+            <span title="${desc}">${label}</span>
+            <span style="color:${barColor};">${cat.p.toFixed(1)}%</span>
+          </div>
+          <div class="progress-bar" style="height:2px; margin:0; background:rgba(255,255,255,0.05);">
+            <div class="progress-fill" style="width:${cat.p}%; background:${barColor}; box-shadow:none; animation:none;"></div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Raw metrics row
+  const raw = data.rawMetrics || {};
+  html += `
+    <div style="border-top:1px solid var(--border); margin-top:6px; padding-top:4px; font-size:0.45rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px;">
+      <span>📊 ${raw.totalUnique || 0} unique</span>
+      <span>⚡ ${raw.cacheHits || 0} cached</span>
+      <span>🆕 ${raw.newTranslations || 0} neu</span>
+      <span>🛡️ ${raw.shieldTotal || 0} shield</span>
+      <span>⚠️ ${raw.qaFailures || 0} fails</span>
+    </div>
+  `;
+
+  content.innerHTML = html;
+}
+
+// ── Stream View Toggle (DB ↔ LLM) ────────────────────────────────────
+let _streamViewIsLLM = false;
+
+function toggleStreamView() {
+  _streamViewIsLLM = !_streamViewIsLLM;
+  const dbView = document.getElementById('db-samples');
+  const llmView = document.getElementById('stream-llm-view');
+  const btn = document.getElementById('stream-toggle-btn');
+  if (!dbView || !llmView || !btn) return;
+  if (_streamViewIsLLM) {
+    dbView.style.display = 'none';
+    llmView.style.display = 'block';
+    btn.textContent = '← DB';
+    btn.title = 'Zurück zur DB-Livestream-Ansicht';
+  } else {
+    dbView.style.display = 'flex';
+    llmView.style.display = 'none';
+    btn.textContent = 'LLM →';
+    btn.title = 'Umschalten zur LLM Output-Ansicht';
+  }
+}
+window.toggleStreamView = toggleStreamView;
 
 window.restoreBackup = restoreBackup;
 window.openRevisions = openRevisions;
@@ -1626,6 +1775,10 @@ setTimeout(() => {
   setInterval(loadBackups, 15000); // Poll every 15s instead of 10s
 }, 2000);
 
-// Runtime Score: initial load after 1s (panel is lazy-init friendly), then every 60s
-setTimeout(fetchRuntimeScore, 1000);
-setInterval(fetchRuntimeScore, 60000);
+// Runtime Score: initial load after 2s (floating panel), then every 120s
+setTimeout(fetchRuntimeScore, 2000);
+setInterval(fetchRuntimeScore, 120000);
+
+// Run Self-Evaluation: fetch after 5s (wait for initial load), then every 30s (near-real-time)
+setTimeout(fetchRunEvaluation, 5000);
+setInterval(fetchRunEvaluation, 30000);

@@ -14,8 +14,9 @@ const GROQ_FALLBACK_MODELS   = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile
 const OLLAMA_FALLBACK_MODELS = ['llama3.2', 'llama3.1', 'mistral', 'gemma3', 'gemma4', 'phi4'];
 const OLLAMA_DEFAULT_URL     = 'http://localhost:11434';
 const PLAYER2_DEFAULT_URL    = 'http://localhost:4315/v1';
-const FCM_DEFAULT_URL       = 'http://localhost:19280/v1';
-const NVIDIA_FALLBACK_MODELS  = ['nvidia/nemotron-mini-4b-instruct', 'nvidia/llama-3.3-nemotron-super-49b-v1', 'meta/llama-3.1-8b-instruct'];
+const FCM_DEFAULT_URL       = 'http://localhost:19280/v1';  // NVIDIA-Fallbacks aktualisiert 2026-06-21: nemotron-mini deaktiviert (deprecated),
+  // 49b durch 70b ersetzt (aktueller Catalog-Stand). Siehe build.nvidia.com/models.
+  const NVIDIA_FALLBACK_MODELS  = ['meta/llama-3.3-70b-instruct', 'meta/llama-3.1-8b-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct'];
 
 const MODEL_BLACKLIST = ['whisper', 'stt', 'tts', 'embedding', 'bert', 'vision', 'guard', 'moderation', 'rerank'];
 const MODEL_WHITELIST = ['llama', 'gemini', 'gpt', 'mixtral', 'gemma', 'claude', 'qwen', 'mistral', 'deepseek', 'yi'];

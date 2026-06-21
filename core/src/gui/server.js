@@ -382,6 +382,19 @@ class GuiServer extends EventEmitter {
         return;
       }
 
+      // API: Run Self-Evaluation (computed from last run stats)
+      if (url.pathname === '/api/run-evaluation' && req.method === 'GET') {
+        const evaluation = global._lastRunEvaluation;
+        if (evaluation) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(evaluation));
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'No run data yet. Start a sync first.', empty: true }));
+        }
+        return;
+      }
+
       // API: Automated API Key Check
       if (url.pathname === '/api/key-check' && req.method === 'POST') {
         let body = '';

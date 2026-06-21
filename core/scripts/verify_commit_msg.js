@@ -164,7 +164,7 @@ if (rules.cross_references.required) {
     console.error('  LORE L3 — COMMIT BLOCKED: REF TAG');
     console.error('═══════════════════════════════════════════');
     console.error('Commit message MUST contain a valid [REF:<last-entry>] token linking to the plot.');
-    console.error('Example: [REF:plot-2026-06-21-03-55-00] or [REF:none] for bootstrap.');
+    console.error('Example: [REF:plot-2026-06-21T06:42:18] or [REF:none] for bootstrap.');
     process.exit(1);
   }
 
