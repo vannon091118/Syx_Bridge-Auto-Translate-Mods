@@ -15,5 +15,36 @@
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen."
     ],
     "dialogue_preview": "Vannon: Merge und cleanup fertig. Weiter."
+  },
+  {
+    "id": "plot-2026-06-21T02:26:11",
+    "parent_id": "plot-2026-06-21T03:41:24",
+    "timestamp": "2026-06-21 02:26:11",
+    "status": "active",
+    "session_changes": [
+      "GENTS.md",
+      "core/archive/docs/AGENTS.md",
+      "core/archive/docs/CHANGELOG.md",
+      "core/archive/docs/KNOWN_BUGS_REPORT.md",
+      "core/archive/docs/MASTER_DOC.md",
+      "core/archive/docs/PLOT_LORE.md",
+      "core/archive/docs/PREFLIGHT_LATEST.md",
+      "core/package.json"
+    ],
+    "variables": [
+      "GENTS",
+      "AGENTS",
+      "CHANGELOG",
+      "KNOWN_BUGS_REPORT",
+      "MASTER_DOC",
+      "PLOT_LORE",
+      "PREFLIGHT_LATEST",
+      "package"
+    ],
+    "suggested_next_hooks": [
+      "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
+      "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
+    ],
+    "dialogue_preview": "### [2026-06-21 04:26] — Doku-Divergenz geschlossen: BU-020 war nie ein Code-Bug\\n\\n**Buffy:** *(nac..."
   }
 ]

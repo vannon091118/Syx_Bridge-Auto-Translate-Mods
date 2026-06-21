@@ -123,7 +123,7 @@ if (rules.sidejoke_pool.required) {
   const cleanMsg = commitMsg.trim();
   const startsWithJoke = sidejokes.some(joke => {
     let regexStr = joke
-      .replace(/[-\/\\^$*+?.()|[\]{}]/g, (c) => {
+      .replace(/[-/\\^$*+?.()|[\]{}]/g, (c) => {
         if (c === '{' || c === '}') return c;
         return '\\' + c;
       })

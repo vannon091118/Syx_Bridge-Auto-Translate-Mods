@@ -215,51 +215,51 @@ function computeGlobalRuntimeScore(matrix, weights, formula = 'weighted') {
 
   let globalScore = 0;
   switch (formula) {
-    case 'weighted': {
-      const wSum = wArr.reduce((s, x) => s + x, 0);
-      if (wSum < EPSILON) {
-        // Fallback: einfaches Mittel der P's
-        const fallback = pArr.reduce((s, x) => s + x, 0) / pArr.length;
-        globalScore = fallback;
-      } else {
-        const weighted = pArr.reduce((s, x, i) => s + x * wArr[i], 0);
-        globalScore = weighted / wSum;
-      }
-      break;
+  case 'weighted': {
+    const wSum = wArr.reduce((s, x) => s + x, 0);
+    if (wSum < EPSILON) {
+      // Fallback: einfaches Mittel der P's
+      const fallback = pArr.reduce((s, x) => s + x, 0) / pArr.length;
+      globalScore = fallback;
+    } else {
+      const weighted = pArr.reduce((s, x, i) => s + x * wArr[i], 0);
+      globalScore = weighted / wSum;
     }
-    case 'arithmetic': {
-      globalScore = pArr.reduce((s, x) => s + x, 0) / pArr.length;
-      break;
+    break;
+  }
+  case 'arithmetic': {
+    globalScore = pArr.reduce((s, x) => s + x, 0) / pArr.length;
+    break;
+  }
+  case 'geometric': {
+    // Schutz vor 0 in p: ersetze mit 1 (math: ∏ 0 = 0 → gesamtscore 0, was korrekt-aber-brutal ist)
+    // Per Spec: bei P=0 → Geometric = 0.
+    const prod = pArr.reduce((s, x) => s * x, 1);
+    globalScore = Math.pow(Math.max(prod, 0), 1 / pArr.length);
+    break;
+  }
+  case 'harmonic': {
+    // Schutz vor P=0: harmonic divergent. Ersetze P<1 mit 1 (konservativ? → eher: skip-or-fail).
+    // Wir melden 0 und warnung — bei echten Spec-Tests ist das erwartetes Verhalten.
+    const nonZero = pArr.filter(x => x > 0);
+    if (nonZero.length === 0) {
+      globalScore = 0;
+    } else if (nonZero.length < pArr.length) {
+      // Mindestens eine P=0 → harmonic divergiert. Setze Score = 0 (konservativ).
+      globalScore = 0;
+    } else {
+      globalScore = pArr.length / pArr.reduce((s, x) => s + 1 / x, 0);
     }
-    case 'geometric': {
-      // Schutz vor 0 in p: ersetze mit 1 (math: ∏ 0 = 0 → gesamtscore 0, was korrekt-aber-brutal ist)
-      // Per Spec: bei P=0 → Geometric = 0.
-      const prod = pArr.reduce((s, x) => s * x, 1);
-      globalScore = Math.pow(Math.max(prod, 0), 1 / pArr.length);
-      break;
-    }
-    case 'harmonic': {
-      // Schutz vor P=0: harmonic divergent. Ersetze P<1 mit 1 (konservativ? → eher: skip-or-fail).
-      // Wir melden 0 und warnung — bei echten Spec-Tests ist das erwartetes Verhalten.
-      const nonZero = pArr.filter(x => x > 0);
-      if (nonZero.length === 0) {
-        globalScore = 0;
-      } else if (nonZero.length < pArr.length) {
-        // Mindestens eine P=0 → harmonic divergiert. Setze Score = 0 (konservativ).
-        globalScore = 0;
-      } else {
-        globalScore = pArr.length / pArr.reduce((s, x) => s + 1 / x, 0);
-      }
-      break;
-    }
-    case 'min': {
-      globalScore = Math.min(...pArr);
-      break;
-    }
-    case 'max': {
-      globalScore = Math.max(...pArr);
-      break;
-    }
+    break;
+  }
+  case 'min': {
+    globalScore = Math.min(...pArr);
+    break;
+  }
+  case 'max': {
+    globalScore = Math.max(...pArr);
+    break;
+  }
   }
   return {
     globalScore,
@@ -274,15 +274,15 @@ function computeGlobalRuntimeScore(matrix, weights, formula = 'weighted') {
 // ── Output: JSON / Table ──
 function formatResultTable(result) {
   const lines = [];
-  lines.push(`\n═══════ Runtime-Score Report ═══════`);
+  lines.push('\n═══════ Runtime-Score Report ═══════');
   lines.push(`Formula:   ${result.formula}`);
   lines.push(`Coverage:  ${result.coverage} category(ies)`);
   lines.push(`Global-Score: ${result.globalScore.toFixed(4)}%`);
   lines.push(`Persona-Model: ${result.personaModel}`);
   lines.push(`Assumptions: ${result.assumptions}`);
   lines.push('');
-  lines.push(`Per-Category Breakdown:`);
-  lines.push(`id                            p      w      contribution`);
+  lines.push('Per-Category Breakdown:');
+  lines.push('id                            p      w      contribution');
   for (const c of result.perCategory) {
     lines.push(`${c.id.padEnd(30)} ${String(c.p).padStart(6)} ${String(c.w).padStart(6)} ${String(c.contribution).padStart(10)}`);
   }

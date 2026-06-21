@@ -138,7 +138,9 @@ assert('J2: translatePhase fail-path wraps Promise.all in try/catch',
   'Promise.all(failPromises) must be inside try/catch with rollback on failure');
 
 // G1: qaPhase catch must set polish_status=failed with dbRun + retry
-const g1PolishFailed = translationRuntime.includes("polish_status = 'failed'") &&
+// Note: Regex instead of includes() because the SQL string in JS source uses
+// escaped single quotes (\'failed\') — raw text search would false-negative.
+const g1PolishFailed = /polish_status\s*=\s*'failed'/.test(translationRuntime) &&
                        translationRuntime.includes('updateSucceeded');
 assert('G1: qaPhase sets polish_status=failed on batch error with retry',
   g1PolishFailed,

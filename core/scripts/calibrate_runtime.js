@@ -131,7 +131,7 @@ function detectTier() {
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function runProbe(timeoutMs) {
   const startMs = Date.now();
-  let stdout = '', stderr = '', exitCode = 0;
+  let stdout, stderr, exitCode = 0;
   try {
     stdout = execSync(`node "${PROBE_SCRIPT}"`, { stdio: 'pipe', timeout: timeoutMs, encoding: 'utf8' });
   } catch (e) {
@@ -247,14 +247,14 @@ function aggregateStats(trials) {
 //         individually to multiple use-cases.
 function renderMarkdown(tier, trials, stats, datum) {
   const md = [];
-  md.push(`# 🎯 FOREIGN MACHINE PROBABILITY — KALIBRIERT (Phase 2)\n`);
+  md.push('# 🎯 FOREIGN MACHINE PROBABILITY — KALIBRIERT (Phase 2)\n');
   md.push(`> **Stand:** ${datum} | **Tier:** ${tier.id} | **Sample-Size:** ${trials.length} Trials`);
   md.push(`> **Hardware:** RAM=${tier.ramGB.toFixed(2)}GB, CPUs=${tier.cpus}, arch=${tier.arch}, platform=${tier.platform}`);
   md.push(`> **Detection-Reason:** ${tier.reason}\n`);
-  md.push(`---\n`);
-  md.push(`## 📊 Tier-Runtime-P(Full) — Aggregate\n`);
-  md.push(`| Metrik | Wert |`);
-  md.push(`|--------|------|`);
+  md.push('---\n');
+  md.push('## 📊 Tier-Runtime-P(Full) — Aggregate\n');
+  md.push('| Metrik | Wert |');
+  md.push('|--------|------|');
   md.push(`| Trials | ${stats.totalTrials} |`);
   md.push(`| Tier-Runtime-P(Full) | ${(stats.successRate * 100).toFixed(2)}% (${stats.successCount}/${stats.totalTrials}) |`);
   md.push(`| Latency Mean | ${stats.latencyMeanMs} ms |`);
@@ -262,25 +262,25 @@ function renderMarkdown(tier, trials, stats, datum) {
   md.push(`| Latency P95 | ${stats.latencyP95Ms} ms |`);
   md.push(`| Latency Min | ${stats.latencyMinMs} ms |`);
   md.push(`| Latency Max | ${stats.latencyMaxMs} ms |\n`);
-  md.push(`## 📋 Per-Mod Slot Latenz (informational)\n`);
-  md.push(`> Trial-Marker isoliert pro (mod, run). Probe-Code ist IDENTISCH pro Trial;\n`);
-  md.push(`> per-mod-Breakdown zeigt Slot-Allocation, NICHT mod-spezifische P(Full).\n`);
-  md.push(`| Mod-Slot | Trials | Success-Rate | Mean ms | P95 ms | Max ms |`);
-  md.push(`|----------|--------|--------------|---------|--------|--------|`);
+  md.push('## 📋 Per-Mod Slot Latenz (informational)\n');
+  md.push('> Trial-Marker isoliert pro (mod, run). Probe-Code ist IDENTISCH pro Trial;\n');
+  md.push('> per-mod-Breakdown zeigt Slot-Allocation, NICHT mod-spezifische P(Full).\n');
+  md.push('| Mod-Slot | Trials | Success-Rate | Mean ms | P95 ms | Max ms |');
+  md.push('|----------|--------|--------------|---------|--------|--------|');
   for (const [mod, ms] of Object.entries(stats.perMod)) {
     md.push(`| ${mod} | ${ms.count} | ${(ms.successRate * 100).toFixed(1)}% | ${ms.durationsMean} | ${ms.durationsP95} | ${ms.durationsMax} |`);
   }
-  md.push(`\n---\n`);
-  md.push(`## ⚠️ SCOPE-LIMITS (was diese Messung NICHT abdeckt)\n`);
-  md.push(`- **Mod-Empirische P(Full):** Probe ist \`tests/plugin-boundary-contract.js\` (76 Plugin-Boundary-Assertions, identischer Code pro Trial per Mod). Mod-spezifische Translation-Pipeline wird **nicht** gemessen — das wäre 20 LLM-Roundtrips + DB-Persist, separate Studie (Phase 1 Telemetrie).`);
-  md.push(`- **LLM-Roundtrips:** Kein API-Call in dieser Messung. Echte Provider-Latenz kann ±30pp abweichen.`);
-  md.push(`- **Network-Jitter:** Gemessen wird Node-Spawn + Plugin-Ladevorgang, NICHT Provider-Network.`);
-  md.push(`- **Mod-Content-Validation:** Watermark-Sanitization, Placeholder-Shield, Deep-Polish nicht in Probe enthalten.\n`);
-  md.push(`## 🔀 Tier → Statische Use-Case-Matrix (Delta vs. LOWEST Tier-P Match)\n`);
-  md.push(`> Pro Tier EIN Use-Case aus der statischen Matrix als Referenz.`);
-  md.push(`> Bei mehreren Use-Cases auf einem Tier (z.B. T2 → Casual + Mid-Range-keys) wird nur der LOWEST-Fit als Vergleich herangezogen — die Messung gilt dem Tier, nicht einer einzelnen Mod-Kategorie.\n`);
-  md.push(`| Tier | Ref-Use-Case (statisch) | Statisch P | Tier-Runtime-P (empirisch) | Δ |`);
-  md.push(`|------|-----|------|------|---|`);
+  md.push('\n---\n');
+  md.push('## ⚠️ SCOPE-LIMITS (was diese Messung NICHT abdeckt)\n');
+  md.push('- **Mod-Empirische P(Full):** Probe ist `tests/plugin-boundary-contract.js` (76 Plugin-Boundary-Assertions, identischer Code pro Trial per Mod). Mod-spezifische Translation-Pipeline wird **nicht** gemessen — das wäre 20 LLM-Roundtrips + DB-Persist, separate Studie (Phase 1 Telemetrie).');
+  md.push('- **LLM-Roundtrips:** Kein API-Call in dieser Messung. Echte Provider-Latenz kann ±30pp abweichen.');
+  md.push('- **Network-Jitter:** Gemessen wird Node-Spawn + Plugin-Ladevorgang, NICHT Provider-Network.');
+  md.push('- **Mod-Content-Validation:** Watermark-Sanitization, Placeholder-Shield, Deep-Polish nicht in Probe enthalten.\n');
+  md.push('## 🔀 Tier → Statische Use-Case-Matrix (Delta vs. LOWEST Tier-P Match)\n');
+  md.push('> Pro Tier EIN Use-Case aus der statischen Matrix als Referenz.');
+  md.push('> Bei mehreren Use-Cases auf einem Tier (z.B. T2 → Casual + Mid-Range-keys) wird nur der LOWEST-Fit als Vergleich herangezogen — die Messung gilt dem Tier, nicht einer einzelnen Mod-Kategorie.\n');
+  md.push('| Tier | Ref-Use-Case (statisch) | Statisch P | Tier-Runtime-P (empirisch) | Δ |');
+  md.push('|------|-----|------|------|---|');
   const TIER_TO_REF = {
     'T1_STEAM_DECK': { uc: 'Schwache HW (Steam Deck 4GB)', p: 0.74 },
     'T1_BUDGET':     { uc: 'Schwache HW (Steam Deck 4GB)', p: 0.74 },
@@ -295,12 +295,12 @@ function renderMarkdown(tier, trials, stats, datum) {
   }
   const delta = Number.isFinite(ref.p) ? stats.successRate - ref.p : NaN;
   md.push(`| ${tier.id} | ${ref.uc} | ${ref.p.toFixed(2)} | ${stats.successRate.toFixed(4)} | ${delta >= 0 ? '+' : ''}${(delta * 100).toFixed(2)}pp |\n`);
-  md.push(`---\n`);
-  md.push(`## 🔗 Cross-Refs\n`);
-  md.push(`- Statische Schätzung: \`docs/FOREIGN_MACHINE_PROBABILITY_2026-06-21.md\``);
-  md.push(`- Plan: \`docs/plans/PLAN_RUNTIME_PROBABILITY.md\``);
-  md.push(`- Tool-Spec: \`docs/plans/PLAN_GLOBAL_SCORE.md\``);
-  md.push(`- Aggregation: \`docs/plans/CALCULATION_AND_INTEGRATION_2026-06-21.md\``);
+  md.push('---\n');
+  md.push('## 🔗 Cross-Refs\n');
+  md.push('- Statische Schätzung: `docs/FOREIGN_MACHINE_PROBABILITY_2026-06-21.md`');
+  md.push('- Plan: `docs/plans/PLAN_RUNTIME_PROBABILITY.md`');
+  md.push('- Tool-Spec: `docs/plans/PLAN_GLOBAL_SCORE.md`');
+  md.push('- Aggregation: `docs/plans/CALCULATION_AND_INTEGRATION_2026-06-21.md`');
   md.push('');
   return md.join('\n');
 }

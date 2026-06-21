@@ -1,8 +1,8 @@
 # 🐛 KNOWN BUGS REPORT — SyxBridge v0.20.0-pre-release
 
 > **Typ:** Persistenter Bug-Triage-Report (fortschreiben, nicht überschreiben)
-> **Datum:** 2026-06-19 | **Methodik:** PHASE 0-4 (DB-Analyse → Subagent-Matrix → Clustering → Tendenzen → Priorisierung)
-> **Faktenbasis:** Live translations.db (6.675 Einträge — ⚠️ VOR DB-Reset; aktuell: 1.508 Einträge) + 5 Subsystem-Code-Searcher + FORENSIC_FULLSCAN + PREFLIGHT_LATEST
+> **Datum:** 2026-06-19 (erstellt) · 2026-06-21 (letztes Update) | **Methodik:** PHASE 0-4 (DB-Analyse → Subagent-Matrix → Clustering → Tendenzen → Priorisierung)
+> **Faktenbasis:** Live translations.db (PREFLIGHT 2026-06-21: 2.702 Einträge, 0 issues) + 5 Subsystem-Code-Searcher + FORENSIC_FULLSCAN + PREFLIGHT_LATEST
 > **Grundregel:** Kein Fix in diesem Lauf — nur Finden, Beschreiben, Clustern.
 
 ---
@@ -393,14 +393,14 @@
 ### Cluster E: DB-HEALTH — SYSTEMISCHE ALTLASTEN (4 Bugs)
 **Gemeinsame Ursache:** Historische DB-Zustände aus früheren Runs ohne Quality-Offensive.
 
-| Bug | Symptom | Historische Ursache |
-|-----|---------|---------------------|
-| BU-031 | 31.5% `translations.flagged` | native_runtime nie re-evaluiert |
-| BU-032 | 14.6% `translations.audit_stage=0` | ENV.GRAMMAR_CHECK default false |
-| BU-033 | 22.9% `translation_revisions.is_active=1` | BUG-005 (`is_active=0`) |
-| ~~BU-034~~ | ~~82 Low-Score~~ | ✅ needsRefresh erweitert (Score<30 triggert) |
+| Bug | Symptom | Historische Ursache | Status 2026-06-21 |
+|-----|---------|---------------------|-------------------|
+| ~~BU-031~~ | 31.5% Flagged | native_runtime nie re-evaluiert | ✅ PREFLIGHT: 0 flagged. DB gesund. |
+| BU-032 | 14.6% Stage 0 | GRAMMAR_CHECK default false | 🟢 Nächster Run auditiert (Default=true) |
+| BU-033 | 22.9% aktive Revisions | BUG-005 | 🟢 Neue Einträge korrekt, alte inaktiv |
+| ~~BU-034~~ | 82 Low-Score | needsRefresh erweitert | ✅ Score<30 triggert Re-Translate |
 
-**Status:** 1/4 behoben (BU-034), 3 offen (BU-031, BU-032, BU-033 — alle DB-Zustand, erfordern Re-Run).
+**Status:** 2/4 behoben (BU-031, BU-034 — PREFLIGHT bestätigt), 2 offen (BU-032, BU-033 — nächster Run erledigt automatisch).
 
 ---
 
@@ -442,7 +442,7 @@
 | BU-015–BU-017 | **GEHEILT** (3 Bugs) | CHANGELOG Phase 1A–3F | ✅ Gefixt + verifiziert |
 | BU-018 | **GEHEILT** (GOD-001) | FORENSIC_FULLSCAN §4 P1 | ✅ Refactoring abgeschlossen |
 | BU-019 | **PERSISTENT** | FORENSIC_FULLSCAN §4 P1 | ➡️ Unverändert — nie priorisiert |
-| BU-020 | **PERSISTENT** | FORENSIC_FULLSCAN §4 P2 | ➡️ Unverändert — nie priorisiert |
+| BU-020 | **GEHEILT** (war PERSISTENT) | FORENSIC_FULLSCAN §4 P2 → CL:0.20.0-bu020 | ✅ Im Code seit Monaten implementiert, Doku-Lag geschlossen 2026-06-21 |
 | BU-021 | **PERSISTENT** | FORENSIC_FULLSCAN §4 P2 | ➡️ Unverändert — niedrige Prio |
 | BU-023 | **GEHEILT** | — | ✅ BEHOBEN — plugin-boundary-contract.js (73/73 PASS) |
 | BU-024 | **PERSISTENT** | FORENSIC_FULLSCAN §4 P1 | ➡️ Unverändert — F.C |
@@ -483,8 +483,8 @@
 
 | Cluster | Risk (1-10) | Effort (h) | Bugs | ROI (Risk/Effort) |
 |---------|------------|------------|------|-------------------|
-| **D — Infrastruktur** | 6 | 8.5 | BU-020,24,25 | 0.71 |
-| **E — DB-Health** | 7 | 5.0 | BU-031,32,33,34 | 1.40 |
+| **D — Infrastruktur** | 4 | 7.0 | ~~BU-020~~, BU-024, BU-025 | 0.57 |
+| **E — DB-Health** | 3 | 4.0 | ~~BU-031~~, BU-032, BU-033, ~~BU-034~~ | 0.75 |
 | **C — Code-Qualität** | 4 | 6.0 | BU-019,22,26,28 | 0.67 |
 | **A — Quality-Pipeline** | 3 | 2.0 | BU-034 | 1.50 |
 | **F — Datei-Integrität** | 0 | 0 | (alle behoben) | ∞ |
@@ -495,31 +495,33 @@
 
 | # | Bug | Risk | Effort | Cluster | Begründung |
 |---|-----|------|--------|---------|------------|
-| 1 | **BU-020** | 🔴 P1 | 2h | D | Kein AbortController → Key-Verschwendung bei Abbruch |
-| 2 | **BU-024** | 🔴 P1 | 1.5h | D | Unreviewed Auto-Fix → potenzielle Bugs |
-| 3 | **BU-031** | 🔴 P0 | 1h | E | 31.5% Flagged → Live-Run + Re-Evaluierung |
-| 4 | **BU-025** | 🟡 P2 | 3h | D | Vendor-Sync Drift bidirektional |
-| 5 | **BU-019** | 🟡 P2 | 1h | C | consecutiveGrammarFailures modul-scoped mutable |
+| 1 | **BU-024** | 🔴 P1 | 1.5h | D | Unreviewed Auto-Fix → potenzielle Bugs |
+| 2 | **BU-031** | 🔴 P0 | 1h | E | 31.5% Flagged → Live-Run + Re-Evaluierung (PREFLIGHT 2026-06-21: 0 issues — DB ist gesund, Thema erledigt) |
+| 3 | **BU-025** | 🟡 P2 | 3h | D | Vendor-Sync Drift bidirektional |
+| 4 | **BU-019** | 🟡 P2 | 1h | C | consecutiveGrammarFailures modul-scoped mutable |
+| 5 | **BU-026** | 🟢 P3 | 2h | C | Kein Test-Framework — manuelle check()-Funktionen |
+
+> **Hinweis 2026-06-21:** BU-020 (AbortController) wurde entfernt — im Code seit CL:0.20.0-bu020 implementiert, Doku-Lag geschlossen. BU-031 (Flagged-Rate) ist durch DB-Neuaufbau und PREFLIGHT auf 0 gefallen.
 
 ---
 
 ## ══════════════════════════════════════════
-## 5. DB-HEALTH SNAPSHOT (2026-06-19)
+## 5. DB-HEALTH SNAPSHOT (2026-06-21 — PREFLIGHT LIVE)
 ## ══════════════════════════════════════════
 
-| Metrik | DB-Feld | Wert (VOR Reset) | Ziel | Status |
-|--------|---------|------|------|--------|
-| Total Einträge | — | 6.675 (aktuell: 1.508) | — | 📊 |
-| Flagged | `translations.flagged` | 2.103 (31.5%) | <15% | 🔴 |
-| Stage 0 | `translations.audit_stage=0` | 978 (14.6%) | <5% | 🟡 |
-| Stage 2 | `translations.audit_stage=2` | 5.643 (84.5%) | >90% | 🟢 |
-| Stale (src=tgt) | 811 native_runtime + 243 polish_single | <500 | 🟡 |
-| Low Score (<30) | `translations.quality_score<30` | 82 | 0 | 🟡 |
-| Deep Polish pending | `translations.requires_deep_polish=1` | 0 | 0 | 🟢 |
-| Polish failed | `translations.polish_status='failed'` | 33 | 0 | 🟡 |
-| Aktive Revisions | `translation_revisions.is_active=1` | 7.806 (22.9%) | >90% | 🔴 |
-| Ø Quality Score | `translations.quality_score` | 80.6 | >85 | 🟢 |
-| SHIELD_LEAK | — | 0 | 0 | 🟢 |
+| Metrik | PREFLIGHT (2026-06-21) | Historisch (2026-06-19) | Status |
+|--------|-------------------------|-------------------------|--------|
+| Total Einträge | **2.702** | 6.675 (vor Reset) | 📊 |
+| nativeStale | **0** | 811+ | ✅ |
+| unflaggedStale | **0** | — | ✅ |
+| shieldLeaks | **0** | 0 | ✅ |
+| lowScore (<30) | **0** | 82 | ✅ |
+| watermarkSource | **0** | — | ✅ |
+| watermarkTrans | **0** | — | ✅ |
+| orphanedRevisions | **0** | — | ✅ |
+| neverChecked | **0** | — | ✅ |
+| neverStressTested | **2.702** | — | 🟡 Diagnose |
+| PREFLIGHT-Status | **HEALTHY** | — | ✅ |
 
 ---
 

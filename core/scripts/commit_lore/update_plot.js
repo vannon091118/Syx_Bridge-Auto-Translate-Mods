@@ -28,7 +28,7 @@ die parallel zur echten Commit-History geschrieben werden. Jeder Commit erweiter
 // Timestamp: YYYY-MM-DD HH:MM:SS (f\u00fcr lesbaren PLOT_LORE-Header)
 const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 fs.appendFileSync(plotPath, `\n### [${timestamp}]\n${dialogue}\n`, 'utf8');
-console.log(`Plot-Dialog in PLOT_LORE.md aktualisiert.`);
+console.log('Plot-Dialog in PLOT_LORE.md aktualisiert.');
 
 // ─── Determine Session Changes via Git ─────────────────────────────
 let sessionFiles = [];
@@ -152,6 +152,6 @@ fs.writeFileSync(plotchainPath, JSON.stringify(plotchain, null, 2), 'utf8');
 
 console.log(`Plot-Knoten ${nodeId} (Status: ${currentPlotStatus}) in plotchain.json gespeichert.`);
 if (suggestedNextHooks.length > 0) {
-  console.log(`Nächste Plot-Vorschläge generiert:`);
+  console.log('Nächste Plot-Vorschläge generiert:');
   suggestedNextHooks.forEach(hook => console.log(`  -> ${hook}`));
 }
