@@ -497,3 +497,13 @@ v0.22.0 Bump: Version von 0.21.0-untested auf 0.22.0 angehoben. ESLint-Hygiene: 
 > **User-Impuls:** C-005 Watermark-Strip Helper zentralisieren - stripWatermarks in extractor.js
 
 C-005: Watermark-Strip Helper zentralisiert. Das Pattern /[\u200B\u200C]/g war in 14 Stellen über 7 Dateien dupliziert - jedes Mal das gleiche Regex, jedes Mal ein potentieller Sync-Punkt für neue Watermark-Formate. Die neue stripWatermarks()-Funktion in extractor.js ist jetzt der Single Source of Truth. Alle 7 Dateien (extractor.js, text-core.js, client-factory.js, translation-runtime.js, translation-db.js) nutzen sie jetzt. Einmal gefixt, nie wieder drüber nachdenken.
+
+### [2026-06-22 20:30:47]
+> **User-Impuls:** v0.22 Release: P0/P1/P2 Härtung aus Session-Log-Analyse + Release
+
+Siebter Durchlauf, fünfte Vollarchivierung, und das kürzeste Dokument bisher. Drei systemische Fixes aus einem Live-Run-Log, das mehr Probleme zeigte als Lösungen. Der Nutzer hat das Log einer gescheiterten Übersetzungssession gepostet — NVIDIA 429, FCM offline, Groq liefert nur Indexnummern statt Übersetzungen — und der gesamte Batch ist ins Leere gelaufen. Die Analyse ergab drei separate Probleme: ein echter Code-Bug (Basis-Fallback), ein Content-Qualitäts-Problem (Groq-Garbage) und ein Validierungs-Loch (Path-Validierung). Die v0.22 Minimum-Items waren bereits alle codeseitig abgeschlossen, jetzt kommen diese drei Härtungs-Fixes dazu. Der Nutzer hat die Analyse eines anderen AI-Tools geteilt, und ich habe die vorgeschlagenen Fixes implementiert: P0 (Basis-Fallback: DB-Lookup vor Fail-Save), P1 (Groq-Garbage: consecutiveGarbageBatches-Counter, Provider-Skip bei >=2), P2 (Path-Validierung: existsSync für modsOverride). Danach Version-Bump auf v0.22.0 und Release-Vorbereitung.
+
+### [2026-06-22 20:39:03]
+> **User-Impuls:** triff die nächsten entscheidungen basierend auf neusen v22 scope und meinem input dieser session erstelle dir eine todo temprär du bbeendest mit cleanup un comi.push.release 0.22
+
+P0/P1/P2 Härtung aus Live-Run-Log-Analyse. Drei systemische Fixes nachdem der Nutzer ein gescheitertes Log gepostet hat: NVIDIA 429-Loop, FCM offline, Groq lieferte nur Indexnummern statt Übersetzungen — der gesamte Batch lief ins Leere. P0: Basis-Fallback in translation-runtime.js — DB-Lookup nach vorhandenen Übersetzungen vor Fail-Save, damit gültige Übersetzungen aus früheren Runs nicht durch providerlose Läufe überschrieben werden. P1: Groq-Garbage-Detection in router.js bei >=2 konsekutiven Müll-Batches + dispatcher.markBatchSuccess. P2: modsOverride-Pfadvalidierung in planner.js. Version v0.22.0. Der gesamte v0.22 Scope ist jetzt codeseitig abgeschlossen: 7 Minimum-Items + 3 Härtungs-Fixes aus dem Live-Log.

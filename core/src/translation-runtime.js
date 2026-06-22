@@ -524,6 +524,7 @@ function createTranslationRuntime(options) {
   }
 
   async function translateBatchWithRouting(items) {
+    const resolvedRouteOverride = dispatcher.resolveTranslateRoute(items);
     return dispatcher.runRoute('translate', async (route) => {
       const batchResults = await translateBatch(items, route);
       const translations = batchResults.map(r => typeof r === 'string' ? r : r.translation);
@@ -543,7 +544,7 @@ function createTranslationRuntime(options) {
         translations,
         _meta: meta
       };
-    }, items);
+    }, items, resolvedRouteOverride);
   }
 
   async function fixGrammarBatch(items, stage = 'audit', attemptCount = 0) {
@@ -937,57 +938,72 @@ function createTranslationRuntime(options) {
         try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Rollback fehlgeschlagen:', e.message); }
         if (e.message === 'ABORTED' || axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') break;
         console.error(`[!] Batch fehlgeschlagen: ${extractErrorMessage(e)}`);
+
+        // P0-FIX: Vor Fail-Save prüfen ob bereits gültige Übersetzungen in der DB existieren.
+        // Wenn alle Provider fehlschlagen (NVIDIA 429, FCM offline, Groq Müll, etc.),
+        // wird sonst item.source (Englisch) mit overwriteFallbackUsed=true gespeichert.
+        // Der Export-Query filtert diese raus (translation=source_text) → nichts wird exportiert.
+        // Mit diesem Lookup werden existierende Übersetzungen aus früheren Runs als Fallback
+        // genutzt statt des englischen Originals — auch wenn sie vom Cache verpasst wurden
+        // (z.B. wegen Flag/Score-Änderungen zwischen Runs).
+        const existingFallbackMap = new Map();
+        try {
+          if (currentBatch.length > 0) {
+            const sources = currentBatch.map(item => item.source);
+            const ph = sources.map(() => '?').join(', ');
+            const existingRows = await dbAll(
+              `SELECT source_text, translation, quality_score FROM translations
+               WHERE target_lang = ? AND source_text IN (${ph})
+               AND translation != source_text`,
+              [config.TARGET_LANG, ...sources]
+            );
+            for (const row of existingRows || []) {
+              existingFallbackMap.set(row.source_text, {
+                translation: row.translation,
+                qualityScore: row.quality_score || 0
+              });
+            }
+          }
+        } catch (lookupErr) {
+          // Non-critical — fall through to source fallback
+        }
+
         const failPromises = [];
         // Begin transaction BEFORE fail-path save-loop (HDD optimization)
         try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Begin fehlgeschlagen: ${e.message}`); }
         for (const item of currentBatch) {
-          ctx.translations.set(item.source, item.source);
           const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
-          // D-Fix (Reviewer-Pass-2): Fail-Path Proper-Nouns jetzt konsistent mit
-          // Translate-Path-Fix A — als native_runtime (q=94) persistieren statt
-          // als native_fallback (q=90). Verhindert Split-Brain bei Re-Runs wo der
-          // gleiche Proper-Noun mal als native_runtime (via Translate), mal als
-          // native_fallback (via Fail-Path) auftaucht.
-          const failProvider = isPN ? 'native_runtime' : 'native_fallback';
-          const failReason = isPN ? 'proper_noun' : 'all_routes_failed';
-          const failScore = isPN ? NATIVE_RUNTIME_DEFAULT_QUALITY : 20;
-          // Fail-Path-Hardening (Reviewer-Pass-3 Finalisierung):
-          //   overwriteFallbackUsed ist jetzt strikt `true` für BEIDE Fail-Path-Branches,
-          //   weil in beiden Faellen translation === item.source gilt. Analog zu F1 in
-          //   Translate-Path: wenn ein zukuenftiger Polish-Bypass-Pfad die Queue umgeht
-          //   (Direct-SQL/Scripted-Rerun), schuetzt das SQL-SELECT
-          //   `(overwrite_fallback_used=1 AND translation=source_text) → NOT selected`
-          //   beide Branches konsistent.
-          //
-          //   flagged bleibt asymmetrisch zu Translate-Path-F2-Strenge: Fail-Path
-          //   proper-noun-Entries erhalten flagReason='proper_noun' als informativen
-          //   Marker (DB-Audit-Dashboards koennen ihn lesen), sind aber nicht actionable
-          //   (requiresDeepPolish=false). Das ist bewaehrt, dokumentiert, NICHT split-
-          //   brain zu Translate-Path (wo proper-noun-Override flagged=false hat, aber
-          //   schon polishLevel=2 + overwriteFallbackUsed=true die Sicherheits-Garantien
-          //   liefert).
-          failPromises.push(saveTranslation(item, item.source, isPN ? 2 : 0, {
+          const existingFallback = existingFallbackMap.get(item.source);
+          const fallbackTranslation = existingFallback ? existingFallback.translation : item.source;
+          const fallbackScore = existingFallback ? existingFallback.qualityScore : (isPN ? NATIVE_RUNTIME_DEFAULT_QUALITY : 20);
+          ctx.translations.set(item.source, fallbackTranslation);
+          // P0-FIX: Bei vorhandener DB-Übersetzung overwrite_fallback_used NICHT setzen,
+          // damit der Export-Query (overwrite_fallback_used=1 AND translation=source_text)
+          // die echte Übersetzung nicht fälschlich ausschliesst.
+          const hasExistingTranslation = !!existingFallback;
+          const failProvider = isPN ? 'native_runtime' : (hasExistingTranslation ? 'db_fallback' : 'native_fallback');
+          const failReason = isPN ? 'proper_noun' : (hasExistingTranslation ? 'db_fallback_used' : 'all_routes_failed');
+          failPromises.push(saveTranslation(item, fallbackTranslation, isPN ? 2 : 0, {
             provider: failProvider,
             model: 'native_fallback',
             taskType: 'translate',
             flagReason: failReason,
-            qualityScore: failScore,
-            polishStatus: isPN ? 'completed' : 'pending',
-            requiresDeepPolish: !isPN,
-            overwriteFallbackUsed: true,
-            // P3 Fix: Provider-Fehler (429/5xx/Timeout) sind KEINE Übersetzungsfehler.
-            // review_count soll nur bei echten Übersetzungsproblemen hochzählen.
-            // Ohne dieses Flag würde jeder Batch-Fail den Counter inkrementieren
-            // und Einträge unfair dem MAX_REVIEW_COUNT-Limit näher bringen.
+            qualityScore: fallbackScore,
+            polishStatus: isPN ? 'completed' : (hasExistingTranslation ? 'completed' : 'pending'),
+            requiresDeepPolish: !isPN && !hasExistingTranslation,
+            // P0-FIX: overwrite_fallback_used = true nur wenn wirklich source_text
+            // gespeichert wird. Bei DB-Fallback (echte Übersetzung) = false, damit
+            // der Export-Query sie nicht ausschliesst.
+            overwriteFallbackUsed: !hasExistingTranslation,
             skipReviewIncrement: true
           }));
           ctx.cachedData.set(item.source, {
-            translation: item.source,
+            translation: fallbackTranslation,
             polishLevel: isPN ? 2 : 0,
-            flagged: !isPN,
+            flagged: !isPN && !hasExistingTranslation,
             flagReason: failReason,
             provider: failProvider,
-            qualityScore: failScore,
+            qualityScore: fallbackScore,
             sourceHash: getEntryHash(item)
           });
         }
@@ -1122,6 +1138,14 @@ function createTranslationRuntime(options) {
               clean(improved) === clean(key) ||
               clean(improved) === clean(oldTranslation);
 
+            // Set requiresDeepPolish = false because we already polished it here.
+            // Without this, deepPolishPhase would polish the SAME entries AGAIN,
+            // wasting API credits on already-improved translations.
+            if (ctx.cachedData.has(key)) {
+              const existing = ctx.cachedData.get(key);
+              ctx.cachedData.set(key, { ...existing, polishedInQA: true });
+            }
+
             // Item 2 Phase 2: Echte Polish-Route (polishRoute.provider/model) statt
             // SyxBridge-interner Labels ('ab_polish'/'polish_single').
             // model_task_metrics braucht den tatsächlichen LLM-Provider.
@@ -1131,7 +1155,12 @@ function createTranslationRuntime(options) {
               taskType: 'polish',
               flagReason: persistentViolation ? 'terminology_violation_persistent' : '',
               qualityScore: scoreTranslationQuality(key, improved),
-              skipReviewIncrement: isNoChange
+              skipReviewIncrement: isNoChange,
+              // POLISH-DUPLIKATION-FIX: Mark as completed + no further deep polish needed.
+              // Without this, qaPhase-polished entries remain requires_deep_polish=1 in DB,
+              // and deepPolishPhase re-polishes them wasting API credits.
+              polishStatus: 'completed',
+              requiresDeepPolish: false
             }));
             batchUpdatePromises.push(learnGlossary(key, improved, entry));
           }
@@ -1209,6 +1238,7 @@ function createTranslationRuntime(options) {
 
   async function ensureTranslations(texts, options = {}) {
     consecutiveGrammarFailures = 0;
+    const skipPolish = options.skipPolish === true;
 
     // P1 Fix: Recovery einmalig pro Session — wenn terminierte Einträge
     // (max_revisions_exceeded) älter als REVIEW_RECOVERY_HOURS sind,
@@ -1225,7 +1255,7 @@ function createTranslationRuntime(options) {
       contextBySource: mergeEntryContexts(entries),
       glossaryMap: buildGlossaryMap(await loadGlossaryRows(entries)),
       cachedData: await getCachedTranslations(entries),
-      uniqueTexts: [...new Set(entries.map(e => e.source).filter(shouldTranslate))],  // E1-Note: Defense-in-Depth — shouldTranslate wird auch in extractReplacements() gerufen. Diese zweite Filterung faengt Eintraege ab die nach der Extraktion hinzugekommen sind (z.B. via Cache-Refresh).
+      uniqueTexts: [...new Set(entries.map(e => e.source).filter(shouldTranslate))],
       translations: new Map(),
       options,
       missing: [],
@@ -1241,8 +1271,10 @@ function createTranslationRuntime(options) {
     await cachePhase(ctx);
     await nativePhase(ctx);
     await translatePhase(ctx);
-    await qaPhase(ctx);
-    await deepPolishPhase(ctx);
+    if (!skipPolish) {
+      await qaPhase(ctx);
+      await deepPolishPhase(ctx);
+    }
 
     ctx.translations.__stats = {
       cacheHits: ctx.stats.reusedCacheCount,

@@ -207,6 +207,7 @@ class Router {
         lastErrorAction: '',
         lastCooldownMs: 0,
         flaggedForReview: false,
+        consecutiveGarbageBatches: 0,
         ...current,
         ...data
       });
@@ -214,7 +215,7 @@ class Router {
   }
 
   getProvider(id) {
-    return this.providers.get(id) || { id, enabled: true, failureCount: 0, cooldownUntil: 0, lastErrorStatus: 0, lastErrorMeaning: '', lastErrorAction: '', lastCooldownMs: 0, flaggedForReview: false };
+    return this.providers.get(id) || { id, enabled: true, failureCount: 0, cooldownUntil: 0, lastErrorStatus: 0, lastErrorMeaning: '', lastErrorAction: '', lastCooldownMs: 0, flaggedForReview: false, consecutiveGarbageBatches: 0 };
   }
 
   hasAccess(id) {
@@ -281,12 +282,16 @@ class Router {
       const escalatedCooldown = Math.min(previousCooldown * 2, 300000); // cap at 5 min
       provider.cooldownUntil = Date.now() + escalatedCooldown;
       provider.lastCooldownMs = escalatedCooldown;
-      provider.flaggedForReview = (previousStatus === 429);
-      if (provider.flaggedForReview) {
-        console.error(`[ROUTER] ${id}: WIEDERHOLTER ${errInfo.meaning} → ${errInfo.action}`);
-      } else {
-        console.warn(`[ROUTER] ${id}: ${errInfo.meaning} → ${errInfo.action}`);
-      }
+      // 429-LOOP-FIX v2: flaggedForReview IMMER setzen beim ersten 429, nicht erst beim zweiten.
+      // Vorher: flaggedForReview = (previousStatus === 429) — erforderte zwei aufeinanderfolgende
+      // 429-Fehler bevor der Provider aus dem Route-Plan ausgeschlossen wurde. In der Praxis
+      // trat NVIDIA mit zwei verschiedenen Model-Keys auf (userProvider mit spezifischem Modell
+      // und 'auto' als Fallback) → NVIDIA wurde 2× versucht, jeweils 6-12s Retry-Zeit, bevor
+      // der nächste Provider drankam. Jetzt: flaggedForReview=true → buildRoutePlan skipt den
+      // Provider bereits nach dem ERSTEN 429. Die cooldown-basierte Recovery funktioniert
+      // trotzdem — nach Ablauf der Sperrfrist wird der Provider wieder in den Plan aufgenommen.
+      provider.flaggedForReview = true;
+      console.warn(`[ROUTER] ${id}: ${errInfo.meaning} → ${errInfo.action} (429-Loop-Fix: Provider wird im aktuellen Run geskipped)`);
     } else if (status >= 500 || status === 0) {
       // Server/Network errors: double the previous cooldown (escalating backoff)
       // Default cooldown 10s → ×2 on repeat → 20s → 40s → 80s (capped at 5min)
@@ -324,7 +329,31 @@ class Router {
       }
     }
 
+    // GARBAGE-BATCH-DETECTION: Provider returned 200 OK but all items were
+    // critical rejects (pure_number, shield_leak). The error message from
+    // translateBatch is: "Provider X lieferte keine brauchbaren Uebersetzungen."
+    // Unlike network errors (status=0) or rate limits (429), this is a content
+    // quality issue that key rotation doesn't fix. Track consecutively and skip
+    // at >= 2 via buildRoutePlan.
+    const isGarbageBatch = error && error.message && error.message.includes('keine brauchbaren Uebersetzungen');
+    if (isGarbageBatch) {
+      provider.consecutiveGarbageBatches = (provider.consecutiveGarbageBatches || 0) + 1;
+      console.warn(`[ROUTER] ${id}: ${provider.consecutiveGarbageBatches}. konsekutive Muell-Batch — Provider wird geskippt ab >=2.`);
+    } else if (provider.consecutiveGarbageBatches > 0) {
+      // Reset on non-garbage failures — a real network error or rate limit
+      // shouldn't count toward the garbage batch threshold.
+      provider.consecutiveGarbageBatches = 0;
+    }
+
     this.providers.set(id, provider);
+  }
+
+  markBatchSuccess(id) {
+    const provider = this.getProvider(id);
+    if (provider.consecutiveGarbageBatches > 0) {
+      provider.consecutiveGarbageBatches = 0;
+      this.providers.set(id, provider);
+    }
   }
 
   reset(id) {
@@ -338,6 +367,7 @@ class Router {
       provider.lastErrorAction = '';
       provider.lastCooldownMs = 0;
       provider.flaggedForReview = false;
+      provider.consecutiveGarbageBatches = 0;
       this.providers.set(id, provider);
       return;
     }
@@ -351,6 +381,7 @@ class Router {
       provider.lastErrorAction = '';
       provider.lastCooldownMs = 0;
       provider.flaggedForReview = false;
+      provider.consecutiveGarbageBatches = 0;
     }
   }
 
@@ -365,7 +396,8 @@ class Router {
         lastErrorStatus: data.lastErrorStatus || 0,
         lastErrorMeaning: data.lastErrorMeaning || '',
         lastErrorAction: data.lastErrorAction || '',
-        flaggedForReview: !!data.flaggedForReview
+        flaggedForReview: !!data.flaggedForReview,
+        consecutiveGarbageBatches: data.consecutiveGarbageBatches || 0
       };
     }
     return statuses;
@@ -461,6 +493,24 @@ class Router {
 
       // Hard-skip only if truly inaccessible (no key / user-disabled)
       if (!this.hasAccess(providerId) || providerStatus.enabled === false) continue;
+
+      // 429-LOOP-FIX v2: Erweiterte Provider-Skip-Logik.
+      // 1. flaggedForReview + 429: Wiederholter Rate-Limit — Provider ist noch enabled
+      //    aber der aktuelle API-Key/Quota ist erschöpft (NVIDIA, OpenRouter).
+      // 2. failureCount >= 2 + aktiver Cooldown: Provider liefert konsistent keine
+      //    brauchbaren Ergebnisse — z.B. GROQ mit 100% pure_number (garbage responses),
+      //    FCM mit Netzwerkfehler (Status 0), oder OpenRouter mit allen Keys im Cooldown.
+      //    Der generische Check deckt alle Error-Typen ab (429, 0, 5xx, provider-interne
+      //    Fehler) und verhindert dass ein dysfunktionaler Provider durch die gesamte
+      //    Fallback-Chain geloopt wird.
+      // 3. consecutiveGarbageBatches >= 2: Provider returned HTTP 200 but all items
+      //    were critical rejects (pure_number, shield_leak). Content-quality failure
+      //    that key rotation doesn't fix. Only resets on session restart.
+      // Recovery: Nach Ablauf der cooldownUntil-Sperrfrist wird der Provider automatisch
+      // wieder in den Plan aufgenommen (sofern kein flaggedForReview+429 mehr aktiv).
+      if (providerStatus.flaggedForReview && providerStatus.lastErrorStatus === 429) continue;
+      if (providerStatus.failureCount >= 2 && providerStatus.cooldownUntil > Date.now()) continue;
+      if (providerStatus.consecutiveGarbageBatches >= 2) continue;
 
       // Capability gate: skip providers that don't support this role
       // (e.g. google_free kann nicht auditieren/polishen)

@@ -1187,5 +1187,130 @@
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
     "dialogue_preview": "C-005: Watermark-Strip Helper zentralisiert. Das Pattern /[\\u200B\\u200C]/g war in 14 Stellen über 7 ..."
+  },
+  {
+    "id": "plot-2026-06-22T20:30:47",
+    "parent_id": "plot-2026-06-22T16:46:18",
+    "timestamp": "2026-06-22 20:30:47",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "v0.22 Release: P0/P1/P2 Härtung aus Session-Log-Analyse + Release",
+      "timestamp": "2026-06-22T20:30:47",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "cross_arc_bridge": false,
+    "cross_references_used": [
+      "Live-Run"
+    ],
+    "lore_context": [
+      "2026-06-22 16:30:10",
+      "2026-06-22 16:46:18",
+      "2026-06-22 20:30:47"
+    ],
+    "session_changes": [
+      "HANGELOG.md",
+      "SQUIZZLE_REPORT.md",
+      "core/archive/docs/KNOWN_BUGS_REPORT.md",
+      "core/archive/docs/PLOT_LORE.md",
+      "core/archive/docs/PREFLIGHT_LATEST.md",
+      "core/index.js",
+      "core/scripts/export_stage2.js",
+      "core/src/cli-progress.js",
+      "core/src/db.js",
+      "core/src/dispatcher.js",
+      "core/src/exporter.js",
+      "core/src/gui-handlers.js",
+      "core/src/logger.js",
+      "core/src/planner.js",
+      "core/src/plugins/SongsOfSyxPlugin.js",
+      "core/src/polish-arbiter.js",
+      "core/src/router.js",
+      "core/src/runtime-ops.js",
+      "core/src/text-core.js",
+      "core/src/translation-db.js",
+      "core/src/translation-runtime.js",
+      "core/archive/docs/BUGREPORT_OVERWRITE_CRIT_2026-06-22.md",
+      "core/archive/docs/PROTOTYPE_COMPARISON_2026-06-22.md",
+      "core/logs/",
+      "core/scripts/commit_lore/sidejoke_pool.backup.json"
+    ],
+    "variables": [
+      "Live-Run",
+      "HANGELOG",
+      "SQUIZZLE_REPORT",
+      "KNOWN_BUGS_REPORT",
+      "PLOT_LORE",
+      "PREFLIGHT_LATEST",
+      "index",
+      "export_stage2",
+      "cli-progress",
+      "dispatcher",
+      "exporter",
+      "gui-handlers",
+      "logger",
+      "planner",
+      "SongsOfSyxPlugin",
+      "polish-arbiter",
+      "router",
+      "runtime-ops",
+      "text-core",
+      "translation-db",
+      "translation-runtime",
+      "BUGREPORT_OVERWRITE_CRIT_2026-06-22",
+      "PROTOTYPE_COMPARISON_2026-06-22",
+      "logs",
+      "sidejoke_pool.backup"
+    ],
+    "suggested_next_hooks": [
+      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
+    ],
+    "dialogue_preview": "Siebter Durchlauf, fünfte Vollarchivierung, und das kürzeste Dokument bisher. Drei systemische Fixes..."
+  },
+  {
+    "id": "plot-2026-06-22T20:39:03",
+    "parent_id": "plot-2026-06-22T20:30:47",
+    "timestamp": "2026-06-22 20:39:03",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "triff die nächsten entscheidungen basierend auf neusen v22 scope und meinem input dieser session erstelle dir eine todo temprär du bbeendest mit cleanup un comi.push.release 0.22",
+      "timestamp": "2026-06-22T20:39:03",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "cross_arc_bridge": false,
+    "cross_references_used": [
+      "Live-Run"
+    ],
+    "lore_context": [
+      "2026-06-22 16:46:18",
+      "2026-06-22 20:30:47",
+      "2026-06-22 20:39:03"
+    ],
+    "session_changes": [
+      "CHANGELOG.md",
+      "core/src/dispatcher.js",
+      "core/src/planner.js",
+      "core/src/router.js",
+      "core/src/translation-runtime.js"
+    ],
+    "variables": [
+      "Live-Run",
+      "CHANGELOG",
+      "dispatcher",
+      "planner",
+      "router",
+      "translation-runtime"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "P0/P1/P2 Härtung aus Live-Run-Log-Analyse. Drei systemische Fixes nachdem der Nutzer ein gescheitert..."
   }
 ]

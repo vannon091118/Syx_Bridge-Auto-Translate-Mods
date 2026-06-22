@@ -1,7 +1,66 @@
 # 📋 SyxBridge — Changelog
 
-> **Seit v0.20 Pre-Alpha bis aktuell v0.21.0-untested**
+> **Seit v0.20 Pre-Alpha bis aktuell v0.22.0**
 > Vollständige Historie: [`core/archive/docs/CHANGELOG.md`](core/archive/docs/CHANGELOG.md)
+
+---
+
+## [v0.22.0-RELEASE] — 2026-06-22 — P0/P1/P2 Härtung + Release
+
+**Version:** v0.21.0 → v0.22.0
+**Scope:** 3 systemische Fixes aus Live-Run-Analyse dieser Session
+
+### P0 — Basis-Fallback bei Provider-Ausfall (translation-runtime.js)
+- **Problem:** Wenn ALLE Provider fehlschlagen (NVIDIA 429, FCM offline, Groq Müll),
+  wurde `item.source` (Englisch) mit `overwriteFallbackUsed=true` gespeichert.
+  Der Export-Query filterte diese raus → nichts wurde exportiert.
+- **Fix:** Batch-DB-Lookup nach existierenden Übersetzungen vor Fail-Save.
+  Bei Treffer: vorhandene Übersetzung nutzen, `overwriteFallbackUsed=false`,
+  Quality-Score aus DB erhalten. Exportiert korrekt.
+- **Dateien:** `translation-runtime.js` — Fail-Path in translatePhase
+
+### P1 — Groq Garbage-Batch-Detection (router.js + dispatcher.js)
+- **Problem:** Groq lieferte nach Key-Rotation bei Rate-Limit `[1, 2, 3, ...]`
+  (reine Index-Nummern) statt Übersetzungen → 22× pure_number pro Batch.
+  Wurde nicht als Content-Fehler erkannt, da HTTP 200.
+- **Fix:** `consecutiveGarbageBatches`-Zähler pro Provider im Router.
+  Bei ≥2 konsekutiven Müll-Batches: Provider aus `buildRoutePlan` ausschließen.
+  `markBatchSuccess()` resettet Zähler bei Erfolg.
+- **Dateien:** `router.js` (handleFailure + buildRoutePlan), `dispatcher.js` (runRoute)
+
+### P2 — Path-Validierung für modsOverride (planner.js)
+- **Problem:** GUI-übergebene Mods via `modsOverride` wurden ohne `existsSync`-
+  Prüfung akzeptiert → leere/nicht-existierende Pfade verursachten Laufzeitfehler.
+- **Fix:** `scanPhase()` filtert Mods mit ungültigen Pfaden via `existsSync`,
+  Log-Warnung bei übersprungenen Mods.
+- **Dateien:** `planner.js` — scanPhase
+
+### Release
+- **Version:** v0.21.0 → v0.22.0
+- **Status:** Alle 7 v0.22 Minimum-Items + 3 Session-Fixes abgeschlossen
+
+---
+
+## [CRITICAL-FIX] — 2026-06-22 — __OVERWRITE: true zerstörte Vanilla-DE-Texte
+
+**Root-Cause:** `SongsOfSyxPlugin.getFileHeader()` gab `__OVERWRITE: true` für ALLE V71+ Dateien zurück.
+Das bewirkte dass SoS die Vanilla-Datei KOMPLETT ersetzte. Nur übersetzte Keys blieben erhalten,
+Rest fiel auf Englisch-Defaults zurück — Vanilla-Lokalisierung wurde ignoriert.
+
+**Files:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`
+**Fix:** Plugin gibt `''` zurück (Patch-Modus). Exporter ruft weiterhin `plugin.getFileHeader()` auf
+(für andere Games die Header brauchen). 39 V71-Dateien im Spiel bereinigt.
+**Doku:** `core/archive/docs/BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`
+
+## [BUGFIX-CHAIN] — 2026-06-22 — 5 weitere Fixes nach Testlauf-Analyse
+
+| Bug | Fix | Datei |
+|-----|-----|-------|
+| `v0.20.0` hardcoded in CLI-Banner | Version aus package.json lesen | `cli-progress.js:97` |
+| `Run #undefined` | `result.lastID` → `result.lastInsertRowid` | `planner.js:90` |
+| `database is locked` bei parallelen Writes | DB-Timeout 5000→15000ms | `db.js:32` |
+| AB-POLISH OpenRouter-Timeout | Provider-spezifisches Timeout (60s OpenRouter, 120s sonst) | `polish-arbiter.js:89-104` |
+| LLM-Metadata-Leak ("wtf" im Output) | Context-Packet-Strip in `saveTranslation()` | `translation-db.js:204-220` |
 
 ---
 

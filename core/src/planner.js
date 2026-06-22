@@ -87,7 +87,7 @@ class Planner {
 
   async initRun(mode) {
     const result = await db.run('INSERT INTO runs (mode, status) VALUES (?, ?)', [mode, 'running']);
-    return result.lastID;
+    return result.lastInsertRowid;
   }
 
   async finishRun(id, status, message = '') {
@@ -98,9 +98,15 @@ class Planner {
   async scanPhase(modsOverride = null) {
     console.log('[PHASE] Scanning Mods...');
     if (Array.isArray(modsOverride)) {
-      this.stats.modsFound = modsOverride.length;
-      console.log(`[INFO] ${modsOverride.length} Mods uebergeben.`);
-      return modsOverride;
+      const fs = require('fs');
+      const validMods = modsOverride.filter(mod => mod.path && fs.existsSync(mod.path));
+      const skipped = modsOverride.length - validMods.length;
+      if (skipped > 0) {
+        console.warn(`[WARN] ${skipped} Mod(s) mit ungueltigem Pfad — uebersprungen.`);
+      }
+      this.stats.modsFound = validMods.length;
+      console.log(`[INFO] ${validMods.length} Mods uebergeben (${skipped} uebersprungen).`);
+      return validMods;
     }
     const mods = [];
         

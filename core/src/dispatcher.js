@@ -146,13 +146,22 @@ function createDispatcher(options) {
     return { provider: preferred.provider, model: preferred.model, reason: 'default', stressTestRequired: false };
   }
 
-  async function runRoute(stage, executor, items = []) {
+  async function runRoute(stage, executor, items = [], routeOverride = null) {
     try { getGateCounter().record('dispatcher:runRoute', 'enter', { stage: (stage == null ? 'unknown' : String(stage)), items: Array.isArray(items) ? items.length : 0 }); } catch (_) {}
     // Only use translate-specific routing (stress test, UI-string, low-risk)
     // for the translate stage. Polish/audit always use their configured provider.
-    const preferred = (items.length > 0 && stage === 'translate')
-      ? resolveTranslateRoute(items)
-      : resolveProviderModel(stage);
+    // DOPPEL-ROUTING-FIX: Wenn routeOverride übergeben wird (von resolveTranslateRoute
+    // bereits entschieden), diesen VORZIEHEN. Vorher wurde die Entscheidung von
+    // resolveTranslateRoute ignoriert — buildRoutePlan baute eine neue Route,
+    // die oft den Primary-Provider (z.B. NVIDIA) wieder an Position 1 setzte,
+    // obwohl resolveTranslateRoute bereits entschieden hatte dass ein Fallback
+    // nötig ist. Das verursachte den 429-Loop: NVIDIA → fail → resolveTranslateRoute
+    // wählt Fallback → runRoute ignoriert → baut neue Route → NVIDIA wieder #1 → 429.
+    const preferred = routeOverride
+      ? routeOverride
+      : (items.length > 0 && stage === 'translate')
+        ? resolveTranslateRoute(items)
+        : resolveProviderModel(stage);
     const routePlan = routingEngine.buildRoutePlan(stage, {
       preferredProvider: preferred.provider,
       preferredModel: preferred.model
@@ -168,7 +177,10 @@ function createDispatcher(options) {
       try {
         try { getGateCounter().record('dispatcher:runRoute_attempt', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), model: route && route.model == null ? '' : String(route.model), stage: stage == null ? 'unknown' : String(stage) }); } catch (_) {}
         console.log(`[DISPATCH] ${stage} -> ${route.provider} (${route.model || 'default'})`);
-        return await executor(route);
+        const result = await executor(route);
+        // GARBAGE-BATCH-FIX: Reset garbage counter on successful batch
+        routingEngine.markBatchSuccess?.(route.provider);
+        return result;
       } catch (e) {
         try { getGateCounter().record('dispatcher:runRoute_attempt:fails', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), error: e && e.message ? String(e.message) : String(e) }); } catch (_) {}
         if (e.message === 'ABORTED') throw e;
