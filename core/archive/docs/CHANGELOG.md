@@ -1,3 +1,45 @@
+## [COMMIT-LAYER-REWRITE] - 2026-06-22 — Commit-Infrastruktur überarbeitet + Broken-Entry-Repair
+
+7 Schritte, 25 atomare Aufgaben, 6 Verifikationschecks. Die Commit-Layer-Infrastruktur (verify_commit_msg.js, update_plot.js, get_sidejoke.js, build_pool.js, writing_rules.json) wurde vollständig überarbeitet. Zusätzlich wurden 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert, die durch fehlerhafte `update_plot.js`-Aufrufe entstanden waren (Flags als erstes Argument statt Dialog-Text).
+
+### Implementiert (7/7 Schritte)
+- **verify_commit_msg.js** — Placeholder-Detektion (/{[A-Z_]+}/g), LORE-ONLY/TRIVIAL Kategorien, Mindestwortzahl 80 für LORE-ONLY
+- **update_plot.js** --model/--impulse Parser, Arc-Erkennung via lore_arcs.json, lore_context (letzte 3 Einträge), Hash-Cap 20 (FIFO), process.chdir(repoRoot)
+- **build_pool.js** — PLOT_LORE.md als zweite Quelle (Buffy-Dialoge), Backup vor Überschreiben, Mindestgröße <10 = Exit 1
+- **get_sidejoke.js** — Leer-Pool = Exit 1, Placeholder-Warnung nach Ausgabe, PLOT_LORE-Kontext-Anker
+- **writing_rules.json** — narrative_continuity.required=true, LORE-ONLY min_words=80
+
+### Verifikation (6/6 PASS)
+1. get_sidejoke.js: Sidejoke ohne {PLACEHOLDER} + PLOT_LORE Kontext ✓
+2. build_pool.js: 40 Einträge, Backup existiert ✓
+3. verify_commit_msg.js: BLOCKED bei {FILE}/{COUNT}/{RESULT} ✓
+4. update_plot.js ohne Dialog: BLOCKED ✓
+5. update_plot.js "Dialog" --model=x: korrekt geparst ✓
+6. plotchain.json letzter Node: arcs + lore_context ✓
+
+### Broken-Entry-Repair
+- **Ursache:** update_plot.js wurde mit `--model=` als erstem Argument aufgerufen (7×)
+- **PLOT_LORE.md:** 7 kaputte Einträge entfernt (nur `--model=` oder `--help`)
+- **plotchain.json:** 11 kaputte Nodes entfernt (27→16), Parent-Chain repariert, arcs/lore_context ergänzt
+
+### Files Changed
+- `core/scripts/commit_lore/verify_commit_msg.js` — Placeholder-Block, LORE-ONLY, TRIVIAL
+- `core/scripts/commit_lore/update_plot.js` --model Flag, Arc-Erkennung, lore_context, Hash-Cap
+- `core/scripts/commit_lore/build_pool.js` — PLOT_LORE-Extraktion, Backup, Mindestgröße
+- `core/scripts/commit_lore/get_sidejoke.js` — Leer-Pool, Placeholder-Warnung, Kontext
+- `core/scripts/commit_lore/writing_rules.json` — narrative_continuity, LORE-ONLY
+- `core/scripts/commit_lore/plotchain.json` — 11 kaputte Nodes entfernt
+- `core/scripts/commit_lore/sidejoke_pool.json` — Pool aktualisiert (40 Einträge)
+- `core/archive/docs/PLOT_LORE.md` — 7 kaputte Einträge entfernt
+- `COMMIT_LAYER_REWRITE_PLAN.md` — Quellplan (archiviert)
+
+### EFFORT TO NEXT SCOPE
+- Token-Optimierung AGENTS.md: Checklisten-Dedup, Agent-Tabelle, Entscheidungsbaum (~900 Wörter Ersparnis)
+- 9 SOLL-Lücken aus PLAN_PLAN_AUDIT (L-1 bis L-9) priorisieren
+- Commit-Layer als Standard-Workflow im nächsten Live-Run testen
+
+---
+
 ## [REALITY-CHECK-DIVERGENZ-FIXES] - 2026-06-21 — 10 Doku-Divergenzen behoben (Doku-vs-Code/DB)
 
 Reality Check auf alle 10 LIVE-Dokumente: Jede testbare Behauptung gegen den tatsächlichen Code- und DB-Stand geprüft. Ergebnis: 12 Claims stimmen noch, 10 Divergenzen gefunden und behoben.

@@ -280,6 +280,17 @@ class SongsOfSyxPlugin extends GamePlugin {
   }
 
   /**
+   * SoS-specific metadata wrapping pattern for LLM translations.
+   * Groq translations carry context-packet metadata:
+   *   "[field=TreeV | ctx:risk=1 | role=GENERIC_STRING | ...] | Quelle: \"echte Übersetzung"
+   * (Nur öffnendes Quote, kein schließendes — Rest des Strings = Übersetzung.)
+   * Diese Regex extrahiert NUR die Übersetzung via Capture-Group.
+   */
+  getTranslationMetadataPattern() {
+    return /^\[[^\]]*\]\s*\|\s*Quelle:\s*"([^"]*)/i;
+  }
+
+  /**
    * SoS V71+: __OVERWRITE directive.
    */
   getFileHeader(filePath, version) {

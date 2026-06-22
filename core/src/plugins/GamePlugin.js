@@ -98,6 +98,21 @@ class GamePlugin extends GameAdapter {
   }
 
   /**
+   * Game-specific metadata stripping for LLM translations.
+   * Some games produce translations with appended context metadata
+   * (e.g. "[field=... | ctx:...] | Quelle: \"text\"").
+   * This regex extracts ONLY the actual translation from that wrapper.
+   *
+   * Returns null/undefined if this game has no metadata wrapping.
+   * The regex MUST have a capture group for the translation text.
+   *
+   * @returns {RegExp|null} Regex with capture group, or null
+   */
+  getTranslationMetadataPattern() {
+    return null;
+  }
+
+  /**
    * Game-specific gameplay terms used for language detection heuristics.
    * createTranslationQuality() uses these to detect English source reuse.
    *

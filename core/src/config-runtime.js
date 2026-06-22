@@ -643,7 +643,7 @@ class ConfigRuntime {
   }
 
   async ensureGroqModel() {
-    if (this.config.PRIMARY_PROVIDER !== 'groq' && this.config.AUDITOR_PROVIDER !== 'groq') return;
+    if (this.config.PRIMARY_PROVIDER !== 'groq' && this.config.AUDITOR_PROVIDER !== 'groq' && this.config.POLISHER_PROVIDER !== 'groq') return;
     try {
       const models = await this.fetchGroqModels();
       if (models.length === 0) {
@@ -660,6 +660,10 @@ class ConfigRuntime {
         const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
         this.config.EFFECTIVE_AUDITOR_MODEL = replacement;
       }
+      if (this.config.POLISHER_PROVIDER === 'groq' && needsReplacement(this.config.POLISHER_MODEL)) {
+        const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
+        this.config.EFFECTIVE_POLISHER_MODEL = replacement;
+      }
     } catch (e) {
       this.markProviderDegraded('groq', e.message);
     }
@@ -669,7 +673,7 @@ class ConfigRuntime {
     try {
       const models = await this.fetchOllamaModels();
       if (models.length === 0) {
-        if (this.config.PRIMARY_PROVIDER === 'ollama' || this.config.AUDITOR_PROVIDER === 'ollama') {
+        if (this.config.PRIMARY_PROVIDER === 'ollama' || this.config.AUDITOR_PROVIDER === 'ollama' || this.config.POLISHER_PROVIDER === 'ollama') {
           this.markProviderDegraded('ollama', 'Ollama offline oder keine Modelle');
         }
         return;
@@ -706,8 +710,16 @@ class ConfigRuntime {
           this.config.EFFECTIVE_AUDITOR_MODEL = replacement;
         }
       }
+
+      if (this.config.POLISHER_PROVIDER === 'ollama') {
+        const polisherPref = this.config.POLISHER_MODEL || 'auto';
+        const replacement = findBestModel(polisherPref, ['8b', 'mistral', 'llama3.1', discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
+        if (replacement !== this.config.POLISHER_MODEL) {
+          this.config.EFFECTIVE_POLISHER_MODEL = replacement;
+        }
+      }
     } catch (e) {
-      if (this.config.PRIMARY_PROVIDER === 'ollama' || this.config.AUDITOR_PROVIDER === 'ollama') {
+      if (this.config.PRIMARY_PROVIDER === 'ollama' || this.config.AUDITOR_PROVIDER === 'ollama' || this.config.POLISHER_PROVIDER === 'ollama') {
         this.markProviderDegraded('ollama', e.message);
       }
     }

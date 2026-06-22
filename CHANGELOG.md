@@ -5,6 +5,22 @@
 
 ---
 
+## [COMMIT-LAYER-REWRITE] - 2026-06-22 — Commit-Infrastruktur überarbeitet + Broken-Entry-Repair
+
+7 Schritte, 25 atomare Aufgaben, 6 Verifikationschecks. Die Commit-Layer-Infrastruktur (verify_commit_msg.js, update_plot.js, get_sidejoke.js, build_pool.js, writing_rules.json) wurde vollständig überarbeitet. Zusätzlich wurden 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert, die durch fehlerhafte `update_plot.js`-Aufrufe entstanden waren (Flags als erstes Argument statt Dialog-Text).
+
+### Verifikation (6/6 PASS)
+1. get_sidejoke.js: Sidejoke ohne {PLACEHOLDER} + PLOT_LORE Kontext ✓
+2. build_pool.js: 40 Einträge, Backup existiert ✓
+3. verify_commit_msg.js: BLOCKED bei {FILE}/{COUNT}/{RESULT} ✓
+4. update_plot.js ohne Dialog: BLOCKED ✓
+5. update_plot.js "Dialog" --model=x: korrekt geparst ✓
+6. plotchain.json letzter Node: arcs + lore_context ✓
+
+→ Vollständiger Eintrag: [`core/archive/docs/CHANGELOG.md`](core/archive/docs/CHANGELOG.md)
+
+---
+
 ## [DOKU-NACHZUG] — 2026-06-22 — User-Impuls-Tracking + Doku vollständig nachgezogen
 
 ### RULE 3 Erweiterung: User-Impuls-Tracking

@@ -145,129 +145,8 @@
     "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8"
   },
   {
-    "id": "plot-2026-06-21T03:48:42",
-    "parent_id": "plot-2026-06-21T03:05:59",
-    "timestamp": "2026-06-21 03:48:42",
-    "status": "active",
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "CHANGELOG.md",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "CHANGELOG",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Folgeschritte der v0.21 Härtung dokumentieren."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-flash"
-  },
-  {
-    "id": "plot-2026-06-21T03:53:27",
-    "parent_id": "plot-2026-06-21T03:48:42",
-    "timestamp": "2026-06-21 03:53:26",
-    "status": "active",
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "CHANGELOG.md",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "CHANGELOG",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Folgeschritte der v0.21 Härtung dokumentieren."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-flash"
-  },
-  {
-    "id": "plot-2026-06-22T08:20:10",
-    "parent_id": "plot-2026-06-21T03:53:27",
-    "timestamp": "2026-06-22 08:20:10",
-    "status": "active",
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "CHANGELOG.md",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "CHANGELOG",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Folgeschritte der v0.21 Härtung dokumentieren."
-    ],
-    "dialogue_preview": "--model=mimo-v2.5-pro"
-  },
-  {
-    "id": "plot-2026-06-22T09:41:02",
-    "parent_id": "plot-2026-06-22T08:20:10",
-    "timestamp": "2026-06-22 09:41:02",
-    "status": "active",
-    "session_changes": [
-      "HANGELOG.md",
-      "core/archive/docs/FREEZE/FREEZE_INDEX_2.md",
-      "core/archive/docs/PLOT_LORE.md",
-      "core/index.js",
-      "core/src/config-runtime.js",
-      "core/src/dispatcher.js",
-      "core/src/gui/public/app.js",
-      "core/src/providers/client-factory.js",
-      "core/src/router.js",
-      "core/src/translation-runtime.js",
-      "core/archive/docs/HANDSHAKE_2026-06-22_item-0a.md",
-      "core/archive/docs/HANDSHAKE_2026-06-22_item-0b.md",
-      "core/logs/",
-      "core/tests/item0a_auto_freeze_test.js"
-    ],
-    "variables": [
-      "HANGELOG",
-      "FREEZE_INDEX_2",
-      "PLOT_LORE",
-      "index",
-      "config-runtime",
-      "dispatcher",
-      "client-factory",
-      "router",
-      "translation-runtime",
-      "HANDSHAKE_2026-06-22_item-0a",
-      "HANDSHAKE_2026-06-22_item-0b",
-      "logs",
-      "item0a_auto_freeze_test"
-    ],
-    "suggested_next_hooks": [
-      "Folgeschritte der v0.21 Härtung dokumentieren."
-    ],
-    "dialogue_preview": "--help"
-  },
-  {
-    "id": "plot-2026-06-22T09:43:55",
-    "parent_id": "plot-2026-06-22T09:41:02",
-    "timestamp": "2026-06-22 09:43:55",
-    "status": "active",
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "core/scripts/commit_lore/plotchain.json",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "plotchain",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Folgeschritte der v0.21 Härtung dokumentieren."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
-  },
-  {
     "id": "plot-2026-06-22T11:01:29",
-    "parent_id": "plot-2026-06-22T09:43:55",
+    "parent_id": "plot-2026-06-21T03:05:59",
     "timestamp": "2026-06-22 11:01:29",
     "status": "active",
     "user_impulse": {
@@ -710,6 +589,15 @@
       "translation-quality",
       "logs"
     ],
+    "arcs": [
+      "great-cleanup",
+      "invisible-enemies"
+    ],
+    "lore_context": [
+      "2026-06-22 11:01:29",
+      "2026-06-22 11:04:56",
+      "2026-06-22 11:07:04"
+    ],
     "suggested_next_hooks": [
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
@@ -717,178 +605,39 @@
     "dialogue_preview": "### [2026-06-22 14:55] — P0-7: Die Commit-Chain lernt sich zu erinnern\n\n**Buffy:** Weisst du was an ..."
   },
   {
-    "id": "plot-2026-06-22T12:43:35",
+    "id": "plot-2026-06-22T14:08:29",
     "parent_id": "plot-2026-06-22T12:35:13",
-    "timestamp": "2026-06-22 12:43:35",
+    "timestamp": "2026-06-22 14:08:29",
     "status": "active",
-    "user_impulse": null,
+    "model_id": "mimo-v2.5-pro",
+    "user_impulse": {
+      "text": "Vorher commit neuste änderung und korrigiere auch letzten commit nach dem neuen überarbeiteten layer",
+      "timestamp": "2026-06-22T14:08:29",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 12:35:13",
+      "2026-06-22 14:55",
+      "2026-06-22 14:08:29"
+    ],
     "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "core/scripts/release.js",
-      "core/src/config-runtime.js",
-      "core/src/db.js",
-      "core/src/dispatcher.js",
-      "core/src/plugins/GamePlugin.js",
-      "core/src/plugins/SongsOfSyxPlugin.js",
-      "core/src/router.js",
-      "core/src/translation-db.js",
-      "core/src/translation-quality.js",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "release",
-      "config-runtime",
-      "dispatcher",
-      "GamePlugin",
-      "SongsOfSyxPlugin",
-      "router",
-      "translation-db",
-      "translation-quality",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
-  },
-  {
-    "id": "plot-2026-06-22T12:51:15",
-    "parent_id": "plot-2026-06-22T12:43:35",
-    "timestamp": "2026-06-22 12:51:15",
-    "status": "active",
-    "user_impulse": null,
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "core/scripts/release.js",
-      "core/src/db.js",
-      "core/src/dispatcher.js",
-      "core/src/plugins/GamePlugin.js",
-      "core/src/plugins/SongsOfSyxPlugin.js",
-      "core/src/providers/client-factory.js",
-      "core/src/translation-db.js",
-      "core/src/translation-quality.js",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "release",
-      "dispatcher",
-      "GamePlugin",
-      "SongsOfSyxPlugin",
-      "client-factory",
-      "translation-db",
-      "translation-quality",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
-  },
-  {
-    "id": "plot-2026-06-22T12:57:52",
-    "parent_id": "plot-2026-06-22T12:51:15",
-    "timestamp": "2026-06-22 12:57:52",
-    "status": "active",
-    "user_impulse": null,
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "core/scripts/release.js",
-      "core/src/config-runtime.js",
-      "core/src/db.js",
-      "core/src/dispatcher.js",
-      "core/src/plugins/GamePlugin.js",
-      "core/src/plugins/SongsOfSyxPlugin.js",
-      "core/src/translation-db.js",
-      "core/src/translation-quality.js",
-      "core/logs/"
-    ],
-    "variables": [
-      "PLOT_LORE",
-      "release",
-      "config-runtime",
-      "dispatcher",
-      "GamePlugin",
-      "SongsOfSyxPlugin",
-      "translation-db",
-      "translation-quality",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
-  },
-  {
-    "id": "plot-2026-06-22T13:07:50",
-    "parent_id": "plot-2026-06-22T12:57:52",
-    "timestamp": "2026-06-22 13:07:49",
-    "status": "active",
-    "user_impulse": null,
-    "session_changes": [
-      "GENTS.md",
-      "core/archive/docs/AGENTS.md",
       "core/archive/docs/PLOT_LORE.md",
-      "core/scripts/release.js",
-      "core/src/db.js",
-      "core/src/dispatcher.js",
-      "core/src/plugins/GamePlugin.js",
-      "core/src/plugins/SongsOfSyxPlugin.js",
-      "core/src/translation-db.js",
-      "core/src/translation-quality.js",
-      "core/logs/"
-    ],
-    "variables": [
-      "GENTS",
-      "AGENTS",
-      "PLOT_LORE",
-      "release",
-      "dispatcher",
-      "GamePlugin",
-      "SongsOfSyxPlugin",
-      "translation-db",
-      "translation-quality",
-      "logs"
-    ],
-    "suggested_next_hooks": [
-      "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
-      "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
-    ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
-  },
-  {
-    "id": "plot-2026-06-22T13:21:09",
-    "parent_id": "plot-2026-06-22T13:07:50",
-    "timestamp": "2026-06-22 13:21:08",
-    "status": "active",
-    "user_impulse": null,
-    "session_changes": [
-      "ore/archive/docs/PLOT_LORE.md",
-      "core/scripts/release.js",
-      "core/src/db.js",
-      "core/src/dispatcher.js",
-      "core/src/plugins/GamePlugin.js",
-      "core/src/plugins/SongsOfSyxPlugin.js",
-      "core/src/translation-db.js",
-      "core/src/translation-quality.js",
-      "core/archive/docs/plans/PLAN_PLAN_AUDIT.md",
-      "core/logs/"
+      "core/scripts/commit_lore/cross_references.json",
+      "core/scripts/commit_lore/plotchain.json",
+      "core/src/config-runtime.js"
     ],
     "variables": [
       "PLOT_LORE",
-      "release",
-      "dispatcher",
-      "GamePlugin",
-      "SongsOfSyxPlugin",
-      "translation-db",
-      "translation-quality",
-      "PLAN_PLAN_AUDIT",
-      "logs"
+      "cross_references",
+      "plotchain",
+      "config-runtime"
     ],
     "suggested_next_hooks": [
-      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
+      "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
-    "dialogue_preview": "--model=deepseek-v4-pro"
+    "dialogue_preview": "Na gut. Der Doku-Konsolidierungs-Prozess läuft, und das erste Opfer ist der COMMIT_LAYER_REWRITE_PLA..."
   }
 ]

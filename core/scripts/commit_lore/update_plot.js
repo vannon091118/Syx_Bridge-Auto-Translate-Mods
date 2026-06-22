@@ -2,26 +2,50 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const plotPath = path.join(__dirname, '../../archive/docs/PLOT_LORE.md');
-const plotchainPath = path.join(__dirname, 'plotchain.json');
+// ─── Locate git repo root (Standalone-Absicherung) ─────────────────────
+let repoRoot;
+try {
+  repoRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+  process.chdir(repoRoot);
+} catch (e) {
+  // Fallback: 3 Ebenen hoch von __dirname (commit_lore/ -> scripts/ -> core/ -> root)
+  repoRoot = path.resolve(__dirname, '../../..');
+  console.warn(`WARN: Kein Git-Repo gefunden. Fallback-Root: ${repoRoot}`);
+}
 
-// ── Argument-Parsing: positional dialogue + --impulse ──────────────
-// Aufruf: node update_plot.js "Dialog-Text" --impulse="Was der User sagte"
+// Pfade relativ zu repoRoot (nicht hardcodiert auf Projektstruktur)
+const plotPath = path.join(repoRoot, 'core/archive/docs/PLOT_LORE.md');
+const plotchainPath = path.join(__dirname, 'plotchain.json');
+const loreArcsPath = path.join(__dirname, 'lore_arcs.json');
+
+// ── Argument-Parsing: positional dialogue + --impulse + --model ────────
+// Aufruf: node update_plot.js "Dialog-Text" [--impulse="User-Input"] [--model=claude]
 const args = process.argv.slice(2);
 let dialogue = '';
 let userImpulse = null;
+let modelId = null;
 
 for (const arg of args) {
   if (arg.startsWith('--impulse=')) {
     userImpulse = arg.slice('--impulse='.length);
+  } else if (arg.startsWith('--model=')) {
+    modelId = arg.slice('--model='.length);
+  } else if (arg.startsWith('--')) {
+    console.warn(`WARN: Unbekannter Flag ignoriert: ${arg}`);
   } else if (!dialogue) {
     dialogue = arg;
   }
 }
 
 if (!dialogue) {
-  console.error('Bitte einen Dialog-String als Argument übergeben.');
+  console.error('BLOCKED: Kein Dialog-Text angegeben.');
+  console.error('USAGE: node update_plot.js "Dialog-Text" [--impulse="User-Input"] [--model=claude]');
+  console.error('HINWEIS: --model= ist kein Dialog-Text. Dialog-String muss als erstes Argument kommen.');
   process.exit(1);
+}
+
+if (dialogue.length < 10) {
+  console.warn(`WARN: Dialog-Text ist sehr kurz (${dialogue.length} Zeichen). Versehentlicher Aufruf?`);
 }
 
 // ─── Ensure PLOT_LORE.md exists ──────────────────────────────────
@@ -38,7 +62,7 @@ die parallel zur echten Commit-History geschrieben werden. Jeder Commit erweiter
 }
 
 // Append dialogue to PLOT_LORE.md
-// Timestamp: YYYY-MM-DD HH:MM:SS (f\u00fcr lesbaren PLOT_LORE-Header)
+// Timestamp: YYYY-MM-DD HH:MM:SS (für lesbaren PLOT_LORE-Header)
 const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 fs.appendFileSync(plotPath, `\n### [${timestamp}]\n${dialogue}\n`, 'utf8');
 console.log('Plot-Dialog in PLOT_LORE.md aktualisiert.');
@@ -46,7 +70,6 @@ console.log('Plot-Dialog in PLOT_LORE.md aktualisiert.');
 // ─── Determine Session Changes via Git ─────────────────────────────
 let sessionFiles = [];
 try {
-  // Check for staged changes first, fallback to unstaged/recent if none
   const staged = execSync('git diff --cached --name-only', { encoding: 'utf8' })
     .trim()
     .split('\n')
@@ -55,7 +78,7 @@ try {
   if (staged.length > 0) {
     sessionFiles = staged;
   } else {
-    // Recent modifications in the working tree
+    // porcelain v1: "XY path"
     sessionFiles = execSync('git status --porcelain', { encoding: 'utf8' })
       .trim()
       .split('\n')
@@ -79,17 +102,15 @@ while ((match = hashtagRegex.exec(dialogue)) !== null) {
   variables.add(match[1]);
 }
 
-// ─── Keywords: aus cross_references.json lesen (Lore-SSOT, RULE 2 konform) ──
-// KEINE hardcodierten Runtime-Begriffe hier — Lore ist strikt von Runtime getrennt.
+// ─── Keywords: aus cross_references.json lesen ──────────────────
 const crossRefPath = path.join(__dirname, 'cross_references.json');
 let keywords = [];
 if (fs.existsSync(crossRefPath)) {
   try {
     const refs = JSON.parse(fs.readFileSync(crossRefPath, 'utf8'));
-    // Nur String-Einträge die keine Commit-Hashes sind (Hashes = 7 hex chars)
     keywords = refs.filter(r => typeof r === 'string' && !/^[a-f0-9]{7}$/.test(r));
   } catch (e) {
-    console.warn('Hinweis: cross_references.json nicht lesbar — Keyword-Scan übersprungen.');
+    console.warn('Hinweis: cross_references.json nicht lesbar.');
   }
 }
 for (const kw of keywords) {
@@ -98,13 +119,47 @@ for (const kw of keywords) {
   }
 }
 
-// Add base file identifiers to variables
 sessionFiles.forEach(f => {
   const base = path.basename(f, path.extname(f));
-  if (base.length > 3) {
-    variables.add(base);
-  }
+  if (base.length > 3) variables.add(base);
 });
+
+// ─── PLOT_LORE.md lesen — lore_context ─────────────────────────────
+const recentLoreEntries = [];
+if (fs.existsSync(plotPath)) {
+  try {
+    const loreContent = fs.readFileSync(plotPath, 'utf8');
+    const entryRegex = /^### \[([^\]]+)\]/gm;
+    let m;
+    while ((m = entryRegex.exec(loreContent)) !== null) {
+      recentLoreEntries.push(m[1]);
+    }
+  } catch (e) {
+    console.warn('WARN: PLOT_LORE.md konnte nicht für lore_context gelesen werden.');
+  }
+}
+const loreContext = recentLoreEntries.slice(-3);
+
+// ─── Arc-Erkennung via lore_arcs.json ────────────────────────────
+const detectedArcs = [];
+if (fs.existsSync(loreArcsPath)) {
+  try {
+    const loreArcs = JSON.parse(fs.readFileSync(loreArcsPath, 'utf8'));
+    const arcDefs = loreArcs.arcs || {};
+    for (const [arcId, arcDef] of Object.entries(arcDefs)) {
+      const kwList = [arcId, arcDef.name, ...(arcDef.key_characters || [])]
+        .filter(Boolean)
+        .map(k => k.toLowerCase());
+      const dialogueLower = dialogue.toLowerCase();
+      const filesJoined = sessionFiles.join(' ').toLowerCase();
+      if (kwList.some(kw => dialogueLower.includes(kw) || filesJoined.includes(kw))) {
+        detectedArcs.push(arcId);
+      }
+    }
+  } catch (e) {
+    console.warn('WARN: lore_arcs.json konnte nicht für Arc-Erkennung gelesen werden.');
+  }
+}
 
 // ─── Load / Initialize plotchain.json ──────────────────────────────
 let plotchain = [];
@@ -116,22 +171,18 @@ if (fs.existsSync(plotchainPath)) {
   }
 }
 
-// Determine active plot node
 const lastNode = plotchain[plotchain.length - 1];
 let parentId = lastNode ? lastNode.id : 'none';
 let currentPlotStatus = 'active';
 
-// Parse dialogue commands for status changes
 if (dialogue.includes('[CLOSE-PLOT]') || dialogue.toLowerCase().includes('plot beendet')) {
   currentPlotStatus = 'closed';
 }
 
-// Node-ID: ISO-T Format f\u00fcr REF-Token-Kompatibilit\u00e4t (RULE 3.7)
-// Format: plot-YYYY-MM-DDThh:mm:ss (z.B. plot-2026-06-21T06:42:18)
-const isoTimestamp = new Date().toISOString().substring(0, 19); // YYYY-MM-DDTHH:MM:SS
+const isoTimestamp = new Date().toISOString().substring(0, 19);
 const nodeId = `plot-${isoTimestamp}`;
 
-// ─── Generate suggested next plot points based on session data ──────
+// ─── Generate suggested next plot points ──────────────────────────
 const suggestedNextHooks = [];
 const hasFile = (pattern) => sessionFiles.some(f => f.includes(pattern));
 
@@ -147,17 +198,25 @@ if (hasFile('verify_commit_msg') || hasFile('writing_rules') || hasFile('AGENTS'
   suggestedNextHooks.push('Folgeschritte der v0.21 Härtung dokumentieren.');
 }
 
+// Fallback Arc aus Vorgaenger-Node wenn nichts erkannt
+if (detectedArcs.length === 0 && lastNode && lastNode.arcs && lastNode.arcs.length > 0) {
+  detectedArcs.push(lastNode.arcs[0]); // Arc-Kontinuitaet bewahren
+}
+
 // ─── Build and save new Node ───────────────────────────────────────
 const newNode = {
   id: nodeId,
   parent_id: parentId,
   timestamp: timestamp,
   status: currentPlotStatus,
+  model_id: modelId || null,
   user_impulse: userImpulse ? {
     text: userImpulse,
     timestamp: isoTimestamp,
-    effect: null // Wird NACH dem Commit mit tatsaechlicher Auswirkung befuellt (retroaktiv via str_replace oder --set-effect)
+    effect: null // Retroaktiv via --set-effect befuellbar
   } : null,
+  arcs: detectedArcs,
+  lore_context: loreContext,
   session_changes: sessionFiles,
   variables: Array.from(variables),
   suggested_next_hooks: suggestedNextHooks,
@@ -196,8 +255,13 @@ try {
 
   if (currentHash && !crossRefs.includes(currentHash)) {
     crossRefs.push(currentHash);
+    // FIFO Cap: Hashes auf max 20 begrenzen — Plot-Variablen (nicht-Hex) bleiben immer
+    const hashRefs = crossRefs.filter(r => /^[a-f0-9]{7}$/.test(r));
+    const nonHashRefs = crossRefs.filter(r => !/^[a-f0-9]{7}$/.test(r));
+    const cappedHashes = hashRefs.slice(-20); // Nur die letzten 20 Hashes behalten
+    crossRefs = [...nonHashRefs, ...cappedHashes];
     fs.writeFileSync(crossRefPath, JSON.stringify(crossRefs, null, 2), 'utf8');
-    console.log(`Commit-Hash ${currentHash} zu cross_references.json hinzugefügt.`);
+    console.log(`Commit-Hash ${currentHash} zu cross_references.json hinzugefuegt (${cappedHashes.length}/20 Hashes, ${nonHashRefs.length} Variablen).`);
   }
 } catch (e) {
   console.warn(`Hinweis: cross_references.json konnte nicht aktualisiert werden: ${e.message}`);

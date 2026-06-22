@@ -91,23 +91,34 @@ if (stagedFiles.length === 0) {
 // ─── Detect commit category ────────────────────────────────────────
 const allDocs = stagedFiles.every(f => /\.(md|txt)$/i.test(f));
 let smallDiff = false;
-if (stagedFiles.length <= 1 && stagedDiffStat) {
+if (stagedDiffStat) {
   try {
     const insMatch = stagedDiffStat.match(/(\d+) insertions?/);
     const delMatch = stagedDiffStat.match(/(\d+) deletions?/);
     const insertions = insMatch ? parseInt(insMatch[1]) : 0;
     const deletions = delMatch ? parseInt(delMatch[1]) : 0;
-    smallDiff = (insertions + deletions) < 10;
+    // TRIVIAL: bis zu 3 Dateien mit weniger als 15 Zeilen Gesamtaenderung
+    smallDiff = (insertions + deletions) < 15 && stagedFiles.length <= 3;
   } catch (_) { /* ignore */ }
 }
 
-const commitCategory = allDocs || smallDiff ? 'TRIVIAL' : 
+// LORE-ONLY: alle Dateien in commit_lore/ oder archive/docs/ (keine Runtime-Aenderung)
+const allLore = stagedFiles.every(f => {
+  const norm = f.replace(/\\/g, '/');
+  return norm.includes('commit_lore/') ||
+         norm.includes('archive/docs/') ||
+         norm.endsWith('PLOT_LORE.md') ||
+         norm.endsWith('plotchain.json');
+});
+
+const commitCategory = allLore ? 'LORE-ONLY' :
+  allDocs || smallDiff ? 'TRIVIAL' :
   stagedFiles.every(f => /^(tests|test_mods|core\/tests)\//.test(f.replace(/\\/g, '/'))) ? 'TEST-ASSET' : 'STANDARD';
 
 // ─── Word count check from registry ────────────────────────────────
 const words = commitMsg.split(/\s+/).filter(Boolean);
 const wordCount = words.length;
-const minWordsRequired = rules.commit_diary.min_words[commitCategory];
+const minWordsRequired = rules.commit_diary.min_words[commitCategory] ?? rules.commit_diary.min_words['STANDARD'];
 
 if (wordCount < minWordsRequired) {
   console.error('═══════════════════════════════════════════');
@@ -115,6 +126,26 @@ if (wordCount < minWordsRequired) {
   console.error('═══════════════════════════════════════════');
   console.error(`Commit message has ${wordCount} words. Category: ${commitCategory}.`);
   console.error(`writing_rules.json requires at least ${minWordsRequired} words.`);
+  process.exit(1);
+}
+
+// ─── Unresolved Placeholder Check ────────────────────────────────────
+// Platzhalter wie {FILE}, {COUNT}, {RESULT} sind Template-Variablen aus
+// dem Sidejoke-Pool. Sie MUESSEN manuell angepasst werden bevor committed wird.
+// Grossbuchstaben-Pattern = unresolveTE Template-Variable.
+const placeholderRegex = /\{[A-Z][A-Z0-9_]+\}/g;
+const foundPlaceholders = [...commitMsg.matchAll(placeholderRegex)].map(m => m[0]);
+if (foundPlaceholders.length > 0) {
+  console.error('═══════════════════════════════════════════');
+  console.error('  LORE L3 — COMMIT BLOCKED: UNRESOLVED PLACEHOLDERS');
+  console.error('═══════════════════════════════════════════');
+  console.error('Die Commit-Message enthaelt unresolvte Template-Platzhalter:');
+  for (const ph of [...new Set(foundPlaceholders)]) {
+    console.error(`  ✗ ${ph}`);
+  }
+  console.error('');
+  console.error('Passe diese Platzhalter an bevor du committest.');
+  console.error('Hinweis: get_sidejoke.js gibt Templates aus die MANUELL angepasst werden muessen.');
   process.exit(1);
 }
 
@@ -318,7 +349,10 @@ for (const f of stagedFiles) {
 }
 console.log('');
 console.log(`  ${stagedFiles.length} staged file(s) — all referenced`);
-console.log(`  RULE 2 word count: ${wordCount} words (≥${minWordsRequired})`);
+console.log(`  RULE 2 word count: ${wordCount} words (\u2265${minWordsRequired})`);
 console.log(`  Category: ${commitCategory}`);
+if (commitCategory === 'LORE-ONLY') {
+  console.log('  [LORE-ONLY] Nur Lore/Doku-Dateien — Runtime unveraendert.');
+}
 console.log('');
 process.exit(0);

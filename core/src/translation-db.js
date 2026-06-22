@@ -380,6 +380,51 @@ function createTranslationDb(options) {
     if (global.guiServer) {
       global.guiServer.broadcastDbSample(sourceText, translation);
     }
+
+    // Item 2: Model-Task-Metrik nach jedem Save aggregieren
+    if (provider && meta.model && meta.taskType) {
+      recordModelTaskMetric(provider, meta.model, meta.taskType, qualityScore, config.TARGET_LANG).catch(() => {});
+    }
+  }
+
+  /**
+   * Item 2: Modell-Metriken pro Task-Typ aggregieren.
+   * Laufende Durchschnittsberechnung: new_avg = (old_avg * old_count + new_score) / (old_count + 1)
+   * success = quality_score >= 70, fail = quality_score < 70
+   * Non-critical — Metrik-Verlust bei DB-Fehlern ist akzeptabel.
+   */
+  async function recordModelTaskMetric(provider, model, taskType, qualityScore, targetLang) {
+    try {
+      const existing = await _dbGet(
+        'SELECT avg_quality, total_calls FROM model_task_metrics WHERE model = ? AND provider = ? AND task_type = ? AND target_lang = ?',
+        [model, provider, taskType, targetLang]
+      );
+      const isSuccess = (qualityScore || 0) >= 70 ? 1 : 0;
+      const isFail = (qualityScore || 0) < 70 ? 1 : 0;
+
+      if (existing) {
+        const oldCount = existing.total_calls || 0;
+        const oldAvg = existing.avg_quality || 0;
+        const newCount = oldCount + 1;
+        const newAvg = (oldAvg * oldCount + qualityScore) / newCount;
+        await dbRun(
+          `UPDATE model_task_metrics SET
+             avg_quality = ?, success_count = success_count + ?,
+             fail_count = fail_count + ?, total_calls = total_calls + 1,
+             last_used_at = CURRENT_TIMESTAMP
+           WHERE model = ? AND provider = ? AND task_type = ? AND target_lang = ?`,
+          [Math.round(newAvg), isSuccess, isFail, model, provider, taskType, targetLang]
+        );
+      } else {
+        await dbRun(
+          `INSERT INTO model_task_metrics (model, provider, task_type, target_lang, avg_quality, success_count, fail_count, total_calls, last_used_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)`,
+          [model, provider, taskType, targetLang, qualityScore, isSuccess, isFail]
+        );
+      }
+    } catch (e) {
+      // Non-critical — einzelne Metrik-Verluste sind akzeptabel
+    }
   }
 
   /**
@@ -449,7 +494,8 @@ function createTranslationDb(options) {
     saveStressTestResult,
     getCachedTranslations,
     saveTranslation,
-    recoverTerminatedEntries
+    recoverTerminatedEntries,
+    recordModelTaskMetric
   };
 }
 

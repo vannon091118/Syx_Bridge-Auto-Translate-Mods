@@ -1,11 +1,13 @@
 const { getGateCounter } = require('./gate-counter');
 const { classifyPath } = require('./text-core');
+const { getDynamicScore } = require('./router');
 
 function createDispatcher(options) {
   const {
     config,
     routingEngine,
-    extractErrorMessage
+    extractErrorMessage,
+    getMetricsSnapshot
   } = options;
 
   function resolveProviderModel(stage) {
@@ -29,6 +31,10 @@ function createDispatcher(options) {
 
 
   function buildStageRoutePlan(stage) {
+    // Item 0d: Aktualisiere Metriken vor Route-Plan-Bau
+    if (getMetricsSnapshot) {
+      routingEngine.setMetricsSnapshot(getMetricsSnapshot());
+    }
     const preferred = resolveProviderModel(stage);
     return routingEngine.buildRoutePlan(stage, {
       preferredProvider: preferred.provider,
@@ -37,10 +43,29 @@ function createDispatcher(options) {
   }
 
   /**
+   * Item 0d: Waehle den besten Kandidaten aus einem Provider-Pool via DB-Metriken.
+   * Filtert auf verfuegbare Provider, scored via getDynamicScore(), gibt Top-Scorer.
+   * Rueckgabe: { provider, model, score } | null wenn kein Kandidat verfuegbar.
+   */
+  function pickBestFromPool(pool, taskType, metrics) {
+    const candidates = pool
+      .filter(c => c && c.provider && routingEngine.isAvailable(c.provider))
+      .map(c => ({
+        provider: c.provider,
+        model: c.model || 'auto',
+        score: getDynamicScore(c.provider, c.model || 'auto', taskType, metrics)
+      }));
+
+    if (candidates.length === 0) return null;
+    candidates.sort((a, b) => b.score - a.score);
+    return candidates[0];
+  }
+
+  /**
    * Single source of truth for translate-stage routing decisions.
-   * Analyzes batch characteristics and returns a structured route decision.
-   * Handles ALL risk tiers: UI-strings, low-risk, ambiguous (stress test),
-   * medium-risk, and high-risk.
+   * Item 0d: Dynamisches Routing — Provider-Auswahl innerhalb der Risiko-Tiers
+   * erfolgt jetzt via DB-Metriken (model_task_metrics) statt hartcodierter Ketten.
+   * Die Risiko-Tiers selbst bleiben als Kostenkontrolle bestehen.
    *
    * @returns {{ provider: string, model: string, reason: string, stressTestRequired: boolean }}
    */
@@ -50,78 +75,52 @@ function createDispatcher(options) {
     const avgRisk = items.length > 0 ? totalRisk / items.length : 0;
     const hasLongText = items.some(item => item.type === 'LONG_TEXT' || (item.source && item.source.length > 300));
 
+    // Item 0d: Lade Metriken EINMAL pro Routing-Entscheidung (vermeidet doppelte DB-Queries).
+    const metrics = getMetricsSnapshot ? getMetricsSnapshot() : null;
+    if (metrics) routingEngine.setMetricsSnapshot(metrics);
+
     // ── Tier 1: UI-String optimization ──────────────────────────────────────
-    // UI-strings are low-risk → prefer free LLM tiers over machine translation.
-    // Falls kein LLM verfügbar → google_free/argos als absolute Fallbacks.
     const uiStringCount = items.filter(item => classifyPath(item.relativePath) === 'ui_string').length;
     if (uiStringCount >= items.length * 0.8) {
-      // NVIDIA-Fix: If NVIDIA is the user's PRIMARY_PROVIDER, it must be tried first
-      // even for UI-strings. Previously it was excluded from freeLlmFirst, causing
-      // silent bypass (0 NVIDIA entries in DB despite being configured as primary).
-      const uiCandidates = [];
-      if (preferred.provider === 'nvidia' && routingEngine.isAvailable('nvidia')) {
-        uiCandidates.push({ provider: 'nvidia', model: preferred.model });
-      }
-      // Standard free-tier fallback chain for UI-strings
-      const freeLlmFirst = [
+      // Item 0d: Dynamische Pool-Auswahl statt hartcodierter if/else-Kette.
+      // Pool = alle Free/Cheap-Provider, sortiert nach DB-Qualitäts-Metriken.
+      const uiPool = [
+        preferred.provider !== 'google_free' && preferred.provider !== 'argos' ? preferred : null,
+        { provider: 'nvidia', model: 'auto' },
         { provider: 'openrouter', model: 'openrouter/free' },
-        { provider: 'groq',       model: 'auto' },
-        { provider: 'fcm',        model: 'auto' },
+        { provider: 'groq', model: 'auto' },
+        { provider: 'fcm', model: 'auto' },
         { provider: 'google_free', model: 'google-translate-free' },
-        { provider: 'argos',      model: 'argos-translate-local' }
-      ];
-      for (const c of freeLlmFirst) {
-        if (routingEngine.isAvailable(c.provider)) {
-          uiCandidates.push(c);
-        }
-      }
-      // BU-037 Fix: Removed redundant isAvailable() double-check. Candidates are
-      // already filtered during uiCandidates construction above. Return first available.
-      if (uiCandidates.length > 0) {
-        const c = uiCandidates[0];
-        console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${c.provider} (LLM-preferred)`);
-        return { provider: c.provider, model: c.model, reason: 'ui_strings', stressTestRequired: false };
+        { provider: 'argos', model: 'argos-translate-local' }
+      ].filter(Boolean);
+      const best = pickBestFromPool(uiPool, 'translate', metrics);
+      if (best) {
+        console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${best.provider} (score: ${best.score.toFixed(0)}) [dynamic]`);
+        return { provider: best.provider, model: best.model, reason: 'ui_strings_dynamic', stressTestRequired: false };
       }
     }
 
-    // ── Tier 2: Low-risk -> honor configured provider, fallback to cheap ─────
+    // ── Tier 2: Low-risk -> dynamische Pool-Auswahl ─────────────────────────
     if (avgRisk < 2.0) {
-      // If user explicitly configured a non-free provider (e.g. nvidia),
-      // HONOR it even for low-risk text — user wants quality over free.
+      // Bei explizitem non-free Primary: diesen priorisieren (User-Wunsch respektieren)
       const isFreePreferred = preferred.provider === 'argos' || preferred.provider === 'google_free';
       if (!isFreePreferred && routingEngine.isAvailable(preferred.provider)) {
         console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${preferred.provider} (konfigurierter Primary)`);
         return { provider: preferred.provider, model: preferred.model, reason: 'low_risk_primary', stressTestRequired: false };
       }
-      // P1-Fix: Before falling back to machine translation, try free LLM tiers
-      // (OpenRouter free, Groq free) which deliver better quality than google_free/argos.
-      // FCM local daemon also preferred over pure MT when available.
-      // NVIDIA injected HERE — it has a dedicated API key (50 TPM) and delivers
-      // quality LLM translations. Must be tried before argos/google_free.
-      if (routingEngine.isAvailable('nvidia')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> nvidia (LLM-Quality)`);
-        return { provider: 'nvidia', model: 'auto', reason: 'low_risk_quality_llm', stressTestRequired: false };
-      }
-      if (routingEngine.isAvailable('openrouter')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> openrouter/free (LLM-Free-Tier)`);
-        return { provider: 'openrouter', model: 'openrouter/free', reason: 'low_risk_free_llm', stressTestRequired: false };
-      }
-      if (routingEngine.isAvailable('groq')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> groq (LLM-Free-Tier)`);
-        return { provider: 'groq', model: 'auto', reason: 'low_risk_free_llm', stressTestRequired: false };
-      }
-      if (routingEngine.isAvailable('fcm')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> fcm (Local-Daemon)`);
-        return { provider: 'fcm', model: 'auto', reason: 'low_risk_local', stressTestRequired: false };
-      }
-      // Only fall back to cheap providers if no free LLM tier is available
-      if (routingEngine.isAvailable('argos')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> argos`);
-        return { provider: 'argos', model: 'argos-translate-local', reason: 'low_risk', stressTestRequired: false };
-      }
-      if (routingEngine.isAvailable('google_free')) {
-        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> google_free`);
-        return { provider: 'google_free', model: 'google-translate-free', reason: 'low_risk', stressTestRequired: false };
+      // Item 0d: Dynamische Pool-Auswahl für Free/Cheap-Fallback
+      const lowRiskPool = [
+        { provider: 'nvidia', model: 'auto' },
+        { provider: 'openrouter', model: 'openrouter/free' },
+        { provider: 'groq', model: 'auto' },
+        { provider: 'fcm', model: 'auto' },
+        { provider: 'argos', model: 'argos-translate-local' },
+        { provider: 'google_free', model: 'google-translate-free' }
+      ];
+      const best = pickBestFromPool(lowRiskPool, 'translate', metrics);
+      if (best) {
+        console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${best.provider} (score: ${best.score.toFixed(0)}) [dynamic]`);
+        return { provider: best.provider, model: best.model, reason: 'low_risk_dynamic', stressTestRequired: false };
       }
     }
 
@@ -136,18 +135,10 @@ function createDispatcher(options) {
     if (avgRisk >= 6.0 || hasLongText) {
       const qualityRoute = resolveProviderModel('polish');
       if (routingEngine.isAvailable(qualityRoute.provider)) {
-        const qualityPlan = routingEngine.buildRoutePlan('translate', {
-          preferredProvider: qualityRoute.provider,
-          preferredModel: qualityRoute.model
-        });
-        if (qualityPlan.length > 0 &&
-            (qualityRoute.provider !== preferred.provider || qualityRoute.model !== preferred.model)) {
-          console.log(`[DISPATCH] High-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${qualityRoute.provider} (Qualitaets-Modell)`);
-          return { provider: qualityRoute.provider, model: qualityRoute.model, reason: 'high_risk', stressTestRequired: false };
-        }
-      } else {
-        console.log(`[DISPATCH] High-Risk, aber Qualitaets-Modell ${qualityRoute.provider} nicht erreichbar. Nutze Primary.`);
+        console.log(`[DISPATCH] High-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${qualityRoute.provider} (Qualitaets-Modell)`);
+        return { provider: qualityRoute.provider, model: qualityRoute.model, reason: 'high_risk', stressTestRequired: false };
       }
+      console.log(`[DISPATCH] High-Risk, aber Qualitaets-Modell ${qualityRoute.provider} nicht erreichbar. Nutze Primary.`);
     }
 
     // ── Default: use user-configured primary provider ───────────────────────

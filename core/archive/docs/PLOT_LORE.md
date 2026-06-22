@@ -386,21 +386,6 @@ Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit —
 ### [2026-06-21 03:05:59]
 Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8
 
-### [2026-06-21 03:48:42]
---model=deepseek-v4-flash
-
-### [2026-06-21 03:53:26]
---model=deepseek-v4-flash
-
-### [2026-06-22 08:20:10]
---model=mimo-v2.5-pro
-
-### [2026-06-22 09:41:02]
---help
-
-### [2026-06-22 09:43:55]
---model=deepseek-v4-pro
-
 ### [2026-06-22 11:01:29]
 ### [2026-06-22 12:45] — Item 4: Fuenf Gespenster im Code 🧹👻\n\n> **User-Impuls:** \"Item 4: callProvider zentraler Dispatcher statt 5 Thin-Wrapper — toten Code entfernen\"\n> **Auswirkung:** 5 Thin-Wrapper (callGroqBatch, callOpenRouterBatch, callNvidiaBatch, callFcmBatch, callPlayer2Batch) ersatzlos entfernt. callProvider jetzt zentraler Dispatch. INDEX.md + CHANGELOG nachgezogen.\n\n**Buffy:** *(liest client-factory.js)* callGroqBatch. callOpenRouterBatch. callNvidiaBatch. callFcmBatch. callPlayer2Batch. Fuenf Funktionen. Alle Delegatoren — sie rufen callChatCompletions auf und geben das Ergebnis zurueck. Das ist alles was sie tun.\n\n**Basher:** Code-Scan zeigt: null externe Caller. Nirgends. Die Funktionen existieren nur in client-factory.js selbst und in INDEX.md.\n\n**Buffy:** Fuenf Gespenster. Sie existieren, aber niemand ruft sie. Sie werden exportiert, aber niemand importiert sie. Sie sind... toter Code. Seit wann?\n\n**Basher:**  — callNvidiaBatch und callFcmBatch kamen mit CL:0.19.7 rein. Vor zwei Wochen.\n\n**Buffy:** Zwei Wochen haben diese Wrapper ueberlebt. Niemand hat sie gebraucht. Niemand hat sie vermisst. Und callProvider — der zentrale Dispatcher — existiert direkt daneben und macht genau dasselbe: dispatch an callChatCompletions. Aber mit EINER Funktion statt fuenf.\n\n**Vannon:** Entfern sie.\n\n**Buffy:** *(ein str_replace, fuenf Funktionen weg, Exports gesaeubert)* Fertig. INDEX.md nachgezogen. CHANGELOG aktualisiert. Junk-Check: null Restreferenzen. Die Gespenster sind exorziert.\n\n**Basher:**  — PASS. Commit durch.
 
@@ -462,18 +447,5 @@ Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update
 **Vannon:** Scharf.
 
 **Buffy:** Die Chain ist jetzt eine echte Kette. Jeder Commit weiss von seinem Vorgaenger — nicht nur per REF, sondern auch per Cross-Reference auf vergangene Ereignisse. Die lore_arcs werden nicht mehr nur geschrieben, sie werden enforced.
-
-### [2026-06-22 12:43:35]
---model=deepseek-v4-pro
-
-### [2026-06-22 12:51:15]
---model=deepseek-v4-pro
-
-### [2026-06-22 12:57:52]
---model=deepseek-v4-pro
-
-### [2026-06-22 13:07:49]
---model=deepseek-v4-pro
-
-### [2026-06-22 13:21:08]
---model=deepseek-v4-pro
+### [2026-06-22 14:08:29]
+Na gut. Der Doku-Konsolidierungs-Prozess läuft, und das erste Opfer ist der COMMIT_LAYER_REWRITE_PLAN. 7 Schritte, 25 atomare Aufgaben, 6 Verifikationschecks — alles durch. Dazu 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert die durch fehlerhafte update_plot.js-Arufe entstanden waren. Der Plan ist jetzt archiviert im FREEZE_INDEX_2 als §24. Die Commit-Layer-Infrastruktur steht.

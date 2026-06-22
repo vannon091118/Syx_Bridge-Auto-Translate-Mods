@@ -2,289 +2,79 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const coreDir = path.join(__dirname, '..');
-const rootDir = path.join(coreDir, '..');
-const releaseDir = path.join(coreDir, 'release');
-const pkg = require(path.join(coreDir, 'package.json'));
-const version = pkg.releaseVersion || pkg.version;
-const stageName = `SyxBridge_v${version}`;
-const stageDir = path.join(releaseDir, stageName);
-const zipName = `${stageName}.zip`;
-const zipPath = path.join(releaseDir, zipName);
+const CORE = path.join(__dirname, '..');
+const ROOT = path.join(CORE, '..');
+const PKG = require(path.join(CORE, 'package.json'));
+const VERSION = PKG.releaseVersion || PKG.version;
+const STAGE = `SyxBridge_v${VERSION}`;
+const STAGE_DIR = path.join(CORE, 'release', STAGE);
+const ZIP = path.join(CORE, 'release', `${STAGE}.zip`);
 
-console.log('========================================');
-console.log(`   SYX BRIDGE RELEASE — v${version}`);
-console.log('========================================');
+// ── 1. Clean ─────────────────────────────────────────────────────────
+console.log(`\n[RELEASE] ${STAGE}\n`);
+if (fs.existsSync(STAGE_DIR)) fs.rmSync(STAGE_DIR, { recursive: true, force: true });
+if (fs.existsSync(ZIP)) fs.unlinkSync(ZIP);
+fs.mkdirSync(path.dirname(STAGE_DIR), { recursive: true });
 
-// ── Clean previous release ──────────────────────────────────────────
-if (fs.existsSync(stageDir)) {
-  fs.rmSync(stageDir, { recursive: true, force: true });
-}
-if (fs.existsSync(zipPath)) {
-  fs.unlinkSync(zipPath);
-}
-fs.mkdirSync(releaseDir, { recursive: true });
-fs.mkdirSync(stageDir, { recursive: true });
-
-// ── Directories to exclude ──────────────────────────────────────────
-const EXCLUDE_DIRS = new Set([
-  'node_modules', '.git', '.claude', 'backups', 'patches',
-  'release', 'archive', 'dbold', 'tests', 'docs', 'plans',
+// ── 2. Copy ─────────────────────────────────────────────────────────
+const SKIP = new Set([
+  'node_modules', '.git', 'archive', 'tests', 'test_mods', 'logs',
+  'backups', 'patches', 'release', 'dbold', 'docs', 'plans',
+  'FREEZE', 'commit_lore',
 ]);
-
-// ── Dev-only scripts (not included in release) ──────────────────────
-// These depend on commit_lore/ subdirectory or git history
-const EXCLUDE_SCRIPTS = new Set([
-  'verify_commit_msg.js',
-  'release.js',
-  'fresh-readme.js',
-  'gen-index.js',
-  'build_pool.js',
-  'get_sidejoke.js',
-  'update_plot.js',
-]);
-
-// ── Files to exclude (by exact basename) ────────────────────────────
-const EXCLUDE_BASENAMES = new Set([
-  '.env', '.env.e2e-live-backup', '.gitignore', '.gitattributes',
-  '.gitkeep', '.claude',
+const SKIP_FILES = new Set([
+  '.env', '.gitignore', '.gitattributes', '.gitkeep',
+  '.claude', '.ArchiveRules', '.native_confirmed',
   'translations.db', 'translations.db-shm', 'translations.db-wal',
-  'log.txt', 'runs.jsonl', 'debug_payloads.txt',
-  'server_output.txt', 'stdout.log', 'stderr.log', 'nul',
-  '.gitkeep',
-  'VISION.md', 'MASTER_DOC.md', 'STATUS.md', 'AUDIT_REPORT.md',
-  'TODO.md', 'TODO.md.bak-20260616-140600',
-  'README.md.bak-20260616-141518',
-  'TECHNICAL_REVIEW_2026-06-15.md', 'PATCH_REVIEW_2026-06-16.md',
-  'SESSION_REPORT_v0.19.5-prerelease.md',
-  'DB_REPORT_v0.19.5.D17.06.U17.06.md',
+  'package-lock.json', 'AGENTS.md', 'TUTORIAL.txt',
+]);
+const SKIP_SCRIPTS = new Set([
+  'verify_commit_msg.js', 'release.js', 'fresh-readme.js',
+  'gen-index.js', 'build_pool.js', 'get_sidejoke.js', 'update_plot.js',
 ]);
 
-// ── Stat tracking ───────────────────────────────────────────────────
-let fileCount = 0;
-let dirCount = 0;
+let files = 0;
 
-function copyRecursive(src, dest) {
+function copyDir(src, dest) {
   if (!fs.existsSync(src)) return;
-
-  const stats = fs.statSync(src);
-  const basename = path.basename(src);
-
-  // Exclude by basename
-  if (EXCLUDE_BASENAMES.has(basename)) return;
-
-  if (stats.isDirectory()) {
-    if (EXCLUDE_DIRS.has(basename)) return;
-    fs.mkdirSync(dest, { recursive: true });
-    dirCount++;
-    fs.readdirSync(src).forEach(child => {
-      copyRecursive(path.join(src, child), path.join(dest, child));
-    });
-  } else {
-    // Exclude .bak-* files
-    if (/\.bak-/.test(basename)) return;
-    fs.copyFileSync(src, dest);
-    fileCount++;
-  }
-}
-
-// ── 1. Root-level files (start.bat only) ────────────────────────────
-console.log('\n[1/4] Kopiere Root-Dateien...');
-const startBat = path.join(rootDir, 'start.bat');
-if (fs.existsSync(startBat)) {
-  fs.copyFileSync(startBat, path.join(stageDir, 'start.bat'));
-  fileCount++;
-  console.log('  ✓ start.bat');
-}
-
-// Watermark-Verification (obfuscated name)
-const watermarkScript = path.join(rootDir, 'VannonDoNotPlayGames.js');
-if (fs.existsSync(watermarkScript)) {
-  fs.copyFileSync(watermarkScript, path.join(stageDir, 'VannonDoNotPlayGames.js'));
-  fileCount++;
-  console.log('  ✓ VannonDoNotPlayGames.js');
-}
-
-// Also include root README.md (user-facing docs)
-const readmeSrc = path.join(rootDir, 'README.md');
-if (fs.existsSync(readmeSrc)) {
-  fs.copyFileSync(readmeSrc, path.join(stageDir, 'README.md'));
-  fileCount++;
-  console.log('  ✓ README.md');
-}
-
-// AGENTS.md Regel: _Info.txt gehört IMMER ins Root
-const infoSrc = path.join(rootDir, '_Info.txt');
-if (fs.existsSync(infoSrc)) {
-  fs.copyFileSync(infoSrc, path.join(stageDir, '_Info.txt'));
-  fileCount++;
-  console.log('  ✓ _Info.txt');
-}
-
-// .env.example (Template für neue User)
-const envExampleSrc = path.join(rootDir, '.env.example');
-if (fs.existsSync(envExampleSrc)) {
-  fs.copyFileSync(envExampleSrc, path.join(stageDir, '.env.example'));
-  fileCount++;
-  console.log('  ✓ .env.example');
-}
-
-// ── 2. Mod assets (V70 + V71) ──────────────────────────────────────
-console.log('[2/4] Kopiere Mod-Assets (V70 + V71)...');
-for (const ver of ['V70', 'V71']) {
-  const src = path.join(rootDir, ver);
-  const dest = path.join(stageDir, ver);
-  const before = fileCount;
-  copyRecursive(src, dest);
-  console.log(`  ✓ ${ver}/ (${fileCount - before} Dateien)`);
-}
-
-// ── 3. core/ — runtime only ────────────────────────────────────────
-console.log('[3/4] Kopiere Core-Runtime...');
-const coreDest = path.join(stageDir, 'core');
-fs.mkdirSync(coreDest, { recursive: true });
-dirCount++;
-
-// 3a. core/index.js
-const indexSrc = path.join(coreDir, 'index.js');
-if (fs.existsSync(indexSrc)) {
-  fs.copyFileSync(indexSrc, path.join(coreDest, 'index.js'));
-  fileCount++;
-}
-
-// 3b. core/package.json (KEIN package-lock — User-Regel: keine Lockfiles im Release)
-['package.json'].forEach(f => {
-  const src = path.join(coreDir, f);
-  if (fs.existsSync(src)) {
-    fs.copyFileSync(src, path.join(coreDest, f));
-    fileCount++;
-  }
-});
-
-// 3c. core/eslint.config.mjs + LICENSE
-['LICENSE'].forEach(f => {
-  const src = path.join(coreDir, f);
-  if (fs.existsSync(src)) {
-    fs.copyFileSync(src, path.join(coreDest, f));
-    fileCount++;
-  }
-});
-
-// 3d. core/src/ (entire source tree)
-const srcDir = path.join(coreDir, 'src');
-const srcDest = path.join(coreDest, 'src');
-const beforeSrc = fileCount;
-copyRecursive(srcDir, srcDest);
-console.log(`  ✓ src/ (${fileCount - beforeSrc} Dateien)`);
-
-// 3e. core/scripts/ (all runtime-relevant scripts)
-const scriptsDir = path.join(coreDir, 'scripts');
-const scriptsDest = path.join(coreDest, 'scripts');
-fs.mkdirSync(scriptsDest, { recursive: true });
-dirCount++;
-let scriptCount = 0;
-if (fs.existsSync(scriptsDir)) {
-  fs.readdirSync(scriptsDir).forEach(f => {
-    const fullPath = path.join(scriptsDir, f);
-    if (fs.statSync(fullPath).isFile() && f.endsWith('.js') && !f.startsWith('_') && !EXCLUDE_SCRIPTS.has(f)) {
-      fs.copyFileSync(fullPath, path.join(scriptsDest, f));
-      fileCount++;
-      scriptCount++;
-    }
-  });
-}  console.log(`  ✓ scripts/ (${scriptCount} Runtime-Skripte)`);
-
-// 3f. core/data/ (runtime data: current_score.json)
-const dataDir = path.join(coreDir, 'data');
-const dataDest = path.join(coreDest, 'data');
-if (fs.existsSync(dataDir)) {
-  const dataFiles = fs.readdirSync(dataDir).filter(f => fs.statSync(path.join(dataDir, f)).isFile());
-  if (dataFiles.length > 0) {
-    fs.mkdirSync(dataDest, { recursive: true });
-    dirCount++;
-    dataFiles.forEach(f => {
-      fs.copyFileSync(path.join(dataDir, f), path.join(dataDest, f));
-      fileCount++;
-    });
-    console.log(`  ✓ data/ (${dataFiles.length} Dateien)`);
-  }
-}
-
-// ── 4. Build Manifest (Drift-Detection) ─────────────────────────────
-const crypto = require('crypto');
-function computeFileSha256(filePath) {
-  const buf = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(buf).digest('hex');
-}
-
-const manifestEntries = [];
-function walkStageForManifest(dir) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === '.build-manifest.json') continue;
-    const fullPath = path.join(dir, entry.name);
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      walkStageForManifest(fullPath);
+      if (SKIP.has(entry.name)) continue;
+      copyDir(s, d);
     } else {
-      const relPath = path.relative(stageDir, fullPath).replace(/\\/g, '/');
-      manifestEntries.push({ path: relPath, sha256: computeFileSha256(fullPath) });
+      const bn = path.basename(entry.name);
+      if (SKIP_FILES.has(bn)) continue;
+      if (/\.bak-/.test(bn)) continue;
+      // In scripts/, skip dev-only scripts
+      if (src.includes('scripts') && SKIP_SCRIPTS.has(bn)) continue;
+      fs.copyFileSync(s, d);
+      files++;
     }
   }
 }
-walkStageForManifest(stageDir);
-manifestEntries.sort((a, b) => a.path.localeCompare(b.path));
 
-const manifest = {
-  version: version,
-  generated_at: new Date().toISOString(),
-  source_root: 'core/',
-  file_count: manifestEntries.length,
-  files: manifestEntries
-};
-const manifestPath = path.join(stageDir, '.build-manifest.json');
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
-console.log(`  ✓ .build-manifest.json (${manifestEntries.length} Dateien)`);
+// Root-level files
+for (const f of ['start.bat', 'README.md', '_Info.txt', '.env.example']) {
+  const s = path.join(ROOT, f);
+  if (fs.existsSync(s)) { fs.copyFileSync(s, path.join(STAGE_DIR, f)); files++; }
+}
 
-// ── 5. Compress ─────────────────────────────────────────────────────
-console.log('[4/4] Komprimiere...');
+// Mod assets
+for (const v of ['V70', 'V71']) copyDir(path.join(ROOT, v), path.join(STAGE_DIR, v));
+
+// Core runtime
+copyDir(CORE, path.join(STAGE_DIR, 'core'));
+
+// ── 3. Zip ───────────────────────────────────────────────────────────
 try {
-  const psCommand = `powershell.exe -NoProfile -Command "Compress-Archive -Path '${stageDir}' -DestinationPath '${zipPath}' -Force"`;
-  execSync(psCommand, { stdio: 'pipe' });
-  const zipSize = (fs.statSync(zipPath).size / 1024).toFixed(0);
-  console.log(`  ✓ ${zipName} (${zipSize} KB)`);
+  execSync(`powershell.exe -NoProfile -Command "Compress-Archive -Path '${STAGE_DIR}' -DestinationPath '${ZIP}' -Force"`, { stdio: 'pipe' });
+  const kb = (fs.statSync(ZIP).size / 1024).toFixed(0);
+  console.log(`  ✅ ${STAGE}.zip (${kb} KB, ${files} Dateien)`);
 } catch (e) {
-  console.warn(`  ⚠ Komprimierung fehlgeschlagen: ${e.message}`);
-  console.warn('    Ordner-Release bleibt erhalten.');
+  console.warn(`  ⚠️ Zip fehlgeschlagen: ${e.message}`);
 }
 
-// ── Summary ─────────────────────────────────────────────────────────
-console.log('\n========================================');
-console.log(`   FERTIG: ${stageName}`);
-console.log('========================================');
-console.log(`  Ordner: ${stageDir}`);
-console.log(`  Dateien: ${fileCount}`);
-console.log(`  Verzeichnisse: ${dirCount}`);
-if (fs.existsSync(zipPath)) {
-  const zipSize = (fs.statSync(zipPath).size / 1024).toFixed(0);
-  console.log(`  ZIP: ${zipPath} (${zipSize} KB)`);
-}
-console.log('');
-console.log('  Enthalten:');
-console.log('    ✓ start.bat (Launcher)');
-console.log('    ✓ core/index.js + src/ (Runtime)');  console.log('    ✓ core/scripts/ (alle Runtime-Skripte)');
-console.log('    ✓ V70/ + V71/ (Mod-Assets)');
-console.log('    ✓ package.json (kein Lockfile)');
-console.log('');
-console.log('  Ausgeschlossen:');
-console.log('    ✗ translations.db (User startet frisch)');
-console.log('    ✗ node_modules (npm install required)');
-console.log('    ✗ .env, .gitignore, .claude/');
-console.log('    ✗ tests/, docs/, archive/');
-console.log('    ✗ dev-tools: reconstruct, redteam, package');
-console.log('    ✗ VISION.md, STATUS.md, MASTER_DOC, TECHNICAL_REVIEW');
-console.log('    ✗ log.txt, runs.jsonl, debug_payloads.txt');
-console.log('');
-console.log('  Erster Start:');
-console.log('    1. start.bat doppelklicken');
-console.log('    2. npm install (automatisch)');
-console.log('    3. .env konfigurieren (API-Keys)');
-console.log('    4. Dashboard öffnet sich auf localhost:3000');
+console.log(`\n[RELEASE] Fertig: ${STAGE_DIR}\n`);

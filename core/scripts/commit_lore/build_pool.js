@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /**
- * build_pool.js — Extrahiert Sidejokes aus der echten Git-Commit-History
- * und baut sidejoke_pool.json neu auf.
+ * build_pool.js — Baut sidejoke_pool.json dynamisch aus zwei Quellen:
+ *   1. Echter Git-Commit-History (bisher alleinige Quelle)
+ *   2. PLOT_LORE.md Buffy-Dialoge (neue Quelle — Emergenz-Anbindung)
  *
+ * Ergebnis: sidejoke_pool.json (max 40 Eintraege, dedup, Backup vor Ueberschreiben)
  * Usage: node core/scripts/commit_lore/build_pool.js
  */
 
@@ -11,17 +13,29 @@ const fs = require('fs');
 const path = require('path');
 
 const poolPath = path.join(__dirname, 'sidejoke_pool.json');
+const backupPath = path.join(__dirname, 'sidejoke_pool.backup.json');
+
+// ─── Locate repo root (Standalone) ──────────────────────────────────
+let repoRoot;
+try {
+  repoRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+  process.chdir(repoRoot);
+} catch (e) {
+  repoRoot = path.resolve(__dirname, '../../..');
+  console.warn(`WARN: Kein Git-Repo. Fallback: ${repoRoot}`);
+}
+
+const plotLorePath = path.join(repoRoot, 'core/archive/docs/PLOT_LORE.md');
 
 // Alle Commit-Nachrichten holen
-let rawLog;
+let rawLog = '';
 try {
   rawLog = execSync('git log --format="%B---COMMIT_SEP---"', { encoding: 'utf8' });
 } catch (e) {
-  console.error('Fehler beim Lesen der Git-History:', e.message);
-  process.exit(1);
+  console.warn('WARN: Git-History nicht lesbar. Nur PLOT_LORE + Fallbacks werden genutzt.');
 }
 
-const commits = rawLog.split('---COMMIT_SEP---').map(c => c.trim()).filter(Boolean);
+const commits = rawLog ? rawLog.split('---COMMIT_SEP---').map(c => c.trim()).filter(Boolean) : [];
 
 // Guten Einstiegs-Kandidaten aus der echten History extrahieren
 const GOOD_STARTERS = [
@@ -74,7 +88,39 @@ for (const j of openers) {
   if (!tooSimilar) unique.push(j);
 }
 
-// Hartkodierte Top-Jokes aus der History als Fallback ergänzen (immer dabei)
+// ─── PLOT_LORE.md als zweite Quelle: Buffy-Dialoge extrahieren ───────
+// Emergenz-Anbindung: Die lebendige Lore-Geschichte speist den Pool.
+// Nur Buffy-Sprechzeilen die keine Stage-Directions sind (kein *(...))
+const loreOpeners = [];
+if (fs.existsSync(plotLorePath)) {
+  try {
+    const loreContent = fs.readFileSync(plotLorePath, 'utf8');
+    // Matche **Buffy:** Zeilen (ohne Stage-Directions die mit *( beginnen)
+    const buffyRegex = /\*\*Buffy:\*\*\s*(?!\*)(.{40,250}?)(?=\n|$)/g;
+    let bm;
+    while ((bm = buffyRegex.exec(loreContent)) !== null) {
+      let candidate = bm[1].trim();
+      // Generalisieren: Dateinamen, Daten, Commit-Hashes
+      candidate = candidate
+        .replace(/`[^`]{1,60}`/g, m => {
+          if (m.includes('.js') || m.includes('.md')) return '`{FILE}`';
+          if (m.match(/\d{4}-\d{2}-\d{2}/)) return '`{DATUM}`';
+          return m;
+        })
+        .replace(/\b[a-f0-9]{7}\b/g, '{HASH}');
+      if (candidate.length >= 40 && candidate.length <= 280) {
+        loreOpeners.push(candidate);
+      }
+    }
+    console.log(`\u2713 PLOT_LORE.md: ${loreOpeners.length} Buffy-Dialoge extrahiert.`);
+  } catch (e) {
+    console.warn('WARN: PLOT_LORE.md konnte nicht gelesen werden:', e.message);
+  }
+} else {
+  console.warn('WARN: PLOT_LORE.md nicht gefunden — nur Git-History + Fallbacks.');
+}
+
+// Hartkodierte Top-Jokes aus der History als Fallback ergänzen (immer dabei)
 const hardcoded = [
   'Rate mal, wer vergessen hat, {MISTAKE} zu tun. Richtig. Ich.',
   'Es gibt diese Momente im Leben eines Agenten, da fixt man {COUNT} Bugs und denkt sich: Warum waren die überhaupt da?',
@@ -90,8 +136,21 @@ const hardcoded = [
   'Weisst du was? Manchmal schreibt man die 15. Commit-Message und denkt sich: Das liest doch kein Mensch.'
 ];
 
-const final = [...new Set([...unique, ...hardcoded])].slice(0, 30);
+const final = [...new Set([...unique, ...loreOpeners, ...hardcoded])].slice(0, 40);
 
+// ─── Mindestgroesse-Pruefung ────────────────────────────────────────────
+if (final.length < 10) {
+  console.error(`BLOCKED: Pool hat nur ${final.length} Eintraege (Minimum: 10).`);
+  console.error('Zu wenige Commits in Git-History UND PLOT_LORE.md enthaelt keine verwertbaren Buffy-Dialoge.');
+  console.error('sidejoke_pool.json wird NICHT ueberschrieben.');
+  process.exit(1);
+}
+
+// ─── Backup vor Ueberschreiben ────────────────────────────────────────────
+if (fs.existsSync(poolPath)) {
+  fs.copyFileSync(poolPath, backupPath);
+  console.log(`Backup: sidejoke_pool.backup.json gesichert.`);
+}
 fs.writeFileSync(poolPath, JSON.stringify(final, null, 2), 'utf8');
 console.log(`✓ sidejoke_pool.json: ${final.length} Einträge`);
 final.forEach((j, i) => console.log(`  [${i}] ${j.substring(0, 80)}...`));

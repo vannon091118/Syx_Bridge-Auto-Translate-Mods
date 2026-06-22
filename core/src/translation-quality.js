@@ -101,31 +101,55 @@ function createTranslationQuality(options) {
   function scoreTranslationQuality(source, translation) {
     const src = normalizeWhitespace(source);  // E2-Note: normalizeWhitespace wird auch in inferFlagReason() aufgerufen.
     // Performance-Impact minimal (<1ms per call) — bewusste Redundanz zugunsten von Funktions-Isolation.
-    const tgt = normalizeWhitespace(translation);
+    let tgt = normalizeWhitespace(translation);
+
+    // Subtask 0c Fix #1: Plugin-gesteuerte Metadaten-Extraktion.
+    // Groq liefert Übersetzungen mit Game-spezifischen Metadaten (z.B. SoS:
+    //   "[field=Tunnel | ctx:risk=2 | ...] | Quelle: \"echte Übersetzung"
+    // Der Regex kommt vom Plugin (getTranslationMetadataPattern()) —
+    // Multi-Game-Support: jedes Spiel definiert sein eigenes Pattern.
+    // Extrahiere NUR die Übersetzung via Plugin-Capture-Group.
+    const metaPattern = plugin?.getTranslationMetadataPattern?.();
+    if (metaPattern) {
+      const metaMatch = tgt.match(metaPattern);
+      if (metaMatch) tgt = metaMatch[1].trim();
+    }
+
     if (!tgt) return 0;
     if (/^\d+$/.test(tgt)) return 0;
-    // QUAL-OFFENSIVE Fix #4: source_reused Score-Cap
-    // Vorher: Wenn src===tgt UND isLikelyTargetLanguageText(tgt) true (z.B. deutscher
-    // Satz der zufällig auch Englisch sein könnte), gab scoreTranslationQuality 80.
-    // Folge: 338 Einträge mit translation=source_text + quality_score>=80 — diese
-    // wurden nie als "needs retranslation" markiert und blieben flagged=0.
-    // Jetzt: source_reused hat HARD-CAP bei 50 (niemals >50), unabhängig von
-    // Sprachendetektion. Nur echte Übersetzungen können >50 haben.
-    if (src === tgt) return isLikelyTargetLanguageText(tgt) ? 50 : 25;
+
+    // Subtask 0c Fix #2: HARD-CAP für already-target-language von 50→80.
+    // Diagnose: 26/37 DB-Einträge (40-65 Range) sind korrekte deutsche Quellen
+    // die schon Deutsch sind — translation=source ist KORREKT, nicht fehlerhaft.
+    // Cap 50 war zu niedrig und produzierte stale-Flags auf korrekten Texten.
+    // Cap 80 verhindert Retranslation-Loops OHNE korrekte Texte zu bestrafen.
+    // (Wenn src===tgt ABER NICHT Zielsprache → weiterhin 25 — unübersetzter Text.)
+    if (src === tgt) return isLikelyTargetLanguageText(tgt) ? 80 : 25;
 
     let score = 70;
 
+    // lenRatio wird NACH Metadaten-Strip berechnet (#1)
     const lenRatio = tgt.length / Math.max(1, src.length);
     if (lenRatio < 0.2) return 20;
     if (lenRatio >= 0.5 && lenRatio <= 3.0) score += 15;
     else if (lenRatio > 3.0) score -= 10;
 
-    if (isLikelyTargetLanguageText(tgt)) score += 15;
+    // isLikelyTargetLanguageText prüft NACH Metadaten-Strip (#1)
+    const tgtLikely = isLikelyTargetLanguageText(tgt);
+    if (tgtLikely) score += 15;
 
     const srcTokens = src.toLowerCase().split(/\s+/);
     const tgtLower = tgt.toLowerCase();
     const reusedWords = srcTokens.filter(w => w.length > 3 && new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(tgtLower)).length;
-    if (srcTokens.length > 1 && reusedWords / srcTokens.length > 0.5) score -= 10;
+    // Subtask 0c Fix #3: reusedWords-Penalty nur wenn weder Source noch Target
+    // als Zielsprache erkannt werden. Hohe Wort-Ueberlappung bei bereits-deutschen
+    // Quellen oder bestaetigten Uebersetzungen ist ERWARTET (Eigennamen, Cognates,
+    // minimale Interpunktions-/Praepositions-Korrekturen) — kein Fehlersignal.
+    // Echt schlechte Uebersetzungen (EN→EN) scheitern an isLikelyTargetLanguageText
+    // (englische Stopwoerter → false) und werden weiterhin bestraft.
+    if (!tgtLikely && !isLikelyTargetLanguageText(src)) {
+      if (srcTokens.length > 1 && reusedWords / srcTokens.length > 0.5) score -= 10;
+    }
 
     return Math.max(0, Math.min(95, score));
   }

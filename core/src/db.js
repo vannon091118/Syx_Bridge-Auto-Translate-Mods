@@ -104,7 +104,7 @@ async function addColumnIfMissing(table, column, type) {
 // Schema-Version — inkrementieren wenn neue Migrationen/Spalten hinzukommen.
 // Jeder init()-Aufruf prüft diese Version. Bei Match → alle addColumnIfMissing
 // und Bulk-UPDATE-Migrationen werden übersprungen. Spart 2-5s auf HDD.
-const CURRENT_SCHEMA_VERSION = '6';
+const CURRENT_SCHEMA_VERSION = '7';
 
 /**
  * Initializes the database schema and performs migrations.
@@ -307,6 +307,22 @@ async function init() {
     )`);
   await run('CREATE INDEX IF NOT EXISTS idx_revisions_lookup ON translation_revisions(source_text, target_lang, revision_id)');
 
+  // --- v0.21 Item 2: Model-Task-Metrics für dynamisches Routing ---
+  await run(`CREATE TABLE IF NOT EXISTS model_task_metrics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        model TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        task_type TEXT NOT NULL,
+        target_lang TEXT NOT NULL,
+        avg_quality REAL NOT NULL DEFAULT 0,
+        success_count INTEGER NOT NULL DEFAULT 0,
+        fail_count INTEGER NOT NULL DEFAULT 0,
+        total_calls INTEGER NOT NULL DEFAULT 0,
+        last_used_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(model, provider, task_type, target_lang)
+    )`);
+  await run('CREATE INDEX IF NOT EXISTS idx_model_task_metrics_lookup ON model_task_metrics(target_lang, task_type, avg_quality DESC)');
+
   // --- v0.19.9 Shield-Leak Cleanup ---
   try {
     const shieldLeakResult = await run(
@@ -357,6 +373,33 @@ async function migrateRiskScore() {
   console.log('[DB] risk_score migration: checked (addColumnIfMissing).');
 }
 
+// ── Item 0d: Metrics Snapshot für dynamisches Routing ─────────────────
+// Lädt alle model_task_metrics-Zeilen in eine synchrone Map.
+// Key-Format: "provider:model:task_type" → Metriken für getDynamicScore().
+// Wird vor jedem Batch-Lauf aktualisiert, damit Routing-Entscheidungen
+// auf aktuellen Qualitätsdaten basieren.
+function getMetricsSnapshot() {
+  if (!db) return {};
+  try {
+    const rows = db.prepare(
+      'SELECT model, provider, task_type, target_lang, avg_quality, success_count, fail_count, total_calls FROM model_task_metrics'
+    ).all();
+    const map = {};
+    for (const r of rows) {
+      const key = `${r.provider}:${r.model}:${r.task_type}`;
+      map[key] = {
+        avg_quality: r.avg_quality,
+        success_count: r.success_count,
+        fail_count: r.fail_count,
+        total_calls: r.total_calls
+      };
+    }
+    return map;
+  } catch (e) {
+    return {};
+  }
+}
+
 // ── Transaction Batching (HDD-Optimierung) ────────────────────────────
 // better-sqlite3 ist synchron — BEGIN/COMMIT via SQL funktioniert auf der
 // gemeinsamen this.db-Connection. Alle saveTranslation-Aufrufe innerhalb
@@ -390,5 +433,6 @@ module.exports = {
   beginTransaction,
   commitTransaction,
   rollbackTransaction,
+  getMetricsSnapshot,
   db: () => db
 };
