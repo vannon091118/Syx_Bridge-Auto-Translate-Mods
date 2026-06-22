@@ -477,3 +477,13 @@ S-003 dispatcher classifzPath Fix: activePlugin wird von index.js durch translat
 > **User-Impuls:** C-002 DEFAULT_GAME zentralisieren - 'songs_of_syx' Hardcodes durch zentrale Konstante ersetzen
 
 C-002: DEFAULT_GAME zentralisiert. Bisher war 'songs_of_syx' an 6 Stellen hardcodiert (index.js, sos-runtime.js, export_stage2.js, config-runtime.js, plugin-registry.js). Jetzt lebt die Konstante ausschliesslich in plugin-registry.js und wird von allen Consumern importiert. Langfristige Falsifikation: Wenn ein neues Spiel registriert wird (z.B. RimWorld), reicht DEFAULT_GAME = 'rimworld' an EINER Stelle. Kein Suchen nach Hardcodes mehr.
+
+### [2026-06-22 16:05:00]
+> **User-Impuls:** Story-Arc-System organisch in Commit-Layer integrieren — alle Komponenten müssen sich gegenseitig ergänzen, keine darf ignoriert werden
+
+Commit-Layer Arc-Integration: verify_commit_msg.js, get_sidejoke.js, update_plot.js, cross_references.json und lore_arcs.json wurden organisch vernetzt. verify_commit_msg.js prüft jetzt Arc-Zugehörigkeit (mindestens einer der 4 Bögen muss im Commit-Text referenziert sein), Temporal-Anchor (der-erste-tag, der-grosse-audit, die-filter-katastrophe, der-erste-live-run) und warnt bei fehlender Cross-Arc-Bridge nach 3 Commits. get_sidejoke.js akzeptiert --arc Parameter für Arc-bewusste Sidejoke-Auswahl und zeigt suggested_next_hooks aus dem letzten plotchain-Node. update_plot.js speichert cross_references_used und cross_arc_bridge in jedem Node. cross_references.json enthält jetzt alle Arc-Namen und Brückenbegriffe. lore_arcs.json hat reale Commit-Hashes in anchor_events.
+
+### [2026-06-22 16:14:40]
+> **User-Impuls:** V60-V71 Filter-Fix — V6/V7 Filter aus export_stage2.js entfernt
+
+V60-V71 Filter-Fix in export_stage2.js. Der V6/V7 Filter (!src.includes('V6') && !src.includes('V7')) wurde entfernt — er blockierte fälschlich ALLE V60-V71 Versionsordner beim Mod-Kopieren ins Staging. SongsOfSyxPlugin.isVersionDirectory() unterstützt bereits alle V\d+-Ordner korrekt. Der Fix stellt sicher, dass Mods mit mehreren Versionsordnern (V60, V61, ..., V71) vollständig kopiert und verarbeitet werden.

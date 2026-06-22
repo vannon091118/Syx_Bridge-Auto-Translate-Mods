@@ -988,5 +988,109 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "C-002: DEFAULT_GAME zentralisiert. Bisher war 'songs_of_syx' an 6 Stellen hardcodiert (index.js, sos..."
+  },
+  {
+    "id": "plot-2026-06-22T16:05:00",
+    "parent_id": "plot-2026-06-22T15:55:46",
+    "timestamp": "2026-06-22 16:05:00",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "Story-Arc-System organisch in Commit-Layer integrieren — alle Komponenten müssen sich gegenseitig ergänzen, keine darf ignoriert werden",
+      "timestamp": "2026-06-22T16:05:00",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "cross_arc_bridge": false,
+    "cross_references_used": [
+      "lore_arcs",
+      "der-erste-tag",
+      "der-grosse-audit",
+      "die-filter-katastrophe",
+      "der-erste-live-run",
+      "Live-Run"
+    ],
+    "lore_context": [
+      "2026-06-22 15:48:52",
+      "2026-06-22 15:55:46",
+      "2026-06-22 16:05:00"
+    ],
+    "session_changes": [
+      "ore/archive/docs/PLOT_LORE.md",
+      "core/scripts/commit_lore/cross_references.json",
+      "core/scripts/commit_lore/get_sidejoke.js",
+      "core/scripts/commit_lore/lore_arcs.json",
+      "core/scripts/commit_lore/update_plot.js",
+      "core/scripts/verify_commit_msg.js",
+      "core/logs/",
+      "core/scripts/commit_lore/sidejoke_pool.backup.json"
+    ],
+    "variables": [
+      "lore_arcs",
+      "der-erste-tag",
+      "der-grosse-audit",
+      "die-filter-katastrophe",
+      "der-erste-live-run",
+      "Live-Run",
+      "PLOT_LORE",
+      "cross_references",
+      "get_sidejoke",
+      "update_plot",
+      "verify_commit_msg",
+      "logs",
+      "sidejoke_pool.backup"
+    ],
+    "suggested_next_hooks": [
+      "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
+      "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
+    ],
+    "dialogue_preview": "Commit-Layer Arc-Integration: verify_commit_msg.js, get_sidejoke.js, update_plot.js, cross_reference..."
+  },
+  {
+    "id": "plot-2026-06-22T16:14:40",
+    "parent_id": "plot-2026-06-22T16:05:00",
+    "timestamp": "2026-06-22 16:14:40",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "V60-V71 Filter-Fix — V6/V7 Filter aus export_stage2.js entfernt",
+      "timestamp": "2026-06-22T16:14:40",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "cross_arc_bridge": false,
+    "cross_references_used": [],
+    "lore_context": [
+      "2026-06-22 15:55:46",
+      "2026-06-22 16:05:00",
+      "2026-06-22 16:14:40"
+    ],
+    "session_changes": [
+      "core/archive/docs/PLOT_LORE.md",
+      "core/scripts/commit_lore/cross_references.json",
+      "core/scripts/commit_lore/get_sidejoke.js",
+      "core/scripts/commit_lore/lore_arcs.json",
+      "core/scripts/commit_lore/plotchain.json",
+      "core/scripts/commit_lore/update_plot.js",
+      "core/scripts/verify_commit_msg.js"
+    ],
+    "variables": [
+      "PLOT_LORE",
+      "cross_references",
+      "get_sidejoke",
+      "lore_arcs",
+      "plotchain",
+      "update_plot",
+      "verify_commit_msg"
+    ],
+    "suggested_next_hooks": [
+      "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
+      "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
+    ],
+    "dialogue_preview": "V60-V71 Filter-Fix in export_stage2.js. Der V6/V7 Filter (!src.includes('V6') && !src.includes('V7')..."
   }
 ]

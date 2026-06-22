@@ -150,10 +150,10 @@ async function exportMod(modDir, modName) {
     // Copy mod to staging
     await fsp.mkdir(PATCH_ROOT, { recursive: true });
     await fsp.mkdir(stagingPath, { recursive: true });
-    await fsp.cp(modDir, stagingPath, {
-      recursive: true,
-      filter: (src) => !src.includes('V6') && !src.includes('V7')
-    });
+    // V60-V71: Alle Versionsordner werden kopiert — der Filter wurde entfernt,
+    // da er fälschlich V60-V69 (via 'V6') und V70-V71 (via 'V7') ausschloss.
+    // SongsOfSyxPlugin.isVersionDirectory() handhabt alle V\d+-Ordner korrekt.
+    await fsp.cp(modDir, stagingPath, { recursive: true });
 
     // Write updated _Info.txt
     const infoPath = path.join(modDir, gameAdapter.getMetadataFileName());
