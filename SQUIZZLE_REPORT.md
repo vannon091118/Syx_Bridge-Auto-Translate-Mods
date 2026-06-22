@@ -89,15 +89,15 @@ v0.22 PROGRESS [■■■■■■■■■■■■■■■■■■■■] 10
 │  RimWorld-Items (R-001..R-004) → v0.23 Roadmap            │
 │                                                             │
 │  MINIMUM v0.22:                                             │
-│  1. S-003 dispatcher classifyPath fix (0.5h)               │
-│  2. C-002 zentraler DEFAULT_GAME (0.5h)                    │
-│  3. C-004 escapeText Re-Export entfernen (0.25h)           │
-│  4. C-005 Watermark-Strip Helper (0.5h)                    │
-│  5. L-4  Auto-Pre-Fix-Snapshot (1h)                        │
-│  6. L-5  Auto-Pre-Release-Check (1h)                       │
+│  1. S-003 dispatcher classifyPath fix (0.5h) ✅ DONE       │
+│  2. C-002 zentraler DEFAULT_GAME (0.5h) ✅ DONE            │
+│  3. C-004 escapeText Re-Export entfernen (0.25h) ✅ DONE   │
+│  4. C-005 Watermark-Strip Helper (0.5h) ✅ DONE            │
+│  5. L-4  Auto-Pre-Fix-Snapshot (1h) ✅ DONE                │
+│  6. L-5  Auto-Pre-Release-Check (1h) ✅ DONE               │
 │  7. SSOT-Verletzungen beheben (0.25h) ✅ DONE              │
 │                                                             │
-│  TOTAL: ~4h bis v0.22 finalisiert                           │
+│  TOTAL: ~4h — ✅ ALLE 7 ITEMS ABGESCHLOSSEN                │
 │  EFFORT TO NEXT SCOPE (v0.23): ~16h (RimWorld-Prototyp)   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -107,8 +107,8 @@ v0.22 PROGRESS [■■■■■■■■■■■■■■■■■■■■] 10
 | PLAN_AUDIT | SCOPE_REPORT | Beschreibung | Status |
 |------------|-------------|--------------|--------|
 | L-1 | S-003 | POLISHER/Dispatcher Fallback | ✅ DONE (config-runtime.js) |
-| L-2 | C-002 | DEFAULT_GAME Dedup | ⚠️ OFFEN |
-| L-8 | N-002 | Denylist Härtung | ⚠️ OFFEN |
+| L-2 | C-002 | DEFAULT_GAME Dedup | ✅ DONE — in plugin-registry.js zentral definiert |
+| L-8 | N-002 | Denylist Härtung | ✅ DONE — PROPER_NOUN_DENY_COMMON_ENGLISH Set in text-core.js |
 
 ### Alle offenen Items (priorisiert)
 
@@ -141,12 +141,12 @@ v0.22 PROGRESS [■■■■■■■■■■■■■■■■■■■■] 10
 | ID | Beschreibung | Status |
 |----|-------------|--------|
 | L-1 | POLISHER Auto-Discovery | ✅ DONE |
-| L-2 | DEFAULT_GAME Dedup | ⚠️ OFFEN |
+| L-2 | DEFAULT_GAME Dedup | ✅ DONE |
 | L-3 | Gemini Free-Cache nie befüllt | ⚠️ OFFEN |
-| L-4 | Auto-Pre-Fix-Snapshot | ⚠️ OFFEN (v0.22 Minimum) |
-| L-5 | Auto-Pre-Release-Check | ⚠️ OFFEN (v0.22 Minimum) |
+| L-4 | Auto-Pre-Fix-Snapshot | ✅ DONE |
+| L-5 | Auto-Pre-Release-Check | ✅ DONE |
 | L-6 | GateCounter ohne Trend-Analyse | ⚠️ OFFEN |
-| L-7 | checkVendorDrift nicht automatisiert | ⚠️ OFFEN |
+| L-7 | checkVendorDrift nicht automatisiert | ✅ DONE |
 | L-8 | Denylist Härtung | ⚠️ OFFEN |
 | L-9 | DB-Migration für game_id | 🔴 P0 (v0.23) |
 
@@ -224,12 +224,14 @@ L4 Export  ──X──→  L1 Plugin    ✅ Keine Verletzung
 
 ### Sofort (v0.22 Minimum — ~4h)
 
-1. **S-003** `dispatcher.js:classifyPath()` — Game-Parameter statt Hardcoded-Pfad (~0.5h)
-2. **C-002** `DEFAULT_GAME` als Konstante in config-runtime.js (~0.5h)
-3. **C-004** `escapeText` Re-Export in text-core.js entfernen (~0.25h)
-4. **C-003** Watermark-Strip Helper in extractor.js zentralisieren (~0.5h)
-5. **L-4** Auto-Pre-Fix-Snapshot in dispatcher.js (~1h)
-6. **L-5** Auto-Pre-Release-Check in release.js (~1h)
+1. ~~**S-003** dispatcher classifyPath~~ ✅ DONE — `classifyPath(item.relativePath, plugin)` delegiert an `plugin.getPathRules()`
+2. ~~**C-002** DEFAULT_GAME~~ ✅ DONE — Definert in `plugin-registry.js`, importiert von config-runtime, sos-runtime, index, export_stage2
+3. ~~**C-004** escapeText Re-Export~~ ✅ DONE — text-core.js exportiert kein escapeText mehr
+4. ~~**C-003** Watermark-Strip Helper~~ ✅ DONE — `stripWatermarks()` in extractor.js, von allen 4 Consumern importiert
+5. ~~**L-4** Auto-Pre-Fix-Snapshot~~ ✅ DONE — `preflight.js:createSnapshot()` vor Reparaturen
+6. ~~**L-5** Auto-Pre-Release-Check~~ ✅ DONE — `release.js` ruft `check_vendor_drift.js` vor Build auf
+
+**→ Alle 7 v0.22 Minimum-Items sind codeseitig abgeschlossen (Doku wurde nachgezogen am 2026-06-22).**
 
 ### Nächster Scope (v0.23 RimWorld — ~16h)
 

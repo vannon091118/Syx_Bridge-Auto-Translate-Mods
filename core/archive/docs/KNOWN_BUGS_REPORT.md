@@ -9,8 +9,17 @@
 ---
 
 ## ══════════════════════════════════════════
-## 1. AKTIVE BUGS (6 — sortiert nach ID)
+## 1. AKTIVE BUGS (7 — sortiert nach ID)
 ## ══════════════════════════════════════════
+
+### 🔴 BU-OVERWRITE-2026-06-22 — __OVERWRITE: true zerstört Vanilla-DE-Texte
+- **Symptom:** Das gesamte Spiel zeigt Englisch statt Deutsch. Vanilla-Lokalisierung wird ignoriert.
+- **Trigger:** Jede V71+ Textdatei mit `__OVERWRITE: true` Header.
+- **Betroffene Dateien:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`.
+- **Ursache:** `getFileHeader()` gibt `__OVERWRITE: true` für ALLE V71-Dateien zurück. Das löscht die komplette Vanilla-Datei. Nur übersetzte Keys bleiben → Rest fällt auf Englisch-Defaults.
+- **Reproduzierbarkeit:** 100% — betrifft alle V71-Dateien.
+- **Status:** ✅ BEHOBEN (2026-06-22) — Plugin gibt `''` zurück, 39 V71-Dateien bereinigt.
+- **Root-Cause-Doku:** `BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`
 
 ### 🟡 BU-004 — Backup-Race-Condition bei File-Locks
 - **Symptom:** Gleichzeitige Zugriffe auf `patches/` und `backups/` konnten Dateien korrumpieren.
