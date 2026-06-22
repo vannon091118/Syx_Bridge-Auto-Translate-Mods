@@ -444,18 +444,7 @@ function registerGuiHandlers(ctx) {
       
   global.guiServer.on('get-models', async (provider, callback) => {
     try {
-      let models = [];
-      if (provider === 'gemini') models = await configRuntime.fetchGeminiModels();
-      else if (provider === 'groq') models = await configRuntime.fetchGroqModels();
-      else if (provider === 'openrouter') models = await configRuntime.fetchOpenRouterModels(true);
-      else if (provider === 'ollama') models = await configRuntime.fetchOllamaModels();
-      else if (provider === 'player2') models = await configRuntime.fetchPlayer2Models();
-      else if (provider === 'nvidia') models = await configRuntime.fetchNvidiaModels();
-      else if (provider === 'fcm') {
-        // FCM: return live-ranked models as IDs
-        const rankings = await configRuntime.fetchFcmModelRankings();
-        models = rankings.map(r => r.id);
-      }
+      const models = await configRuntime.fetchModelsFor(provider, provider === 'openrouter');
       const filtered = filterLLMs(models, provider === 'openrouter');
       callback(filtered.length > 0 ? filtered : models);
     } catch (e) { callback([]); }

@@ -170,23 +170,12 @@ function filterLLMs(models, freeOnly = false) {
     .sort((a, b) => rankModel(b, 'openrouter') - rankModel(a, 'openrouter') || String(a).localeCompare(String(b)));
 }
 
-function getDefaultModelForProvider(provider) {
-  // Return 'auto' for cloud providers so runtime discovery picks the best model.
-  // For OpenRouter we always start with the free tier.
-  // ⚠️ Groq: 'auto' ist KEIN gültiger Modellname bei Groq (anders als OpenRouter).
-  // Bei Nicht-Primary-Provider-Nutzung (freeLlmFirst-Fallback) wurde 'auto'
-  // literal an die API gesendet → 404. Fix: konkreten Fallback statt 'auto'.
-  if (provider === 'openrouter') return OPENROUTER_FREE_MODEL;
-  if (provider === 'ollama')     return OLLAMA_FALLBACK_MODELS[0];
-  if (provider === 'groq')       return GROQ_FALLBACK_MODELS[0];
-  // Gemini: hat ebenfalls kein 'auto'-Routing wie OpenRouter.
-  // 'gemini-2.5-flash-lite' ist das aktuelle, lebende Leichtgewicht (siehe checkCloudKey).
-  if (provider === 'gemini')     return 'gemini-2.5-flash-lite';
-  return 'auto'; // player2 → runtime discovery (OpenAI-compatible 'auto')
-}
+const { translateHttpError, PROVIDER_REGISTRY } = require('./router');
 
-const { translateHttpError } = require('./router');
-// Item 0b: setOpenRouterFreeModels für Provider-bewusste Free-Erkennung
+function getDefaultModelForProvider(provider) {
+  const reg = PROVIDER_REGISTRY[provider];
+  return reg ? reg.defaultModel : 'auto';
+}
 const { setOpenRouterFreeModels } = require('./router');
 
 function maskSecret(value) {
@@ -714,21 +703,34 @@ class ConfigRuntime {
     }
   }
 
+  /**
+   * Dispatch-Methode: ruft die richtige fetchXxxModels()-Methode für einen Provider auf.
+   * Ersetzt 3× duplizierte if/else-Ketten (ensurePrimaryModel, configure, gui-handlers.js).
+   * Ist ein Provider in PROVIDER_REGISTRY aber hat KEIN fetchMethod → UNVOLLSTÄNDIG (sichtbar im Diff).
+   * @param {string} provider
+   * @param {boolean} [freeOnly=false] — Nur für OpenRouter relevant
+   * @returns {Promise<string[]>} Modell-IDs
+   */
+  async fetchModelsFor(provider, freeOnly = false) {
+    const reg = PROVIDER_REGISTRY[provider];
+    if (!reg) throw new Error(`Unbekannter Provider: ${provider}`);
+    if (!reg.fetchMethod) return [];
+    const result = await this[reg.fetchMethod](freeOnly);
+    // FCM: fetchFcmModelRankings liefert Objekte, keine Strings
+    if (provider === 'fcm' && Array.isArray(result) && result.length > 0 && typeof result[0] === 'object') {
+      return result.map(r => r.id);
+    }
+    return result;
+  }
+
   async ensurePrimaryModel() {
     const model = this.config.PRIMARY_MODEL;
-    // 'auto' and empty string trigger discovery; valid model names skip this step
     if (model && model !== 'auto' && isUsableTextModel(model)) return;
 
     console.warn(`[WARN] Modell "${model}" erfordert auto-discovery fuer ${this.config.PRIMARY_PROVIDER}...`);
     let models = [];
     try {
-      if (this.config.PRIMARY_PROVIDER === 'gemini')     models = await this.fetchGeminiModels();
-      else if (this.config.PRIMARY_PROVIDER === 'groq')  models = await this.fetchGroqModels();
-      else if (this.config.PRIMARY_PROVIDER === 'openrouter') models = await this.fetchOpenRouterModels(true);
-      else if (this.config.PRIMARY_PROVIDER === 'ollama') models = await this.fetchOllamaModels();
-      else if (this.config.PRIMARY_PROVIDER === 'nvidia')  models = await this.fetchNvidiaModels();
-      else if (this.config.PRIMARY_PROVIDER === 'fcm') { const rankings = await this.fetchFcmModelRankings(); models = rankings.map(r => r.id); }
-      else if (this.config.PRIMARY_PROVIDER === 'player2') models = await this.fetchPlayer2Models();
+      models = await this.fetchModelsFor(this.config.PRIMARY_PROVIDER, this.config.PRIMARY_PROVIDER === 'openrouter');
     } catch (e) {}
 
     const freeOnly = this.config.PRIMARY_PROVIDER === 'openrouter';
@@ -839,12 +841,7 @@ class ConfigRuntime {
     console.log(`[INFO] Lade Modelle fÃ¼r ${this.config.PRIMARY_PROVIDER}...`);
     let modelChoices = [];
     try {
-      let models = [];
-      if (this.config.PRIMARY_PROVIDER === 'gemini') models = await this.fetchGeminiModels();
-      else if (this.config.PRIMARY_PROVIDER === 'groq') models = await this.fetchGroqModels();
-      else if (this.config.PRIMARY_PROVIDER === 'openrouter') models = await this.fetchOpenRouterModels(true);
-      else if (this.config.PRIMARY_PROVIDER === 'ollama') models = await this.fetchOllamaModels();
-      else if (this.config.PRIMARY_PROVIDER === 'player2') models = await this.fetchPlayer2Models();
+      const models = await this.fetchModelsFor(this.config.PRIMARY_PROVIDER, this.config.PRIMARY_PROVIDER === 'openrouter');
       const filtered = filterLLMs(models, this.config.PRIMARY_PROVIDER === 'openrouter');
       const final = filtered.length > 0 ? filtered : models;
       modelChoices = final.map(m => ({ title: m, value: m }));

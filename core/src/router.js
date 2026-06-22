@@ -1,17 +1,29 @@
-// ─── Provider Capability Matrix ──────────────────────────────────────────────
-// Definiert welche Stages ein Provider unterstützt.
-// google_free + argos können NUR übersetzen, nicht auditieren/polish/vergleichen.
-const PROVIDER_CAPABILITIES = {
-  google_free:  { translate: true,  audit: false, polish: false, compare: false, review: false },
-  argos:        { translate: true,  audit: false, polish: false, compare: false, review: false },
-  fcm:          { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  ollama:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  openrouter:   { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  groq:         { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  gemini:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  player2:      { translate: true,  audit: true,  polish: true,  compare: true,  review: true  },
-  nvidia:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  }
+// ─── PROVIDER_REGISTRY — Single Source of Truth für ALLE 9 Provider ──────────
+// JEDER Provider MUSS hier gelistet sein. Kein Provider darf implizit existieren.
+// Pattern: { type, defaultModel, fetchMethod, costClass, limits, capabilities }
+// Fehlt ein Provider → Code ist UNVOLLSTÄNDIG (sofort sichtbar im Diff).
+// Genutzt von: router.js (isFreeModel, estimateCostClass, supportsRole),
+//   config-runtime.js (fetchModelsFor, getDefaultModelForProvider),
+//   client-factory.js (getBatchProfile, PROVIDER_CHAT_CONFIG).
+const PROVIDER_REGISTRY = {
+  openrouter:   { type: 'cloud', defaultModel: 'openrouter/free',       fetchMethod: 'fetchOpenRouterModels', costClass: 4,  limits: { items: 10, chars: 1800, pItems: 6, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  groq:         { type: 'cloud', defaultModel: 'llama-3.1-8b-instant',  fetchMethod: 'fetchGroqModels',       costClass: 4,  limits: { items: 8,  chars: 1200, pItems: 5, pChars: 900 },  caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  gemini:       { type: 'cloud', defaultModel: 'gemini-2.5-flash-lite', fetchMethod: 'fetchGeminiModels',     costClass: 5,  limits: { items: 8,  chars: 1500, pItems: 5, pChars: 1000 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  nvidia:       { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchNvidiaModels',     costClass: 4,  limits: { items: 15, chars: 3000, pItems: 10, pChars: 2200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  fcm:          { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchFcmModelRankings', costClass: 1.5, limits: { items: 14, chars: 2000, pItems: 8, pChars: 1600 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  ollama:       { type: 'local', defaultModel: 'llama3.2',              fetchMethod: 'fetchOllamaModels',     costClass: 1,  limits: { items: 12, chars: 1800, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  player2:      { type: 'local', defaultModel: 'auto',                  fetchMethod: 'fetchPlayer2Models',    costClass: 1,  limits: { items: 6,  chars: 900,  pItems: 4, pChars: 700 },  caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  google_free:  { type: 'local', defaultModel: 'google-translate-free', fetchMethod: null,                    costClass: 9,  limits: { items: 8,  chars: 1200, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: false, polish: false, compare: false, review: false } },
+  argos:        { type: 'local', defaultModel: 'argos-translate-local', fetchMethod: null,                    costClass: 10, limits: { items: 10, chars: 1500, pItems: 10, pChars: 1500 }, caps: { translate: true, audit: false, polish: false, compare: false, review: false } }
 };
+
+// Abwärtskompatible Aliase (existierende Code-Referenzen)
+const PROVIDER_CAPABILITIES = Object.fromEntries(
+  Object.entries(PROVIDER_REGISTRY).map(([id, reg]) => [id, reg.caps])
+);
+const PROVIDER_DEFAULTS = Object.fromEntries(
+  Object.entries(PROVIDER_REGISTRY).map(([id, reg]) => [id, reg.defaultModel])
+);
 
 // ─── Free-Model Static Lists (Provider ohne API-Pricing) ─────────────────────
 // Quellen: API-Dokumentation + manuelle Recherche, Stand Juni 2026.
@@ -57,15 +69,38 @@ function setOpenRouterFreeModels(modelIds) {
   _openRouterFreeCache = new Set(modelIds.map(m => m.toLowerCase()));
 }
 
+// ─── Item 0d: Dynamic Model Scoring ─────────────────────────────────────────
+// Berechnet einen dynamischen Qualitätsscore für Provider+Model+Task aus DB-Metriken.
+// Höherer Score = besseres Modell für diese Aufgabe.
+// Fallback bei fehlenden Metriken: invertierte Cost-Class (günstigere Provider bevorzugt).
+function getDynamicScore(provider, model, taskType, metricsSnapshot) {
+  if (!metricsSnapshot || !provider || !model) {
+    return 100 - (estimateCostClass(provider, model) * 10);
+  }
+
+  const key = `${provider}:${model}:${taskType}`;
+  const m = metricsSnapshot[key];
+
+  // Keine Metriken oder zu wenig Daten (<10 Calls) → Fallback auf Cost
+  if (!m || m.total_calls < 10) {
+    return 100 - (estimateCostClass(provider, model) * 10);
+  }
+
+  // Primär: avg_quality (0-100). Sekundär: Success-Rate als Tiebreaker (+0..+5).
+  const successRate = m.total_calls > 0 ? m.success_count / m.total_calls : 0;
+  return m.avg_quality + (successRate * 5);
+}
+
 // ─── Free-model detection (Provider-aware) ───────────────────────────────────
 function isFreeModel(provider, model) {
   const name = String(model || '').toLowerCase();
+  const reg = PROVIDER_REGISTRY[provider];
 
-  // Immer freie Provider (lokal / offline / known-free)
-  if (provider === 'ollama' || provider === 'player2') return true;
-  if (provider === 'argos') return true;
-  if (provider === 'google_free') return true;
-  if (provider === 'fcm') return true;
+  // 'auto' ist KEIN echtes Modell — kein Free-Tier-Check möglich
+  if (name === 'auto' || !name) return false;
+
+  // Lokale/Offline-Provider: immer frei
+  if (reg && reg.type === 'local') return true;
 
   // OpenRouter: dynamischer Cache (gefüllt via fetchOpenRouterModels)
   if (provider === 'openrouter') {
@@ -96,19 +131,12 @@ function isFreeModel(provider, model) {
 
 // ─── Cost class: lower = cheaper / preferred ─────────────────────────────────
 // 0 = fully local/offline  →  10 = absolute last resort
+// Nutzt PROVIDER_REGISTRY.costClass statt hartcodierter if/else-Kette.
 function estimateCostClass(provider, model) {
-  // BUGFIX (Argos overuse): Argos is now cost class 10 — ABSOLUTE LAST RESORT.
-  if (provider === 'argos') return 10;
-  if (provider === 'google_free') return 9;
-  if (provider === 'ollama' || provider === 'player2') return 1;
-  if (provider === 'fcm') return 1.5;
-  // FREE IST SCOPE: alle per isFreeModel() erkannten Modelle → cost 2
-  // (OpenRouter free, Groq free tier, NVIDIA free, Gemini free tier)
-  if (isFreeModel(provider, model)) return 2;
-  // Paid cloud providers (wenn Modell nicht als free erkannt)
-  if (provider === 'openrouter' || provider === 'groq' || provider === 'nvidia') return 4;
-  if (provider === 'gemini') return 5;
-  return 6;
+  const reg = PROVIDER_REGISTRY[provider];
+  // Free cloud models get cost 2 instead of their paid class
+  if (reg && reg.type === 'cloud' && isFreeModel(provider, model)) return 2;
+  return reg ? reg.costClass : 6;
 }
 
 function isEnabledFlag(value, defaultValue = true) {
@@ -118,19 +146,7 @@ function isEnabledFlag(value, defaultValue = true) {
   return ['1', 'true', 'yes', 'on'].includes(normalized);
 }
 
-// ─── Default model per provider: always prefer the cheapest/free option ───────
-// No hardcoded vendor-specific model names here; the config-runtime discovers
-// real models at startup and overwrites PRIMARY_MODEL / AUDITOR_MODEL / POLISHER_MODEL.
-const PROVIDER_DEFAULTS = {
-  gemini: 'auto',
-  groq: 'auto',
-  openrouter: 'openrouter/free',   // always start with the free route
-  ollama: 'auto',
-  player2: 'auto',
-  fcm: 'auto',                     // FCM daemon proxy (localhost:19280/v1)
-  google_free: 'google-translate-free',
-  argos: 'argos-translate-local'
-};
+
 
 // ─── HTTP Error → Human-readable Action Translator ───────────────────────────
 // Jeder Fehlercode bekommt eine menschenlesbare Bedeutung + Handlungsempfehlung.
@@ -155,8 +171,6 @@ function translateHttpError(status) {
   return map[status] || { severity: 'unknown', meaning: `HTTP ${status}`, action: 'Unbekannter Status-Code. Doku des Providers konsultieren.' };
 }
 
-module.exports.translateHttpError = translateHttpError;
-
 class Router {
   constructor(config = {}, helpers = {}) {
     this.config = config;
@@ -166,6 +180,12 @@ class Router {
       isArgosInstalled: helpers.isArgosInstalled || (() => false)
     };
     this.providers = new Map();
+    // Item 0d: Metrics-Snapshot für dynamisches Routing
+    this._metricsSnapshot = null;
+  }
+
+  setMetricsSnapshot(snapshot) {
+    this._metricsSnapshot = snapshot || null;
   }
 
   syncDefaults(defaults = {}) {
@@ -451,24 +471,28 @@ class Router {
       });
     }
 
-    // ── 4. Sort: healthy → user-priority → cheapest first → cooldown last ────
-    // When a user-configured provider is healthy, it ALWAYS wins — regardless of
-    // cost class. This ensures NVIDIA (or any explicit PRIMARY_PROVIDER) is never
-    // undercut by free-tier providers the user didn't ask for.
+    // ── 4. Sort: healthy → user-priority → DB-quality → cheapest fallback ───
+    // Item 0d: Dynamische Sortierung. Wenn DB-Metriken verfügbar sind, wird
+    // avg_quality aus model_task_metrics als primäres Sortierkriterium genutzt.
+    // Ohne Metriken fällt die Sortierung auf costClass zurück (wie vorher).
+    const metrics = this._metricsSnapshot;
     return plan.sort((a, b) => {
       if (a.isHealthy    !== b.isHealthy)    return a.isHealthy    ? -1 : 1;
       if (a.isUserPriority !== b.isUserPriority) return a.isUserPriority ? -1 : 1;
-      // Only compare cost when neither candidate is the user's explicit choice
-      if (a.costClass    !== b.costClass)    return a.costClass - b.costClass;
-      return 0;
+      // Dynamische DB-Qualität (wenn Metriken verfügbar)
+      const scoreA = getDynamicScore(a.provider, a.model, role, metrics);
+      const scoreB = getDynamicScore(b.provider, b.model, role, metrics);
+      if (scoreA !== scoreB) return scoreB - scoreA;
+      // Fallback: Cost-Klasse
+      return a.costClass - b.costClass;
     });
   }
 }
 
 module.exports = Router;
 
-// Re-export translateHttpError for external consumers (config-runtime key checks, etc.)
 module.exports.translateHttpError = translateHttpError;
-// Re-export free-model detection for client-factory.js + config-runtime.js
 module.exports.isFreeModel = isFreeModel;
+module.exports.getDynamicScore = getDynamicScore;
 module.exports.setOpenRouterFreeModels = setOpenRouterFreeModels;
+module.exports.PROVIDER_REGISTRY = PROVIDER_REGISTRY;

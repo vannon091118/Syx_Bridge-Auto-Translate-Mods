@@ -424,3 +424,20 @@ Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update
 
 ### [2026-06-22 12:04:21]
 ### [2026-06-22 14:35] — P0-4+5: Das Gedächtnis lernt sprechen\n\n**Buffy:** Erinnerst du dich an den Diagnostik-Audit? 'Übersetzungen unzuverlässiger als Pre-Alpha'. Der Grund war nicht EIN Bug. Es waren drei Systeme die sich gegenseitig blockierten. Eines davon: _metricsCache hat den task_type verworfen.\n\n**Vannon:** Was heisst 'verworfen'?\n\n**Buffy:** setMetricsCache hat aus 'groq:llama-3.1-8b-instant:translate' das ':translate' abgeschnitten. Alles in EINEN Topf: translate + polish + audit. Gewichteter Durchschnitt. Ein Modell das bei Translation 89/100 aber bei Polish 25/100 erreichte, bekam für BEIDE Aufgaben denselben Score. Das Routing hat dann das Modell für Polish bevorzugt — obwohl es dafür ungeeignet war.\n\n**Vannon:** Und jetzt?\n\n**Buffy:** ZWEI Caches. _metricsCache für rankModel (aggregiert, für GUI-Modell-Listen). _metricsCacheByTask für getModelMetrics (task_type-bewusst, für Routing und Batch-Größen). getModelMetrics sucht zuerst per-task, dann Fallback auf aggregiert. getDynamicScore in router.js nutzt den Raw-Snapshot — der hatte task_type schon immer.\n\n**Vannon:** Und die Batch-Größen?\n\n**Buffy:** P0-5. Der researcher-web hat die echten Free-Tier-Limits recherchiert. NVIDIA: 40 RPM — aber unser Code hatte 5 Items. Das ist 8× zu konservativ. Jetzt 15. Gemini: 10-15 RPM — aber unser Code hatte 20 Items. 429 nach 2 Batches garantiert. Jetzt 8. OpenRouter: 20 RPM → 10 Items. Groq: 30 RPM → 8 Items. Und Falsifier-Fix: Cap auf baseItems damit Multiplier nicht übers Limit schießen.\n\n**Vannon:** Was hat die Falsifizierung sonst gefunden?\n\n**Buffy:** Drei NO BUGS und einen echten Bug: NVIDIA 70B-Modell mit successMult=1.15 und modelMult=1.3 hätte 22 Items gesendet — obwohl das Cap bei 15 liegt. Jetzt Math.min(baseItems, ...) als harter Deckel.\n\n**Vannon:** Gut. Nächster: P0-6 Free-Modell-Listen dynamisch halten.
+
+### [2026-06-22 12:25:33]
+### [2026-06-22 14:45] — P0-6: Das PROVIDER_REGISTRY-Manifest
+
+**Buffy:** Weisst du was 70 if/else-Ketten gemeinsam haben? Sie luegen. Jede einzelne behauptet, sie sei die EINZIGE Wahrheit ueber Provider. config-runtime.js hat drei Kopien derselben fetch-if/else-Kette. gui-handlers.js noch eine. router.js hat hardcodierte Provider-Namen in isFreeModel, estimateCostClass, PROVIDER_DEFAULTS, PROVIDER_CAPABILITIES. Vier Dateien, neun Provider, KEINE Source of Truth.
+
+**Vannon:** Und jetzt?
+
+**Buffy:** Ein einziger Block. PROVIDER_REGISTRY. Neun Provider als Objekte — type, defaultModel, fetchMethod, costClass, limits, caps. Alles was vorher ueber vier Dateien verstreut war, jetzt auf 35 Zeilen. PROVIDER_CAPABILITIES? Auto-generiert aus PROVIDER_REGISTRY.caps. PROVIDER_DEFAULTS? Auto-generiert aus PROVIDER_REGISTRY.defaultModel. estimateCostClass? 13 Zeilen if/else → 4 Zeilen Lookup. isFreeModel? provider.type === 'local' statt fuenf hardcodierter Namen.
+
+**Vannon:** Und was ist mit fetchModelsFor?
+
+**Buffy:** Die dispatch-Methode. config-runtime.js hatte DREI identische if/else-Ketten (ensurePrimaryModel, configure, gui-handlers.get-models). Jede 8 Zeilen. 24 Zeilen Duplikation. Jetzt: fetchModelsFor(provider, freeOnly). 6 Zeilen. Liest fetchMethod aus PROVIDER_REGISTRY, dispatched via this[methodName]. Und das beste: google_free und argos haben fetchMethod: null. Heisst: sofort sichtbar dass sie keine dynamischen Modelle haben. Kein versteckter Default mehr.
+
+**Vannon:** Und getBatchProfile?
+
+**Buffy:** Zwei separate Datenstrukturen — PROVIDER_CAPS + LOCAL_PROFILES — durch EINE ersetzt: PROVIDER_REGISTRY.limits. Lokale Provider (type='local') kriegen feste Limits ohne Multiplier. Cloud-Provider den vollen dynamischen Pfad. Und safeSignal? War tot seit BU-020. Nie aufgerufen. Weg.

@@ -17,10 +17,6 @@ function createProviderClients(ctx) {
     buildBatchPromptForCurrentConfig
   } = ctx;
 
-  // BU-020: Safety wrapper — returns undefined if no AbortController is wired,
-  // so axios gracefully ignores the missing signal instead of throwing TypeError.
-  const safeSignal = () => getAbortSignal ? getAbortSignal() : undefined;
-
   // ── Item 4: Provider-Chat-Config ───────────────────────────────────
   // Zentrale Konfiguration für alle OpenAI-kompatiblen Provider.
   // callChatCompletions() nutzt diese Map für URL, Timeout, Auth, Retry-Verhalten.
@@ -94,28 +90,10 @@ function createProviderClients(ctx) {
   // Recovery: +0.1 bei remaining > 80%, +0.05 bei erfolgreichem Call ohne Limit-Info.
   const batchMultipliers = {};
 
-  // ── P0-5: Provider-Capabilities (an Free-Tier-Realität angepasst) ────
-  // Quelle: researcher-web Juni 2026.
-  // NVIDIA: 40 RPM free → 15 items (vorher 5 — 8× zu konservativ)
-  // Gemini: 10-15 RPM free → 8 items (vorher 20 — 429 nach 2 Batches)
-  // OpenRouter: 20 RPM free → 10 items (vorher 14 — leicht über Limit)
-  // Groq: 30 RPM, kleine RPD → 8 items (vorher 6 — moderate Erhöhung)
-  // Player2: lokal, unverändert
-  const PROVIDER_CAPS = {
-    nvidia:     { items: 15, chars: 3000, polishItems: 10, polishChars: 2200 },
-    openrouter: { items: 10, chars: 1800, polishItems: 6, polishChars: 1200 },
-    groq:       { items: 8, chars: 1200, polishItems: 5, polishChars: 900 },
-    gemini:     { items: 8, chars: 1500, polishItems: 5, polishChars: 1000 },
-    player2:    { items: 6, chars: 900, polishItems: 4, polishChars: 700 }
-  };
-
-  // Feste Profile für lokale Provider (keine Cloud-Rate-Limits)
-  const LOCAL_PROFILES = {
-    google_free: { maxItems: 8,  maxChars: 1200 },
-    ollama:      { translate: { maxItems: 12, maxChars: 1800 }, polish: { maxItems: 8, maxChars: 1200 } },
-    argos:       { maxItems: 10, maxChars: 1500 },
-    fcm:         { translate: { maxItems: 14, maxChars: 2000 }, polish: { maxItems: 8, maxChars: 1600 } }
-  };
+  // ── P0-5: Provider-Batch-Limits (aus PROVIDER_REGISTRY, SSOT) ──────
+  // Limits werden dynamisch aus PROVIDER_REGISTRY bezogen — kein Hardcode mehr.
+  // getBatchProfile() nutzt PROVIDER_REGISTRY[provider].limits als Base.
+  const { PROVIDER_REGISTRY: _PROVIDER_REGISTRY, isFreeModel: _isFreeModel } = require('../router');
 
   function buildGeminiSchema(expectedCount, mode = 'text') {
     const itemType = mode === 'flags' ? 'boolean' : 'string';
@@ -148,30 +126,24 @@ function createProviderClients(ctx) {
   // Gemini=14-20, etc.) komplett entfernt. Jetzt: Provider-Capability × quota-Multiplier
   // × success-Rate (aus model_task_metrics) × model-Größen-Faktor.
   function getBatchProfile(provider, model, mode = 'translate') {
-    // ── Lokale Provider: feste Profile (keine Cloud-Rate-Limits) ──
-    const local = LOCAL_PROFILES[provider];
-    if (local) {
-      if (local.translate && local.polish) {
-        return mode === 'polish' ? local.polish : local.translate;
-      }
-      return local;
-    }
-
-    // Phase 3 / Item 0b: Zentrale isFreeModel für korrekte Free-Erkennung
-    const { isFreeModel } = require('../router');
-    const name = String(model || '').toLowerCase();
-    const isFree = isFreeModel(provider, model);
-
-    // ── Cloud-LLM-Provider: dynamische Batch-Größe ──
-    const cap = PROVIDER_CAPS[provider];
-    if (!cap) {
-      // Unbekannter Provider — konservatives Default
+    const reg = _PROVIDER_REGISTRY[provider];
+    if (!reg || !reg.limits) {
       return { maxItems: mode === 'polish' ? 8 : 12, maxChars: 1800 };
     }
 
-    // 1. Base: Provider-Capability (einer pro Provider, nicht per-Modell)
-    const baseItems = mode === 'polish' ? cap.polishItems : cap.items;
-    const baseChars = mode === 'polish' ? cap.polishChars : cap.chars;
+    const isPolish = mode === 'polish';
+    // PROVIDER_REGISTRY.limits: { items, chars, pItems, pChars }
+    const baseItems = isPolish ? reg.limits.pItems : reg.limits.items;
+    const baseChars = isPolish ? reg.limits.pChars : reg.limits.chars;
+
+    // Lokale Provider: feste Limits ohne Multiplier
+    if (reg.type === 'local') {
+      return { maxItems: baseItems, maxChars: baseChars };
+    }
+
+    // ── Cloud-LLM-Provider: dynamische Batch-Größe ──
+    const name = String(model || '').toLowerCase();
+    const isFree = _isFreeModel(provider, model);
 
     // 2. Quota-Multiplier: batchMultipliers[provider] (dynamisch via handleRateLimits)
     const quotaMult = batchMultipliers[provider] || 1.0;
@@ -206,9 +178,10 @@ function createProviderClients(ctx) {
     const freeMult = isFree ? 0.9 : 1.0;
 
     // 6. Finale Berechnung: base × quota × success × modelSize × free
-    // P0-5 Falsifier-Fix: Cap maxItems/maxChars auf baseItems/baseChars.
-    // Multiplier >1.0 (z.B. successMult=1.15 × modelMult=1.3 = 1.495)
-    // würden sonst das Provider-Limit überschreiten und 429 provozieren.
+    // DESIGN-ENTSCHEIDUNG: Cap auf baseItems/baseChars — Multiplier
+    // skalieren NUR nach UNTEN (Quota-Drosselung bei 429). Nach OBEN
+    // würden sie Free-Tier-Limits überschreiten und 429 provozieren.
+    // Der Cap SCHÜTZT vor Überschreitung, erlaubt aber Shrinking bei Quota-Engpässen.
     const finalMult = quotaMult * successMult * modelMult * freeMult;
 
     return {
