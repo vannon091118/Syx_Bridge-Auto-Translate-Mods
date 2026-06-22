@@ -1535,7 +1535,7 @@ async function restoreBackup(modId) {
 // ── Runtime Score Dashboard (Floating Panel) ─────────────────────────
 let _runtimeScoreData = null;
 let _runEvalData = null;
-let _rsMinimized = false;
+let _rsMinimized = true; // Start minimiert — User kann per + aufklappen
 
 // Kategorie-Erklärungen für die 8 Personas
 const RS_CATEGORY_DESCRIPTIONS = {
@@ -1599,7 +1599,10 @@ function renderRuntimeScore(data) {
 
   loadingEl.style.display = 'none';
   emptyEl.style.display = 'none';
-  contentEl.style.display = 'block';
+  // Respektiert den minimized-State — beim ersten Render bleibt Panel kompakt
+  contentEl.style.display = _rsMinimized ? 'none' : 'block';
+  const btn = document.getElementById('rs-minimize-btn');
+  if (btn) { btn.textContent = _rsMinimized ? '+' : '_'; btn.title = _rsMinimized ? 'Maximieren' : 'Minimieren'; }
 
   const score = data.globalScore || 0;
 

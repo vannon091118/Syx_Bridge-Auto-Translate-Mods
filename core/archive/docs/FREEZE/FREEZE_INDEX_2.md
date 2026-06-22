@@ -3,7 +3,7 @@
 > **Version:** v0.22.0 | **Stand:** 2026-06-22
 > **Funktion:** Fortsetzung des FREEZE_INDEX — dokumentiert den Entwicklungsprozess AB der Sinnhaftigkeitsanalyse (15 systemische Fixes).
 > **Vorgänger:** `FREEZE_INDEX.md` (142 Einträge, 16.06.–20.06.2026, archiviert).
-> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (85+) = **227+ Buch-Einträge**
+> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (88) = **230 Buch-Einträge**
 > **Vorgänger:** `FREEZE_INDEX_v0.20.0_archived.md` — 142 Glossary-Einträge, 33 Sektionen, gesamter Entwicklungsprozess 16.06.–20.06.2026.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
 > **Archivstand:** FREEZE_INDEX_v0.20.0.md wurde am 2026-06-20 als abgeschlossen archiviert. Dieses Dokument (FREEZE_INDEX_2) setzt die Indexierung ab Commit `9a853ef` fort.
@@ -37,7 +37,7 @@
 23. [Item 3/9 — rankModel() DB-gestützt statt String-Heuristik (2026-06-22)](#23-item-39--rankmodel-db-gestützt-statt-string-heuristik)
 24. [Commit-Layer Rewrite Plan — Verifikation + Broken-Entry-Repair (2026-06-22)](#24-commit-layer-rewrite-plan--verifikation--broken-entry-repair)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **85** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **88** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1)
 
 ---
 
@@ -944,23 +944,99 @@
 
 ---
 
+## 24. Commit-Layer Rewrite Plan — Verifikation + Broken-Entry-Repair (2026-06-22)
+
+### 🧊 COMMIT-LAYER-REWRITE — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (vor `244bd28`)
+- **Kategorie:** Commit-Infrastruktur-Überarbeitung — 7 Schritte, 25 atomare Aufgaben, 6 Verifikationschecks
+- **Zusammenfassung:** Die Commit-Layer-Infrastruktur (verify_commit_msg.js, update_plot.js, get_sidejoke.js, build_pool.js, writing_rules.json) wurde vollständig überarbeitet. Sidejoke-Matching erlaubt jetzt organische 3-Wort-Integration statt exaktem Prefix-Match. User-Impuls-Tracking via [IMPULSE:]-Token und --impulse-Parameter in update_plot.js. Zusätzlich wurden 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert, die durch fehlerhafte update_plot.js-Aufrufe entstanden waren (Flags als erstes Argument statt Dialog-Text).
+- **Kausalität:** Der Commit-Layer war seit RULE 2 (Commit-Tagebuch Edition) die verbindliche Commit-Governance. Nach 3 Wochen intensiver Nutzung zeigten sich Schmerzpunkte: Sidejoke exakte Wort-Matches waren zu restriktiv, Broken-Plot-Nodes durch API-Change (update_plot.js erwartete Dialog als letztes Argument, nicht erstes), und kein Tracking warum ein Commit überhaupt gemacht wurde.
+- **Verifikation (6/6 PASS):**
+  1. get_sidejoke.js: Sidejoke ohne {PLACEHOLDER} + PLOT_LORE Kontext ✅
+  2. build_pool.js: 40 Einträge, Backup existiert ✅
+  3. verify_commit_msg.js: BLOCKED bei {FILE}/{COUNT}/{RESULT} ✅
+  4. update_plot.js ohne Dialog: BLOCKED ✅
+  5. update_plot.js "Dialog" --model=x: korrekt geparst ✅
+  6. plotchain.json letzter Node: arcs + lore_context ✅
+- **Cross-Referenzen:** `verify_commit_msg.js`, `update_plot.js`, `get_sidejoke.js`, `build_pool.js`, `writing_rules.json`, `PLOT_LORE.md`, `plotchain.json`, `cross_references.json`
+- **Status:** ✅ ABGESCHLOSSEN — 6/6 Checks bestanden, Commit `244bd28`
+- **LIVE-Vorhanden:** Alle Scripts in core/scripts/commit_lore/, plotting.json in git committed
+- **Dokument:** `COMMIT_LAYER_REWRITE_PLAN.md` (Root)
+
+---
+
 ## 25. Doku-Konsolidierung — 3 Commits in chronologischer Reihenfolge (2026-06-22)
 
-### 🧊 DOKU-KONSOLIDIERUNG 2026-06-22 — Session: Doku-Nachzug + Kommittierung
+---
+
+## 26. Session Report — Forensische Analyse 2026-06-22 (Commit `911dee4`)
+
+### 🧊 SESSION REPORT 2026-06-22 — Session: Doku-Konsolidierung + SHIELD-Fix + Language-Tag
+- **Datum:** 2026-06-22 | **Version:** v0.22.0 (Commit `911dee4`)
+- **Kategorie:** Forensischer Session Report — vollständiges Protokoll der ~5-stündigen Doku-Konsolidierungssession
+- **Zusammenfassung:** Forensischer Report mit 6 Phasen: Git-Forensik (3 Commits + Diff-Analyse), System-Zustand (alle Doku-Dateien), SHIELD-Token-Analyse (Root-Cause: Plugin-Regeln überschrieben SHIELD-Instruktion), Pipeline-Behaviour (Live-Run Provider-Analyse), v0.22.0 Fix-Verifikation (7/7 Fälle verifiziert), und Abschluss. Report identifizierte 7 bestätigte Fixes, 2 Dokumente zur Indexierung und den SHIELD-Prompt-Fix als kritischen Nachbesserungspunkt.
+- **Kausalität:** User-Auftrag: "Speichere den Session Report als Dokument in core/archive/docs/ und indexiere in FREEZE_INDEX_2.md" — der forensische Report wurde im Laufe der Session erstellt und muss nun als referenzierbares Dokument abgelegt werden.
+- **Methode:** 6 forensische Phasen: Git-Log-Analyse (--since=4hours), Ping-Pong-Detection, Code-Grep (7 Fixes verifiziert), DB-Query (3.288 Einträge, 0 SHIELD-Leaks), Log-Analyse (233 SHIELD-Verluste bei Groq/OpenRouter), Code-Review.
+- **Fix-Details (Session):**
+  - **FIX A:** Name-Suffix `(Deutsch Patch)` → `DEUTSCH` in SongsOfSyxPlugin.js
+  - **FIX B:** `getTranslationCredit()` als SSOT-Methode (`'Translation by Vannon with SyxBridge'`)
+  - **FIX C:** `getBridgeVersion()` extrahiert, von `getCoreModMetadata()` verwendet
+  - **FIX D:** Native Mode else-Block in runtime-ops.js mit Language-Tag + Credit
+  - **FIX E:** `__OVERWRITE: true` für V71+ deaktiviert (return '')
+  - **FIX F:** `_Info.txt` klassifiziert als `TEXT_FILE` statt `INFO_FILE`
+  - **FIX G (text-core.js):** SHIELD-Preservation immer als erste Critical Rule in `buildBatchPrompt()` und `buildProofreadPrompt()`
+- **Cross-Referenzen:** `SESSION_REPORT_2026-06-22.md` (core/archive/docs/), `CHANGELOG.md` (v0.22.0), `SongsOfSyxPlugin.js`, `runtime-ops.js`, `text-core.js`, `FREEZE_INDEX_2.md §25`
+- **Status:** ✅ ABGESCHLOSSEN — 7/7 Fixes verifiziert, 17 Dateien committed (`911dee4`)
+- **LIVE-Vorhanden:** Alle Fixes in den genannten Dateien, Report in `core/archive/docs/SESSION_REPORT_2026-06-22.md`
+- **Verifikation:** Code-Grep aller 7 Fixes (exakte Zeilen), DB-Query (3.288 Einträge, 0 SHIELD-Leaks), Log-Analyse (2 Log-Dateien, Provider-Trace), Git-Log (4 Commits today), verify_commit_msg.js PASS (292 Wörter, great-cleanup Arc, temporal anchor 'heute'), Commit `911dee4` auf origin/main gepusht
+- **Dokument:** `core/archive/docs/SESSION_REPORT_2026-06-22.md`
+
+---
+
+## 27. Weitere Doku-Dokumente — Language-Tag-Credit-Fix + Bug-Report + Prototype-Comparison (2026-06-22)
+
+### 📋 AD-007 — LANGUAGE_TAG_CREDIT_FIX_2026-06-22.md
 - **Datum:** 2026-06-22 | **Version:** v0.22.0
-- **Kategorie:** Doku-Konsolidierung — SSOT-Wiederherstellung + Commit-Layer-Flexibilisierung
-- **Zusammenfassung:** 3 Commits in chronologischer Reihenfolge, die die seit letztem Commit (`a6af87a`) angesammelten Doku-Änderungen konsolidieren. Die Commit-Layer-Skripts (get_sidejoke, update_plot, writing_rules, verify_commit_msg) wurden flexibilisiert: Sidejoke-Matching erlaubt jetzt organische 3-Wort-Integration statt exaktem Prefix-Match, User-Impuls-Tracking via [IMPULSE:]-Token und --impulse-Parameter in update_plot.js. CHANGELOG SSOT zwischen Root und Archive wiederhergestellt. Scope-Reports (SCOPE_REPORT.md, SQUIZZLE_REPORT.md) als getrackte Dokumente committed.
+- **Kategorie:** Doku-Divergenz-Dokumentation — Language-Tag + Translation-Credit Fix
+- **Zusammenfassung:** Dokumentiert den Fix für den Mod-Namen-Suffix ("(Deutsch Patch)" → " DEUTSCH") und die SSOT-Extraktion von getTranslationCredit() + getBridgeVersion(). Enthält Code-Pfade, Test-Ergebnisse und Verifikation.
+- **Cross-Referenzen:** `SongsOfSyxPlugin.js`, `runtime-ops.js`, `CHANGELOG.md` (v0.22.0-RELEASE)
+- **LIVE-Ersatz:** CHANGELOG.md [v0.22.0-RELEASE] + FREEZE_INDEX_2 §26 (Session Report FIX A-D)
+- **Status:** ✅ Archiviert — Inhalt in CHANGELOG + FREEZE_INDEX_2 §26 überführt
 
-| Commit | Hash | Thema | Dateien |
-|--------|------|-------|---------|
-| 1 | `244bd28` | Commit-Layer-Flex | get_sidejoke.js, update_plot.js, writing_rules.json, verify_commit_msg.js, PLOT_LORE.md, plotchain.json, cross_references.json |
-| 2 | `5137e57` | CHANGELOG SSOT-Sync | CHANGELOG.md, core/archive/docs/CHANGELOG.md, PLOT_LORE.md, plotchain.json, cross_references.json |
-| 3 | `da770a7` | Scope-Reports | SCOPE_REPORT.md, SQUIZZLE_REPORT.md, PLOT_LORE.md, plotchain.json, cross_references.json |
+### 📋 AD-008 — BUGREPORT_OVERWRITE_CRIT_2026-06-22.md
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Critical-Bug-Dokumentation — __OVERWRITE: true zerstört Vanilla-DE-Texte
+- **Zusammenfassung:** Root-Cause-Analyse: getFileHeader() gab __OVERWRITE: true für ALLE V71+ Dateien zurück → SoS ersetzte komplette Vanilla-Datei → nur übersetzte Keys blieben erhalten → Rest fiel auf Englisch-Defaults. Fix: Plugin gibt '' zurück (Patch-Modus). 39 V71-Dateien bereinigt.
+- **Cross-Referenzen:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`
+- **LIVE-Ersatz:** CHANGELOG.md [CRITICAL-FIX] + FREEZE_INDEX_2 §26 (FIX E)
+- **Status:** ✅ Archiviert — Bug behoben, Doku in CHANGELOG + FREEZE_INDEX_2
 
-- **Methode:** Per AGENTS.md Regeln (§ COMMIT): Sidejoke via get_sidejoke.js, update_plot.js mit --impulse und --model, verify_commit_msg.js mit [MODEL:], [REF:], [IMPULSE:]-Prüfung, Cross-Reference aus cross_references.json.
-- **Cross-Referenzen:** `CHANGELOG.md`, `SCOPE_REPORT.md`, `SQUIZZLE_REPORT.md`, `writing_rules.json`, `verify_commit_msg.js`, `update_plot.js`, `get_sidejoke.js`
-- **Status:** ✅ ABGESCHLOSSEN — 3/3 Commits erfolgreich, SSOT geprüft
-- **Verifikation:** CHANGELOG SSOT: `diff CHANGELOG.md core/archive/docs/CHANGELOG.md` = IDENTICAL ✅
+### 📋 AD-009 — PROTOTYPE_COMPARISON_2026-06-22.md
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Architektur-Vergleich — Plugin vs Adapter Prototypen
+- **Zusammenfassung:** Vergleich der Plugin- vs Adapter-Architekturansätze. Dokumentiert die Entscheidung für Plugin-Architektur mit GamePlugin-Basis + SongsOfSyxPlugin-Referenz.
+- **Cross-Referenzen:** `GamePlugin.js`, `GameAdapter.js`, `SongsOfSyxPlugin.js`
+- **LIVE-Ersatz:** MASTER_DOC.md §4 (Architektur)
+- **Status:** ✅ Archiviert — Design-Entscheidung in MASTER_DOC dokumentiert
+
+---
+
+## 28. Workflow + HANDSHAKE-2026-06-22 — Dokumente archiviert
+
+### 📋 AD-010 — WORKFLOW.md
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Entwicklungs-Workflow-Dokumentation
+- **Zusammenfassung:** Definiert den Standard-Workflow für SyxBridge-Entwicklung: Session-Start (git status, PREFLIGHT lesen, HANDSHAKE prüfen) → Task-Ausführung → Session-Ende (HANDSHAKE schreiben, CHANGELOG aktualisieren, DB-Archivierung anbieten).
+- **Cross-Referenzen:** `AGENTS.md`, `MASTER_DOC.md`, `CHANGELOG.md`
+- **LIVE-Ersatz:** AGENTS.md (globale Regeln + WORKFLOW-AUTOMATION)
+- **Status:** ✅ Archiviert — Workflow-Regeln in AGENTS.md integriert
+
+### 📋 AD-011 — HANDSHAKE-2026-06-22 (3 Dateien)
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Session-Übergaben — Doku-Nachzug + Item 0a + Item 0b
+- **Zusammenfassung:** 3 HANDSHAKE-Dateien der v0.22 Routing-Engine-Kampagne: `HANDSHAKE_2026-06-22_doku-nachzug.md` (User-Impuls-Tracking + CHANGELOG SSOT), `HANDSHAKE_2026-06-22_item-0a.md` (Auto-Modus-Fix), `HANDSHAKE_2026-06-22_item-0b.md` (isFreeModel-Provider-Erkennung).
+- **LIVE-Ersatz:** CHANGELOG.md [ITEM-0a], [ITEM-0b], [DOKU-NACHZUG] + FREEZE_INDEX_2 §19–§23
+- **Status:** ✅ Archiviert — Alle Inhalte in CHANGELOG + FREEZE_INDEX_2 überführt
 
 ---
 
@@ -969,13 +1045,16 @@
 | Datum | Session | Fixes | Commit(s) | FREEZE-Einträge |
 |-------|---------|-------|-----------|-----------------|
 | … | … | … | … | … |
-| 2026-06-22 | Doku-Konsolidierung: 3 Commits | Commit-Layer-Flex + CHANGELOG SSOT + Scope-Reports | `244bd28`, `5137e57`, `da770a7` | 30 (dieses Dokument) |
+| 2026-06-22 | Commit-Layer-Rewrite | 6 Verifikations-Checks, 25 atomare Aufgaben | `244bd28` | §24 (dieses Dokument) |
+| 2026-06-22 | Doku-Konsolidierung: 3 Commits | Commit-Layer-Flex + CHANGELOG SSOT + Scope-Reports | `244bd28`, `5137e57`, `da770a7` | §25 (dieses Dokument) |
+| 2026-06-22 | Session Report + SHIELD-Fix + Language-Tag | 7 Fixes verifiziert, 17 Dateien committed | `911dee4` | §26 (dieses Dokument) |
+| 2026-06-22 | Doku-Archivierung: Language-Tag + Bug-Report + Workflow + HANDSHAKE | 5 Dokumente archiviert | — | §27–§28 (dieses Dokument) |
 
 ---
 
 *📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
 *Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 85 (dieses Dokument) = **227 Buch-Einträge**.*
+*Gesamt: 142 (archiviert) + 88 (dieses Dokument) = **230 Buch-Einträge**.*
 *CODE IST DIE EINZIGE WAHRHEIT.*
 
 ---

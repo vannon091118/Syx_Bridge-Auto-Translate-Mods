@@ -5,7 +5,42 @@
 
 ---
 
+## [v0.22.0-GUI-UPDATE] — 2026-06-23 — GUI v0.22.0 + README Global Rewrite
+
+**Scope:** GUI version-bump + Layout-Fix + README aktualisiert auf v0.22.0 Stand
+
+### GUI — index.html
+- **Version-String:** v0.20.0 → v0.22.0 im Header-Button, Footer, Version-Modal
+- **Version-Highlights-Modal:** Komplett auf v0.22-Fixes umgeschrieben (10 Einträge: Language-Tag, P0 __OVERWRITE, P0 Basis-Fallback, P1 Groq Garbage, P1 SHIELD-Preservation, P2 Path-Validation, isFreeModel, Thin-Wrapper, rankModel, Doku)
+- **Kontrollfeld:** Patch Mode Warnung entschärft — nicht mehr „nicht zuverlässig" sondern sachliche Opt-in-Beschreibung (Patch Mode IST funktional seit v0.22)
+- **Bridge Diagnostics:** PREFLIGHT-Statuszeile hinzugefügt (`<span id="preflight-status">`)
+- **Mod-Backups:** Panel komprimiert (max-height 200px → 120px, Titel-Suffix „letzte 3")
+- **Footer:** v0.20.0 → v0.22.0, Hinweis „Untested" ergänzt
+
+### GUI — app.js
+- **Runtime Score Panel:** Startet jetzt standardmäßig minimiert (`_rsMinimized = true`)
+- **renderRuntimeScore():** Respektiert `_rsMinimized` beim ersten Render (Panel bleibt collapsed bis User `+` klickt)
+
+### README.md — Kompletter Rewrite
+- **Version:** v0.21.0-untested → v0.22.0-untested, alle Badges aktuell
+- **Neue Bilder:** Root-Screenshots (GUI.png, Screenshot 2026-06-22 23xxxx.png) für GitHub verwendet
+- **In-Game-Screenshots:** 3 neue Aufnahmen (Vargen DE, Garthimi, Onari DE) — Beweis dass die Übersetzung funktioniert
+- **API Keys & Secrets:** Neue Sektion mit Provider-Tabelle, Key-Sicherheitshinweisen, .gitignore-Warnung
+- **Changelog-Tabelle:** v0.20 bis v0.22 vollständig, alle Major-Fixes dokumentiert
+- **Feature-Tabelle:** Neue Features (Garbage-Detection, SHIELD-Preservation, Language-Tag, rankModel, isFreeModel) ergänzt
+- **Status-Tabelle:** DB ~3.288 Einträge (war 2.702), Runtime Score 90.1%, Known Issues aktualisiert
+- **Keine exklusiven Scripts:** Alle referenzierten Tools (db_query.js, db_snapshot.js, test_providers.js etc.) sind im Repo vorhanden
+
+### Dateien geändert
+- `core/src/gui/public/index.html` — Version-Strings, Modal, Layout
+- `core/src/gui/public/app.js` — Runtime Score Default-Minimiert
+- `README.md` — Kompletter Rewrite
+
+---
+
 ## [v0.22.0-RELEASE] — 2026-06-22 — P0/P1/P2 Härtung + Release
+
+
 
 **Version:** v0.21.0 → v0.22.0
 **Scope:** 3 systemische Fixes + Language-Tag + Translation-Credit

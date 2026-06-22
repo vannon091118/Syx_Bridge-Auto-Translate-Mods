@@ -518,8 +518,8 @@
 
     <header>
         <div class="brand">SONGS OF SYX <span style="color:white">AI BRIDGE</span> <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; color: #ef6b60; margin-left: 10px; text-transform: none; text-shadow: 0 0 5px rgba(239, 107, 96, 0.3);">by Vannon</span>
-            <button class="version-highlight-btn" onclick="openVersionHighlights()" title="Was ist neu in v0.20.0 — Versions-Highlights anzeigen">
-                <span class="new-dot"></span> v0.20.0
+            <button class="version-highlight-btn" onclick="openVersionHighlights()" title="Was ist neu in v0.22.0 — Versions-Highlights anzeigen">
+                <span class="new-dot"></span> v0.22.0
             </button>
         </div>
         
@@ -535,18 +535,18 @@
                     <div id="mode-status" class="stat-label" style="text-align:center; font-weight:bold;">Aktuell: NATIVE MODE (Inplace)</div>
                 </div>
 
-                <!-- KONTROLLFELD: Patch Mode nur hier aktivierbar -->
-                <div class="panel kontrollfeld" style="margin-bottom: 10px; border-color: var(--danger);">
-                    <h3 style="color: var(--danger);">⚠️ Kontrollfeld</h3>
-                    <div style="background: rgba(239, 107, 96, 0.08); border: 1px solid rgba(239, 107, 96, 0.25); border-radius: 4px; padding: 10px; margin-bottom: 10px; font-size: 0.7rem; line-height: 1.5;">
-                        <strong style="color: var(--danger);">Patch Mode wurde deaktiviert.</strong><br>
-                        Der Patch-Modus funktioniert derzeit <strong>nicht zuverlässig</strong> und kann
-                        zu unvollständigen Übersetzungen oder beschädigten Mod-Strukturen führen.<br><br>
-                        Die Aktivierung ist nur für <strong>Testzwecke</strong> gedacht.
+                <!-- KONTROLLFELD: Patch Mode opt-in -->
+                <div class="panel kontrollfeld" style="margin-bottom: 10px; border-color: rgba(216,151,60,0.4);">
+                    <h3 style="color: var(--accent);">⚙️ Kontrollfeld</h3>
+                    <div style="background: rgba(216, 151, 60, 0.06); border: 1px solid rgba(216, 151, 60, 0.2); border-radius: 4px; padding: 10px; margin-bottom: 10px; font-size: 0.7rem; line-height: 1.5;">
+                        <strong style="color: var(--accent);">Patch Mode — User Opt-in</strong><br>
+                        Erstellt einen separaten Mod-Ordner statt Originale zu überschreiben.
+                        Ideal für Steam Workshop Upload.<br><br>
+                        Standard: <strong>NATIVE MODE</strong> (empfohlen für Daily-Use).
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span class="stat-label">Status: <span id="patch-override-active" style="color:var(--muted);">⛔ DEAKTIVIERT (Standard)</span></span>
-                        <button id="patch-toggle-kf" onclick="togglePatchOverride()" title="Patch-Mode nur für Testzwecke aktivieren — funktioniert derzeit nicht zuverlässig!" style="width: auto; padding: 6px 16px; font-size: 0.7rem; background: transparent; border: 1px solid var(--danger); color: var(--danger);">PATCH MODE AKTIVIEREN</button>
+                        <button id="patch-toggle-kf" onclick="togglePatchOverride()" title="Patch-Mode aktivieren — erstellt separaten Mod-Ordner statt Original zu überschreiben" style="width: auto; padding: 6px 16px; font-size: 0.7rem; background: transparent; border: 1px solid var(--accent); color: var(--accent);">PATCH MODE AKTIVIEREN</button>
                     </div>
                 </div>
 
@@ -735,24 +735,27 @@
             <div class="version-modal">
                 <div class="vm-header">
                     <div class="vm-title">
-                        <span class="vm-version">v0.20.0</span>
-                        <span class="vm-date">Released 2026-06-20</span>
+                        <span class="vm-version">v0.22.0</span>
+                        <span class="vm-date">Released 2026-06-22 · P0/P1/P2 Härtung</span>
                     </div>
                     <button class="vm-close-btn" onclick="closeVersionHighlights()" title="Schließen">✕</button>
                 </div>
-                <div class="vm-subtitle">📌 Highlights</div>
+                <div class="vm-subtitle">📌 Highlights dieser Version</div>
                 <ul class="vm-highlights">
-                    <li><span class="vm-icon">🎯</span><span><span class="vm-cat cat-fix">Fix</span>Global Version Bump — Alle Version-Strings auf v0.20.0 vereinheitlicht</span></li>
-                    <li><span class="vm-icon">🧩</span><span><span class="vm-cat cat-feat">Feature</span>Plugin-Architektur — GamePlugin + SongsOfSyxPlugin als abstrakte Layer</span></li>
-                    <li><span class="vm-icon">🔍</span><span><span class="vm-cat cat-feat">Feature</span>PREFLIGHT Analysis — DB-Health-Check vor jedem Sync mit Auto-Repair</span></li>
-                    <li><span class="vm-icon">🛡️</span><span><span class="vm-cat cat-fix">Fix</span>BU-035-039 — Tot-Flag-Detector, GOOGLE_FREE_ENABLED-Verdrahtung, Dispatcher-Doppelprüfung entfernt, Logger Silent-Catch behoben</span></li>
-                    <li><span class="vm-icon">⏹️</span><span><span class="vm-cat cat-fix">Fix</span>BU-020 — AbortController für saubere Task-Abbrüche</span></li>
-                    <li><span class="vm-icon">✅</span><span><span class="vm-cat cat-fix">Fix</span>BU-023 — Plugin-Boundary-Contract-Tests (73/73 PASS)</span></li>
-                    <li><span class="vm-icon">📦</span><span><span class="vm-cat cat-infra">Infra</span>−150 Dependencies entfernt — 0 VULN nach npm audit</span></li>
-                    <li><span class="vm-icon">📄</span><span><span class="vm-cat cat-docs">Docs</span>Doku-Clean — 18 Audit-Reports in FREEZE überführt, Dev-Tools aus GitHub entfernt</span></li>
+                    <li><span class="vm-icon">🏷️</span><span><span class="vm-cat cat-feat">Feature</span>Language-Tag — Mod-Name erhält Sprach-Suffix (z.B. "Orini Race DEUTSCH"). Info-Feld: Translation Credit automatisch gesetzt.</span></li>
+                    <li><span class="vm-icon">🚨</span><span><span class="vm-cat cat-fix">Fix P0</span>__OVERWRITE Critical — V71-Dateien zerstörten Vanilla-DE-Texte. Behoben: Plugin gibt leeren Header zurück.</span></li>
+                    <li><span class="vm-icon">⚡</span><span><span class="vm-cat cat-fix">Fix P0</span>Basis-Fallback — Bei komplettem Provider-Ausfall (NVIDIA 429, FCM offline, Groq Müll) wird jetzt die beste vorhandene DB-Übersetzung genutzt statt Englisch zu exportieren.</span></li>
+                    <li><span class="vm-icon">🗑️</span><span><span class="vm-cat cat-fix">Fix P1</span>Groq Garbage-Detection — [1,2,3,...]-Batches als Fehler erkannt. Provider nach 2 Müll-Batches aus Routing ausgeschlossen.</span></li>
+                    <li><span class="vm-icon">🛡️</span><span><span class="vm-cat cat-fix">Fix P1</span>Shield-Token-Preservation — __SHLD_N__ Tokens werden jetzt IMMER als erste Critical Rule in Prompts eingetragen. 233 Leaks eliminiert.</span></li>
+                    <li><span class="vm-icon">📡</span><span><span class="vm-cat cat-fix">Fix P2</span>Path-Validierung modsOverride — ungültige Pfade via existsSync gefiltert statt Laufzeitfehler zu werfen.</span></li>
+                    <li><span class="vm-icon">🎯</span><span><span class="vm-cat cat-feat">Feature</span>isFreeModel() Provider-bewusst — OpenRouter, NVIDIA, Groq, Gemini werden korrekt als Free/Paid klassifiziert. Kein Name-Heuristik mehr.</span></li>
+                    <li><span class="vm-icon">🧹</span><span><span class="vm-cat cat-infra">Infra</span>5 Thin-Wrapper entfernt (callGroqBatch etc.), Auto-Modus friert PRIMARY_MODEL nicht mehr ein, DB-Timeout auf 15s erhöht.</span></li>
+                    <li><span class="vm-icon">📊</span><span><span class="vm-cat cat-feat">Feature</span>rankModel() DB-gestützt — Modell-Ranking basiert jetzt auf echten avg_quality-Metriken statt String-Heuristik.</span></li>
+                    <li><span class="vm-icon">📄</span><span><span class="vm-cat cat-docs">Doku</span>SSOT-Verletzungen behoben, CHANGELOG gesplittet, Commit-Layer vollständig überarbeitet (verify_commit_msg, update_plot, get_sidejoke).</span></li>
                 </ul>
                 <div class="vm-footer-text">
-                    Vollständiges Changelog: <a href="https://github.com/vannon091118/Syx_bridge-/blob/main/core/archive/docs/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+                    Vollständiges Changelog: <a href="https://github.com/vannon091118/Syx_bridge-/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+                    &nbsp;·&nbsp; Built accidentally. Runs intentionally. 🎮
                 </div>
             </div>
         </div>
@@ -842,15 +845,16 @@
             <div class="panel">
                 <h3>Bridge Diagnostics</h3>
                 <div class="stat-label">System Health: <span id="sys-load">Normal</span></div>
-                <div class="stat-label">DB Einträge: <span id="stat-db-total">-</span></div>
+                <div class="stat-label" style="margin-top:4px;">DB Einträge: <span id="stat-db-total">-</span></div>
+                <div class="stat-label" style="margin-top:4px;">PREFLIGHT: <span id="preflight-status" style="color:var(--success);">OK</span></div>
             </div>
 
 
 
             <div class="panel">
-                <h3>Mod-Backups</h3>
-                <div id="backup-list" style="max-height: 200px; overflow-y: auto; font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="color: var(--muted); text-align: center; padding: 10px;">Lade Mods...</div>
+                <h3>Mod-Backups <span style="font-size:0.55rem; color:var(--muted); font-weight:normal;">letzte 3</span></h3>
+                <div id="backup-list" style="max-height: 120px; overflow-y: auto; font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="color: var(--muted); text-align: center; padding: 6px;">Lade Mods...</div>
                 </div>
             </div>
 
@@ -895,12 +899,12 @@
     </div>
 
     <footer style="background: rgba(0,0,0,0.8); padding: 5px 20px; font-size: 0.7rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--muted); z-index: 100;">
-        <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon"><span id="fcm-status-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#666; margin-right:4px;"></span>Syx-Bridge v0.20.0 - V71 Ready | NVIDIA NIM + FCM Live</div>
+        <div title="Syx-Bridge Version — Songs of Syx AI Translation Tool by Vannon"><span id="fcm-status-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#666; margin-right:4px;"></span>Syx-Bridge v0.22.0 · V71 Ready · NVIDIA NIM + FCM Live · <span style="color:var(--accent)">Untested</span></div>
         <div title="Fehler oder Feedback bitte per E-Mail melden">Kontakt &amp; Bug-Reports: <span style="color: var(--accent);">vannon858@gmail.com</span></div>
     </footer>
 
-    <!-- Floating Runtime Score Panel (unten rechts, fixiert) -->
-    <div id="runtime-score-floating" style="position:fixed; bottom:40px; right:20px; z-index:500; width:380px; max-height:50vh; overflow-y:auto; background:rgba(13,11,10,0.95); border:1px solid var(--accent); border-radius:10px; padding:14px; box-shadow:0 8px 40px rgba(0,0,0,0.8); backdrop-filter:blur(8px); transition:all 0.3s ease; cursor:default;">
+    <!-- Floating Runtime Score Panel (unten rechts, fixiert, standardmäßig minimiert) -->
+    <div id="runtime-score-floating" style="position:fixed; bottom:40px; right:20px; z-index:500; width:380px; background:rgba(13,11,10,0.95); border:1px solid var(--accent); border-radius:10px; padding:10px 14px; box-shadow:0 8px 40px rgba(0,0,0,0.8); backdrop-filter:blur(8px); transition:all 0.3s ease; cursor:default;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:bold;">Runtime-Score</span>

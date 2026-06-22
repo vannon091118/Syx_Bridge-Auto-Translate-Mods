@@ -1,7 +1,113 @@
 # 📋 SyxBridge — Changelog
 
 > **Aktuelle Entwicklung seit v0.22.0 (2026-06-22)**
-> **Historische Entwicklung v0.19.0 bis v0.21.0:** [`CHANGELOG_1.md`](../../CHANGELOG_1.md)
+> **Historische Entwicklung v0.19.0 bis v0.21.0:** [`CHANGELOG_1.md`](CHANGELOG_1.md)
+
+---
+
+## [v0.22.0-GUI-UPDATE] — 2026-06-23 — GUI v0.22.0 + README Global Rewrite
+
+**Scope:** GUI version-bump + Layout-Fix + README aktualisiert auf v0.22.0 Stand
+
+### GUI — index.html
+- **Version-String:** v0.20.0 → v0.22.0 im Header-Button, Footer, Version-Modal
+- **Version-Highlights-Modal:** Komplett auf v0.22-Fixes umgeschrieben (10 Einträge: Language-Tag, P0 __OVERWRITE, P0 Basis-Fallback, P1 Groq Garbage, P1 SHIELD-Preservation, P2 Path-Validation, isFreeModel, Thin-Wrapper, rankModel, Doku)
+- **Kontrollfeld:** Patch Mode Warnung entschärft — nicht mehr „nicht zuverlässig" sondern sachliche Opt-in-Beschreibung (Patch Mode IST funktional seit v0.22)
+- **Bridge Diagnostics:** PREFLIGHT-Statuszeile hinzugefügt (`<span id="preflight-status">`)
+- **Mod-Backups:** Panel komprimiert (max-height 200px → 120px, Titel-Suffix „letzte 3")
+- **Footer:** v0.20.0 → v0.22.0, Hinweis „Untested" ergänzt
+
+### GUI — app.js
+- **Runtime Score Panel:** Startet jetzt standardmäßig minimiert (`_rsMinimized = true`)
+- **renderRuntimeScore():** Respektiert `_rsMinimized` beim ersten Render (Panel bleibt collapsed bis User `+` klickt)
+
+### README.md — Kompletter Rewrite
+- **Version:** v0.21.0-untested → v0.22.0-untested, alle Badges aktuell
+- **Neue Bilder:** Root-Screenshots (GUI.png, Screenshot 2026-06-22 23xxxx.png) für GitHub verwendet
+- **In-Game-Screenshots:** 3 neue Aufnahmen (Vargen DE, Garthimi, Onari DE) — Beweis dass die Übersetzung funktioniert
+- **API Keys & Secrets:** Neue Sektion mit Provider-Tabelle, Key-Sicherheitshinweisen, .gitignore-Warnung
+- **Changelog-Tabelle:** v0.20 bis v0.22 vollständig, alle Major-Fixes dokumentiert
+- **Feature-Tabelle:** Neue Features (Garbage-Detection, SHIELD-Preservation, Language-Tag, rankModel, isFreeModel) ergänzt
+- **Status-Tabelle:** DB ~3.288 Einträge (war 2.702), Runtime Score 90.1%, Known Issues aktualisiert
+- **Keine exklusiven Scripts:** Alle referenzierten Tools (db_query.js, db_snapshot.js, test_providers.js etc.) sind im Repo vorhanden
+
+### Dateien geändert
+- `core/src/gui/public/index.html` — Version-Strings, Modal, Layout
+- `core/src/gui/public/app.js` — Runtime Score Default-Minimiert
+- `README.md` — Kompletter Rewrite
+
+---
+
+## [v0.22.0-RELEASE] — 2026-06-22 — P0/P1/P2 Härtung + Release
+
+
+
+**Version:** v0.21.0 → v0.22.0
+**Scope:** 3 systemische Fixes + Language-Tag + Translation-Credit
+
+### Language-Tag + Translation-Credit (SongsOfSyxPlugin.js + runtime-ops.js)
+- **Problem:** Übersetzte Mods hatten keinen Sprach-Tag im Mod-Namen und keinen
+  Translation-Credit in _Info.txt. Im SoS-Launcher war nicht erkennbar welche
+  Sprache die Mod-Patch-Version enthält.
+- **Fix:** `applyPatchModifications()` setzt `NAME: "Orini Race DEUTSCH"` statt
+  `"Orini Race (Deutsch Patch)"`. INFO-Feld erhält `"Translation by Vannon with SyxBridge"`.
+  `formatPatchNotice()` enthält jetzt SyxBridge-Version. Für Native Mode: gleiche
+  Logik im `else`-Block in runtime-ops.js. Deduplizierte `getBridgeVersion()`
+  aus `getCoreModMetadata()` in eigene Methode.
+- **Dateien:** `SongsOfSyxPlugin.js` (applyPatchModifications, formatPatchNotice,
+  getBridgeVersion, getTranslationCredit), `runtime-ops.js` (Native Mode else-Block)
+
+### P0 — Basis-Fallback bei Provider-Ausfall (translation-runtime.js)
+- **Problem:** Wenn ALLE Provider fehlschlagen (NVIDIA 429, FCM offline, Groq Müll),
+  wurde `item.source` (Englisch) mit `overwriteFallbackUsed=true` gespeichert.
+  Der Export-Query filterte diese raus → nichts wurde exportiert.
+- **Fix:** Batch-DB-Lookup nach existierenden Übersetzungen vor Fail-Save.
+  Bei Treffer: vorhandene Übersetzung nutzen, `overwriteFallbackUsed=false`,
+  Quality-Score aus DB erhalten. Exportiert korrekt.
+- **Dateien:** `translation-runtime.js` — Fail-Path in translatePhase
+
+### P1 — Groq Garbage-Batch-Detection (router.js + dispatcher.js)
+- **Problem:** Groq lieferte nach Key-Rotation bei Rate-Limit `[1, 2, 3, ...]`
+  (reine Index-Nummern) statt Übersetzungen → 22× pure_number pro Batch.
+  Wurde nicht als Content-Fehler erkannt, da HTTP 200.
+- **Fix:** `consecutiveGarbageBatches`-Zähler pro Provider im Router.
+  Bei ≥2 konsekutiven Müll-Batches: Provider aus `buildRoutePlan` ausschließen.
+  `markBatchSuccess()` resettet Zähler bei Erfolg.
+- **Dateien:** `router.js` (handleFailure + buildRoutePlan), `dispatcher.js` (runRoute)
+
+### P2 — Path-Validierung für modsOverride (planner.js)
+- **Problem:** GUI-übergebene Mods via `modsOverride` wurden ohne `existsSync`-
+  Prüfung akzeptiert → leere/nicht-existierende Pfade verursachten Laufzeitfehler.
+- **Fix:** `scanPhase()` filtert Mods mit ungültigen Pfaden via `existsSync`,
+  Log-Warnung bei übersprungenen Mods.
+- **Dateien:** `planner.js` — scanPhase
+
+### Release
+- **Version:** v0.21.0 → v0.22.0
+- **Status:** Alle 7 v0.22 Minimum-Items + 3 Session-Fixes + Language-Tag/Credit abgeschlossen
+
+---
+
+## [CRITICAL-FIX] — 2026-06-22 — __OVERWRITE: true zerstörte Vanilla-DE-Texte
+
+**Root-Cause:** `SongsOfSyxPlugin.getFileHeader()` gab `__OVERWRITE: true` für ALLE V71+ Dateien zurück.
+Das bewirkte dass SoS die Vanilla-Datei KOMPLETT ersetzte. Nur übersetzte Keys blieben erhalten,
+Rest fiel auf Englisch-Defaults zurück — Vanilla-Lokalisierung wurde ignoriert.
+
+**Files:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`
+**Fix:** Plugin gibt `''` zurück (Patch-Modus). Exporter ruft weiterhin `plugin.getFileHeader()` auf
+(für andere Games die Header brauchen). 39 V71-Dateien im Spiel bereinigt.
+**Doku:** `core/archive/docs/BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`
+
+## [BUGFIX-CHAIN] — 2026-06-22 — 5 weitere Fixes nach Testlauf-Analyse
+
+| Bug | Fix | Datei |
+|-----|-----|-------|
+| `v0.20.0` hardcoded in CLI-Banner | Version aus package.json lesen | `cli-progress.js:97` |
+| `Run #undefined` | `result.lastID` → `result.lastInsertRowid` | `planner.js:90` |
+| `database is locked` bei parallelen Writes | DB-Timeout 5000→15000ms | `db.js:32` |
+| AB-POLISH OpenRouter-Timeout | Provider-spezifisches Timeout (60s OpenRouter, 120s sonst) | `polish-arbiter.js:89-104` |
+| LLM-Metadata-Leak ("wtf" im Output) | Context-Packet-Strip in `saveTranslation()` | `translation-db.js:204-220` |
 
 ---
 
@@ -207,4 +313,8 @@ Vollständiger Repo-Audit im Squizzle-Modus: Doku-Scan, CHANGELOG-Check, Plan-Pr
 - Syntax-Check: Alle 6 Module laden ohne Fehler
 - Code-Review: deepseek approved
 
+---
 
+→ **Historische Entwicklung v0.19.0 bis v0.21.0:** [`CHANGELOG_1.md`](CHANGELOG_1.md)  
+→ **Plot & Agenten-Dialoge (die Geschichte dahinter):** [`PLOT_LORE.md`](core/archive/docs/PLOT_LORE.md)  
+→ **Architektur-Referenz:** [`MASTER_DOC.md`](core/archive/docs/MASTER_DOC.md)
