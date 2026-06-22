@@ -46,12 +46,12 @@ function setMetricsCache(snapshot) {
     agg[providerModel].weightedSum += (val.avg_quality || 0) * (val.total_calls || 0);
     agg[providerModel].totalCalls += (val.total_calls || 0);
   }
-  // Finalisiere: avg_quality pro Provider+Model
+  // Finalisiere: avg_quality + totalCalls pro Provider+Model
   _metricsCache = {};
   for (const [pm, a] of Object.entries(agg)) {
     _metricsCache[pm] = a.totalCalls > 0 
-      ? Math.round(a.weightedSum / a.totalCalls) 
-      : 0;
+      ? { avg_quality: Math.round(a.weightedSum / a.totalCalls), total_calls: a.totalCalls }
+      : { avg_quality: 0, total_calls: 0 };
   }
 }
 
@@ -111,7 +111,26 @@ function isUsableTextModel(model) {
 function rankModel(model, provider = 'openrouter') {
   if (!_metricsCache || !model) return 0;
   const key = `${provider}:${model}`;
-  return _metricsCache[key] || 0;
+  const entry = _metricsCache[key];
+  return entry ? entry.avg_quality : 0;
+}
+
+/**
+ * Item 5+8: Batch-Größen — liefert avg_quality + total_calls für Erfolgsraten-Schätzung.
+ * Genutzt von getBatchProfile() in client-factory.js als successMult-Faktor.
+ *
+ * @param {string} provider — Provider-Name (z.B. 'groq')
+ * @param {string} model — Modellname (z.B. 'llama-3.1-8b-instant')
+ * @param {string} [taskType='translate'] — Task-Typ (note: _metricsCache aggregiert
+ *   über ALLE task_types; taskType wird ignoriert bis der Cache task_type-bewusst ist)
+ * @returns {{ avg_quality: number, total_calls: number }|null} Metriken oder null.
+ */
+function getModelMetrics(provider, model, taskType = 'translate') {
+  if (!_metricsCache || !provider || !model) return null;
+  const key = `${provider}:${model}`;
+  const entry = _metricsCache[key];
+  if (!entry || entry.total_calls === 0) return null;
+  return { avg_quality: entry.avg_quality, total_calls: entry.total_calls, task_type: taskType };
 }
 
 function filterLLMs(models, freeOnly = false) {
@@ -1052,4 +1071,5 @@ module.exports = {
   getGateCounterOpts,
   setMetricsCache,
   rankModel,
+  getModelMetrics,
 };

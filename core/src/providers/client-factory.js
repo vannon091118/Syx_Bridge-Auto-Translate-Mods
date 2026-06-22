@@ -89,10 +89,32 @@ function createProviderClients(ctx) {
   // ── Item 0e: Adaptive Batch-Größen ─────────────────────────────────
   // Multiplikatoren pro Provider — passen Batch-Größen dynamisch an
   // die tatsächliche Rate-Limit-Situation an (statt hartcodierter Werte).
-  // Range: [0.25, 1.0]. Start bei 1.0 (= hartcodiertes Maximum).
+  // Range: [0.25, 1.0]. Start bei 1.0 (= Provider-Capability-Maximum).
   // Shrink: Halbierung bei 429, -0.2 wenn remaining < 20%.
   // Recovery: +0.1 bei remaining > 80%, +0.05 bei erfolgreichem Call ohne Limit-Info.
   const batchMultipliers = {};
+
+  // ── Item 5+8: Provider-Capabilities (Phase 2) ─────────────────────
+  // Ersetzt die alte hardcodierte if/else-Kette (15 Branches, per-Modell).
+  // Jeder Provider hat EINE Capability — Batch-Größe wird dynamisch via
+  // batchMultipliers × successRate × modelFactor berechnet.
+  // Lokale Provider (google_free, ollama, argos, fcm) haben feste Profile
+  // weil sie keine Cloud-Rate-Limits haben.
+  const PROVIDER_CAPS = {
+    nvidia:     { items: 5, chars: 1000, polishItems: 3, polishChars: 800 },
+    openrouter: { items: 14, chars: 2200, polishItems: 8, polishChars: 1600 },
+    groq:       { items: 6, chars: 900, polishItems: 4, polishChars: 700 },
+    gemini:     { items: 20, chars: 3000, polishItems: 14, polishChars: 2200 },
+    player2:    { items: 6, chars: 900, polishItems: 4, polishChars: 700 }
+  };
+
+  // Feste Profile für lokale Provider (keine Cloud-Rate-Limits)
+  const LOCAL_PROFILES = {
+    google_free: { maxItems: 8,  maxChars: 1200 },
+    ollama:      { translate: { maxItems: 12, maxChars: 1800 }, polish: { maxItems: 8, maxChars: 1200 } },
+    argos:       { maxItems: 10, maxChars: 1500 },
+    fcm:         { translate: { maxItems: 14, maxChars: 2000 }, polish: { maxItems: 8, maxChars: 1600 } }
+  };
 
   function buildGeminiSchema(expectedCount, mode = 'text') {
     const itemType = mode === 'flags' ? 'boolean' : 'string';
@@ -120,46 +142,81 @@ function createProviderClients(ctx) {
     return request;
   }
 
+  // ── Item 5+8: getBatchProfile — dynamisch via f(quota, success, modelSize) ──
+  // Alte hardcodierte if/else-Kette (15 Branches, per-Modell: NVIDIA=3-5, Groq=4-6,
+  // Gemini=14-20, etc.) komplett entfernt. Jetzt: Provider-Capability × quota-Multiplier
+  // × success-Rate (aus model_task_metrics) × model-Größen-Faktor.
   function getBatchProfile(provider, model, mode = 'translate') {
-    // Item 0b: Nutze die zentrale isFreeModel(provider, model) statt lokaler Namens-Heuristik
+    // ── Lokale Provider: feste Profile (keine Cloud-Rate-Limits) ──
+    const local = LOCAL_PROFILES[provider];
+    if (local) {
+      if (local.translate && local.polish) {
+        return mode === 'polish' ? local.polish : local.translate;
+      }
+      return local;
+    }
+
+    // Phase 3 / Item 0b: Zentrale isFreeModel für korrekte Free-Erkennung
     const { isFreeModel } = require('../router');
     const name = String(model || '').toLowerCase();
-    const isFree  = isFreeModel(provider, model);
-    const isLite  = name.includes('lite') || name.includes('flash') || name.includes('instant') || name.includes('8b') || name.includes('3b');
-    const isLarge = name.includes('70b') || name.includes('pro') || name.includes('sonnet') || name.includes('opus') || name.includes('405b');
+    const isFree = isFreeModel(provider, model);
 
-    // ── Item 0e: Lokale Provider ohne Rate-Limits → sofortiger Return ──
-    if (provider === 'google_free') return { maxItems: 8,  maxChars: 1200 };
-    if (provider === 'ollama')      return { maxItems: mode === 'polish' ? 8  : 12, maxChars: 1800 };
-    if (provider === 'argos')       return { maxItems: 10, maxChars: 1500 };
-    if (provider === 'fcm')         return { maxItems: mode === 'polish' ? 8  : 14, maxChars: 2000 };
-
-    // ── LLM-Provider: Basis-Profil berechnen, DANN adaptiven Multiplikator anwenden ──
-    let base;
-    if (provider === 'nvidia' && isLarge) { base = { maxItems: mode === 'polish' ? 4 : 6, maxChars: 1500 }; }
-    else if (provider === 'nvidia')       { base = { maxItems: mode === 'polish' ? 3 : 5, maxChars: 1000 }; }
-    else if (provider === 'openrouter' && isFree)  { base = { maxItems: mode === 'polish' ? 4  : 8,  maxChars: 1200 }; }
-    else if (provider === 'openrouter' && isLarge) { base = { maxItems: mode === 'polish' ? 12 : 18, maxChars: 2800 }; }
-    else if (provider === 'openrouter')            { base = { maxItems: mode === 'polish' ? 8  : 14, maxChars: 2200 }; }
-    else if (provider === 'groq' && isLarge) { base = { maxItems: mode === 'polish' ? 6 : 9, maxChars: 1200 }; }
-    else if (provider === 'groq' && isLite)  { base = { maxItems: mode === 'polish' ? 5 : 7, maxChars: 1000 }; }
-    else if (provider === 'groq')            { base = { maxItems: mode === 'polish' ? 4 : 6, maxChars: 900 }; }
-    else if (provider === 'gemini' && isLite)  { base = { maxItems: mode === 'polish' ? 12 : 18, maxChars: 2600 }; }
-    else if (provider === 'gemini' && isLarge) { base = { maxItems: mode === 'polish' ? 16 : 24, maxChars: 4000 }; }
-    else if (provider === 'gemini')            { base = { maxItems: mode === 'polish' ? 14 : 20, maxChars: 3000 }; }
-    else { base = { maxItems: mode === 'polish' ? 8 : 12, maxChars: 1800 }; }
-
-    // Item 0e: Adaptive Batch-Größen — wende dynamischen Multiplikator an
-    const mult = batchMultipliers[provider] || 1.0;
-    if (mult < 1.0) {
-      base = {
-        maxItems: Math.max(1, Math.floor(base.maxItems * mult)),
-        maxChars: Math.max(200, Math.floor(base.maxChars * mult))
-      };
+    // ── Cloud-LLM-Provider: dynamische Batch-Größe ──
+    const cap = PROVIDER_CAPS[provider];
+    if (!cap) {
+      // Unbekannter Provider — konservatives Default
+      return { maxItems: mode === 'polish' ? 8 : 12, maxChars: 1800 };
     }
-    return base;
+
+    // 1. Base: Provider-Capability (einer pro Provider, nicht per-Modell)
+    const baseItems = mode === 'polish' ? cap.polishItems : cap.items;
+    const baseChars = mode === 'polish' ? cap.polishChars : cap.chars;
+
+    // 2. Quota-Multiplier: batchMultipliers[provider] (dynamisch via handleRateLimits)
+    const quotaMult = batchMultipliers[provider] || 1.0;
+
+    // 3. Model-Size-Faktor: große Modelle haben grössere Kontext-Fenster.
+    // Anders als die rankModel()-String-Heuristik (die Qualität schätzte) ist
+    // das hier eine echte Kapazitätsgrenze — 70B-Modelle KÖNNEN mehr Items
+    // pro Call verarbeiten als 8B-Modelle, unabhängig von ihrer Übersetzungsqualität.
+    const isLarge = name.includes('70b') || name.includes('pro') || name.includes('sonnet') || name.includes('opus') || name.includes('405b') || name.includes('nemotron');
+    const isLite  = name.includes('lite') || name.includes('flash') || name.includes('instant') || name.includes('8b') || name.includes('3b');
+    const modelMult = isLarge ? 1.3 : (isLite ? 0.8 : 1.0);
+
+    // 4. Success-Rate aus model_task_metrics (via avg_quality als Proxy)
+    // Nutzt getModelMetrics() aus config-runtime.js — liefert {avg_quality, total_calls}.
+    // Minimum 4 Aufrufe bevor der Faktor greift (analog alter success_count+fail_count>3 Guard).
+    let successMult = 1.0;
+    try {
+      const metrics = configRuntime && configRuntime.getModelMetrics
+        ? configRuntime.getModelMetrics(provider, model, mode)
+        : null;
+      if (metrics && metrics.total_calls > 3) {
+        const q = metrics.avg_quality; // 0-100
+        if (q >= 85) successMult = 1.15;
+        else if (q >= 70) successMult = 1.0;
+        else if (q >= 50) successMult = 0.85;
+        else successMult = 0.7;
+      }
+    } catch (_) { /* Metriken nicht verfügbar — kein Einfluss */ }
+
+    // 5. Free-Modelle: leicht konservativer (Rate-Limits strenger)
+    // Temporary heuristic — replace with model_task_metrics success-rate data when available
+    const freeMult = isFree ? 0.9 : 1.0;
+
+    // 6. Finale Berechnung: base × quota × success × modelSize × free
+    const finalMult = quotaMult * successMult * modelMult * freeMult;
+
+    return {
+      maxItems: Math.max(1, Math.floor(baseItems * finalMult)),
+      maxChars: Math.max(200, Math.floor(baseChars * finalMult))
+    };
   }
 
+  // ── Item 5+8: handleRateLimits — proaktive Key-Rotation VOR 429 ──
+  // Zusätzlich zur bestehenden Rotation bei remaining < 2000 Tokens:
+  // Rotiert proaktiv wenn batchMultiplier unter 0.5 fällt (schwere Drosselung).
+  // Verhindert dass der erste 429 überhaupt auftritt.
   function handleRateLimits(provider, headers) {
     if (!headers) return;
     const remainingTokens = parseInt(headers['x-ratelimit-remaining-tokens'] || headers['ratelimit-remaining-tokens'] || '999999', 10);
@@ -172,7 +229,8 @@ function createProviderClients(ctx) {
     }
 
     // Item 0e: Adaptive Batch-Größen — passe Multiplikator an Rate-Limit-Status an
-    let mult = batchMultipliers[provider] || 1.0;
+    const prevMult = batchMultipliers[provider] || 1.0;
+    let mult = prevMult;
     if (limitTokens > 0) {
       const ratio = remainingTokens / limitTokens;
       if (ratio < 0.2) {
@@ -186,8 +244,19 @@ function createProviderClients(ctx) {
     }
     batchMultipliers[provider] = mult;
 
-    if (remainingTokens < 2000 || remainingRequests < 2) {
-      console.log(`[QUOTA] ${provider} Limit fast erreicht (Tokens: ${remainingTokens}, Req: ${remainingRequests}). Rotiere Key...`);
+    // ── Item 5+8: Proaktive Key-Rotation ──────────────────────────
+    // ZWEI Trigger für Rotation (nicht nur einer):
+    //   1. (Bestehend) remainingTokens < 2000 || remainingRequests < 2
+    //   2. (NEU) prevMult < 0.5 — Multiplier WAR bereits vor diesem Call gedrosselt,
+    //      d.h. mehrere aufeinanderfolgende Calls wurden runtergeregelt.
+    //      Rotiere JETZT bevor der nächste Call den 429 trifft.
+    // WICHTIG: prevMult prüfen (nicht mult) — sonst rotiert der erste Drossel-Call
+    // sofort ohne dem reduzierten Batch eine Chance zu geben.
+    const shouldRotate = (remainingTokens < 2000 || remainingRequests < 2)
+                      || (prevMult < 0.5 && remainingTokens < 5000);
+
+    if (shouldRotate) {
+      console.log(`[QUOTA] ${provider} Limit erreicht (Tokens: ${remainingTokens}, Req: ${remainingRequests}, Mult: ${mult.toFixed(2)}). Rotiere Key...`);
       // Mark current key as rate-limited so rotation skips it
       const currentIndex = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
       if (configRuntime && configRuntime.markKeyCooldown) {
