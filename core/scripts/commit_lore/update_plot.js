@@ -4,7 +4,20 @@ const { execSync } = require('child_process');
 
 const plotPath = path.join(__dirname, '../../archive/docs/PLOT_LORE.md');
 const plotchainPath = path.join(__dirname, 'plotchain.json');
-const dialogue = process.argv[2];
+
+// ── Argument-Parsing: positional dialogue + --impulse ──────────────
+// Aufruf: node update_plot.js "Dialog-Text" --impulse="Was der User sagte"
+const args = process.argv.slice(2);
+let dialogue = '';
+let userImpulse = null;
+
+for (const arg of args) {
+  if (arg.startsWith('--impulse=')) {
+    userImpulse = arg.slice('--impulse='.length);
+  } else if (!dialogue) {
+    dialogue = arg;
+  }
+}
 
 if (!dialogue) {
   console.error('Bitte einen Dialog-String als Argument übergeben.');
@@ -140,6 +153,11 @@ const newNode = {
   parent_id: parentId,
   timestamp: timestamp,
   status: currentPlotStatus,
+  user_impulse: userImpulse ? {
+    text: userImpulse,
+    timestamp: isoTimestamp,
+    effect: null // Wird NACH dem Commit mit tatsaechlicher Auswirkung befuellt (retroaktiv via str_replace oder --set-effect)
+  } : null,
   session_changes: sessionFiles,
   variables: Array.from(variables),
   suggested_next_hooks: suggestedNextHooks,

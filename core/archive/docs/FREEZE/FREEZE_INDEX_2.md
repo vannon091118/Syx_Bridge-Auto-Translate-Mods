@@ -30,8 +30,11 @@
 18. [HANDSHAKE-Dateien — 8 Session-Übergaben archiviert (2026-06-21)](#18-handshake-dateien--8-session-bergaben-archiviert)
 19. [Item 0a — "Auto"-Modus kein permanentes Einfrieren (2026-06-22)](#19-item-0a--auto-modus-kein-permanentes-einfrieren)
 20. [Item 0b — isFreeModel() Provider-bewusste Free-Erkennung (2026-06-22)](#20-item-0b--isfreemodel-provider-bewusste-free-erkennung)
+21. [Item 4 — 5 Thin-Wrapper entfernt, callProvider zentral (2026-06-22)](#21-item-4--5-thin-wrapper-entfernt-callprovider-zentral)
+22. [Item 2 Phase 2 — deepPolishBatch Metriken in model_task_metrics (2026-06-22)](#22-item-2-phase-2--deeppolishbatch-metriken-in-model_task_metrics)
+23. [Item 3/9 — rankModel() DB-gestützt statt String-Heuristik (2026-06-22)](#23-item-39--rankmodel-db-gestützt-statt-string-heuristik)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **80** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **83** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1)
 
 ---
 
@@ -891,5 +894,56 @@
 - **⚠️ ANNAHMEN:** 0 — alle Provider-API-Entscheidungen durch echte Research verifiziert
 - **🗑️ JUNK ENTFERNT:** Alte Namens-Heuristik in isFreeModel(), filterLLMs(), getBatchProfile(), app.js — 4 Duplikate vollständig ersetzt
 - **Nächster Subtask:** Item 0c — Score-Heuristik (reusedWords-Prüfung) auf falsch-negative Bewertungen prüfen
+
+---
+
+## 21. Item 4 — 5 Thin-Wrapper entfernt, callProvider zentral (2026-06-22)
+
+### 🧊 ITEM 4 — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (Routing-Engine v0.22 Kampagne)
+- **Kategorie:** Dead-Code-Entfernung — Architektur-Vereinfachung Phase 0
+- **Zusammenfassung:** 5 Thin-Wrapper (`callGroqBatch`, `callOpenRouterBatch`, `callNvidiaBatch`, `callFcmBatch`, `callPlayer2Batch`) aus `client-factory.js` entfernt. Alle waren reine Delegatoren an `callChatCompletions()` — null externe Caller, null Importe. `callProvider()` übernimmt jetzt den zentralen Dispatch inkl. player2-Modell-Fallback (config.EFFECTIVE_PRIMARY_MODEL). INDEX.md + CHANGELOG nachgezogen.
+- **Kausalität:** User-Impuls: "Item 4: callProvider zentraler Dispatcher statt 5 Thin-Wrapper — toten Code entfernen". Die 5 Wrapper existierten seit CL:0.19.7 (ca. 2 Wochen) ohne jemals aufgerufen worden zu sein.
+- **Methode:** code-searcher (Restreferenzen repo-weit) → str_replace (5 Funktionen + Exports) → Junk-Check (0 Restreferenzen ausser in INDEX.md) → Syntax-Check → code-reviewer-deepseek
+- **Cross-Referenzen:** `client-factory.js`, `INDEX.md`
+- **Status:** ✅ ABGESCHLOSSEN — 5 Wrapper entfernt, 0 Restreferenzen, callProvider zentral
+- **LIVE-Vorhanden:** `client-factory.js` (callProvider mit player2-Fallback), `INDEX.md` (aktualisiert)
+- **Verifikation:** node -e "require client-factory" → SYNTAX OK, callProvider true, alle 5 Wrapper undefined
+- **🗑️ JUNK ENTFERNT:** callGroqBatch, callOpenRouterBatch, callNvidiaBatch, callFcmBatch, callPlayer2Batch — 5 Funktionen, 0 externe Caller
+- **Commit:** `5f5387c` — "5 Funktionen die nie jemand aufgerufen hat" (Teil 1/3 der Dead-Code-Trilogie)
+
+---
+
+## 22. Item 2 Phase 2 — deepPolishBatch Metriken in model_task_metrics (2026-06-22)
+
+### 🧊 ITEM 2 PHASE 2 — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (Routing-Engine v0.22 Kampagne)
+- **Kategorie:** Quality-Metrik — Defense-in-Depth für qualitätskritischsten Pfad
+- **Zusammenfassung:** `runDeepPolishBatch()` schrieb Ergebnisse via `dbRun()` direkt in die DB — ohne Watermark-Strip, Revision-Tracking, Review-Count-Increment, MAX_REVIEW_COUNT-Guard oder model_task_metrics. Fix: `dbRun()` → `saveTranslation()` (das automatisch `recordModelTaskMetric()` aufruft). Parallel: `qaPhase()` Polish-Save nutzt jetzt echte `polishRoute.provider`/`polishRoute.model` statt SyxBridge-interner Labels (`'ab_polish'`/`'polish_single'`). Tote Variable `polishProvider` entfernt.
+- **Kausalität:** User-Impuls: "Item 2 Phase 2: deepPolishBatch in model_task_metrics aufnehmen — echte Provider/Model-Metriken statt SyxBridge-Labels". Der qualitätskritischste Pfad (Deep Polish, finale Verbesserung) hatte die wenigsten Qualitätssicherungen.
+- **Methode:** code-searcher (deepPolishBatch + recordModelTaskMetric + saveTranslation) → thinker-with-files-gemini (saveTranslation-Seiteneffekte) → 2 str_replace → code-reviewer-deepseek → Syntax-Check
+- **Cross-Referenzen:** `translation-runtime.js` (runDeepPolishBatch, qaPhase), `translation-db.js` (saveTranslation, recordModelTaskMetric)
+- **Status:** ✅ ABGESCHLOSSEN — Deep Polish schreibt jetzt Metriken + nutzt alle 5 Defense-Schichten
+- **LIVE-Vorhanden:** `translation-runtime.js` (runDeepPolishBatch via saveTranslation, qaPhase mit polishRoute)
+- **Verifikation:** Syntax-Check OK, Code-Review approved
+- **⚠️ RISK:** runDeepPolishBatch hat keine Transaktion um saveTranslation (wie qaPhase/translatePhase) — akzeptiert da Batch-Größe klein
+- **Commit:** `8d4bac5` — "5 Schichten Defense — alle umgangen" (Teil 2/3 der Dead-Code-Trilogie)
+
+---
+
+## 23. Item 3/9 — rankModel() DB-gestützt statt String-Heuristik (2026-06-22)
+
+### 🧊 ITEM 3/9 — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (Routing-Engine v0.22 Kampagne)
+- **Kategorie:** Architektur-Korrektur — datengetriebenes Modell-Ranking
+- **Zusammenfassung:** `rankModel()` in `config-runtime.js` nutzte eine reine String-Heuristik: 'free' im Namen = +100, 'flash'/'instant' = +20, '70b'/'pro' = +10, Whitelist-Match = +5. Fix: `rankModel(model, provider)` aggregiert jetzt `avg_quality` aus `model_task_metrics` über alle task_types — gewichteter Durchschnitt via `setMetricsCache(getMetricsSnapshot())`. `MODEL_WHITELIST` komplett entfernt. String-Heuristik ersatzlos gestrichen (30 Zeilen kürzer). Fallback: 0 bei Cold-Start oder unbekannten Modellen. `setMetricsCache()` wird einmal nach DB-Init in `index.js` befüllt.
+- **Kausalität:** User-Impuls: "Item 3/9: rankModel() durch DB-Query auf model_task_metrics ersetzen. Statt String-Heuristik ('flash'=+20, '70b'=+10) echte avg_quality pro Task-Typ." — model_task_metrics existierte seit Item 2 mit echten Qualitätsdaten, aber rankModel() ignorierte sie komplett.
+- **Methode:** code-searcher (rankModel + model_task_metrics-Schema) → read_files (config-runtime.js, db.js, index.js) → str_replace (rankModel + setMetricsCache + Wiring) → code-reviewer-deepseek → Syntax-Check + echter Funktionsaufruf
+- **Cross-Referenzen:** `config-runtime.js` (rankModel, setMetricsCache, filterLLMs, enhanceModelListWithFcm), `index.js` (DB-Init-Wiring), `db.js` (getMetricsSnapshot, model_task_metrics)
+- **Status:** ✅ ABGESCHLOSSEN — rankModel() nutzt echte DB-Metriken, String-Heuristik komplett entfernt
+- **LIVE-Vorhanden:** `config-runtime.js` (rankModel mit _metricsCache), `index.js` (setMetricsCache-Wiring)
+- **Verifikation:** rankModel('llama-3.1-8b-instant','groq') = 85 (agg 89×11+75×5/16), rankModel('nonexistent','openrouter') = 0 ✅
+- **⚠️ RISK:** Metrik-Cache nur einmal beim Startup — zwischen Sync-Läufen stale (geringes Risiko da Metriken sich langsam ändern)
+- **Commit:** `6083563` — "+100 wenn 'free' im Namen steht" (Teil 3/3 der Dead-Code-Trilogie)
 
 ---

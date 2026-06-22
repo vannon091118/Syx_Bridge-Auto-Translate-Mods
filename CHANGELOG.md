@@ -5,6 +5,33 @@
 
 ---
 
+## [DOKU-NACHZUG] — 2026-06-22 — User-Impuls-Tracking + Doku vollständig nachgezogen
+
+### RULE 3 Erweiterung: User-Impuls-Tracking
+- `update_plot.js`: Akzeptiert `--impulse="User-Input"` Parameter und schreibt `user_impulse`-Feld mit `{text, timestamp, effect}` in plotchain-Node
+- `writing_rules.json`: Neue Sektion `user_impulse_tracking` — dokumentiert Pflicht, jeden Commit-Impuls (User-Input) im plotchain-Node festzuhalten
+- `plotchain.json`: Letzte 3 Nodes (`11:01:29`, `11:04:56`, `11:07:04`) um `user_impulse`-Felder ergänzt
+
+### PLOT_LORE.md — User-Impulse annotiert
+- Alle 3 Dialog-Einträge (Item 4, Item 2 Phase 2, Item 3/9) haben jetzt `> **User-Impuls:**` und `> **Auswirkung:**` Annotationen
+- Plot-Chain wird dadurch von reiner Code-Änderungs-Historie zur echten Entscheidungs-Historie
+
+### FREEZE_INDEX_2.md — 3 neue Sektionen
+- **§21**: Item 4 — 5 Thin-Wrapper entfernt (Commit `5f5387c`)
+- **§22**: Item 2 Phase 2 — deepPolishBatch Metriken (Commit `8d4bac5`)
+- **§23**: Item 3/9 — rankModel() DB-gestützt (Commit `6083563`)
+- Gesamtzahl: 80 → 83 Buch-Einträge
+
+### Files Changed
+- `core/scripts/commit_lore/update_plot.js` — --impulse Parameter
+- `core/scripts/commit_lore/writing_rules.json` — user_impulse_tracking Regel
+- `core/scripts/commit_lore/plotchain.json` — user_impulse zu 3 Nodes
+- `core/archive/docs/PLOT_LORE.md` — User-Impuls Annotationen
+- `core/archive/docs/FREEZE/FREEZE_INDEX_2.md` — §21–§23
+- `core/archive/docs/HANDSHAKE_2026-06-22_doku-nachzug.md` — NEU
+
+---
+
 ## [ITEM-3/9] — 2026-06-22 — rankModel() DB-gestützt statt String-Heuristik
 
 ### Fix

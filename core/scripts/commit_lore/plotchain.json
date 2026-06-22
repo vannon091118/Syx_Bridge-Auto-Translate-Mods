@@ -270,6 +270,11 @@
     "parent_id": "plot-2026-06-22T09:43:55",
     "timestamp": "2026-06-22 11:01:29",
     "status": "active",
+    "user_impulse": {
+      "text": "Item 4: callProvider zentraler Dispatcher statt 5 Thin-Wrapper — toten Code entfernen",
+      "timestamp": "2026-06-22T10:45:00",
+      "effect": "client-factory.js: 5 Thin-Wrapper (callGroqBatch, callOpenRouterBatch, callNvidiaBatch, callFcmBatch, callPlayer2Batch) entfernt. callProvider als zentraler Dispatch. INDEX.md + CHANGELOG nachgezogen."
+    },
     "session_changes": [
       "HANGELOG.md",
       "core/archive/docs/PLOT_LORE.md",
@@ -321,6 +326,11 @@
     "parent_id": "plot-2026-06-22T11:01:29",
     "timestamp": "2026-06-22 11:04:56",
     "status": "active",
+    "user_impulse": {
+      "text": "Item 2 Phase 2: deepPolishBatch in model_task_metrics aufnehmen — echte Provider/Model-Metriken statt SyxBridge-Labels",
+      "timestamp": "2026-06-22T11:03:00",
+      "effect": "translation-runtime.js: runDeepPolishBatch nutzt saveTranslation() statt dbRun(). qaPhase nutzt polishRoute.provider/model statt 'ab_polish'/'polish_single'. 5 Defense-Schichten jetzt auch für Deep Polish aktiv."
+    },
     "session_changes": [
       "ore/archive/docs/PLOT_LORE.md",
       "core/archive/docs/PREFLIGHT_LATEST.md",
@@ -364,6 +374,11 @@
     "parent_id": "plot-2026-06-22T11:04:56",
     "timestamp": "2026-06-22 11:07:04",
     "status": "active",
+    "user_impulse": {
+      "text": "Item 3/9: rankModel() in config-runtime.js durch DB-Query auf model_task_metrics ersetzen. Statt String-Heuristik echte avg_quality pro Task-Typ.",
+      "timestamp": "2026-06-22T11:06:00",
+      "effect": "config-runtime.js: rankModel() aggregiert avg_quality aus model_task_metrics. MODEL_WHITELIST + String-Heuristik komplett entfernt. setMetricsCache() in index.js gewired."
+    },
     "session_changes": [
       "ore/archive/docs/PLOT_LORE.md",
       "core/archive/docs/PREFLIGHT_LATEST.md",
@@ -399,5 +414,60 @@
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
     "dialogue_preview": "### [2026-06-22 13:05] — Item 3/9: Das Ende der String-Heuristik\\n\\n**Buffy:** *(liest config-runtim..."
+  },
+  {
+    "id": "plot-2026-06-22T11:16:29",
+    "parent_id": "plot-2026-06-22T11:07:04",
+    "timestamp": "2026-06-22 11:16:28",
+    "status": "active",
+    "user_impulse": {
+      "text": "Doku vollstaendig nachziehen, Regel 3 um User-Input-Impuls-Tracking ergaenzen — welcher Impuls wurde gegeben und welche Auswirkung hatte er im Lauf der Zeit",
+      "timestamp": "2026-06-22T11:16:29",
+      "effect": null
+    },
+    "session_changes": [
+      "HANGELOG.md",
+      "core/archive/docs/FREEZE/FREEZE_INDEX_2.md",
+      "core/archive/docs/PLOT_LORE.md",
+      "core/archive/docs/PREFLIGHT_LATEST.md",
+      "core/scripts/commit_lore/plotchain.json",
+      "core/scripts/commit_lore/sidejoke_pool.json",
+      "core/scripts/commit_lore/update_plot.js",
+      "core/scripts/commit_lore/writing_rules.json",
+      "core/scripts/release.js",
+      "core/src/db.js",
+      "core/src/dispatcher.js",
+      "core/src/plugins/GamePlugin.js",
+      "core/src/plugins/SongsOfSyxPlugin.js",
+      "core/src/router.js",
+      "core/src/translation-db.js",
+      "core/src/translation-quality.js",
+      "core/archive/docs/HANDSHAKE_2026-06-22_doku-nachzug.md",
+      "core/logs/"
+    ],
+    "variables": [
+      "PLOT_LORE",
+      "HANGELOG",
+      "FREEZE_INDEX_2",
+      "PREFLIGHT_LATEST",
+      "plotchain",
+      "sidejoke_pool",
+      "update_plot",
+      "writing_rules",
+      "release",
+      "dispatcher",
+      "GamePlugin",
+      "SongsOfSyxPlugin",
+      "router",
+      "translation-db",
+      "translation-quality",
+      "HANDSHAKE_2026-06-22_doku-nachzug",
+      "logs"
+    ],
+    "suggested_next_hooks": [
+      "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
+      "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
+    ],
+    "dialogue_preview": "### [2026-06-22 13:15] — Doku-Nachzug: Die Plot-Chain wird zur Entscheidungs-Historie\\n\\n**Buffy:** ..."
   }
 ]

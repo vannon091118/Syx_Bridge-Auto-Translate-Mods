@@ -30,6 +30,16 @@
       "example": "[MODEL:claude-sonnet-4-6]",
       "note": "The regex is enforced in verify_commit_msg.js — this JSON documents the spec only."
     },
+    "user_impulse_tracking": {
+      "description": "RULE 3 Addendum: Jeder Commit muss den User-Input dokumentieren der ihn ausgeloest hat. Welcher Impuls (wortwoertlich) wurde vom User gegeben, und welche Auswirkung hatte er im Lauf der Zeit? Dies wird als user_impulse-Feld im plotchain-Node und als Annotation im PLOT_LORE-Dialog festgehalten.",
+      "required": true,
+      "fields": {
+        "text": "Der wortwoertliche User-Impuls (oder sinngemaess, wenn laenger)",
+        "timestamp": "Wann der Impuls gegeben wurde",
+        "effect": "Welche Auswirkung der Impuls hatte (Code-Aenderung, Architektur-Entscheidung, Doku-Korrektur)"
+      },
+      "note": "RULE 3 sagt: Der User weiss was er macht. Das user_impulse-Feld dokumentiert WARUM ein Commit entstanden ist — nicht nur WAS geaendert wurde. Die Plot-Chain wird dadurch von einer reinen Code-Aenderungs-Historie zu einer echten Entscheidungs-Historie."
+    },
     "cross_references": {
       "description": "Must reference at least one persistent plot variable or past commit hash from the registry.",
       "required": true,
