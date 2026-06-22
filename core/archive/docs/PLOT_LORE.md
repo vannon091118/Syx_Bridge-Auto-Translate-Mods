@@ -462,3 +462,6 @@ Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update
 **Vannon:** Scharf.
 
 **Buffy:** Die Chain ist jetzt eine echte Kette. Jeder Commit weiss von seinem Vorgaenger — nicht nur per REF, sondern auch per Cross-Reference auf vergangene Ereignisse. Die lore_arcs werden nicht mehr nur geschrieben, sie werden enforced.
+
+### [2026-06-22 12:43:35]
+--model=deepseek-v4-pro

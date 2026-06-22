@@ -25,30 +25,24 @@ const PROVIDER_DEFAULTS = Object.fromEntries(
   Object.entries(PROVIDER_REGISTRY).map(([id, reg]) => [id, reg.defaultModel])
 );
 
-// ─── Free-Model Static Lists (Provider ohne API-Pricing) ─────────────────────
-// Quellen: API-Dokumentation + manuelle Recherche, Stand Juni 2026.
-// Provider die Pricing via API ausliefern (OpenRouter) nutzen dynamische
-// Erkennung — siehe setOpenRouterFreeModels() unten.
+// ─── Free-Model Static Lists (Fallback wenn kein API-Cache) ─────────────────
+// P0-6: Jeder Cloud-Provider hat jetzt ein Cache+Setter-Pattern (wie OpenRouter).
+// Die statischen Listen sind Fallbacks — die Caches werden via API-Calls befüllt.
+// NVIDIA: API liefert KEIN Free-Tier-Flag → statische Liste als Fallback.
+//   Cache wird via fetchNvidiaModels() mit allen verfügbaren Modellen befüllt
+//   (da NVIDIA-Keys nur Zugriff auf Free-Tier-Modelle haben).
+// Groq: Alle Modelle im Free-Tier → null = Wildcard.
+// Gemini: API liefert KEIN Free-Tier-Flag → statische Liste als Fallback.
+//   Cache wird via fetchGeminiModels() befüllt.
 
-// NVIDIA NIM Free-Tier Modelle
-// Quelle: build.nvidia.com/models (Juni 2026) — Modelle mit "Free"-Tag
-// Rate-Limit: 40 RPM. Kostenlose Credits: 5000/Monat.
 const NVIDIA_FREE_MODELS = new Set([
   'meta/llama-3.3-70b-instruct',
   'meta/llama-3.1-8b-instruct',
   'nvidia/llama-3.1-nemotron-70b-instruct',
 ]);
 
-// Groq Free-Tier Modelle
-// Quelle: console.groq.com/docs/models (Juni 2026)
-// Groq Free-Tier gibt Zugriff auf ALLE gelisteten Modelle — Einschränkung
-// liegt NUR in Rate-Limits (TPM/RPD), nicht in Modell-Verfügbarkeit.
-// null = Sonderwert: ALLE Groq-Modelle sind im Free-Tier nutzbar.
 const GROQ_FREE_MODELS = null;
 
-// Gemini Free-Tier Modelle
-// Quelle: ai.google.dev/gemini-api/docs/models (Juni 2026)
-// Google AI Studio Free-Tier: 15 RPM für Flash-Modelle, 2 RPM für Pro.
 const GEMINI_FREE_MODELS = new Set([
   'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
@@ -60,13 +54,21 @@ const GEMINI_FREE_MODELS = new Set([
   'gemini-1.5-pro',
 ]);
 
-// ─── OpenRouter Free-Model Cache (wird von config-runtime.js befüllt) ────────
-// Dynamische Liste via /api/v1/models → pricing.prompt === "0" && pricing.completion === "0"
-// Fallback (vor API-Abruf): Namens-Heuristik für openrouter/free + :free-Endungen
+// ─── Free-Model Caches (OpenRouter → NVIDIA → Gemini, konsistentes Pattern) ─
 let _openRouterFreeCache = null;
+let _nvidiaFreeCache = null;
+let _geminiFreeCache = null;
 
 function setOpenRouterFreeModels(modelIds) {
   _openRouterFreeCache = new Set(modelIds.map(m => m.toLowerCase()));
+}
+
+function setNvidiaFreeModels(modelIds) {
+  _nvidiaFreeCache = new Set(modelIds.map(m => m.toLowerCase()));
+}
+
+function setGeminiFreeModels(modelIds) {
+  _geminiFreeCache = new Set(modelIds.map(m => m.toLowerCase()));
 }
 
 // ─── Item 0d: Dynamic Model Scoring ─────────────────────────────────────────
@@ -111,18 +113,22 @@ function isFreeModel(provider, model) {
     return name === 'openrouter/free' || name.endsWith(':free') || name.includes('/free');
   }
 
-  // NVIDIA: statische Liste (API liefert kein Pricing)
+  // NVIDIA: Cache-first, Fallback auf statische Liste
+  // NVIDIA-API-Keys haben NUR Zugriff auf Free-Tier-Modelle — alle via
+  // /v1/models zurückgegebenen Modelle sind implizit free-tier.
   if (provider === 'nvidia') {
+    if (_nvidiaFreeCache && _nvidiaFreeCache.size > 0) {
+      return _nvidiaFreeCache.has(name);
+    }
     return NVIDIA_FREE_MODELS.has(name);
   }
 
-  // Groq: alle Modelle sind im Free-Tier (nur Rate-Limits unterscheiden)
-  if (provider === 'groq') {
-    return GROQ_FREE_MODELS === null || GROQ_FREE_MODELS.has(name);
-  }
-
-  // Gemini: statische Liste (API liefert kein Tier-Feld)
+  // Gemini: Cache-first, Fallback auf statische Liste
+  // Gemini API liefert kein Tier-Feld → statische Liste als Fallback.
   if (provider === 'gemini') {
+    if (_geminiFreeCache && _geminiFreeCache.size > 0) {
+      return _geminiFreeCache.has(name);
+    }
     return GEMINI_FREE_MODELS.has(name);
   }
 
@@ -495,4 +501,6 @@ module.exports.translateHttpError = translateHttpError;
 module.exports.isFreeModel = isFreeModel;
 module.exports.getDynamicScore = getDynamicScore;
 module.exports.setOpenRouterFreeModels = setOpenRouterFreeModels;
+module.exports.setNvidiaFreeModels = setNvidiaFreeModels;
+module.exports.setGeminiFreeModels = setGeminiFreeModels;
 module.exports.PROVIDER_REGISTRY = PROVIDER_REGISTRY;

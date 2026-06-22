@@ -171,12 +171,12 @@ function filterLLMs(models, freeOnly = false) {
 }
 
 const { translateHttpError, PROVIDER_REGISTRY } = require('./router');
+const { setOpenRouterFreeModels, setNvidiaFreeModels, setGeminiFreeModels } = require('./router');
 
 function getDefaultModelForProvider(provider) {
   const reg = PROVIDER_REGISTRY[provider];
   return reg ? reg.defaultModel : 'auto';
 }
-const { setOpenRouterFreeModels } = require('./router');
 
 function maskSecret(value) {
   if (!value) return '(kein Key)';
@@ -335,10 +335,14 @@ class ConfigRuntime {
       if (!key) return [];
       const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
       const response = await axios.get(url, { timeout: 10000 });
-      return (response.data.models || [])
+      const models = (response.data.models || [])
         .filter(m => m.supportedGenerationMethods.includes('generateContent'))
         .map(m => m.name.replace('models/', ''))
         .sort();
+      // P0-6: Gemini API liefert KEIN Free-Tier-Flag → Cache NICHT auto-befüllen.
+      // Die statische GEMINI_FREE_MODELS-Liste bleibt der Fallback.
+      // setGeminiFreeModels() existiert für manuelle Updates via Docs-Recherche.
+      return models;
     } catch (e) {
       return []; // Let router fall through to next provider
     }
@@ -378,7 +382,6 @@ class ConfigRuntime {
   }
 
   async fetchNvidiaModels() {
-    // Try live /v1/models endpoint first (OpenAI-compatible)
     const key = this.getApiKey('nvidia');
     if (key) {
       try {
@@ -387,7 +390,14 @@ class ConfigRuntime {
           timeout: 10000
         });
         const models = (response.data.data || []).map(m => m.id).filter(isUsableTextModel).sort();
-        if (models.length > 0) return models;
+        if (models.length > 0) {
+          // P0-6: NVIDIA-API-Keys haben NUR Zugriff auf Free-Tier-Modelle.
+          // Alle via /v1/models zurückgegebenen Modelle sind implizit free-tier.
+          // Cache wird hier befüllt — isFreeModel() nutzt ihn vor statischer Liste.
+          setNvidiaFreeModels(models);
+          console.log(`[FREE-CACHE] ${models.length} NVIDIA-Modelle via /v1/models erkannt (alle implizit Free-Tier).`);
+          return models;
+        }
       } catch (e) {
         // fall through to static list
       }
