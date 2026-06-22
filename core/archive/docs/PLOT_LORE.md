@@ -449,3 +449,6 @@ Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update
 **Buffy:** Die Chain ist jetzt eine echte Kette. Jeder Commit weiss von seinem Vorgaenger — nicht nur per REF, sondern auch per Cross-Reference auf vergangene Ereignisse. Die lore_arcs werden nicht mehr nur geschrieben, sie werden enforced.
 ### [2026-06-22 14:08:29]
 Na gut. Der Doku-Konsolidierungs-Prozess läuft, und das erste Opfer ist der COMMIT_LAYER_REWRITE_PLAN. 7 Schritte, 25 atomare Aufgaben, 6 Verifikationschecks — alles durch. Dazu 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert die durch fehlerhafte update_plot.js-Arufe entstanden waren. Der Plan ist jetzt archiviert im FREEZE_INDEX_2 als §24. Die Commit-Layer-Infrastruktur steht.
+
+### [2026-06-22 14:19:39]
+Und dann hat der User gesagt: Achte dass der Stripper nicht das nächste unsichtbare Problem verursacht weil er nicht in der richtigen Reihenfolge sitzt. Und er hatte recht. 13 plotchain-Nodes ohne arcs und lore_context — alle aus der Zeit vor dem Arc-System. Jetzt hat jeder einzelne Node von 17 seinen Handlungsbogen und seinen Kontext-Anker. Die Kette ist lückenlos.

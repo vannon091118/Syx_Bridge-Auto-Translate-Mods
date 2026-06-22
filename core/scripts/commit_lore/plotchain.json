@@ -14,7 +14,11 @@
     "suggested_next_hooks": [
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen."
     ],
-    "dialogue_preview": "Vannon: Merge und cleanup fertig. Weiter."
+    "dialogue_preview": "Vannon: Merge und cleanup fertig. Weiter.",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-21T02:26:11",
@@ -45,7 +49,12 @@
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
     ],
-    "dialogue_preview": "### [2026-06-21 04:26] — Doku-Divergenz geschlossen: BU-020 war nie ein Code-Bug\\n\\n**Buffy:** *(nac..."
+    "dialogue_preview": "### [2026-06-21 04:26] — Doku-Divergenz geschlossen: BU-020 war nie ein Code-Bug\\n\\n**Buffy:** *(nac...",
+    "arcs": [
+      "great-cleanup",
+      "invisible-enemies"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-21T02:42:25",
@@ -63,7 +72,11 @@
     "suggested_next_hooks": [
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
-    "dialogue_preview": "### [2026-06-21 04:26] — ESLint-Fixes + G1-Test-Reparatur + Livetest bestanden"
+    "dialogue_preview": "### [2026-06-21 04:26] — ESLint-Fixes + G1-Test-Reparatur + Livetest bestanden",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-21T08:00:00",
@@ -92,7 +105,12 @@
       "Release v0.21.0-untested -> stable promoten.",
       "KNOWN_BUGS Cluster C systematic items triagieren."
     ],
-    "dialogue_preview": "### [2026-06-21 08:00] — Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit"
+    "dialogue_preview": "### [2026-06-21 08:00] — Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit",
+    "arcs": [
+      "tower-of-babel",
+      "great-cleanup"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-21T02:59:06",
@@ -123,7 +141,12 @@
     "suggested_next_hooks": [
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
-    "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit — Session 2026-06-21"
+    "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + README Update + Bypass-Audit — Session 2026-06-21",
+    "arcs": [
+      "tower-of-babel",
+      "great-cleanup"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-21T03:05:59",
@@ -142,7 +165,12 @@
     "suggested_next_hooks": [
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
-    "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8"
+    "dialogue_preview": "Runtime Score Dashboard + PLAN_MASTER Cleanup + Release-Härtung + README-Update — Commit da5b7d8",
+    "arcs": [
+      "tower-of-babel",
+      "great-cleanup"
+    ],
+    "lore_context": []
   },
   {
     "id": "plot-2026-06-22T11:01:29",
@@ -198,7 +226,14 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 12:45] — Item 4: Fuenf Gespenster im Code\\n\\n**Buffy:** *(liest client-factory.js)* ..."
+    "dialogue_preview": "### [2026-06-22 12:45] — Item 4: Fuenf Gespenster im Code\\n\\n**Buffy:** *(liest client-factory.js)* ...",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 09:43:55",
+      "2026-06-22 11:01:29"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:04:56",
@@ -246,7 +281,15 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 12:55] — Item 2 Phase 2: Der tiefe Polish und die umgangene Defense\\n\\n**Buffy:** *(..."
+    "dialogue_preview": "### [2026-06-22 12:55] — Item 2 Phase 2: Der tiefe Polish und die umgangene Defense\\n\\n**Buffy:** *(...",
+    "arcs": [
+      "great-cleanup",
+      "invisible-enemies"
+    ],
+    "lore_context": [
+      "2026-06-22 11:01:29",
+      "2026-06-22 11:04:56"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:07:04",
@@ -292,7 +335,14 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 13:05] — Item 3/9: Das Ende der String-Heuristik\\n\\n**Buffy:** *(liest config-runtim..."
+    "dialogue_preview": "### [2026-06-22 13:05] — Item 3/9: Das Ende der String-Heuristik\\n\\n**Buffy:** *(liest config-runtim...",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 11:04:56",
+      "2026-06-22 11:07:04"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:16:29",
@@ -347,7 +397,15 @@
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
     ],
-    "dialogue_preview": "### [2026-06-22 13:15] — Doku-Nachzug: Die Plot-Chain wird zur Entscheidungs-Historie\\n\\n**Buffy:** ..."
+    "dialogue_preview": "### [2026-06-22 13:15] — Doku-Nachzug: Die Plot-Chain wird zur Entscheidungs-Historie\\n\\n**Buffy:** ...",
+    "arcs": [
+      "great-cleanup",
+      "user-knows-best"
+    ],
+    "lore_context": [
+      "2026-06-22 11:07:04",
+      "2026-06-22 11:16:28"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:30:51",
@@ -391,7 +449,15 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 13:45] — Item 5+8: Das Ende der Batch-Tabelle\\n\\n**Buffy:** *(liest client-factory.j..."
+    "dialogue_preview": "### [2026-06-22 13:45] — Item 5+8: Das Ende der Batch-Tabelle\\n\\n**Buffy:** *(liest client-factory.j...",
+    "arcs": [
+      "great-cleanup",
+      "tower-of-babel"
+    ],
+    "lore_context": [
+      "2026-06-22 11:16:28",
+      "2026-06-22 11:30:51"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:39:05",
@@ -439,7 +505,14 @@
       "Validierung der neuen L3-Lore-Kriterien im Live-Betrieb testen.",
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
     ],
-    "dialogue_preview": "### [2026-06-22 14:00] — Lore-Overhaul: Die Commit-Chain wird zum Roman\\n\\n**Vannon:** Die Commits e..."
+    "dialogue_preview": "### [2026-06-22 14:00] — Lore-Overhaul: Die Commit-Chain wird zum Roman\\n\\n**Vannon:** Die Commits e...",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 11:30:51",
+      "2026-06-22 11:39:04"
+    ]
   },
   {
     "id": "plot-2026-06-22T11:56:41",
@@ -475,7 +548,15 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 14:15] — P0-1: Das Ende der zwei Pfade\\n\\n**Buffy:** Weisst du was executeStageReque..."
+    "dialogue_preview": "### [2026-06-22 14:15] — P0-1: Das Ende der zwei Pfade\\n\\n**Buffy:** Weisst du was executeStageReque...",
+    "arcs": [
+      "great-cleanup",
+      "invisible-enemies"
+    ],
+    "lore_context": [
+      "2026-06-22 11:39:04",
+      "2026-06-22 11:56:41"
+    ]
   },
   {
     "id": "plot-2026-06-22T12:04:22",
@@ -513,7 +594,16 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 14:35] — P0-4+5: Das Gedächtnis lernt sprechen\\n\\n**Buffy:** Erinnerst du dich an de..."
+    "dialogue_preview": "### [2026-06-22 14:35] — P0-4+5: Das Gedächtnis lernt sprechen\\n\\n**Buffy:** Erinnerst du dich an de...",
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 11:39:04",
+      "2026-06-22 11:56:41",
+      "2026-06-22 12:04:21"
+    ],
+    "model_id": "deepseek-v4-pro"
   },
   {
     "id": "plot-2026-06-22T12:25:34",
@@ -553,7 +643,17 @@
     "suggested_next_hooks": [
       "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
     ],
-    "dialogue_preview": "### [2026-06-22 14:45] — P0-6: Das PROVIDER_REGISTRY-Manifest\n\n**Buffy:** Weisst du was 70 if/else-K..."
+    "dialogue_preview": "### [2026-06-22 14:45] — P0-6: Das PROVIDER_REGISTRY-Manifest\n\n**Buffy:** Weisst du was 70 if/else-K...",
+    "arcs": [
+      "great-cleanup",
+      "tower-of-babel"
+    ],
+    "lore_context": [
+      "2026-06-22 11:39:04",
+      "2026-06-22 11:56:41",
+      "2026-06-22 12:04:21"
+    ],
+    "model_id": "deepseek-v4-pro"
   },
   {
     "id": "plot-2026-06-22T12:35:13",
@@ -639,5 +739,35 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "Na gut. Der Doku-Konsolidierungs-Prozess läuft, und das erste Opfer ist der COMMIT_LAYER_REWRITE_PLA..."
+  },
+  {
+    "id": "plot-2026-06-22T14:19:39",
+    "parent_id": "plot-2026-06-22T14:08:29",
+    "timestamp": "2026-06-22 14:19:39",
+    "status": "active",
+    "model_id": "mimo-v2.5-pro",
+    "user_impulse": {
+      "text": "Korrigiere auch letzten commit nach dem neuen überarbeiteten layer",
+      "timestamp": "2026-06-22T14:19:39",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 14:55",
+      "2026-06-22 14:08:29",
+      "2026-06-22 14:19:39"
+    ],
+    "session_changes": [
+      "core/scripts/commit_lore/plotchain.json"
+    ],
+    "variables": [
+      "plotchain"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "Und dann hat der User gesagt: Achte dass der Stripper nicht das nächste unsichtbare Problem verursac..."
   }
 ]
