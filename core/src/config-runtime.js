@@ -19,7 +19,41 @@ const FCM_DEFAULT_URL       = 'http://localhost:19280/v1';  // NVIDIA-Fallbacks 
   const NVIDIA_FALLBACK_MODELS  = ['meta/llama-3.3-70b-instruct', 'meta/llama-3.1-8b-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct'];
 
 const MODEL_BLACKLIST = ['whisper', 'stt', 'tts', 'embedding', 'bert', 'vision', 'guard', 'moderation', 'rerank'];
-const MODEL_WHITELIST = ['llama', 'gemini', 'gpt', 'mixtral', 'gemma', 'claude', 'qwen', 'mistral', 'deepseek', 'yi'];
+// _metricsCache wird beim Startup via setMetricsCache(getMetricsSnapshot())
+// befüllt. rankModel() aggregiert avg_quality über alle task_types pro
+// Provider+Model-Paar. Keine String-Heuristik mehr (kein +100 für 'free',
+// kein +20 für 'flash', kein +10 für '70b').
+let _metricsCache = null;
+
+/**
+ * Setzt den Metrik-Cache für rankModel().
+ * @param {Object} snapshot — Output von db.getMetricsSnapshot():
+ *   { "provider:model:task_type": { avg_quality, success_count, fail_count, total_calls } }
+ */
+function setMetricsCache(snapshot) {
+  if (!snapshot || Object.keys(snapshot).length === 0) {
+    _metricsCache = null;
+    return;
+  }
+  // Aggregiere pro Provider+Model (unabhängig vom task_type):
+  // gewichteter Durchschnitt Σ(avg_quality × total_calls) / Σ(total_calls)
+  const agg = {};  // { "provider:model": { weightedSum, totalCalls } }
+  for (const [key, val] of Object.entries(snapshot)) {
+    // key = "provider:model:task_type"
+    const lastColon = key.lastIndexOf(':');
+    const providerModel = key.substring(0, lastColon);  // "provider:model"
+    if (!agg[providerModel]) agg[providerModel] = { weightedSum: 0, totalCalls: 0 };
+    agg[providerModel].weightedSum += (val.avg_quality || 0) * (val.total_calls || 0);
+    agg[providerModel].totalCalls += (val.total_calls || 0);
+  }
+  // Finalisiere: avg_quality pro Provider+Model
+  _metricsCache = {};
+  for (const [pm, a] of Object.entries(agg)) {
+    _metricsCache[pm] = a.totalCalls > 0 
+      ? Math.round(a.weightedSum / a.totalCalls) 
+      : 0;
+  }
+}
 
 // P5 Fix: Resolve .env path relative to project root (core/), not process.cwd().
 // When the bridge is started from a parent directory, process.cwd() points elsewhere
@@ -64,15 +98,20 @@ function isUsableTextModel(model) {
   return !MODEL_BLACKLIST.some(term => name.includes(term));
 }
 
-function rankModel(model) {
-  const name = String(model || '').toLowerCase();
-  let score = 0;
-  if (name === OPENROUTER_FREE_MODEL) score += 100;
-  if (name.endsWith(':free')) score += 50;
-  if (name.includes('flash') || name.includes('instant') || name.includes('lite')) score += 20;
-  if (name.includes('70b') || name.includes('pro') || name.includes('sonnet')) score += 10;
-  if (MODEL_WHITELIST.some(term => name.includes(term))) score += 5;
-  return score;
+/**
+ * Item 3/9: DB-gestütztes Model-Ranking.
+ * Aggregiert avg_quality aus model_task_metrics über ALLE task_types
+ * für das gegebene Provider+Model-Paar.
+ *
+ * @param {string} model — Modellname (z.B. 'llama-3.1-8b-instant')
+ * @param {string} [provider='openrouter'] — Provider-Name. Default 'openrouter'
+ *   weil filterLLMs() hauptsächlich OpenRouter-Modelle sortiert.
+ * @returns {number} 0-100 (avg_quality) oder 0 wenn keine Metriken vorhanden.
+ */
+function rankModel(model, provider = 'openrouter') {
+  if (!_metricsCache || !model) return 0;
+  const key = `${provider}:${model}`;
+  return _metricsCache[key] || 0;
 }
 
 function filterLLMs(models, freeOnly = false) {
@@ -81,7 +120,7 @@ function filterLLMs(models, freeOnly = false) {
   return [...new Set([...(freeOnly ? [OPENROUTER_FREE_MODEL] : []), ...(models || [])])]
     .filter(isUsableTextModel)
     .filter(model => !freeOnly || require('./router').isFreeModel('openrouter', model))
-    .sort((a, b) => rankModel(b) - rankModel(a) || String(a).localeCompare(String(b)));
+    .sort((a, b) => rankModel(b, 'openrouter') - rankModel(a, 'openrouter') || String(a).localeCompare(String(b)));
 }
 
 function getDefaultModelForProvider(provider) {
@@ -385,6 +424,8 @@ class ConfigRuntime {
    */
   enhanceModelListWithFcm(modelList, fcmRankings) {
     if (!fcmRankings || fcmRankings.length === 0) return modelList;
+    // Item 3/9: rankModel() mit Provider-Parameter — nutzt DB-Metriken
+    // statt String-Heuristik. FCM-Rankings liefern .provider für jedes Modell.
     const fcmMap = new Map(fcmRankings.map(r => [r.id, r]));
     const tierWeight = { 'S+': 100, 'S': 80, 'A+': 60, 'A': 50, 'B': 30, 'C': 10 };
     return [...new Set(modelList)].sort((a, b) => {
@@ -394,7 +435,7 @@ class ConfigRuntime {
       const tb = tierWeight[fb.tier] || 0;
       if (ta !== tb) return tb - ta;
       if ((fa.ping || 999) !== (fb.ping || 999)) return (fa.ping || 999) - (fb.ping || 999);
-      return rankModel(b) - rankModel(a);
+      return rankModel(b, fb.provider || '') - rankModel(a, fa.provider || '');
     });
   }
 
@@ -1009,4 +1050,6 @@ module.exports = {
   resetDryRunCache,
   isDryRun,
   getGateCounterOpts,
+  setMetricsCache,
+  rankModel,
 };

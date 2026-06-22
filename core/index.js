@@ -28,7 +28,8 @@ const {
   parseKeys, 
   isUsableTextModel, 
   filterLLMs,
-  getDefaultModelForProvider 
+  getDefaultModelForProvider,
+  setMetricsCache
 } = require('./src/config-runtime');
 
 const { setupLogging, setDb, logPayload } = require('./src/logger');
@@ -763,6 +764,10 @@ async function main() {
   // 1. Database & Logic Init
   await initDb();
   await initDbRo();
+
+  // Item 3/9: DB-gestütztes Model-Ranking — Metrik-Cache nach DB-Init befüllen
+  setMetricsCache(dbManager.getMetricsSnapshot());
+
   await cleanupLegacyFolders();
 
   // gameAdapter + activePlugin are initialized at module scope (safe — no DB/async deps)
@@ -819,7 +824,9 @@ async function main() {
     // in-flight HTTP requests when the user presses Ctrl+C.
     getAbortSignal: () => abortController.signal,
     langCodes: LANG_CODES, defaults: {}, batchSize: BATCH_SIZE,
-    isArgosInstalled: () => isArgosInstalled()
+    isArgosInstalled: () => isArgosInstalled(),
+    // Item 0d: DB-Metriken für dynamisches Modell-Routing
+    getMetricsSnapshot: () => dbManager.getMetricsSnapshot()
   });
 
   const planner = createRuntimePlanner();
