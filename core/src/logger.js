@@ -161,7 +161,9 @@ function setupLogging() {
 
   process.on('uncaughtException', (err) => {
     originalConsole.error('[UNCAUGHT EXCEPTION]', err);
-    process.exit(1);
+    // Graceful shutdown: log-flush erlauben, dann mit Exit-Code 1 beenden
+    process.exitCode = 1;
+    setTimeout(() => process.exit(1), 200);
   });
   process.on('unhandledRejection', (err) => {
     originalConsole.error('[UNHANDLED REJECTION]', err);

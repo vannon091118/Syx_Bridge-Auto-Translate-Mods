@@ -120,10 +120,8 @@ class SongsOfSyxPlugin extends GamePlugin {
   }
 
   getOverrideHeader(versionDir) {
-    const vMatch = versionDir.match(/^V(\d+)$/i);
-    if (vMatch && parseInt(vMatch[1], 10) >= 71) {
-      return '__OVERWRITE: true,\n';
-    }
+    // ── KEIN __OVERWRITE — Patch-Modus ist korrekt für Übersetzungs-Mods ──
+    // __OVERWRITE: true zerstört Vanilla-Texte (siehe BU-OVERWRITE-2026-06-22).
     return '';
   }
 
@@ -143,7 +141,18 @@ class SongsOfSyxPlugin extends GamePlugin {
     const lowerPath = relativePath.toLowerCase();
     const parts = lowerPath.split(/[/\\]/);
 
-    if (relativePath.endsWith('_Info.txt')) return 'INFO_FILE';
+    if (relativePath.endsWith('_Info.txt')) {
+      // _INFO-FILE-FIX: NAME, DESC, INFO + AUTHOR sind übersetzbare Felder.
+      // Vorher wurde '_Info.txt' als INFO_FILE klassifiziert und vollständig
+      // von der Übersetzung ausgeschlossen (alle Keys blieben Englisch).
+      // Jetzt: Als TEXT_FILE klassifizieren — die extractStrings-Funktion
+      // extrahiert die quoted values korrekt, und die Write-Back-Logik
+      // (exporter.js:writeTranslatedFile + SongsOfSyxPlugin:serializeTranslation)
+      // stellt die originale _Info.txt-Struktur wieder her.
+      // Explizite Ausnahme: VERSION und GAME_VERSION_* sind numerisch und
+      // werden von shouldTranslate() automatisch gefiltert (nur Letter-Strings).
+      return 'TEXT_FILE';
+    }
 
     if (parts.includes('text')) {
       if (parts.includes('wiki')) return 'WIKI_TEXT';
@@ -291,15 +300,11 @@ class SongsOfSyxPlugin extends GamePlugin {
   }
 
   /**
-   * SoS V71+: __OVERWRITE directive.
+   * SoS V71+: KEIN __OVERWRITE — Patch-Modus für Übersetzungs-Mods.
    */
   getFileHeader(filePath, version) {
-    // Use version param or infer from path
-    const vStr = version || '';
-    const vMatch = vStr.match(/^V(\d+)$/i) || String(filePath || '').match(/V(\d+)/i);
-    if (vMatch && parseInt(vMatch[1], 10) >= 71) {
-      return '__OVERWRITE: true,\n';
-    }
+    // ── KEIN __OVERWRITE — Patch-Modus ist korrekt für Übersetzungs-Mods ──
+    // __OVERWRITE: true zerstört Vanilla-Texte (siehe BU-OVERWRITE-2026-06-22).
     return '';
   }
 }

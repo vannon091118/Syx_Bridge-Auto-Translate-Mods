@@ -213,6 +213,16 @@ function createTranslationDb(options) {
       translation = stripWatermarks(translation);
     }
 
+    // METADATA-STRIP: LLMs liefern oft Context-Packets im Output.
+    // Format: "[field=... | ctx:...] | Quelle: \"echte Übersetzung"
+    // Strippe das komplette Metadata-Packet, behalte NUR die Übersetzung.
+    if (typeof translation === 'string') {
+      const metaMatch = translation.match(/^\[[^\]]*\]\s*\|\s*Quelle:\s*"([^"]*)/i);
+      if (metaMatch) {
+        translation = metaMatch[1].trim();
+      }
+    }
+
     // DEFENSIVE: Reject shield tokens at the DB boundary.
     // This is the last line of defense — if [[0]] wasn't restored upstream,
     // prevent game file corruption by not saving corrupted data.

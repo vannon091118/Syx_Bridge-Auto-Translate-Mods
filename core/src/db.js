@@ -14,7 +14,7 @@ try {
   console.error('[DB]   3. Falls das fehlschlägt: npm install --build-from-source better-sqlite3');
   console.error('[DB]      (dafür werden C++ Build-Tools benötigt — Visual Studio Build Tools auf Windows)');
   console.error('[DB] Fehlerdetails:', e.message);
-  process.exit(1);
+  throw new Error('better-sqlite3 konnte nicht geladen werden: ' + e.message);
 }
 
 const path = require('path');
@@ -29,7 +29,7 @@ let db;
  */
 function connect() {
   try {
-    db = new Database(DB_PATH, { timeout: 5000 });
+    db = new Database(DB_PATH, { timeout: 15000 });
     return Promise.resolve(db);
   } catch (e) {
     return Promise.reject(e);

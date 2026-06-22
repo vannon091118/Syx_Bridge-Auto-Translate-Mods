@@ -62,17 +62,15 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
     console.warn(`[MARKER] Source: ${JSON.stringify(markerResult.summary.source)} Target: ${JSON.stringify(markerResult.summary.target)}`);
   }
 
-  // ── BUG-FS-004: Header-Präfix NACH der Validierung ───────────────────
-  // __OVERWRITE: true,\n ist eine V71-Engine-Direktive, kein Game-Content-Key.
-  // Wird NACH validateFileSyntax/validateFileMarkers hinzugefügt, damit
-  // diese nicht fälschlich einen KEY_COUNT_MISMATCH melden (41→42 etc.).
+  // ── Plugin-Header: Plugin entscheidet ob Header nötig sind ──────────
+  // Jedes Game-Plugin definiert eigenständig welche Headers es braucht.
+  // SoS: Patch-Modus (kein __OVERWRITE) für Übersetzungs-Mods.
+  // Andere Games könnten andere Headers brauchen.
   if (plugin && typeof plugin.getFileHeader === 'function') {
     const header = plugin.getFileHeader(outputPath);
     if (header && !newContent.startsWith(header.trim())) {
       newContent = header + newContent;
     }
-  } else {
-    console.warn(`[EXPORTER] Kein Plugin fuer Header-Detection: ${outputPath}`);
   }
 
 

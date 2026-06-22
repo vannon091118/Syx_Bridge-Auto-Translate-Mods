@@ -226,14 +226,12 @@ async function exportMod(modDir, modName) {
         console.warn(`[WARN] ${job.relativePath}: Struktur-Abweichung: ${issues.join('; ')}`);
       }
 
-      // Header handling (same as exporter.writeTranslatedFile)
+      // ── Plugin-Header: Plugin entscheidet ob Header nötig sind ────────
       if (plugin && typeof plugin.getFileHeader === 'function') {
         const header = plugin.getFileHeader(outPath);
         if (header && !newContent.startsWith(header.trim())) {
           newContent = header + newContent;
         }
-      } else if (outPath.includes('V71') && !newContent.includes('__OVERWRITE')) {
-        newContent = `__OVERWRITE: true,\n${newContent}`;
       }
 
       await fsp.writeFile(outPath, newContent, 'utf-8');

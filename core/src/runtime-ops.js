@@ -302,7 +302,7 @@ function createRuntimeOps(options) {
     }
 
     const files = (await collectTextFiles(modDir, modDir)).filter(f => f.relativePath !== gameAdapter.getMetadataFileName());
-    const jobs = await mapLimit(files, options.maxParallelFiles || 8, readFileJob);
+    const jobs = (await mapLimit(files, options.maxParallelFiles || 8, readFileJob)).filter(Boolean);
     const allTexts = jobs.flatMap(job => job.replacements.map(r => ({
       source: r.value,
       key: r.key,

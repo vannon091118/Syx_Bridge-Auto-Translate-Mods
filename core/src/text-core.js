@@ -238,7 +238,16 @@ function summarizeGrammarContext(grammarContext) {
 // surrounding quotes from LLM responses. Used by both JSON-success and
 // fallback paths in parseBatchResponse().
 function cleanTranslationArtifact(raw) {
-  return String(raw || '').replace(/^\s*\d+[).:-]\s*/, '').replace(/^"|"$/g, '').trim();
+  let result = String(raw || '').replace(/^\s*\d+[).:-]\s*/, '').replace(/^"|"$/g, '').trim();
+  // KOMMA-SCHUTZ: Strip trailing comma(s) from LLM output.
+  // SoS file format uses commas as structural delimiters:
+  //   KEY: "value",
+  // If the LLM returns a value WITH a trailing comma (e.g. "value,"),
+  // the applyTranslations write-back produces:
+  //   KEY: "value,",  ← DOUBLE COMMA! This breaks game file syntax.
+  // Strip trailing commas from the translated value to prevent this.
+  result = result.replace(/,+$/, '');
+  return result;
 }
 
 function parseBatchResponse(text, _options = {}) {
@@ -380,7 +389,8 @@ function buildProofreadPrompt(items, targetLang = 'German', grammarContext = '',
     // Alle normalen Caller (ensureTranslations, Deep Polish) setzen originalSource.
     const hasExplicitOriginal = !!item.originalSource;
     if (!hasExplicitOriginal) {
-      console.warn('[PROOFREAD] Eintrag ohne originalSource — Meaning-Drift moeglich.');
+      // Kein Warning — fehlende Referenz ist normal bei Base-Translation.
+      // Echter Drift wäre: Übersetzung weicht signifikant VOM ORIGINAL ab.
     }
     const originalLine = item.originalSource ? `Original English: "${item.originalSource}"\n` : '';
     return `ID:${index + 1}${metaLine}\n${originalLine}Current ${targetLang}: "${item.protectedText}"\nImproved ${targetLang}:`;

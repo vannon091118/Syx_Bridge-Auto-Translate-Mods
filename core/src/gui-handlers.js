@@ -644,8 +644,12 @@ function registerGuiHandlers(ctx) {
       try { cleanupZombies(); } catch (e) {
         console.error(`[!] Cleanup-Fehler: ${e.message}`);
       }
-      console.log('[GUI] Bridge-Prozesse beendet. Dieser Prozess wird jetzt terminiert.');
-      process.exit(0);
+      console.log('[GUI] Bridge-Prozesse beendet. Server wird geschlossen...');
+      if (global.guiServer) {
+        global.guiServer.stop().catch(() => {});
+      }
+      process.exitCode = 0;
+      setTimeout(() => process.exit(0), 300);
     }
     else if (type === 'reload_config') {
       require('dotenv').config({ path: path.join(__dirname, '..', '.env'), override: true });
@@ -665,7 +669,7 @@ function registerGuiHandlers(ctx) {
     if (guiIdleResolver) await guiIdleResolver();
     setTimeout(() => {
       console.log('[GUI] Shutdown komplett.');
-      process.exit(0);
+      process.exitCode = 0;
     }, 500);
   });
 

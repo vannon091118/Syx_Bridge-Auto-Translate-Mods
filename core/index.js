@@ -437,7 +437,16 @@ async function collectTextFiles(dir, baseDir) {
 }
 
 async function readFileJob(job) {
-  const content = await fsp.readFile(job.filePath, 'utf-8');
+  let content;
+  try {
+    content = await fsp.readFile(job.filePath, 'utf-8');
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      console.warn(`[SKIP] Datei zwischen Scan und Read verschwunden: ${job.relativePath}`);
+      return null;
+    }
+    throw e;
+  }
   // Use parser.parse() with adapter-driven format detection.
   // The parser entries include full/index/key for write-back compatibility.
   const adapter = job.adapter || null;
@@ -757,6 +766,25 @@ async function runIntegrityAudit() {
   }
 }
 
+// ── Separater Polish-Lauf (--polish): NUR QA + Deep Polish für bestehende Übersetzungen ──
+async function runPolishOnly(planner) {
+  printHeader('Deep Polish Only');
+  const mods = await dbAll("SELECT DISTINCT mod_id FROM files WHERE file_type IN ('TEXT_FILE','WIKI_TEXT')");
+  if (mods.length === 0) {
+    console.log('[INFO] Keine Mods mit Text-Dateien in der DB.');
+    return;
+  }
+  console.log(`[INFO] Lade Übersetzungen für ${mods.length} Mods...`);
+  const texts = await dbAll('SELECT DISTINCT source_text as source FROM translations WHERE target_lang = ?', [CONFIG.TARGET_LANG]);
+  if (texts.length === 0) {
+    console.log('[INFO] Keine Übersetzungen in der DB — zuerst --auto laufen lassen.');
+    return;
+  }
+  console.log(`[INFO] Polish-only für ${texts.length} Texte...`);
+  await ensureTranslations(texts.map(t => t.source), { skipPolish: false, forcePolish: true });
+  console.log('\n[FERTIG] Deep Polish abgeschlossen.');
+}
+
 async function main() {
   const isAuto = process.argv.includes('--auto');
   const isGui = process.argv.includes('--gui');
@@ -857,6 +885,12 @@ async function main() {
   if (isGui) return guiIdlePromise;
 
   if (isAuto) { await synchronize(planner); process.exit(0); }
+
+  if (process.argv.includes('--polish')) {
+    // Separater Polish-Lauf: NUR QA + Deep Polish für bereits übersetzte Texte
+    await runPolishOnly(planner);
+    process.exit(0);
+  }
 
   // P2: Startup-Wizard nur in interaktivem CLI-Mode (nicht GUI, nicht Auto)
   if (!isGui) {

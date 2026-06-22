@@ -88,13 +88,17 @@ function createPolishArbiter(deps = {}) {
   // ── Execute polish with a single provider ─────────────────────────────────
   async function executePolishWithProvider(route, entries, promptText, shieldMaps) {
     const startTime = Date.now();
+    const PROVIDER_TIMEOUT = route.provider === 'openrouter' ? 60000 : 120000;
     try {
-      const raw = await executeStageRequest('polish', route, promptText, {
-        mode: 'text',
-        expectedCount: entries.length,
-        shieldMaps,
-        entries
-      });
+      const raw = await Promise.race([
+        executeStageRequest('polish', route, promptText, {
+          mode: 'text',
+          expectedCount: entries.length,
+          shieldMaps,
+          entries
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`Timeout nach ${PROVIDER_TIMEOUT/1000}s`)), PROVIDER_TIMEOUT))
+      ]);
       const ms = Date.now() - startTime;
       console.log(`[AB-POLISH] ${route.provider}/${route.model || 'auto'} abgeschlossen in ${ms}ms (${entries.length} Eintraege)`);
       return { provider: route.provider, model: route.model, translations: raw, ms };

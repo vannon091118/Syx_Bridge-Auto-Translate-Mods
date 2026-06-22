@@ -1312,5 +1312,58 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "P0/P1/P2 Härtung aus Live-Run-Log-Analyse. Drei systemische Fixes nachdem der Nutzer ein gescheitert..."
+  },
+  {
+    "id": "plot-2026-06-22T20:42:46",
+    "parent_id": "plot-2026-06-22T20:39:03",
+    "timestamp": "2026-06-22 20:42:46",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "teile die commits auf auch die die bis jetzt nicht in commits ermittelt werden können nachträglich nicht alles auf einmal",
+      "timestamp": "2026-06-22T20:42:46",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "cross_arc_bridge": false,
+    "cross_references_used": [],
+    "lore_context": [
+      "2026-06-22 20:30:47",
+      "2026-06-22 20:39:03",
+      "2026-06-22 20:42:46"
+    ],
+    "session_changes": [
+      "core/index.js",
+      "core/scripts/export_stage2.js",
+      "core/src/cli-progress.js",
+      "core/src/db.js",
+      "core/src/exporter.js",
+      "core/src/gui-handlers.js",
+      "core/src/logger.js",
+      "core/src/plugins/SongsOfSyxPlugin.js",
+      "core/src/polish-arbiter.js",
+      "core/src/runtime-ops.js",
+      "core/src/text-core.js",
+      "core/src/translation-db.js"
+    ],
+    "variables": [
+      "index",
+      "export_stage2",
+      "cli-progress",
+      "exporter",
+      "gui-handlers",
+      "logger",
+      "SongsOfSyxPlugin",
+      "polish-arbiter",
+      "runtime-ops",
+      "text-core",
+      "translation-db"
+    ],
+    "suggested_next_hooks": [
+      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
+    ],
+    "dialogue_preview": "Bulk Commit der vorherigen Session: OVERWRITE-Critical-Fix, _Info-File-Fix, DB-Timeout-Erhöhung, 429..."
   }
 ]
