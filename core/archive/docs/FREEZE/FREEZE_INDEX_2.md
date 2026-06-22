@@ -35,7 +35,7 @@
 23. [Item 3/9 — rankModel() DB-gestützt statt String-Heuristik (2026-06-22)](#23-item-39--rankmodel-db-gestützt-statt-string-heuristik)
 24. [Commit-Layer Rewrite Plan — Verifikation + Broken-Entry-Repair (2026-06-22)](#24-commit-layer-rewrite-plan--verifikation--broken-entry-repair)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **84** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **85** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1)
 
 ---
 
@@ -872,63 +872,6 @@
 
 ---
 
-## 24. Commit-Layer Rewrite Plan — Verifikation + Broken-Entry-Repair (2026-06-22)
-
-### 🧊 COMMIT_LAYER_REWRITE_PLAN — Session 2026-06-22
-- **Datum:** 2026-06-22 | **Version:** v0.22.0
-- **Kategorie:** Commit-Infrastruktur — Plan-Abschluss + Broken-Entry-Repair
-- **Zusammenfassung:** COMMIT_LAYER_REWRITE_PLAN.md (7 Schritte, 25 atomare Aufgaben) wurde vollständig implementiert und verifiziert. Zusätzlich wurden 11 kaputte plotchain-Nodes und 7 kaputte PLOT_LORE-Einträge repariert, die durch fehlerhafte `update_plot.js`-Aufrufe entstanden waren (`--model=` als erstes Argument statt Dialog-Text).
-
-### Implementierte Schritte (alle 7/7)
-| Schritt | Datei | Aufgaben | Status |
-|---------|-------|----------|--------|
-| 1 | verify_commit_msg.js | 1a Placeholder-Regex, 1b BLOCKED, 1c TRIVIAL, 1d LORE-ONLY | ✅ |
-| 2 | update_plot.js | 2a Dialog-Guard, 2b porcelain-Parsing, 2d chdir | ✅ |
-| 3 | update_plot.js | 3a lore_context, 3b Arc-Erkennung, 3c arcs im Node | ✅ |
-| 4 | update_plot.js | 4a Hash-Cap 20, 4b Variablen unverändert | ✅ |
-| 5 | build_pool.js | 5a PLOT_LORE-Extraktion, 5b Backup, 5c Min 10, 5d chdir | ✅ |
-| 6 | get_sidejoke.js | 6a Leer-Pool-Exit, 6b Placeholder-Warnung, 6c Kontext | ✅ |
-| 7 | writing_rules.json | 7a narrative_continuity.required=true, 7b LORE-ONLY 80 Wörter | ✅ |
-
-### Verifikation (6/6 Checks PASS)
-| # | Check | Ergebnis |
-|---|-------|----------|
-| 1 | get_sidejoke.js | ✅ Sidejoke ohne {PLACEHOLDER} + PLOT_LORE Kontext-Anker |
-| 2 | build_pool.js | ✅ 40 Einträge, Backup existiert |
-| 3 | verify_commit_msg.js + Placeholder | ✅ BLOCKED: UNRESOLVED PLACEHOLDERS ({FILE}, {COUNT}, {RESULT}) |
-| 4 | update_plot.js ohne Dialog | ✅ BLOCKED: Kein Dialog-Text angegeben |
-| 5 | update_plot.js "Dialog" --model=x | ✅ Korrekt geparst, Node erstellt mit model_id |
-| 6 | plotchain.json letzter Node | ✅ arcs:["great-cleanup"] + lore_context:[3 Einträge] |
-
-### Broken-Entry-Repair
-- **Ursache:** `update_plot.js` wurde mit `--model=deepseek-v4-pro` als erstem Argument aufgerufen (7× zwischen 2026-06-21 und 2026-06-22). Das Skript behandelte den Flag als Dialog-Text.
-- **PLOT_LORE.md:** 7 kaputte Einträge entfernt (nur `--model=` oder `--help`, kein narrativer Inhalt)
-- **plotchain.json:** 11 kaputte Nodes entfernt (27→16), Parent-Chain repariert, letzter Node um arcs/lore_context ergänzt
-- **Root Cause Fix:** `update_plot.js` warnt jetzt bei `--` beginnenden Argumenten und zeigt Usage-Hinweis
-
-### Cross-Referenzen
-- `core/scripts/commit_lore/verify_commit_msg.js` — Placeholder-Block, LORE-ONLY, TRIVIAL
-- `core/scripts/commit_lore/update_plot.js` — Arc-Erkennung, lore_context, --model Flag
-- `core/scripts/commit_lore/build_pool.js` — PLOT_LORE als Quelle, Backup, Mindestgröße
-- `core/scripts/commit_lore/get_sidejoke.js` — Leer-Pool, Placeholder-Warnung, Kontext
-- `core/scripts/commit_lore/writing_rules.json` — narrative_continuity, LORE-ONLY
-- `core/scripts/commit_lore/plotchain.json` — 11 kaputte Nodes entfernt
-- `core/archive/docs/PLOT_LORE.md` — 7 kaputte Einträge entfernt
-- `COMMIT_LAYER_REWRITE_PLAN.md` — Quellplan (jetzt archiviert)
-
-- **Status:** ✅ ABGESCHLOSSEN — Plan vollständig verifiziert, Broken Entries repariert
-- **LIVE-Vorhanden:** Alle 5 Commit-Layer-Dateien in core/scripts/commit_lore/ + verify_commit_msg.js
-- **Verifikation:** 6/6 Checks PASS (siehe Tabelle oben)
-
----
-
-*📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
-*Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 84 (dieses Dokument) = **226 Buch-Einträge**.*
-*CODE IST DIE EINZIGE WAHRHEIT.*
-
----
-
 ## 20. Item 0b — isFreeModel() Provider-bewusste Free-Erkennung (2026-06-22)
 
 ### 🧊 ITEM 0b — Session 2026-06-22
@@ -996,5 +939,41 @@
 - **Verifikation:** rankModel('llama-3.1-8b-instant','groq') = 85 (agg 89×11+75×5/16), rankModel('nonexistent','openrouter') = 0 ✅
 - **⚠️ RISK:** Metrik-Cache nur einmal beim Startup — zwischen Sync-Läufen stale (geringes Risiko da Metriken sich langsam ändern)
 - **Commit:** `6083563` — "+100 wenn 'free' im Namen steht" (Teil 3/3 der Dead-Code-Trilogie)
+
+---
+
+## 25. Doku-Konsolidierung — 3 Commits in chronologischer Reihenfolge (2026-06-22)
+
+### 🧊 DOKU-KONSOLIDIERUNG 2026-06-22 — Session: Doku-Nachzug + Kommittierung
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Doku-Konsolidierung — SSOT-Wiederherstellung + Commit-Layer-Flexibilisierung
+- **Zusammenfassung:** 3 Commits in chronologischer Reihenfolge, die die seit letztem Commit (`a6af87a`) angesammelten Doku-Änderungen konsolidieren. Die Commit-Layer-Skripts (get_sidejoke, update_plot, writing_rules, verify_commit_msg) wurden flexibilisiert: Sidejoke-Matching erlaubt jetzt organische 3-Wort-Integration statt exaktem Prefix-Match, User-Impuls-Tracking via [IMPULSE:]-Token und --impulse-Parameter in update_plot.js. CHANGELOG SSOT zwischen Root und Archive wiederhergestellt. Scope-Reports (SCOPE_REPORT.md, SQUIZZLE_REPORT.md) als getrackte Dokumente committed.
+
+| Commit | Hash | Thema | Dateien |
+|--------|------|-------|---------|
+| 1 | `244bd28` | Commit-Layer-Flex | get_sidejoke.js, update_plot.js, writing_rules.json, verify_commit_msg.js, PLOT_LORE.md, plotchain.json, cross_references.json |
+| 2 | `5137e57` | CHANGELOG SSOT-Sync | CHANGELOG.md, core/archive/docs/CHANGELOG.md, PLOT_LORE.md, plotchain.json, cross_references.json |
+| 3 | `da770a7` | Scope-Reports | SCOPE_REPORT.md, SQUIZZLE_REPORT.md, PLOT_LORE.md, plotchain.json, cross_references.json |
+
+- **Methode:** Per AGENTS.md Regeln (§ COMMIT): Sidejoke via get_sidejoke.js, update_plot.js mit --impulse und --model, verify_commit_msg.js mit [MODEL:], [REF:], [IMPULSE:]-Prüfung, Cross-Reference aus cross_references.json.
+- **Cross-Referenzen:** `CHANGELOG.md`, `SCOPE_REPORT.md`, `SQUIZZLE_REPORT.md`, `writing_rules.json`, `verify_commit_msg.js`, `update_plot.js`, `get_sidejoke.js`
+- **Status:** ✅ ABGESCHLOSSEN — 3/3 Commits erfolgreich, SSOT geprüft
+- **Verifikation:** CHANGELOG SSOT: `diff CHANGELOG.md core/archive/docs/CHANGELOG.md` = IDENTICAL ✅
+
+---
+
+## 📋 Abgeschlossene Sessions (aktualisiert)
+
+| Datum | Session | Fixes | Commit(s) | FREEZE-Einträge |
+|-------|---------|-------|-----------|-----------------|
+| … | … | … | … | … |
+| 2026-06-22 | Doku-Konsolidierung: 3 Commits | Commit-Layer-Flex + CHANGELOG SSOT + Scope-Reports | `244bd28`, `5137e57`, `da770a7` | 30 (dieses Dokument) |
+
+---
+
+*📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
+*Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
+*Gesamt: 142 (archiviert) + 85 (dieses Dokument) = **227 Buch-Einträge**.*
+*CODE IST DIE EINZIGE WAHRHEIT.*
 
 ---

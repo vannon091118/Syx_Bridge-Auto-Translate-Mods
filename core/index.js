@@ -826,7 +826,9 @@ async function main() {
     langCodes: LANG_CODES, defaults: {}, batchSize: BATCH_SIZE,
     isArgosInstalled: () => isArgosInstalled(),
     // Item 0d: DB-Metriken für dynamisches Modell-Routing
-    getMetricsSnapshot: () => dbManager.getMetricsSnapshot()
+    getMetricsSnapshot: () => dbManager.getMetricsSnapshot(),
+    // S-003: Plugin für game-spezifische classifyPath-Rules
+    plugin: activePlugin
   });
 
   const planner = createRuntimePlanner();

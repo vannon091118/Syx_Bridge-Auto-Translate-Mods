@@ -72,6 +72,7 @@
 | [PLAN_DEAD_FLAGS](PLAN_DEAD_FLAGS.md) | `DEAD_FLAG_REPORT_2026-06-19.md` | Tote Flags entfernen | 🟡 OFFEN |
 | [PLAN_PRIORISIERUNG](PLAN_PRIORISIERUNG.md) | `PRIORISIERUNG_2026-06-19.md` | 5 Stufen-Matrix sequenziell | 🟡 OFFEN |
 | [PLAN_LATENT_RISKS](PLAN_LATENT_RISKS.md) | `CONTROL_TOWER_AUDIT_2026-06-19.md` | Latent-Risiken mitigieren | 🟡 OFFEN |
+| [SCOPE_REPORT.md](/SCOPE_REPORT.md) | `SQUIZZLE_REPORT.md` | v0.22 Minimum-Scope (7 Items, ~4h) | 🟢 SCOPE DEFINIERT |
 
 **Erstellungsdatum:** 2026-06-21 (Session-Continue nach BROKEN-PUSH-RECOVERY)
 **Format-Spec:** YAML-Header + Markdown-Sektionen (cf. PLAN_BYPASS_REMOVAL als Template)

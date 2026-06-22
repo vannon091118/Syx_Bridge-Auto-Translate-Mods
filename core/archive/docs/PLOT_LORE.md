@@ -467,3 +467,8 @@ CHANGELOG.md (Root) und core/archive/docs/CHANGELOG.md waren seit dem SQUIZZLE-A
 > **User-Impuls:** Scope-Reports aus Squizzle-Audit committen — SCOPE_REPORT.md und SQUIZZLE_REPORT.md
 
 SCOPE_REPORT.md und SQUIZZLE_REPORT.md sind die finalen Ergebnisse des v0.22 Squizzle-Audits. SCOPE_REPORT analysiert die Songs-of-Syx-Pipeline auf Vollstaendigkeit und RimWorld-Readiness mit 5 Architektur-Layern und priorisierter Item-Liste. SQUIZZLE_REPORT fasst den gesamten 6-Schritte-Audit zusammen: Doku-Scan, CHANGELOG-Check, Plan-Praezisierung, Pipeline-Status, Code-Pattern-Review, Scope-Finalisierung. Beide Reports definieren den v0.22 Minimum-Scope mit 7 Items (~4h).
+
+### [2026-06-22 15:48:52]
+> **User-Impuls:** S-003 dispatcher classifyPath fix - plugin durchreichen für game-spezifische Path-Rules
+
+S-003 dispatcher classifzPath Fix: activePlugin wird von index.js durch translation-runtime.js bis in dispatcher.js durchgereicht, damit classifyPath() die game-spezifischen Path-Rules aus SongsOfSyxPlugin.getPathRules() anwenden kann. Room/ und tech/ Pfade werden jetzt korrekt als 'ui_string' klassifiziert statt als 'translate', was die Routing-Entscheidung beeinflusst (billigere Provider fuer UI-Strings). FREEZE_INDEX_2.md um Sektion 25 ergaenzt (3 Doku-Commits). PLAN_MASTER.md um SCOPE_REPORT.md als Sub-Plan ergaenzt.

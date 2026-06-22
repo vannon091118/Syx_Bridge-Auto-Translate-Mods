@@ -900,5 +900,49 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "SCOPE_REPORT.md und SQUIZZLE_REPORT.md sind die finalen Ergebnisse des v0.22 Squizzle-Audits. SCOPE_..."
+  },
+  {
+    "id": "plot-2026-06-22T15:48:52",
+    "parent_id": "plot-2026-06-22T15:32:39",
+    "timestamp": "2026-06-22 15:48:52",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "S-003 dispatcher classifyPath fix - plugin durchreichen für game-spezifische Path-Rules",
+      "timestamp": "2026-06-22T15:48:52",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 15:28:16",
+      "2026-06-22 15:32:39",
+      "2026-06-22 15:48:52"
+    ],
+    "session_changes": [
+      "ore/archive/docs/FREEZE/FREEZE_INDEX_2.md",
+      "core/archive/docs/PLOT_LORE.md",
+      "core/archive/docs/plans/PLAN_MASTER.md",
+      "core/index.js",
+      "core/src/dispatcher.js",
+      "core/src/translation-runtime.js",
+      "core/logs/",
+      "core/scripts/commit_lore/sidejoke_pool.backup.json"
+    ],
+    "variables": [
+      "FREEZE_INDEX_2",
+      "PLOT_LORE",
+      "PLAN_MASTER",
+      "index",
+      "dispatcher",
+      "translation-runtime",
+      "logs",
+      "sidejoke_pool.backup"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "S-003 dispatcher classifzPath Fix: activePlugin wird von index.js durch translation-runtime.js bis i..."
   }
 ]

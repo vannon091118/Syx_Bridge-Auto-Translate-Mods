@@ -51,7 +51,8 @@ function createTranslationRuntime(options) {
     langCodes,
     isArgosInstalled,
     // Item 0d: DB-Metriken-Snapshot für dynamisches Modell-Routing
-    getMetricsSnapshot
+    getMetricsSnapshot,
+    plugin
   } = options;
 
   let consecutiveGrammarFailures = 0;
@@ -60,12 +61,15 @@ function createTranslationRuntime(options) {
   // ── Dispatcher ───────────────────────────────────────────────────────
   // Item 0d: getMetricsSnapshot wird an Dispatcher durchgereicht für
   // dynamisches DB-gestütztes Modell-Routing.
+  // S-003: plugin wird durchgereicht, damit classifyPath() game-spezifische
+  // Path-Rules aus dem Plugin anwenden kann (z.B. 'room/' → 'ui_string').
   const dispatcher = createDispatcher({
     config,
     routingEngine,
     extractErrorMessage,
     isArgosInstalled,
-    getMetricsSnapshot
+    getMetricsSnapshot,
+    plugin
   });
 
   // ── Provider Clients ─────────────────────────────────────────────────

@@ -7,7 +7,8 @@ function createDispatcher(options) {
     config,
     routingEngine,
     extractErrorMessage,
-    getMetricsSnapshot
+    getMetricsSnapshot,
+    plugin
   } = options;
 
   function resolveProviderModel(stage) {
@@ -80,7 +81,7 @@ function createDispatcher(options) {
     if (metrics) routingEngine.setMetricsSnapshot(metrics);
 
     // ── Tier 1: UI-String optimization ──────────────────────────────────────
-    const uiStringCount = items.filter(item => classifyPath(item.relativePath) === 'ui_string').length;
+    const uiStringCount = items.filter(item => classifyPath(item.relativePath, plugin) === 'ui_string').length;
     if (uiStringCount >= items.length * 0.8) {
       // Item 0d: Dynamische Pool-Auswahl statt hartcodierter if/else-Kette.
       // Pool = alle Free/Cheap-Provider, sortiert nach DB-Qualitäts-Metriken.
