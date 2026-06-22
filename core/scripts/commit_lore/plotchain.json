@@ -561,5 +561,41 @@
       "Dokumenten-Abgleich der ausgelagerten Schreibregeln."
     ],
     "dialogue_preview": "### [2026-06-22 14:00] — Lore-Overhaul: Die Commit-Chain wird zum Roman\\n\\n**Vannon:** Die Commits e..."
+  },
+  {
+    "id": "plot-2026-06-22T11:56:41",
+    "parent_id": "plot-2026-06-22T11:39:05",
+    "timestamp": "2026-06-22 11:56:41",
+    "status": "active",
+    "user_impulse": null,
+    "session_changes": [
+      "ore/archive/docs/PLOT_LORE.md",
+      "core/scripts/release.js",
+      "core/src/db.js",
+      "core/src/dispatcher.js",
+      "core/src/plugins/GamePlugin.js",
+      "core/src/plugins/SongsOfSyxPlugin.js",
+      "core/src/providers/client-factory.js",
+      "core/src/router.js",
+      "core/src/translation-db.js",
+      "core/src/translation-quality.js",
+      "core/logs/"
+    ],
+    "variables": [
+      "PLOT_LORE",
+      "release",
+      "dispatcher",
+      "GamePlugin",
+      "SongsOfSyxPlugin",
+      "client-factory",
+      "router",
+      "translation-db",
+      "translation-quality",
+      "logs"
+    ],
+    "suggested_next_hooks": [
+      "Datenbank-Sanitierung auf Integrität prüfen und Altlasten beseitigen."
+    ],
+    "dialogue_preview": "### [2026-06-22 14:15] — P0-1: Das Ende der zwei Pfade\\n\\n**Buffy:** Weisst du was executeStageReque..."
   }
 ]

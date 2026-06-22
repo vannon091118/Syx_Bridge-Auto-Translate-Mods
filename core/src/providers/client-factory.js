@@ -266,22 +266,70 @@ function createProviderClients(ctx) {
     }
   }
 
-  // ── Item 4: callChatCompletions — generisch für alle OpenAI-kompatiblen Provider ──
-  async function callChatCompletions(provider, items, modelOverride = '', attemptCount = 0) {
+  // ── P0-1: _callProviderApi — zentrale HTTP-Schicht für ALLE Provider ──
+  // Extrahiert die gemeinsame Request/Retry/Rate-Limit/Key-Rotation-Logik
+  // aus callChatCompletions() und executeStageRequest().
+  // Beide rufen diese Funktion für den eigentlichen API-Call.
+  // Gemini und Ollama haben separate Implementierungen (nicht OpenAI-kompatibel).
+  async function _callProviderApi(provider, payload, attemptCount = 0) {
     const pc = PROVIDER_CHAT_CONFIG[provider];
-    if (!pc) throw new Error(`Nicht unterstuetzter Chat-Provider: ${provider}`);
+    if (!pc) throw new Error(`Nicht unterstuetzter Provider: ${provider}`);
 
     const key = getApiKey(provider);
     if (pc.requiresKey && !key) throw new Error(`${provider} API Key fehlt.`);
-
-    const model = getModelForProvider(provider, modelOverride);
-    const { prompt, shieldMaps } = await buildBatchPromptForCurrentConfig(items);
 
     const headers = { 'Content-Type': 'application/json' };
     if ((pc.authType === 'bearer' || pc.authType === 'bearer-optional') && key) {
       headers.Authorization = `Bearer ${key}`;
     }
     if (pc.extraHeaders) Object.assign(headers, pc.extraHeaders);
+
+    const url = pc.getUrl();
+
+    try {
+      const response = await withRetry(`${provider} API`, () => axios.post(url, payload, {
+        headers,
+        timeout: pc.timeout,
+        signal: getAbortSignal()
+      }));
+
+      if (pc.handleRateLimits) handleRateLimits(provider, response.headers);
+      if (pc.markKeyStatus && configRuntime) configRuntime.markKeyStatus(provider, true);
+
+      return response;
+    } catch (e) {
+      const status = e.response ? e.response.status : 0;
+
+      if (status === 401 || status === 403) {
+        if (pc.markKeyStatus && configRuntime) configRuntime.markKeyStatus(provider, false);
+      }
+      if (status === 429) {
+        batchMultipliers[provider] = Math.max(0.25, (batchMultipliers[provider] || 1.0) * 0.5);
+        if (pc.handleRateLimits && configRuntime) configRuntime.updateProviderRateLimit(provider, true);
+        const ci = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
+        if (pc.markKeyStatus && configRuntime && configRuntime.markKeyCooldown) {
+          configRuntime.markKeyCooldown(provider, ci, 30000);
+        }
+      }
+
+      if (!pc.noKeyRotation && (status === 429 || status === 401)) {
+        const keys = config[`${provider.toUpperCase()}_KEYS`] || [];
+        if (attemptCount < keys.length && rotateApiKey(provider)) {
+          return _callProviderApi(provider, payload, attemptCount + 1);
+        }
+      }
+
+      throw e;
+    }
+  }
+
+  // ── Item 4: callChatCompletions — generisch für alle OpenAI-kompatiblen Provider ──
+  async function callChatCompletions(provider, items, modelOverride = '', attemptCount = 0) {
+    const pc = PROVIDER_CHAT_CONFIG[provider];
+    if (!pc) throw new Error(`Nicht unterstuetzter Chat-Provider: ${provider}`);
+
+    const model = getModelForProvider(provider, modelOverride);
+    const { prompt, shieldMaps } = await buildBatchPromptForCurrentConfig(items);
 
     const payload = {
       model,
@@ -293,17 +341,9 @@ function createProviderClients(ctx) {
     };
 
     logPayload(provider, 'REQUEST', payload);
-    const url = pc.getUrl();
 
     try {
-      const response = await withRetry(`${provider} Batch`, () => axios.post(url, payload, {
-        headers,
-        timeout: pc.timeout,
-        signal: getAbortSignal()
-      }));
-
-      if (pc.handleRateLimits) handleRateLimits(provider, response.headers);
-      if (pc.markKeyStatus && configRuntime) configRuntime.markKeyStatus(provider, true);
+      const response = await _callProviderApi(provider, payload, attemptCount);
 
       const raw = response.data.choices?.[0]?.message?.content ?? null;
       if (!raw) throw new Error(`${provider} returned no message content.`);
@@ -323,11 +363,7 @@ function createProviderClients(ctx) {
           temperature: 0.1
         };
         try {
-          const retryResp = await withRetry(`${provider} Batch (JSON-Retry)`, () => axios.post(url, strictPayload, {
-            headers,
-            timeout: pc.timeout,
-            signal: getAbortSignal()
-          }));
+          const retryResp = await _callProviderApi(provider, strictPayload, 0);
           const retryRaw = retryResp.data.choices?.[0]?.message?.content ?? null;
           if (retryRaw) {
             logPayload(provider, 'RESPONSE (Retry)', retryRaw);
@@ -341,28 +377,8 @@ function createProviderClients(ctx) {
 
       return parsed;
     } catch (e) {
-      const status = e.response ? e.response.status : 0;
-
-      if (status === 401 || status === 403) {
-        if (pc.markKeyStatus && configRuntime) configRuntime.markKeyStatus(provider, false);
-      }
-      if (status === 429) {
-        // Item 0e: Halbiere Batch-Größe bei Rate-Limit sofort
-        batchMultipliers[provider] = Math.max(0.25, (batchMultipliers[provider] || 1.0) * 0.5);
-        if (pc.handleRateLimits && configRuntime) configRuntime.updateProviderRateLimit(provider, true);
-        const ci = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
-        if (pc.markKeyStatus && configRuntime && configRuntime.markKeyCooldown) {
-          configRuntime.markKeyCooldown(provider, ci, 30000);
-        }
-      }
-
-      if (!pc.noKeyRotation && (status === 429 || status === 401)) {
-        const keys = config[`${provider.toUpperCase()}_KEYS`] || [];
-        if (attemptCount < keys.length && rotateApiKey(provider)) {
-          return callChatCompletions(provider, items, modelOverride, attemptCount + 1);
-        }
-      }
-
+      // _callProviderApi handled key rotation internally; if we get here,
+      // all keys exhausted or non-retryable error
       throw e;
     }
   }
@@ -659,59 +675,6 @@ except Exception as e:
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
       }
-      if (provider === 'groq') {
-        if (!key) throw new Error('Groq API Key fehlt.');
-        const response = await withRetry(`Groq ${stage}`, () => axios.post('https://api.groq.com/openai/v1/chat/completions', {
-          model: activeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-          temperature: mode === 'flags' ? 0 : 0.1
-        }, { headers: { Authorization: `Bearer ${key}` }, timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
-        const raw = response.data.choices?.[0]?.message?.content ?? null;
-        if (!raw) throw new Error('Groq returned no stage response content.');
-        logPayload(provider, `RESPONSE [${stage}]`, raw);
-        return parseRaw(raw);
-      }
-      if (provider === 'openrouter') {
-        if (!key) throw new Error('OpenRouter API Key fehlt.');
-        const response = await withRetry(`OpenRouter ${stage}`, () => axios.post('https://openrouter.ai/api/v1/chat/completions', {
-          model: activeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-          temperature: mode === 'flags' ? 0 : 0.1
-        }, {
-          headers: {
-            Authorization: `Bearer ${key}`,
-            'HTTP-Referer': 'https://github.com/vannon/syx-bridge',
-            'Content-Type': 'application/json'
-          },
-          timeout: mode === 'flags' ? 60000 : 90000,
-          signal: getAbortSignal()
-        }));
-        const raw = response.data.choices?.[0]?.message?.content ?? null;
-        if (!raw) throw new Error('OpenRouter returned no stage response content.');
-        logPayload(provider, `RESPONSE [${stage}]`, raw);
-        return parseRaw(raw);
-      }
-      if (provider === 'player2') {
-        const headers = key ? { Authorization: `Bearer ${key}` } : {};
-        const response = await withRetry(`Player2 ${stage}`, () => axios.post(`${config.PLAYER2_URL}/chat/completions`, {
-          model: activeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-          temperature: mode === 'flags' ? 0 : 0.1
-        }, { headers, timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
-        const raw = response.data.choices?.[0]?.message?.content ?? null;
-        if (!raw) throw new Error('Player2 returned no stage response content.');
-        logPayload(provider, `RESPONSE [${stage}]`, raw);
-        return parseRaw(raw);
-      }
       if (provider === 'ollama') {
         const response = await axios.post(`${config.OLLAMA_URL}/api/chat`, {
           model: activeModel,
@@ -726,44 +689,38 @@ except Exception as e:
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
       }
-      if (provider === 'nvidia') {
-        if (!key) throw new Error('NVIDIA API Key fehlt.');
-        const response = await withRetry(`NVIDIA ${stage}`, () => axios.post('https://integrate.api.nvidia.com/v1/chat/completions', {
+
+      // ── P0-1: OpenAI-compatible providers (groq, openrouter, nvidia, fcm, player2) ──
+      // Nutzen _callProviderApi statt eigener if/else-Kette.
+      // handleRateLimits, batchMultipliers, jsonRetry, Key-Rotation sind jetzt
+      // für Polish/Audit GENAUSO aktiv wie für Translate.
+      // Falsifier-Fix: getGrammarContext() für Text-Mode (wie Ollama).
+      // Vor P0-1 fehlte Grammar/Glossar-Kontext für alle OpenAI-Provider;
+      // nur Ollama hatte ihn. Jetzt konsolidiert.
+      const pc = PROVIDER_CHAT_CONFIG[provider];
+      if (pc) {
+        const systemContent = mode === 'flags' ? systemPrompt : getGrammarContext();
+        const response = await _callProviderApi(provider, {
           model: activeModel,
           messages: [
-            { role: 'system', content: systemPrompt },
+            { role: 'system', content: systemContent },
             { role: 'user', content: prompt }
           ],
           temperature: mode === 'flags' ? 0 : 0.1
-        }, {
-          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-          timeout: mode === 'flags' ? 60000 : 90000,
-          signal: getAbortSignal()
-        }));
+        }, attemptCount);
         const raw = response.data.choices?.[0]?.message?.content ?? null;
-        if (!raw) throw new Error('NVIDIA returned no stage response content.');
+        if (!raw) throw new Error(`${provider} returned no stage response content.`);
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
       }
-      if (provider === 'fcm') {
-        const fcmUrl = config.FCM_URL || 'http://localhost:19280/v1';
-        const response = await withRetry(`FCM ${stage}`, () => axios.post(`${fcmUrl}/chat/completions`, {
-          model: activeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-          temperature: mode === 'flags' ? 0 : 0.1
-        }, { timeout: mode === 'flags' ? 60000 : 90000, signal: getAbortSignal() }));
-        const raw = response.data.choices?.[0]?.message?.content ?? null;
-        if (!raw) throw new Error('FCM returned no stage response content.');
-        logPayload(provider, `RESPONSE [${stage}]`, raw);
-        return parseRaw(raw);
-      }
+
       throw new Error(`Nicht unterstuetzter ${stage}-Provider: ${provider}`);
     } catch (e) {
+      // P0-1: _callProviderApi handled key rotation for OpenAI-compatible providers.
+      // Gemini + Ollama need manual rotation (they use their own API formats).
       const status = e.response ? e.response.status : 0;
-      if ((status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey(provider)) {
+      const isOpenAiCompatible = !!PROVIDER_CHAT_CONFIG[provider];
+      if (!isOpenAiCompatible && (status === 429 || status === 401) && attemptCount < keys.length && rotateApiKey(provider)) {
         return executeStageRequest(stage, route, prompt, options, attemptCount + 1);
       }
       throw e;
