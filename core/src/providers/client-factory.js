@@ -94,17 +94,18 @@ function createProviderClients(ctx) {
   // Recovery: +0.1 bei remaining > 80%, +0.05 bei erfolgreichem Call ohne Limit-Info.
   const batchMultipliers = {};
 
-  // ── Item 5+8: Provider-Capabilities (Phase 2) ─────────────────────
-  // Ersetzt die alte hardcodierte if/else-Kette (15 Branches, per-Modell).
-  // Jeder Provider hat EINE Capability — Batch-Größe wird dynamisch via
-  // batchMultipliers × successRate × modelFactor berechnet.
-  // Lokale Provider (google_free, ollama, argos, fcm) haben feste Profile
-  // weil sie keine Cloud-Rate-Limits haben.
+  // ── P0-5: Provider-Capabilities (an Free-Tier-Realität angepasst) ────
+  // Quelle: researcher-web Juni 2026.
+  // NVIDIA: 40 RPM free → 15 items (vorher 5 — 8× zu konservativ)
+  // Gemini: 10-15 RPM free → 8 items (vorher 20 — 429 nach 2 Batches)
+  // OpenRouter: 20 RPM free → 10 items (vorher 14 — leicht über Limit)
+  // Groq: 30 RPM, kleine RPD → 8 items (vorher 6 — moderate Erhöhung)
+  // Player2: lokal, unverändert
   const PROVIDER_CAPS = {
-    nvidia:     { items: 5, chars: 1000, polishItems: 3, polishChars: 800 },
-    openrouter: { items: 14, chars: 2200, polishItems: 8, polishChars: 1600 },
-    groq:       { items: 6, chars: 900, polishItems: 4, polishChars: 700 },
-    gemini:     { items: 20, chars: 3000, polishItems: 14, polishChars: 2200 },
+    nvidia:     { items: 15, chars: 3000, polishItems: 10, polishChars: 2200 },
+    openrouter: { items: 10, chars: 1800, polishItems: 6, polishChars: 1200 },
+    groq:       { items: 8, chars: 1200, polishItems: 5, polishChars: 900 },
+    gemini:     { items: 8, chars: 1500, polishItems: 5, polishChars: 1000 },
     player2:    { items: 6, chars: 900, polishItems: 4, polishChars: 700 }
   };
 
@@ -205,11 +206,14 @@ function createProviderClients(ctx) {
     const freeMult = isFree ? 0.9 : 1.0;
 
     // 6. Finale Berechnung: base × quota × success × modelSize × free
+    // P0-5 Falsifier-Fix: Cap maxItems/maxChars auf baseItems/baseChars.
+    // Multiplier >1.0 (z.B. successMult=1.15 × modelMult=1.3 = 1.495)
+    // würden sonst das Provider-Limit überschreiten und 429 provozieren.
     const finalMult = quotaMult * successMult * modelMult * freeMult;
 
     return {
-      maxItems: Math.max(1, Math.floor(baseItems * finalMult)),
-      maxChars: Math.max(200, Math.floor(baseChars * finalMult))
+      maxItems: Math.max(1, Math.min(baseItems, Math.floor(baseItems * finalMult))),
+      maxChars: Math.max(200, Math.min(baseChars, Math.floor(baseChars * finalMult)))
     };
   }
 

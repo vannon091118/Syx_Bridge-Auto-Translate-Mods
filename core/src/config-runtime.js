@@ -19,37 +19,50 @@ const FCM_DEFAULT_URL       = 'http://localhost:19280/v1';  // NVIDIA-Fallbacks 
   const NVIDIA_FALLBACK_MODELS  = ['meta/llama-3.3-70b-instruct', 'meta/llama-3.1-8b-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct'];
 
 const MODEL_BLACKLIST = ['whisper', 'stt', 'tts', 'embedding', 'bert', 'vision', 'guard', 'moderation', 'rerank'];
-// _metricsCache wird beim Startup via setMetricsCache(getMetricsSnapshot())
-// befüllt. rankModel() aggregiert avg_quality über alle task_types pro
-// Provider+Model-Paar. Keine String-Heuristik mehr (kein +100 für 'free',
-// kein +20 für 'flash', kein +10 für '70b').
+// P0-4: ZWEI Caches statt einem.
+// _metricsCache: { "provider:model": { avg_quality, total_calls } }  — AGGREGIERT (für rankModel/filterLLMs)
+// _metricsCacheByTask: { "provider:model:task_type": { avg_quality, total_calls } }  — PER-TASK (für getModelMetrics/getDynamicScore)
+// Vor P0-4 wurde task_type verworfen → Modell bekam denselben Score für Translate/Polish/Audit
+// obwohl es z.B. bei Translation 85/100 aber bei Polish 20/100 erreichte.
+// Jetzt: getModelMetrics() liefert task_type-spezifische Werte.
 let _metricsCache = null;
+let _metricsCacheByTask = null;
 
 /**
- * Setzt den Metrik-Cache für rankModel().
+ * Setzt BEIDE Metrik-Caches.
  * @param {Object} snapshot — Output von db.getMetricsSnapshot():
  *   { "provider:model:task_type": { avg_quality, success_count, fail_count, total_calls } }
  */
 function setMetricsCache(snapshot) {
   if (!snapshot || Object.keys(snapshot).length === 0) {
     _metricsCache = null;
+    _metricsCacheByTask = null;
     return;
   }
-  // Aggregiere pro Provider+Model (unabhängig vom task_type):
-  // gewichteter Durchschnitt Σ(avg_quality × total_calls) / Σ(total_calls)
+
+  // Cache 1: PER-TASK (ungefiltert, task_type bleibt erhalten)
+  _metricsCacheByTask = {};
+  for (const [key, val] of Object.entries(snapshot)) {
+    if (val.total_calls > 0) {
+      _metricsCacheByTask[key] = {
+        avg_quality: val.avg_quality || 0,
+        total_calls: val.total_calls || 0
+      };
+    }
+  }
+
+  // Cache 2: AGGREGIERT pro Provider+Model (für rankModel/filterLLMs)
   const agg = {};  // { "provider:model": { weightedSum, totalCalls } }
   for (const [key, val] of Object.entries(snapshot)) {
-    // key = "provider:model:task_type"
     const lastColon = key.lastIndexOf(':');
     const providerModel = key.substring(0, lastColon);  // "provider:model"
     if (!agg[providerModel]) agg[providerModel] = { weightedSum: 0, totalCalls: 0 };
     agg[providerModel].weightedSum += (val.avg_quality || 0) * (val.total_calls || 0);
     agg[providerModel].totalCalls += (val.total_calls || 0);
   }
-  // Finalisiere: avg_quality + totalCalls pro Provider+Model
   _metricsCache = {};
   for (const [pm, a] of Object.entries(agg)) {
-    _metricsCache[pm] = a.totalCalls > 0 
+    _metricsCache[pm] = a.totalCalls > 0
       ? { avg_quality: Math.round(a.weightedSum / a.totalCalls), total_calls: a.totalCalls }
       : { avg_quality: 0, total_calls: 0 };
   }
@@ -116,21 +129,36 @@ function rankModel(model, provider = 'openrouter') {
 }
 
 /**
- * Item 5+8: Batch-Größen — liefert avg_quality + total_calls für Erfolgsraten-Schätzung.
+ * P0-4: Batch-Größen — liefert avg_quality + total_calls für Erfolgsraten-Schätzung.
  * Genutzt von getBatchProfile() in client-factory.js als successMult-Faktor.
+ *
+ * Nutzt jetzt _metricsCacheByTask (task_type-bewusst) statt _metricsCache (aggregiert).
+ * Fallback auf aggregierten Cache wenn kein per-task-Eintrag existiert.
  *
  * @param {string} provider — Provider-Name (z.B. 'groq')
  * @param {string} model — Modellname (z.B. 'llama-3.1-8b-instant')
- * @param {string} [taskType='translate'] — Task-Typ (note: _metricsCache aggregiert
- *   über ALLE task_types; taskType wird ignoriert bis der Cache task_type-bewusst ist)
+ * @param {string} [taskType='translate'] — Task-Typ WIRD JETZT GENUTZT
  * @returns {{ avg_quality: number, total_calls: number }|null} Metriken oder null.
  */
 function getModelMetrics(provider, model, taskType = 'translate') {
-  if (!_metricsCache || !provider || !model) return null;
-  const key = `${provider}:${model}`;
-  const entry = _metricsCache[key];
-  if (!entry || entry.total_calls === 0) return null;
-  return { avg_quality: entry.avg_quality, total_calls: entry.total_calls, task_type: taskType };
+  if (!provider || !model) return null;
+  // 1. Per-Task-Cache (präzise)
+  if (_metricsCacheByTask) {
+    const taskKey = `${provider}:${model}:${taskType}`;
+    const taskEntry = _metricsCacheByTask[taskKey];
+    if (taskEntry && taskEntry.total_calls > 0) {
+      return { avg_quality: taskEntry.avg_quality, total_calls: taskEntry.total_calls, task_type: taskType };
+    }
+  }
+  // 2. Fallback: aggregierter Cache (wenn keine per-task-Daten)
+  if (_metricsCache) {
+    const key = `${provider}:${model}`;
+    const entry = _metricsCache[key];
+    if (entry && entry.total_calls > 0) {
+      return { avg_quality: entry.avg_quality, total_calls: entry.total_calls, task_type: taskType };
+    }
+  }
+  return null;
 }
 
 function filterLLMs(models, freeOnly = false) {
