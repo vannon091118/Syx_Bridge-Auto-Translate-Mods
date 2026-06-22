@@ -462,3 +462,8 @@ Sidejoke-Pool wurde flexibler, Impulse werden jetzt getrackt. writing_rules.json
 > **User-Impuls:** CHANGELOG SSOT-Sync — Root und Archive auf identischen Stand bringen nach SQUIZZLE-Audit
 
 CHANGELOG.md (Root) und core/archive/docs/CHANGELOG.md waren seit dem SQUIZZLE-Audit nicht mehr synchron. Das Root-Changelog hatte den SQUIZZLE-REPORT-Eintrag, das Archive-Changelog war die alte Vollversion. Fix: Beide auf denselben Stand gebracht -- Root = Archive = konsolidierte Zusammenfassung mit Verweisen auf die Vollhistorie im Archive. SSOT wiederhergestellt.
+
+### [2026-06-22 15:32:39]
+> **User-Impuls:** Scope-Reports aus Squizzle-Audit committen — SCOPE_REPORT.md und SQUIZZLE_REPORT.md
+
+SCOPE_REPORT.md und SQUIZZLE_REPORT.md sind die finalen Ergebnisse des v0.22 Squizzle-Audits. SCOPE_REPORT analysiert die Songs-of-Syx-Pipeline auf Vollstaendigkeit und RimWorld-Readiness mit 5 Architektur-Layern und priorisierter Item-Liste. SQUIZZLE_REPORT fasst den gesamten 6-Schritte-Audit zusammen: Doku-Scan, CHANGELOG-Check, Plan-Praezisierung, Pipeline-Status, Code-Pattern-Review, Scope-Finalisierung. Beide Reports definieren den v0.22 Minimum-Scope mit 7 Items (~4h).

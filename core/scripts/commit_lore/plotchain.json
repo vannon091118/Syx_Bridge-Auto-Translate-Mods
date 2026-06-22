@@ -862,5 +862,43 @@
       "Folgeschritte der v0.21 Härtung dokumentieren."
     ],
     "dialogue_preview": "CHANGELOG.md (Root) und core/archive/docs/CHANGELOG.md waren seit dem SQUIZZLE-Audit nicht mehr sync..."
+  },
+  {
+    "id": "plot-2026-06-22T15:32:39",
+    "parent_id": "plot-2026-06-22T15:28:16",
+    "timestamp": "2026-06-22 15:32:39",
+    "status": "active",
+    "model_id": "deepseek-v4-flash",
+    "user_impulse": {
+      "text": "Scope-Reports aus Squizzle-Audit committen — SCOPE_REPORT.md und SQUIZZLE_REPORT.md",
+      "timestamp": "2026-06-22T15:32:39",
+      "effect": null
+    },
+    "arcs": [
+      "great-cleanup"
+    ],
+    "lore_context": [
+      "2026-06-22 15:23:46",
+      "2026-06-22 15:28:16",
+      "2026-06-22 15:32:39"
+    ],
+    "session_changes": [
+      "ore/archive/docs/PLOT_LORE.md",
+      "SCOPE_REPORT.md",
+      "SQUIZZLE_REPORT.md",
+      "core/logs/",
+      "core/scripts/commit_lore/sidejoke_pool.backup.json"
+    ],
+    "variables": [
+      "PLOT_LORE",
+      "SCOPE_REPORT",
+      "SQUIZZLE_REPORT",
+      "logs",
+      "sidejoke_pool.backup"
+    ],
+    "suggested_next_hooks": [
+      "Folgeschritte der v0.21 Härtung dokumentieren."
+    ],
+    "dialogue_preview": "SCOPE_REPORT.md und SQUIZZLE_REPORT.md sind die finalen Ergebnisse des v0.22 Squizzle-Audits. SCOPE_..."
   }
 ]
