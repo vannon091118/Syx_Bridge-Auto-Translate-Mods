@@ -28,8 +28,10 @@
 16. [KNOWN_BUGS_REPORT — 27 behobene Bugs archiviert (2026-06-21)](#16-known_bugs_report--27-behobene-bugs-archiviert)
 17. [Analysis-Docs Batch — 5 Einmal-Audits archiviert (2026-06-21)](#17-analysis-docs-batch--5-einmal-audits-archiviert)
 18. [HANDSHAKE-Dateien — 8 Session-Übergaben archiviert (2026-06-21)](#18-handshake-dateien--8-session-bergaben-archiviert)
+19. [Item 0a — "Auto"-Modus kein permanentes Einfrieren (2026-06-22)](#19-item-0a--auto-modus-kein-permanentes-einfrieren)
+20. [Item 0b — isFreeModel() Provider-bewusste Free-Erkennung (2026-06-22)](#20-item-0b--isfreemodel-provider-bewusste-free-erkennung)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **78** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **80** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1)
 
 ---
 
@@ -849,7 +851,45 @@
 
 ---
 
+## 19. Item 0a — "Auto"-Modus kein permanentes Einfrieren (2026-06-22)
+
+### 🧊 ITEM 0a — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (Routing-Engine v0.22 Kampagne)
+- **Kategorie:** Fundament-Bugfix — Routing-Engine-Grundlage
+- **Zusammenfassung:** `ensurePrimaryModel()`, `ensureGroqModel()`, und `ensureOllamaModel()` in `config-runtime.js` überschrieben PRIMARY_MODEL/AUDITOR_MODEL permanent mit einem konkreten Modellnamen. "auto" existierte danach nicht mehr als Zustand. Fix: Auflösung in `EFFECTIVE_PRIMARY_MODEL` / `EFFECTIVE_AUDITOR_MODEL` (runtime-resolved Properties), PRIMARY_MODEL bleibt "auto" im Config-Objekt. `persistConfigToEnv()` persistiert weiterhin "auto". Alle 5 Consumer (dispatcher.js, router.js, translation-runtime.js, index.js, client-factory.js) lesen jetzt `EFFECTIVE_* || FALLBACK`.
+- **Kausalität:** User-Auftrag: Item 0a aus der Routing-Engine v0.22 Kampagne — Fundament-Bugfix VOR Phase 0. "Auto" war ein einmaliges Einfrieren statt Routing.
+- **Methode:** code-searcher (alle Call-Sites von PRIMARY_MODEL) → thinker-with-files-gemini (Design: EFFECTIVE_*-Pattern) → 8 Zuweisungen in 3 ensure*-Funktionen umgestellt → 5 Consumer aktualisiert → code-reviewer-deepseek → 4 echte Verifikationstests
+- **Cross-Referenzen:** `config-runtime.js`, `dispatcher.js`, `router.js`, `translation-runtime.js`, `index.js`, `client-factory.js`
+- **Status:** ✅ ABGESCHLOSSEN — 4/4 Tests bestanden, Syntax-Check alle 6 Module OK
+- **LIVE-Vorhanden:** Alle Fixes in den genannten 6 Dateien, Test in `core/tests/item0a_auto_freeze_test.js`
+- **Verifikation:** 4/4 Tests PASS (auto erhalten, zweiter Lauf neu evaluiert, ensureGroqModel überschreibt nicht, konkretes Modell unverändert)
+- **⚠️ ANNAHMEN:** 0 — alle Entscheidungen waren eindeutig aus der Problembeschreibung
+- **Nächster Subtask:** Item 0b — isFreeModel() erkennt nur OpenRouters Namenskonvention
+
+---
+
 *📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
 *Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 78 (dieses Dokument) = **220 Buch-Einträge**.*
+*Gesamt: 142 (archiviert) + 80 (dieses Dokument) = **222 Buch-Einträge**.*
 *CODE IST DIE EINZIGE WAHRHEIT.*
+
+---
+
+## 20. Item 0b — isFreeModel() Provider-bewusste Free-Erkennung (2026-06-22)
+
+### 🧊 ITEM 0b — Session 2026-06-22
+- **Datum:** 2026-06-22 | **Version:** v0.21.0-untested (Routing-Engine v0.22 Kampagne)
+- **Kategorie:** Fundament-Bugfix — "FREE IST SCOPE"-Architekturprinzip
+- **Zusammenfassung:** `isFreeModel()` von reiner Namens-Heuristik (`name.includes('/free')`) auf Provider-bewusste Erkennung umgestellt. OpenRouter: dynamisch via `/api/v1/models` → `pricing.prompt === "0" && pricing.completion === "0"` (gecached via `setOpenRouterFreeModels()`). NVIDIA: statische Liste (3 Modelle, Quelle build.nvidia.com/models Juni 2026). Groq: alle Modelle free-tier (API liefert kein Pricing, aber Free-Tier gibt Zugriff auf ALLE Modelle). Gemini: statische Liste (8 Modelle, Quelle ai.google.dev Juni 2026). `google_free`, `argos`, `ollama`, `player2`, `fcm`: immer frei. `estimateCostClass()` gibt jetzt korrekt cost 2 für ALLE erkannten Free-Modelle (statt 4-5 für Groq/NVIDIA/Gemini). Alle 4 Duplikate der alten Namens-Heuristik (router.js, config-runtime.js filterLLMs, client-factory.js getBatchProfile, app.js) entfernt.
+- **Kausalität:** User-Auftrag: Item 0b aus der Routing-Engine v0.22 Kampagne. "FREE IST SCOPE" — was wirklich kostenlos ist muss bevorzugt werden, unabhängig vom Namen. NVIDIA (50 RPM/Modell), Groq Free Tier, Gemini Free Tier wurden vorher NICHT als frei erkannt.
+- **Methode:** researcher-web + researcher-docs (4 Provider-APIs auf Pricing/Tier-Felder geprüft) → thinker-with-files-gemini (Design: statische Listen + dynamischer Cache + Export-Kette) → 4 Dateien geändert → code-reviewer-deepseek (dead import + redundantes require gefunden, gefixt) → 13 Logik-Tests
+- **Forschungsergebnisse (Juni 2026):** OpenRouter: ✅ pricing-Feld in API. NVIDIA: ❌ kein pricing/tier in /v1/models. Groq: ❌ kein pricing/tier in /openai/v1/models. Gemini: ❌ kein tier-Feld in /v1beta/models.
+- **Cross-Referenzen:** `router.js` (isFreeModel, estimateCostClass, setOpenRouterFreeModels), `config-runtime.js` (fetchOpenRouterModels, filterLLMs), `client-factory.js` (getBatchProfile), `app.js` (updateBatchRecommendation)
+- **Status:** ✅ ABGESCHLOSSEN — 13/13 Tests bestanden, Module laden ohne Fehler
+- **LIVE-Vorhanden:** Alle Fixes in den genannten 4 Dateien
+- **Verifikation:** ollama/argos/google_free immer free ✅, NVIDIA statische Liste ✅, Groq alle ✅, Gemini statische Liste ✅, OpenRouter Fallback + Cache ✅, estimateCostClass cost 2 für free ✅, Syntax-Check 3 Module OK, Code-Review deepseek approved
+- **⚠️ ANNAHMEN:** 0 — alle Provider-API-Entscheidungen durch echte Research verifiziert
+- **🗑️ JUNK ENTFERNT:** Alte Namens-Heuristik in isFreeModel(), filterLLMs(), getBatchProfile(), app.js — 4 Duplikate vollständig ersetzt
+- **Nächster Subtask:** Item 0c — Score-Heuristik (reusedWords-Prüfung) auf falsch-negative Bewertungen prüfen
+
+---

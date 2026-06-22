@@ -492,7 +492,11 @@ function updateBatchRecommendation() {
   if (!recEl) return;
 
   // Mirror logic from getBatchProfile in translation-runtime.js
-  const isFree  = modelVal.includes('free') || modelVal.endsWith(':free') || modelVal === 'openrouter/free';
+  // Item 0b: Mirror of backend isFreeModel() for batch size recommendation.
+  // NOTE: Approximate — full accuracy requires backend API endpoint (Item 10).
+  // Provider 'groq': all models free-tier accessible (rate limits only).
+  const isFree  = (provider === 'ollama' || provider === 'player2' || provider === 'argos' || provider === 'google_free' || provider === 'fcm' || provider === 'groq')
+    || modelVal.includes('/free') || modelVal.endsWith(':free') || modelVal === 'openrouter/free';
   const isLarge = modelVal.includes('70b') || modelVal.includes('pro') || modelVal.includes('sonnet') || modelVal.includes('405b');
 
   let rec;

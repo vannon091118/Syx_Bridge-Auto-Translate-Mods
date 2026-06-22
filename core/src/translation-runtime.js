@@ -687,7 +687,7 @@ function createTranslationRuntime(options) {
   async function getBestAvailableQualityModel() {
     const route = dispatcher.buildStageRoutePlan('polish')[0];
     if (route) return { provider: route.provider, model: route.model };
-    return { provider: config.PRIMARY_PROVIDER, model: config.PRIMARY_MODEL };
+    return { provider: config.PRIMARY_PROVIDER, model: config.EFFECTIVE_PRIMARY_MODEL || config.PRIMARY_MODEL };
   }
 
   // ── PHASE 1: Cache ──────────────────────────────────────────────────

@@ -405,7 +405,8 @@ function getGeminiModelName(name) {
 
 function getModelForProvider(provider, modelOverride = '') {
   if (modelOverride && isUsableTextModel(modelOverride)) return modelOverride;
-  if (provider === CONFIG.PRIMARY_PROVIDER && isUsableTextModel(CONFIG.PRIMARY_MODEL)) return CONFIG.PRIMARY_MODEL;
+  const primModel = CONFIG.EFFECTIVE_PRIMARY_MODEL || CONFIG.PRIMARY_MODEL;
+  if (provider === CONFIG.PRIMARY_PROVIDER && isUsableTextModel(primModel)) return primModel;
   return getDefaultModelForProvider(provider);
 }
 

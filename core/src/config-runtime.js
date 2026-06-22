@@ -76,9 +76,11 @@ function rankModel(model) {
 }
 
 function filterLLMs(models, freeOnly = false) {
+  // Item 0b: freeOnly-Filter nutzt jetzt die Provider-bewusste isFreeModel()
+  // statt der alten Namens-Heuristik (name.endsWith(':free') || name === 'openrouter/free')
   return [...new Set([...(freeOnly ? [OPENROUTER_FREE_MODEL] : []), ...(models || [])])]
     .filter(isUsableTextModel)
-    .filter(model => !freeOnly || String(model).endsWith(':free') || model === OPENROUTER_FREE_MODEL)
+    .filter(model => !freeOnly || require('./router').isFreeModel('openrouter', model))
     .sort((a, b) => rankModel(b) - rankModel(a) || String(a).localeCompare(String(b)));
 }
 
@@ -98,6 +100,8 @@ function getDefaultModelForProvider(provider) {
 }
 
 const { translateHttpError } = require('./router');
+// Item 0b: setOpenRouterFreeModels für Provider-bewusste Free-Erkennung
+const { setOpenRouterFreeModels } = require('./router');
 
 function maskSecret(value) {
   if (!value) return '(kein Key)';
@@ -399,7 +403,24 @@ class ConfigRuntime {
       const key = this.getApiKey('openrouter');
       const headers = key ? { Authorization: `Bearer ${key}` } : {};
       const response = await axios.get('https://openrouter.ai/api/v1/models', { headers, timeout: 15000 });
-      const models = (response.data.data || []).map(model => model.id).filter(Boolean);
+      const allModels = response.data.data || [];
+
+      // Item 0b: Parse pricing data to build dynamic free-model cache.
+      // OpenRouter liefert pricing.prompt + pricing.completion als Strings (USD/Token).
+      // "0" für beide Felder = kostenloses Modell.
+      const freeModelIds = allModels
+        .filter(m => {
+          const p = m.pricing || {};
+          return String(p.prompt || '') === '0' && String(p.completion || '') === '0';
+        })
+        .map(m => m.id);
+
+      if (freeModelIds.length > 0) {
+        setOpenRouterFreeModels(freeModelIds);
+        console.log(`[FREE-CACHE] ${freeModelIds.length} OpenRouter Free-Modelle via Pricing erkannt.`);
+      }
+
+      const models = allModels.map(model => model.id).filter(Boolean);
       const filtered = filterLLMs(models, freeOnly);
       return filtered.length > 0 ? filtered : [OPENROUTER_FREE_MODEL];
     } catch (e) {
@@ -496,7 +517,7 @@ class ConfigRuntime {
         ? (response.data.models || []).map(m => m.name)
         : (response.data.data || []).map(m => m.id);
       const usable = filterLLMs(models, false);
-      const selected = provider === this.config.PRIMARY_PROVIDER ? this.config.PRIMARY_MODEL : getDefaultModelForProvider(provider);
+      const selected = provider === this.config.PRIMARY_PROVIDER ? (this.config.EFFECTIVE_PRIMARY_MODEL || this.config.PRIMARY_MODEL) : getDefaultModelForProvider(provider);
       const selectedOk = !selected || usable.includes(selected) || provider !== this.config.PRIMARY_PROVIDER;
       return {
         provider,
@@ -546,11 +567,11 @@ class ConfigRuntime {
       if (this.config.PRIMARY_PROVIDER === 'groq' && needsReplacement(this.config.PRIMARY_MODEL)) {
         const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
         console.log(`[INFO] Groq Modell auto-select: ${replacement}`);
-        this.config.PRIMARY_MODEL = replacement;
+        this.config.EFFECTIVE_PRIMARY_MODEL = replacement;
       }
       if (this.config.AUDITOR_PROVIDER === 'groq' && needsReplacement(this.config.AUDITOR_MODEL)) {
         const replacement = GROQ_FALLBACK_MODELS.find(m => models.includes(m)) || models[0];
-        this.config.AUDITOR_MODEL = replacement;
+        this.config.EFFECTIVE_AUDITOR_MODEL = replacement;
       }
     } catch (e) {
       this.markProviderDegraded('groq', e.message);
@@ -587,7 +608,7 @@ class ConfigRuntime {
         const replacement = findBestModel(this.config.PRIMARY_MODEL, [discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
         if (replacement !== this.config.PRIMARY_MODEL) {
           console.log(`[INFO] Ollama Modell auto-select: ${replacement}`);
-          this.config.PRIMARY_MODEL = replacement;
+          this.config.EFFECTIVE_PRIMARY_MODEL = replacement;
         }
       }
 
@@ -595,7 +616,7 @@ class ConfigRuntime {
         const auditorPref = this.config.AUDITOR_MODEL || 'auto';
         const replacement = findBestModel(auditorPref, ['1b', 'tiny', 'phi', 'phi3:mini', 'gemma:2b', discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
         if (replacement !== this.config.AUDITOR_MODEL) {
-          this.config.AUDITOR_MODEL = replacement;
+          this.config.EFFECTIVE_AUDITOR_MODEL = replacement;
         }
       }
     } catch (e) {
@@ -625,8 +646,8 @@ class ConfigRuntime {
     const freeOnly = this.config.PRIMARY_PROVIDER === 'openrouter';
     const replacement = filterLLMs(models, freeOnly)[0] || getDefaultModelForProvider(this.config.PRIMARY_PROVIDER);
     if (replacement && replacement !== 'auto') {
-      this.config.PRIMARY_MODEL = replacement;
-      console.log(`[INFO] Nutze Ersatzmodell: ${this.config.PRIMARY_MODEL}`);
+      this.config.EFFECTIVE_PRIMARY_MODEL = replacement;
+      console.log(`[INFO] Nutze Ersatzmodell: ${this.config.EFFECTIVE_PRIMARY_MODEL}`);
       return;
     }
 
@@ -640,8 +661,8 @@ class ConfigRuntime {
     const routed = routedFallbacks.find(item => item.enabled);
     if (routed) {
       this.config.PRIMARY_PROVIDER = routed.provider;
-      this.config.PRIMARY_MODEL    = routed.model;
-      console.log(`[INFO] Fallback-Route auf ${this.config.PRIMARY_PROVIDER} (${this.config.PRIMARY_MODEL}).`);
+      this.config.EFFECTIVE_PRIMARY_MODEL    = routed.model;
+      console.log(`[INFO] Fallback-Route auf ${this.config.PRIMARY_PROVIDER} (${this.config.EFFECTIVE_PRIMARY_MODEL}).`);
     }
   }
 
@@ -813,7 +834,7 @@ class ConfigRuntime {
       console.log(`${icon} ${result.provider}${keyInfo} | ${result.detail} | ${result.ms}`);
     }
     const usable = results.filter(result => result.ok).map(result => result.provider);
-    console.log(`[ROUTING] Aktiv: ${this.config.PRIMARY_PROVIDER} (${this.config.PRIMARY_MODEL})`);
+    console.log(`[ROUTING] Aktiv: ${this.config.PRIMARY_PROVIDER} (${this.config.EFFECTIVE_PRIMARY_MODEL || this.config.PRIMARY_MODEL})`);
     if (!this.config.PLAYER2_ENABLED) console.log('[ROUTING] Player2 Support: deaktiviert');
     console.log(`[ROUTING] Erreichbar: ${usable.length > 0 ? [...new Set(usable)].join(', ') : 'keine Provider erreichbar'}`);
     return results;

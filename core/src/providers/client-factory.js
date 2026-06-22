@@ -60,8 +60,10 @@ function createProviderClients(ctx) {
   }
 
   function getBatchProfile(provider, model, mode = 'translate') {
+    // Item 0b: Nutze die zentrale isFreeModel(provider, model) statt lokaler Namens-Heuristik
+    const { isFreeModel } = require('../router');
     const name = String(model || '').toLowerCase();
-    const isFree  = name.includes('free') || name.endsWith(':free') || name === 'openrouter/free';
+    const isFree  = isFreeModel(provider, model);
     const isLite  = name.includes('lite') || name.includes('flash') || name.includes('instant') || name.includes('8b') || name.includes('3b');
     const isLarge = name.includes('70b') || name.includes('pro') || name.includes('sonnet') || name.includes('opus') || name.includes('405b');
 
@@ -465,7 +467,7 @@ except Exception as e:
     const keys = config.PLAYER2_KEYS || [];
     const key = getApiKey('player2');
     const headers = key ? { Authorization: `Bearer ${key}` } : {};
-    const model = getModelForProvider('player2', modelOverride) || config.PRIMARY_MODEL;
+    const model = getModelForProvider('player2', modelOverride) || config.EFFECTIVE_PRIMARY_MODEL || config.PRIMARY_MODEL;
     const { prompt, shieldMaps } = await buildBatchPromptForCurrentConfig(items);
     try {
       const response = await withRetry('Player2 Batch', () => axios.post(`${config.PLAYER2_URL}/chat/completions`, {

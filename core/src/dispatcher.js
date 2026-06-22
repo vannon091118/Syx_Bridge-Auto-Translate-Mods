@@ -10,7 +10,7 @@ function createDispatcher(options) {
 
   function resolveProviderModel(stage) {
     const primaryProvider = config.PRIMARY_PROVIDER;
-    const primaryModel = config.PRIMARY_MODEL;
+    const primaryModel = config.EFFECTIVE_PRIMARY_MODEL || config.PRIMARY_MODEL;
         
     if (stage === 'polish') {
       const provider = config.POLISHER_PROVIDER || primaryProvider;
@@ -20,7 +20,7 @@ function createDispatcher(options) {
         
     if (stage === 'audit') {
       const provider = config.AUDITOR_PROVIDER || primaryProvider;
-      const model = config.AUDITOR_MODEL || (provider === primaryProvider ? primaryModel : '');
+      const model = config.EFFECTIVE_AUDITOR_MODEL || config.AUDITOR_MODEL || (provider === primaryProvider ? primaryModel : '');
       return { provider, model };
     }
         

@@ -13,27 +13,99 @@ const PROVIDER_CAPABILITIES = {
   nvidia:       { translate: true,  audit: true,  polish: true,  compare: true,  review: true  }
 };
 
-// ─── Free-model detection ─────────────────────────────────────────────────────
-function isFreeModel(model) {
+// ─── Free-Model Static Lists (Provider ohne API-Pricing) ─────────────────────
+// Quellen: API-Dokumentation + manuelle Recherche, Stand Juni 2026.
+// Provider die Pricing via API ausliefern (OpenRouter) nutzen dynamische
+// Erkennung — siehe setOpenRouterFreeModels() unten.
+
+// NVIDIA NIM Free-Tier Modelle
+// Quelle: build.nvidia.com/models (Juni 2026) — Modelle mit "Free"-Tag
+// Rate-Limit: 40 RPM. Kostenlose Credits: 5000/Monat.
+const NVIDIA_FREE_MODELS = new Set([
+  'meta/llama-3.3-70b-instruct',
+  'meta/llama-3.1-8b-instruct',
+  'nvidia/llama-3.1-nemotron-70b-instruct',
+]);
+
+// Groq Free-Tier Modelle
+// Quelle: console.groq.com/docs/models (Juni 2026)
+// Groq Free-Tier gibt Zugriff auf ALLE gelisteten Modelle — Einschränkung
+// liegt NUR in Rate-Limits (TPM/RPD), nicht in Modell-Verfügbarkeit.
+// null = Sonderwert: ALLE Groq-Modelle sind im Free-Tier nutzbar.
+const GROQ_FREE_MODELS = null;
+
+// Gemini Free-Tier Modelle
+// Quelle: ai.google.dev/gemini-api/docs/models (Juni 2026)
+// Google AI Studio Free-Tier: 15 RPM für Flash-Modelle, 2 RPM für Pro.
+const GEMINI_FREE_MODELS = new Set([
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash-lite-preview',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-pro',
+]);
+
+// ─── OpenRouter Free-Model Cache (wird von config-runtime.js befüllt) ────────
+// Dynamische Liste via /api/v1/models → pricing.prompt === "0" && pricing.completion === "0"
+// Fallback (vor API-Abruf): Namens-Heuristik für openrouter/free + :free-Endungen
+let _openRouterFreeCache = null;
+
+function setOpenRouterFreeModels(modelIds) {
+  _openRouterFreeCache = new Set(modelIds.map(m => m.toLowerCase()));
+}
+
+// ─── Free-model detection (Provider-aware) ───────────────────────────────────
+function isFreeModel(provider, model) {
   const name = String(model || '').toLowerCase();
-  return name === 'openrouter/free' || name.endsWith(':free') || name.includes('/free');
+
+  // Immer freie Provider (lokal / offline / known-free)
+  if (provider === 'ollama' || provider === 'player2') return true;
+  if (provider === 'argos') return true;
+  if (provider === 'google_free') return true;
+  if (provider === 'fcm') return true;
+
+  // OpenRouter: dynamischer Cache (gefüllt via fetchOpenRouterModels)
+  if (provider === 'openrouter') {
+    if (_openRouterFreeCache && _openRouterFreeCache.size > 0) {
+      return _openRouterFreeCache.has(name);
+    }
+    // Bootstrap-Fallback vor erstem API-Call: Namens-Heuristik
+    return name === 'openrouter/free' || name.endsWith(':free') || name.includes('/free');
+  }
+
+  // NVIDIA: statische Liste (API liefert kein Pricing)
+  if (provider === 'nvidia') {
+    return NVIDIA_FREE_MODELS.has(name);
+  }
+
+  // Groq: alle Modelle sind im Free-Tier (nur Rate-Limits unterscheiden)
+  if (provider === 'groq') {
+    return GROQ_FREE_MODELS === null || GROQ_FREE_MODELS.has(name);
+  }
+
+  // Gemini: statische Liste (API liefert kein Tier-Feld)
+  if (provider === 'gemini') {
+    return GEMINI_FREE_MODELS.has(name);
+  }
+
+  return false;
 }
 
 // ─── Cost class: lower = cheaper / preferred ─────────────────────────────────
-// 0 = fully local/offline  →  6 = paid cloud
+// 0 = fully local/offline  →  10 = absolute last resort
 function estimateCostClass(provider, model) {
   // BUGFIX (Argos overuse): Argos is now cost class 10 — ABSOLUTE LAST RESORT.
-  // Any healthy API-key provider (even free LLM tiers) sorts before it.
-  // Previous value 0 made argos the FIRST choice in cost-based ordering,
-  // causing 13% of all translations to go through pure machine translation
-  // despite having NVIDIA (50 TPM), Groq, and OpenRouter keys configured.
   if (provider === 'argos') return 10;
   if (provider === 'google_free') return 9;
   if (provider === 'ollama' || provider === 'player2') return 1;
-  if (provider === 'fcm') return 1.5;            // FCM local daemon proxy — near-free
-  // Free LLM tiers (OpenRouter/Groq free) deliver BETTER quality than
-  // pure machine translation — sort them before paid cloud since they're free.
-  if (isFreeModel(model)) return 2;             // free tier OpenRouter / Groq free etc.
+  if (provider === 'fcm') return 1.5;
+  // FREE IST SCOPE: alle per isFreeModel() erkannten Modelle → cost 2
+  // (OpenRouter free, Groq free tier, NVIDIA free, Gemini free tier)
+  if (isFreeModel(provider, model)) return 2;
+  // Paid cloud providers (wenn Modell nicht als free erkannt)
   if (provider === 'openrouter' || provider === 'groq' || provider === 'nvidia') return 4;
   if (provider === 'gemini') return 5;
   return 6;
@@ -291,13 +363,13 @@ class Router {
     let userProvider, userModel;
     if (role === 'audit') {
       userProvider = this.config.AUDITOR_PROVIDER;
-      userModel    = this.config.AUDITOR_MODEL;
+      userModel    = this.config.EFFECTIVE_AUDITOR_MODEL || this.config.AUDITOR_MODEL;
     } else if (role === 'polish') {
       userProvider = this.config.POLISHER_PROVIDER;
       userModel    = this.config.POLISHER_MODEL;
     } else {
       userProvider = options.preferredProvider || this.config.PRIMARY_PROVIDER;
-      userModel    = options.preferredModel    || this.config.PRIMARY_MODEL;
+      userModel    = options.preferredModel    || this.config.EFFECTIVE_PRIMARY_MODEL || this.config.PRIMARY_MODEL;
     }
 
     // ── 2. Build ordered candidate list ──────────────────────────────────────
@@ -397,3 +469,6 @@ module.exports = Router;
 
 // Re-export translateHttpError for external consumers (config-runtime key checks, etc.)
 module.exports.translateHttpError = translateHttpError;
+// Re-export free-model detection for client-factory.js + config-runtime.js
+module.exports.isFreeModel = isFreeModel;
+module.exports.setOpenRouterFreeModels = setOpenRouterFreeModels;
