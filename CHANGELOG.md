@@ -58,6 +58,20 @@ VISION.md (Multi-Game Langzeit-Scope) erstellt, AGENTS.md komplett umstrukturier
 - R-006 countMatches Konsolidierung nachgetragen
 - **Dateien:** `PLAN.md`
 
+### CL-RNG: Commit-Layer RNG — deterministisch, abstrakte IDs, Composite-Hash
+- **Plan:** `core/archive/docs/plans/PLAN_COMMIT_LAYER_RNG.md` — vollständige Architektur
+- **rng.js:** XorShift128 (32-bit) + djb2 + derive() + decodeJ() — kein Math.random(), kein crypto
+- **composite_chain.json:** Genesis-Composite `c0j0a0p0`, Chain als `[{seq, composite, commitHash}]`
+- **narrative_params.json:** j-Wert-Dekodierung (Ton, Struktur, Rückbezug) — kanonische Referenz
+- **ID-System:** C1..CN (Commits), P1..PN (Plots), A1..AN (Arcs), J1..J99 (narrative Anweisungen)
+- **Composite-Hash:** `c5j3a2p8` kodiert Commit-Seq + Joke-Anweisung + Arc + Plot-Referenz in EINER ID
+- **Determinismus:** composite[N] = derive(composite[N-1], commitHash), gesamte Chain reproduzierbar
+- **Standalone:** Gesamter Layer in `commit_lore/` außer verify_commit_msg.js — plug-and-play auf jedes Projekt
+- **Verifikation:** Syntax OK, djb2 deterministisch PASS, XorShift deterministisch PASS, derive deterministisch PASS
+- **Review:** deepseek approved (after: SplitMix-S1-Seeding, commitHash-Guard, decodeJ(0)-Genesis, korrekte JSDoc)
+- **Nächste Phasen:** CHANGELOG-Anker, verify_commit_msg.js Composite-Validierung, lore_arcs A1..A4, plotchain p_id
+- **Dateien:** `core/scripts/commit_lore/rng.js` (NEU), `core/scripts/commit_lore/composite_chain.json` (NEU), `core/scripts/commit_lore/narrative_params.json` (NEU), `core/archive/docs/plans/PLAN_COMMIT_LAYER_RNG.md` (NEU)
+
 ---
 
 ## [v0.22.0-GUI-UPDATE] — 2026-06-23 — GUI v0.22.0 + README Global Rewrite

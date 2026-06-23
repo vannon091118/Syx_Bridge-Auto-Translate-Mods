@@ -1,0 +1,43 @@
+{
+  "description": "Dekodiert j-Werte (1-99) aus dem Composite-Hash in narrative Anweisungen für den Commit-Autor (Buffy).",
+  "decoding": {
+    "tone": {
+      "formula": "j % 10",
+      "values": {
+        "0": { "tone": "sachlich", "opener_hint": "Direkt. Fakten zuerst. Kein Theater." },
+        "1": { "tone": "sarkastisch", "opener_hint": "Passiv-aggressiv. 'Rate mal, wer...' oder 'Na toll.'" },
+        "2": { "tone": "erschöpft", "opener_hint": "Müde. 'Nach {N} Stunden...' oder 'Es ist spät.'" },
+        "3": { "tone": "triumphierend", "opener_hint": "Euphorisch. 'ICH HABS GEMACHT.' oder 'Endlich.'" },
+        "4": { "tone": "selbstironisch", "opener_hint": "Selbstreflektierend. 'Manchmal fragt man sich...'" },
+        "5": { "tone": "neugierig", "opener_hint": "Entdeckend. 'Weisst du was X macht?'" },
+        "6": { "tone": "müde-zufrieden", "opener_hint": "Zufrieden aber fertig. 'Es läuft. Endlich.'" },
+        "7": { "tone": "alarmiert", "opener_hint": "Dringend. 'Das hätte nicht passieren dürfen.'" },
+        "8": { "tone": "trocken", "opener_hint": "Knapp. Minimal. 'Fix: X → Y.'" },
+        "9": { "tone": "warm", "opener_hint": "Menschlich. 'Der User hatte recht.' oder Dankbarkeit." }
+      }
+    },
+    "structure": {
+      "formula": "j % 5",
+      "values": {
+        "0": { "structure": "chronologisch", "pattern": "Was war → Was wurde gemacht → Was kommt" },
+        "1": { "structure": "problem_lösung", "pattern": "Das war kaputt → So wurde es gefixt → Bonus-Effekte" },
+        "2": { "structure": "flashback", "pattern": "Erinnerst du dich an {EREIGNIS}? → Deshalb jetzt das." },
+        "3": { "structure": "dialog", "pattern": "Buffy: ... Basher: ... Vannon: ... (Minidialog)" },
+        "4": { "structure": "faktenliste", "pattern": "{N} Dateien, {M} Bugs, {H} Stunden — knapp aber vollständig" }
+      }
+    },
+    "callback": {
+      "formula": "j > 50",
+      "description": "j > 50: Starker Rückbezug auf vorherigen Commit oder Arc-Anker. j ≤ 50: Eigenständiger Einstieg ohne Rückbezug."
+    }
+  },
+  "example": {
+    "j": 53,
+    "decoded": {
+      "tone": "triumphierend (53 % 10 = 3)",
+      "structure": "flashback (53 % 5 = 3)",
+      "callback": true
+    },
+    "instruction": "Erzähle triumphierend in Flashback-Struktur mit starkem Rückbezug auf einen vorherigen Commit."
+  }
+}

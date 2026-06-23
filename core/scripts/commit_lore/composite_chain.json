@@ -1,0 +1,6 @@
+{
+  "genesis_composite": "c0j0a0p0",
+  "created": "2026-06-23",
+  "description": "Deterministische Composite-Chain. Jeder Commit schreibt seinen Composite-Hash fort.",
+  "chain": []
+}
