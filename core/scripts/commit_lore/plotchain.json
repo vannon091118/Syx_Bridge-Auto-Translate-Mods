@@ -166,5 +166,84 @@
     "ref_to": "plot-2026-06-23T19:16:00",
     "model_id": "deepseek-v4-pro",
     "composite": "c1j57a3p17"
+  },
+  {
+    "p_id": "p23",
+    "id": "plot-2026-06-23T22:24:03",
+    "timestamp": "2026-06-23 22:24:03",
+    "summary": "Export-Pipeline Killer Bug: countMatches fehlte in exports von context-packets.js. validator.js crashte in validateFileSyntax -> kein Workshop-Output. Smoke-Test Assertions in plugin-boundary-smoke.js aktualisiert.",
+    "ref_to": "plot-2026-06-23T19:56:47",
+    "recent_commits": [
+      {
+        "hash": "581c677",
+        "subject": "chore: screenshots restructured + compressed + README references updated",
+        "date": "2026-06-24 00:21:28 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "README.md",
+          "screenshots/garthimi-mixed.jpg",
+          "screenshots/gui-idle.png",
+          "screenshots/gui-running.png",
+          "screenshots/onari-de.jpg",
+          "screenshots/vargen-de.jpg"
+        ]
+      },
+      {
+        "hash": "0ac334b",
+        "subject": "chore: SSOT-Sync archive/docs/CHANGELOG.md mit Root (EXPORT-PIPELINE-FIX + NATIVE-MODE-FIX)",
+        "date": "2026-06-24 00:14:15 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "core/archive/docs/CHANGELOG.md"
+        ]
+      },
+      {
+        "hash": "dce6e5f",
+        "subject": "fix: countMatches missing export kills export pipeline + smoke-test assertions",
+        "date": "2026-06-24 00:12:48 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "core/src/context-packets.js",
+          "core/tests/plugin-boundary-smoke.js"
+        ]
+      },
+      {
+        "hash": "2899d72",
+        "subject": "Glue, Coffee, and Three Diagrams Walk Into a Repo",
+        "date": "2026-06-23 23:58:56 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "README.md",
+          "_Info.txt",
+          "core/archive/docs/CHANGELOG.md"
+        ]
+      },
+      {
+        "hash": "56442e8",
+        "subject": "[NARRATOR:Thinker] [COMPOSITE:c31j12n3a3p4] [MODEL:mimo-v2.5-pro] [IMPULSE:Doku auf commit basis nachziehen nach externe",
+        "date": "2026-06-23 23:54:08 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "core/archive/docs/AGENTS.md",
+          "core/archive/docs/CHANGELOG.md",
+          "core/archive/docs/MASTER_DOC.md"
+        ]
+      }
+    ],
+    "data_changes": [],
+    "causal_chain_summary": [
+      "581c677: chore: screenshots restructured + compressed + README references updated",
+      "0ac334b: chore: SSOT-Sync archive/docs/CHANGELOG.md mit Root (EXPORT-PIPELINE-FIX + NATIVE-MODE-FIX)",
+      "dce6e5f: fix: countMatches missing export kills export pipeline + smoke-test assertions",
+      "2899d72: Glue, Coffee, and Three Diagrams Walk Into a Repo",
+      "56442e8: [NARRATOR:Thinker] [COMPOSITE:c31j12n3a3p4] [MODEL:mimo-v2.5-pro] [IMPULSE:Doku auf commit basis nachziehen nach externe"
+    ],
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c31j90n2a4p15",
+    "narrator": "Basher"
   }
 ]

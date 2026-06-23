@@ -9,7 +9,7 @@
 
 > **Task:** Export-Pipeline Killer Bug gefixt — Workshop-Output war komplett leer.
 > **Warum:** R-006 (countMatches Konsolidierung) importierte `countMatches` in validator.js, fügte die Funktion aber nie zu den Exports von context-packets.js hinzu. Das crashte `validateFileSyntax()` → `validateAndPrepareContent()` → `writeTranslatedFile()` → kein einziger File-Write → Workshop-Output leer.
-> **Composite:** Wird vom Commit-Layer generiert
+> **Composite:** `c31j90n2a4p15`
 
 ### context-packets.js — countMatches Export hinzugefügt
 - `countMatches` war definiert (line 53) und intern verwendet, aber nicht in `module.exports`
