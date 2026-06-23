@@ -216,4 +216,93 @@ Schicht 3: FREEZE_INDEX.md
 
 ---
 
+# TEIL 13 — ARCHITEKTUR & STATUS (v0.23a)
+
+## 13.1 Plugin-Schicht (3 Ebenen)
+
+**Ebene 1 — `GameAdapter.js`:** Abstraktes Base-Interface. 16 Methoden für Datei-/Verzeichnisoperationen:
+`getLauncherSettingsPath`, `parseMetadata`, `formatMetadata`, `getCoreModFolderName`,
+`getCoreModMetadata`, `applyPatchModifications`, `getBackupDirectoryName`, `isBackupDirectory`,
+`isVersionDirectory`, `getOverrideHeader`, `formatPatchNotice`, `getParserFormat`,
+`classifyFile`, `isTranslatableFile`, `scanMod`.
+
+**Ebene 2 — `GamePlugin.js extends GameAdapter`:** Erweitert Adapter um Format-spezifische Hooks.
+11 Methoden: `serializeTranslation`, `extractTextValue`, `validateTranslation`,
+`validateFileSyntax` (R-VAL Plugin-Delegation), `getPlaceholderRegex` (R-SHIELD Plugin-Delegation),
+`getPromptContext`, `getLoreTerms`, `getGameTerms`, `getPathRules`,
+`getTranslationMetadataPattern`, `getFileHeader`. Jede Methode hat sinnvolle Defaults —
+konkrete Plugins überschreiben nur was spielspezifisch ist.
+
+**Ebene 3 — Konkrete Implementierungen:**
+- `SongsOfSyxPlugin.js` (~290 LOC, 23 Methoden) — Vollständig. SoS-Format (KEY:"value"),
+  Backslash-Escaping, V71-Dateien, _Info.txt-Metadaten, BridgeCore-Generierung.
+- `RimWorldPlugin.js` (~155 LOC, 24 Methoden) — **STUB.** Format-Hooks vollständig (11/11),
+  Adapter-Hooks werfen "not yet implemented" (13/13).
+
+**Factory — `plugin-registry.js`:** `createPlugin(gameName)` → instanziiert das richtige Plugin.
+`DEFAULT_GAME = 'songs_of_syx'`. Neues Spiel? → Plugin-Klasse registrieren, fertig.
+
+> **Neues Spiel hinzufügen (4 Schritte):**
+> 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren (XML/JSON/...)
+> 2. In `plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
+> 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
+> 4. Testen via `plugin-boundary-contract.js` (76 dynamische Interface-Checks)
+
+## 13.2 RimWorld-Status (v0.23 Scope, ~16h)
+
+**FERTIG — Format-Hooks (11 Methoden):**
+- `serializeTranslation` — XML Entity-Escaping + Tag-Wrapping (`<key>escaped</key>`)
+- `extractTextValue` — XML Entity-Unescaping
+- `validateFileSyntax` — Tag-Balance, Closing-Tag-Count, Line-Count-Sanity
+- `getPlaceholderRegex` — `{N}`, `$VAR`, `%d/s/f` (KEINE strukturellen XML-Tags shielden)
+- `validateTranslation` — Tag-Balancing pro Einzelübersetzung
+- `getPromptContext` — Sci-fi/Survival-Tone, 3 Prompt-Rules
+- `getPathRules` — Defs/, Languages/, Patches/
+- `getFileHeader` — `<?xml version="1.0" encoding="utf-8"?>\n`
+- `classifyFile`, `getParserFormat`, `isTranslatableFile`
+
+**STUB — Adapter-Hooks (13 Methoden):** Werfen via Base-Class aktuell `"not yet implemented"`:
+`getLauncherSettingsPath`, `parseMetadata`, `formatMetadata`, `getCoreModFolderName`,
+`getCoreModMetadata`, `applyPatchModifications`, `getBackupDirectoryName`, `isBackupDirectory`,
+`isVersionDirectory`, `getOverrideHeader`, `formatPatchNotice`, `scanMod`.
+
+**Was fehlt:** RimWorld-Mod-Ordnerstruktur (`Mods/` statt SoS `V71/assets/text/`),
+Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
+
+## 13.3 GUI-Architektur
+
+**Server — `gui/server.js` (650 LOC):**
+- `GuiServer extends EventEmitter` — HTTP-Server auf `localhost:3000`
+- SSE (Server-Sent Events) für Echtzeit-Logs, Status-Updates, DB-Samples, Payloads
+- 25+ REST-Endpoints: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`,
+  `/api/action/*`, `/api/backups/*`, `/api/preflight-status`, `/api/db-repair`,
+  `/api/fcm-rankings`, `/api/key-check`, `/api/revisions/*`, `/api/runtime-score`,
+  `/api/run-evaluation`, `/api/provider-status`, `/api/session`
+- Auto-Shutdown bei Inaktivität (1.5s nach letzter Session-Close)
+- Port-Fallback: EADDRINUSE → Port+1
+
+**Client — `gui/public/app.js` (1517 LOC):**
+- `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle)
+- SSE-Verbindung: Echtzeit-Logs + Status-Updates + Provider-Stats + DB-Samples
+- Pipeline-Visualizer (4 Phasen: SCAN → LLM → QA → SAVE)
+- DB-Browser: Suche, Edit (Mehrzeilen), Save, Revisionen
+- Settings-Dropdown: Provider/Modell/Language/Batch-Size live konfigurierbar
+- API-Key-Modal: Keys verwalten + testen pro Provider
+- FCM Live Rankings: Modell-Tiers, Ping, Stabilität, USE-Button
+- Runtime Score Floating Panel (standardmäßig minimiert)
+- Run Self-Evaluation (Echtzeit-Qualitätsmetriken nach jedem Sync)
+- DB-Repair-Button: 4 Blink-Tiers je nach kritischem DB-Zustand
+- Mod-Backups: Liste + Restore
+- Mode-UI: NATIVE vs PATCH Status-Anzeige
+
+**Frontend — `gui/public/index.html`:**
+- Dark-Theme mit CSS-Variablen (--bg, --accent, --success, --danger)
+- 3-Spalten-Layout: Sidebar (Status + Pipeline + Aktionen) | Center (Terminal/DB-Browser + Logs) | Right (Stats + Backups + DB-Stream + FCM)
+- Neon-Progress-Border via SVG (animiert bei laufendem Sync)
+- State-abhängige Hintergründe (running=Gelb, success=Grün, error=Rot-Blink)
+- Version-Highlights-Modal (v0.22.0, 10 Einträge)
+- Responsive: Sidebar 300px | Center flex | Right 350px
+
+---
+
 *Restructuriert 2026-06-23 — User-Vorgaben getrennt von Agent-Regeln.*

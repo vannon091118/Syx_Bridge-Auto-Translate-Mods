@@ -130,6 +130,15 @@ VISION.md (Multi-Game Langzeit-Scope) erstellt, AGENTS.md komplett umstrukturier
 - **Review:** deepseek approved (ReferenceError gefixt, dead openerHint entfernt, moodPool-Passing korrigiert)
 - **Dateien:** `core/scripts/commit_lore/rng.js`, `core/scripts/commit_lore/derive_composite.js`, `core/scripts/commit_lore/narrative_params.json`, `core/scripts/commit_lore/composite_chain.json`
 
+### DOKU-UPDATE — Plugin-Architektur + RimWorld + GUI in AGENTS.md
+> **Commit:** `<hash>` | **Composite:** `c31j61n3a2p18`
+
+- **AGENTS.md:** TEIL 13 hinzugefügt — 13.1 Plugin-Schicht (GameAdapter 16 Methoden → GamePlugin 11 Methoden → SongsOfSyxPlugin/RimWorldPlugin), 13.2 RimWorld-Status (11 Format-Hooks fertig, 13 Adapter-Stubs), 13.3 GUI-Architektur (Server 650 LOC / 25 Endpoints, Client 1517 LOC / ~55 Funktionen)
+- **MASTER_DOC.md §4:** Von Fließtext auf referenzierbare Tabelle umgebaut. Plugin-Delegation (R-VAL/R-SHIELD) dokumentiert, RimWorldPlugin-Status aufgenommen, "Neues Spiel hinzufügen" 4-Schritte-Anleitung
+- **gui/INDEX.md:** Version v0.20.0 → v0.22.0. Neue Endpoints (runtime-score, preflight-status, db-repair, run-evaluation) und Client-Funktionen (fetchRuntimeScore, renderRuntimeScore, fetchRunEvaluation, toggleStreamView) dokumentiert
+- **Dateien:** `AGENTS.md`, `core/archive/docs/MASTER_DOC.md`, `core/src/gui/INDEX.md`
+
+
 ### CL-RNG Phase 5: Charakterblatt-System — deterministische Erzähler-Auswahl
 > **Commit:** `<hash>` | **Composite:** `c31j41n2a3p1`
 

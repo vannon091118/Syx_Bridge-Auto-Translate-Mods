@@ -61,14 +61,46 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 ---
 
-## 4. Plugin-Architektur (v0.20 Phase 1 — ABGESCHLOSSEN)
+## 4. Plugin-Architektur (v0.22 — 3 Ebenen)
 
-- Alle Core-Hardcodes (H1-H8) delegiert oder als Fallback markiert
-- `plugins/GamePlugin.js`: Interface (getPromptContext, getGameTerms, getLoreTerms, getPathRules, serializeTranslation, validateTranslation)
-- `plugins/SongsOfSyxPlugin.js`: Implementierung mit 12 Lore-Begriffen + 9 Gameplay-Begriffen
-- `translation-quality.js` (~187 LOC): 6 extrahierte Quality/Scoring-Funktionen
-- `translation-db.js` (~456 LOC): 8 extrahierte DB/Cache/Glossary-Funktionen + Dual-Counter
-- `translation-runtime.js` (~1370 LOC): 5 fokussierte Phasen-Funktionen (GOD-001 Refactoring + 15 Fixes)
+### 4.1 Drei-Ebenen-Architektur
+
+| Ebene | Datei | LOC | Methoden | Status |
+|-------|-------|-----|----------|--------|
+| 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 16 | Abstraktes Base-Interface |
+| 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 11 | Format-Hooks mit Defaults |
+| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~290 | 23 | ✅ Voll integriert |
+| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~155 | 24 (11 fertig) | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
+| — | `plugin-registry.js` | ~30 | 1 Factory | ✅ `createPlugin(gameName)` |
+
+**Ebene 1 — `GameAdapter`:** Plattform-Operationen (Launcher-Pfade, Mod-Scanning, Dateitypen).
+**Ebene 2 — `GamePlugin extends GameAdapter`:** Format-Hooks (Serialisierung, Validierung, Prompts).
+**Ebene 3 — Konkrete Plugins:** Spiel-spezifische Implementierung.
+
+### 4.2 Plugin-Delegation (R-VAL + R-SHIELD)
+
+Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegiert:
+- **R-VAL (`validateFileSyntax`):** Format-spezifische Datei-Validierung. SoS zählt KEY:-Lines +
+  Quote-Balance, RimWorld zählt XML-Tag-Balance.
+- **R-SHIELD (`getPlaceholderRegex`):** Format-spezifische Regex für Platzhalter-Shielding.
+  SoS: `<tags>` + `__VAR__` + `{N}`. RimWorld: `{N}` + `$VAR` + `%d` (KEINE XML-Tags —
+  strukturelle Tags bleiben ungeshielded).
+
+### 4.3 RimWorldPlugin — Status (v0.22)
+
+- **11 Format-Hooks FERTIG:** Serialisierung (XML Entity-Escaping), Extraktion, Validierung
+  (Tag-Balancing), Placeholder-Regex, Prompt-Context (Sci-fi/Survival), Path-Rules,
+  File-Header (XML-Deklaration).
+- **13 Adapter-Hooks STUB:** Werfen `"not yet implemented"`. Fehlend: Mod-Scanning,
+  Launcher-Erkennung, _Info.txt-Äquivalent (About.xml).
+- **v0.23 Scope:** ~16h geschätzt für vollständige RimWorld-Integration.
+
+### 4.4 Neues Spiel hinzufügen
+
+1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren
+2. In `plugin-registry.js` registrieren
+3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
+4. Testen via `plugin-boundary-contract.js` (76+ dynamische Interface-Checks)
 
 ---
 
