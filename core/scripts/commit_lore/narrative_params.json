@@ -24,7 +24,22 @@
       "Thinker+neugierig": "Entdeckungsreise. 'Was bedeutet das?'",
       "Thinker+sarkastisch": "'Das ist... eine String-Heuristik.'",
       "Vannon+triumphierend": "Knappes Lob. 'Gut. Weiter.'",
-      "Vannon+erschöpft": "Noch kürzer. 'Fix it.'"
+      "Vannon+erschöpft": "Noch kürzer. 'Fix it.'",
+      "Squizzle+triumphierend": "Fall gelöst! Tatort gesichert, Beweiskette vollständig.",
+      "Squizzle+alarmiert": "Dringend: Neue Indizien deuten auf Kettenreaktion.",
+      "Squizzle+sarkastisch": "Wieder der gleiche Tatort. Wieder die gleiche Waffe.",
+      "Devin+neugierig": "Interessantes Pattern. Was sagt die Architektur dazu?",
+      "Devin+erschöpft": "Dritter Bruch in der gleichen Schicht. Irgendwann bricht alles.",
+      "Devin+trocken": "Nahtstelle identifiziert. Fix implementiert. Weiter.",
+      "Argos+triumphierend": "Hab ich doch gesagt. Und jetzt geht's.",
+      "Argos+müde-zufrieden": "Na endlich. Sauber gelöst.",
+      "Argos+sarkastisch": "Schon wieder das gleiche. Überrascht mich das? Nein.",
+      "Ghost+warm": "Die Chronik wird fortgeschrieben. Ein neues Kapitel.",
+      "Ghost+alarmiert": "Die Geschichte wiederhilt sich. Und diesmal ist es ernst.",
+      "Ghost+selbstironisch": "Der Chronist schreibt auf was alle schon wissen.",
+      "Spark+neugierig": "Moment — wieso eigentlich? Aha!",
+      "Spark+triumphierend": "Na toll. Jetzt verstehe ich warum. Super.",
+      "Spark+erschöpft": "So viel zu lernen. So viele Bugs."
     }
   },
   "decoding": {

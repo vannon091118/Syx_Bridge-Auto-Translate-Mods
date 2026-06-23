@@ -5,6 +5,22 @@
 
 ---
 
+## [NARRATIVE-EXPANSION] — 2026-06-24 — 5 neue Narrative (5-9) für Commit-Layer
+
+> **Composite:** `c37j100n8a3p5`
+> **Warum:** Jeder Commit erzählt eine Geschichte. 4 Charaktere reichten nicht — 5 neue mit einzigartigen Schreibstilen erweitern das narrative Spektrum.
+> **Dateien:** `character_sheets.json`, `rng.js`, `verify_commit_msg.js`, `writing_rules.json`, `narrative_params.json`
+
+- **Squizzle** (Forensiker, n=5): Detektiv-Logbuch. Rekonstruiert Kausalketten, zitiert p-IDs als Beweisstücke
+- **Devin** (Architekt, n=6): Technisches Review. Erkennt Patterns über Sessions, vergleicht mit Präzedenzfällen
+- **Argos** (Lokaler Techniker, n=7): Bodenständig, bissig. 'Hab ich doch gesagt.' Werkstatt-Ton
+- **Ghost** (Chronist, n=8): Feierlich, archivarisch. Zitiert Plotchain als historische Quellen
+- **Spark** (Der Neue, n=9): Neugierig, fragend. 'Moment — wieso eigentlich?' Naive Fragen zum Kern
+- rng.js poolSize 4→9, verify_commit_msg.js Regex erweitert, writing_rules.json erweitert
+- Mood-Kombinationen für alle 5 neuen Charaktere in narrative_params.json hinzugefügt
+
+---
+
 ## [ZWSP-REMOVAL] — 2026-06-24 — ZWSP-Watermark-Injektion entfernt
 
 > **Composite:** `c36j58n4a4p22`
