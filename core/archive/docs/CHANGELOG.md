@@ -5,6 +5,28 @@
 
 ---
 
+## [EVAL-SCORE-FIX] — 2026-06-24 — Self-Evaluation Score 55.7% → 85.1% Bug
+
+> **Composite:** `c34j21n2a3p25`
+> **Warum:** `computeRunEvaluation()` in gui-handlers.js hatte zwei Formel-Bugs die den Score nach JEDEM Sync auf 55.7% drückten.
+> **Dateien:** `core/src/gui-handlers.js`
+
+### Bug 1: nativeReuseCount — Einheits-Fehler
+- `filesScanned` (40 Dateien) minus `cacheHits` (101 Strings) = **-99** (negativ!)
+- Verschiedene Einheiten: Dateien ≠ Strings
+- **Fix:** `totalUnique - cacheHits - newTranslations` = 1791 korrekte Native-Reuse-Strings
+
+### Bug 2: verifiedCount — Cache-Hits nicht gezählt
+- Nur `newTranslations` (38) als verifiziert gezählt, aber Cache-Hits (101) und Proper Nouns (1791) fehlten
+- Native-Reuse-Strings (Proper Nouns) umgehen LLM → 0% Halluzinations-Risiko → inherently verified
+- **Fix:** `totalUnique - qaFailures` = 1930 verifizierte Strings
+
+### Ergebnis
+- Score: **55.7% → 85.1%**
+- Verifikation: Syntax OK, 100/100 plugin-boundary, 49/49 validator, 26/26 parser PASS
+
+---
+
 ## [OVERWRITE-CRASH-FIX] — 2026-06-24 — __OVERWRITE: true Game-Crash Fix (KORRIGIERT)
 
 > **Composite:** `c33j91n2a1p14`

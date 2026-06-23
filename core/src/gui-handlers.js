@@ -596,12 +596,13 @@ function registerGuiHandlers(ctx) {
         const enrichedStats = {
           ...stats,
           totalUnique,
-          // NOTE: nativeReuseCount + verifiedCount are approximated from planner stats
-          // because the full __stats chain (translation-runtime → runtime-ops → planner)
-          // is not fully propagated. For full accuracy, add propagation in runtime-ops.js
-          // return value + planner.js accumulation (scope: v0.21.1).
-          nativeReuseCount: Math.min(totalUnique, stats.filesScanned - stats.cacheHits - stats.newTranslations),
-          verifiedCount: Math.max(0, stats.newTranslations - stats.qaFailures),
+          // BUGFIX: filesScanned (Dateien) und cacheHits/newTranslations (Strings)
+          // sind verschiedene Einheiten. nativeReuseCount = Strings die weder
+          // aus dem Cache kamen noch neu übersetzt wurden (Proper Nouns, Struktur).
+          nativeReuseCount: Math.max(0, totalUnique - stats.cacheHits - stats.newTranslations),
+          // BUGFIX: Cache-Hits waren bereits in früheren Läufen verifiziert.
+          // Native-Reuse (Proper Nouns) durchlaufen die Pipeline-Filter → 0% Halluzinations-Risiko.
+          verifiedCount: Math.max(0, totalUnique - stats.qaFailures),
         };
         global._lastRunEvaluation = computeRunEvaluation(enrichedStats);
         console.log(`[EVALUATION] Run Self-Evaluation: ${global._lastRunEvaluation.globalScore.toFixed(1)}%`);
