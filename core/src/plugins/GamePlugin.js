@@ -123,6 +123,15 @@ class GamePlugin extends GameAdapter {
   }
 
   /**
+   * Translation credit string for metadata/credits.
+   *
+   * @returns {string} Translation credit
+   */
+  getTranslationCredit() {
+    return 'Translation by Vannon with SyxBridge';
+  }
+
+  /**
    * Game-specific file path rules for translation category classification.
    * Used by classifyPath() in text-core.js.
    *

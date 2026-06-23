@@ -20,6 +20,14 @@
 
 ---
 
+## [NATIVE-MODE-FIX-2] — 2026-06-24 — GamePlugin getTranslationCredit Base-Klasse + e2e Mock
+
+> **Composite:** `c32j44n4a3p18`
+> **Warum:** Native Mode crashte weil `gameAdapter.getTranslationCredit()` weder in der Base-Klasse GamePlugin.js noch im e2e_bug1 Mock definiert war.
+> **Dateien:** `core/src/plugins/GamePlugin.js`, `core/tests/e2e_bug1_native_mode.js`
+
+---
+
 ## [EXPORT-PIPELINE-FIX] — 2026-06-24 — countMatches Missing Export + Smoke-Test Assertions
 
 > **Task:** Export-Pipeline Killer Bug gefixt — Workshop-Output war komplett leer.

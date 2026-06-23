@@ -332,5 +332,83 @@
       "2899d72: Glue, Coffee, and Three Diagrams Walk Into a Repo"
     ],
     "model_id": "mimo-v2.5-pro"
+  },
+  {
+    "p_id": "p25",
+    "id": "plot-2026-06-23T22:47:06",
+    "timestamp": "2026-06-23 22:47:06",
+    "summary": "GamePlugin.js getTranslationCredit default in Base-Klasse hinzugefuegt. e2e_bug1_native_mode.js Mock angepasst. composite_chain Entry 31 nachgetragen. PREFLIGHT aktualisiert. package-lock Version bump nach sharp temp-install.",
+    "ref_to": "plot-2026-06-23T22:40:11",
+    "recent_commits": [
+      {
+        "hash": "8800888",
+        "subject": "[NARRATOR:Basher] [COMPOSITE:c31j96n2a3p9] [MODEL:mimo-v2.5-pro] [IMPULSE:Game-Crash durch SyxBridge verursacht 131 __OV",
+        "date": "2026-06-24 00:45:25 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "core/archive/docs/CHANGELOG.md",
+          "core/scripts/commit_lore/composite_chain.json",
+          "core/scripts/commit_lore/cross_references.json",
+          "core/scripts/commit_lore/plotchain.json",
+          "core/src/exporter.js"
+        ]
+      },
+      {
+        "hash": "a9ecfce",
+        "subject": "[NARRATOR:Basher] [COMPOSITE:c31j90n2a4p15] [MODEL:mimo-v2.5-pro] [IMPULSE:Commit Layer Scripts sind verpflichtend, die ",
+        "date": "2026-06-24 00:28:56 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "core/scripts/commit_lore/composite_chain.json",
+          "core/scripts/commit_lore/cross_references.json",
+          "core/scripts/commit_lore/plotchain.json"
+        ]
+      },
+      {
+        "hash": "581c677",
+        "subject": "chore: screenshots restructured + compressed + README references updated",
+        "date": "2026-06-24 00:21:28 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "README.md",
+          "screenshots/garthimi-mixed.jpg",
+          "screenshots/gui-idle.png",
+          "screenshots/gui-running.png",
+          "screenshots/onari-de.jpg",
+          "screenshots/vargen-de.jpg"
+        ]
+      },
+      {
+        "hash": "0ac334b",
+        "subject": "chore: SSOT-Sync archive/docs/CHANGELOG.md mit Root (EXPORT-PIPELINE-FIX + NATIVE-MODE-FIX)",
+        "date": "2026-06-24 00:14:15 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "core/archive/docs/CHANGELOG.md"
+        ]
+      },
+      {
+        "hash": "dce6e5f",
+        "subject": "fix: countMatches missing export kills export pipeline + smoke-test assertions",
+        "date": "2026-06-24 00:12:48 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "core/src/context-packets.js",
+          "core/tests/plugin-boundary-smoke.js"
+        ]
+      }
+    ],
+    "data_changes": [],
+    "causal_chain_summary": [
+      "8800888: [NARRATOR:Basher] [COMPOSITE:c31j96n2a3p9] [MODEL:mimo-v2.5-pro] [IMPULSE:Game-Crash durch SyxBridge verursacht 131 __OV",
+      "a9ecfce: [NARRATOR:Basher] [COMPOSITE:c31j90n2a4p15] [MODEL:mimo-v2.5-pro] [IMPULSE:Commit Layer Scripts sind verpflichtend, die ",
+      "581c677: chore: screenshots restructured + compressed + README references updated",
+      "0ac334b: chore: SSOT-Sync archive/docs/CHANGELOG.md mit Root (EXPORT-PIPELINE-FIX + NATIVE-MODE-FIX)",
+      "dce6e5f: fix: countMatches missing export kills export pipeline + smoke-test assertions"
+    ],
+    "model_id": "mimo-v2.5-pro"
   }
 ]

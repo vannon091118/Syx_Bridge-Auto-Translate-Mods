@@ -119,7 +119,8 @@ function makeDeps({ promptsInstance, get, set, configOverrides = {} }) {
       },
       formatMetadata: (obj) => Object.entries(obj).map(([k,v]) => `${k}: "${v}"`).join('\n'),
       getBackupDirectoryName: (name) => `.backup_${name}_ORIGINAL`,
-      applyPatchModifications: () => {}
+      applyPatchModifications: () => {},
+      getTranslationCredit: () => 'Translation by Vannon with SyxBridge'
     }
   };
 }
