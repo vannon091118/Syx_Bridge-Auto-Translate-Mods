@@ -9,6 +9,7 @@
 
 > **Task:** Repo-Startseite komplett überarbeitet — Use Cases statt Technik-Bla-Bla, persönlicher Ton, Mermaid-Diagramme
 > **Warum:** README war technisch korrekt aber kalt — kein User sieht sofort warum er das braucht
+> **Composite:** `c31j15n3a4p11`
 
 ### README.md — Komplette Neuschreibung
 
@@ -464,7 +465,7 @@ Vollständiger Repo-Audit im Squizzle-Modus: Doku-Scan, CHANGELOG-Check, Plan-Pr
 
 ### Fix
 - `isFreeModel()` von reiner Namens-Heuristik (`name.includes('/free')`) auf Provider-bewusste Erkennung umgestellt
-- **OpenRouter**: Dynamisch via `/api/v1/models` → `pricing.prompt === "0" && pricing.completion === "0"` (gecached)
+- **OpenRouter**: Dynamisch via `/api/v1/models` → `pricing.prompt === "0" && pricing.completion === "0"` (Code implementiert in config-runtime.js:299-314, **NICHT verifiziert** — kein API-Call ohne Key getestet, Anzahl Free-Modelle unbekannt)
 - **NVIDIA**: Statische Liste (3 Modelle, Quelle: build.nvidia.com/models, Stand Juni 2026)
 - **Groq**: Alle Modelle free-tier (API liefert kein Pricing, aber Free-Tier gibt Zugriff auf ALLE Modelle)
 - **Gemini**: Statische Liste (8 Modelle, Quelle: ai.google.dev/gemini-api/docs/models, Stand Juni 2026)
