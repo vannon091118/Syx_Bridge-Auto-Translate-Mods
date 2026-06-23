@@ -1,4 +1,4 @@
-const { getGateCounter } = require('./gate-counter');
+const { safeRecord } = require('./gate-counter');
 const { classifyPath } = require('./text-core');
 const { getDynamicScore } = require('./router');
 
@@ -128,7 +128,7 @@ function createDispatcher(options) {
     // ── Tier 3: Ambiguous risk -> stress test required ──────────────────────
     if (avgRisk >= 2.0 && avgRisk < 6.0) {
       console.log(`[DISPATCH] Ambiguous-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> Stress-Test erforderlich`);
-      try { getGateCounter().record('dispatcher:avgRisk_tier3', 'keep', { phase: 'resolveTranslateRoute' }); } catch (_) {}
+      safeRecord('dispatcher:avgRisk_tier3', 'keep', { phase: 'resolveTranslateRoute' });
       return { provider: preferred.provider, model: preferred.model, reason: 'ambiguous_risk', stressTestRequired: true };
     }
 
@@ -147,7 +147,7 @@ function createDispatcher(options) {
   }
 
   async function runRoute(stage, executor, items = [], routeOverride = null) {
-    try { getGateCounter().record('dispatcher:runRoute', 'enter', { stage: (stage == null ? 'unknown' : String(stage)), items: Array.isArray(items) ? items.length : 0 }); } catch (_) {}
+    safeRecord('dispatcher:runRoute', 'enter', { stage: (stage == null ? 'unknown' : String(stage)), items: Array.isArray(items) ? items.length : 0 });
     // Only use translate-specific routing (stress test, UI-string, low-risk)
     // for the translate stage. Polish/audit always use their configured provider.
     // DOPPEL-ROUTING-FIX: Wenn routeOverride übergeben wird (von resolveTranslateRoute
@@ -175,14 +175,14 @@ function createDispatcher(options) {
     let attemptIdx = 0;
     for (const route of routePlan) {
       try {
-        try { getGateCounter().record('dispatcher:runRoute_attempt', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), model: route && route.model == null ? '' : String(route.model), stage: stage == null ? 'unknown' : String(stage) }); } catch (_) {}
+        safeRecord('dispatcher:runRoute_attempt', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), model: route && route.model == null ? '' : String(route.model), stage: stage == null ? 'unknown' : String(stage) });
         console.log(`[DISPATCH] ${stage} -> ${route.provider} (${route.model || 'default'})`);
         const result = await executor(route);
         // GARBAGE-BATCH-FIX: Reset garbage counter on successful batch
         routingEngine.markBatchSuccess?.(route.provider);
         return result;
       } catch (e) {
-        try { getGateCounter().record('dispatcher:runRoute_attempt:fails', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), error: e && e.message ? String(e.message) : String(e) }); } catch (_) {}
+        safeRecord('dispatcher:runRoute_attempt:fails', String(attemptIdx), { provider: route && route.provider == null ? '' : String(route.provider), error: e && e.message ? String(e.message) : String(e) });
         if (e.message === 'ABORTED') throw e;
         routingEngine.handleFailure(route.provider, e);
         lastError = e;

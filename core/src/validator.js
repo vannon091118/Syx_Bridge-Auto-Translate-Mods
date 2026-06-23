@@ -1,5 +1,4 @@
-const { getGateCounter } = require('./gate-counter');
-function _gcRec(gateId, action, meta) { try { getGateCounter().record(gateId, action, meta || {}); } catch (_) {} }
+const { safeRecord } = require('./gate-counter');
 /**
  * Validates that placeholders like __VAR0__, {0}, or $VAR are preserved.
  */
@@ -81,20 +80,30 @@ function classifyStructureIssues(source, target) {
 /**
  * Validates the structural integrity of a translated file against its source.
  * Compares KEY count, line count, and quote balance. Does NOT verify content.
+ *
+ * Plugin-delegated (R-VAL): if validateFileSyntax._plugin is set, delegates to
+ * the plugin's format-specific validation. Falls back to SoS logic.
+ *
  * @returns {{ valid: boolean, issues: string[], keyCount: {source: number, target: number} }}
  */
 function validateFileSyntax(sourceContent, targetContent) {
-  _gcRec('validator:validateFileSyntax', 'enter');
+  safeRecord('validator:validateFileSyntax', 'enter');
+
+  // R-VAL: Plugin-delegated format-specific validation
+  const plugin = validateFileSyntax._plugin;
+  if (plugin && typeof plugin.validateFileSyntax === 'function') {
+    return plugin.validateFileSyntax(sourceContent, targetContent);
+  }
+
+  // Fallback: SoS KEY:-format logic (legacy)
   const issues = [];
   
-  // Count KEY: patterns (Songs of Syx format)
   const sourceKeys = (sourceContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
   const targetKeys = (targetContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
   if (sourceKeys !== targetKeys) {
     issues.push(`KEY_COUNT_MISMATCH: source=${sourceKeys} target=${targetKeys}`);
   }
 
-  // Count quoted strings
   const sourceQuotes = (sourceContent.match(/"/g) || []).length;
   const targetQuotes = (targetContent.match(/"/g) || []).length;
   if (sourceQuotes % 2 !== targetQuotes % 2) {
@@ -103,7 +112,6 @@ function validateFileSyntax(sourceContent, targetContent) {
     issues.push(`QUOTE_COUNT_DIFF: source=${sourceQuotes} target=${targetQuotes}`);
   }
 
-  // Line count sanity check (should be within 20% or ±5 lines)
   const sourceLines = sourceContent.split('\n').length;
   const targetLines = targetContent.split('\n').length;
   const lineDiff = Math.abs(sourceLines - targetLines);
@@ -243,7 +251,7 @@ function getQaScore(source, target) {
   const structuralIssues = checkStructure(source, target);
   score -= structuralIssues.length * 15;
 
-  try { _gcRec('validator:getQaScore', (typeof score === 'number' && score >= 60) ? 'keep' : 'discard', { score: typeof score === 'number' ? score : null }); } catch (_) {}
+  safeRecord('validator:getQaScore', (typeof score === 'number' && score >= 60) ? 'keep' : 'discard', { score: typeof score === 'number' ? score : null });
   return Math.max(0, score);
 }
 

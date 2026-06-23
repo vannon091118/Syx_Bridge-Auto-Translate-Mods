@@ -24,16 +24,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
-const ROOT = path.join(__dirname, '..', '..');
-const CORE = path.join(__dirname, '..');
-const RELEASE_ROOT = path.join(CORE, 'release');
-
-// ── Config ────────────────────────────────────────────────────────────
-const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt'];
-const MOD_ASSET_DIRS = ['V70', 'V71'];
-const CORE_RUNTIME_FILES = ['index.js', 'package.json', 'LICENSE'];
+const {
+  ROOT, CORE, RELEASE_ROOT,
+  ROOT_SOURCE_FILES, MOD_ASSET_DIRS, CORE_RUNTIME_FILES,
+  computeSha256, readFileSafe,
+  findLatestRelease, walkRelease, releaseToSource,
+} = require('./vendor-utils');
 
 // NOTE: This script is invoked as checkVendorDrift() by AGENTS.md § FIX-KATEGORIEN — 🟡 Spezialfall.
 //       Run before completing any cross-cutting change that touches Vendor/Release paths.
@@ -46,123 +43,12 @@ function addFinding(category, severity, sourcePath, releasePath, detail) {
   findings.push({ category, severity, sourcePath, releasePath, detail });
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────
-
-function computeSha256(filePath) {
-  const buf = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(buf).digest('hex');
-}
-
-function readFileSafe(filePath) {
-  try { return fs.readFileSync(filePath, 'utf-8'); } catch { return null; }
-}
-
-function findLatestRelease() {
-  if (!fs.existsSync(RELEASE_ROOT)) return null;
-
-  const entries = fs.readdirSync(RELEASE_ROOT, { withFileTypes: true });
-  const releases = entries
-    .filter(e => e.isDirectory() && e.name.startsWith('SyxBridge_v'))
-    .map(e => ({
-      name: e.name,
-      path: path.join(RELEASE_ROOT, e.name),
-      mtime: fs.statSync(path.join(RELEASE_ROOT, e.name)).mtimeMs
-    }))
-    .sort((a, b) => b.mtime - a.mtime);
-
-  return releases.length > 0 ? releases[0] : null;
-}
-
 function isReviewBase(releaseDir) {
   const manifest = JSON.parse(readFileSafe(path.join(releaseDir, '.build-manifest.json')) || '{}');
   return manifest.label === 'REVIEW BASE' || manifest.includes?.some(s => s.includes('all dev tools'));
 }
 
-// ── Source → Release Mapping ──────────────────────────────────────────
-
-/**
- * Maps a release file path back to its Live-Core source path.
- * Returns { sourcePath, isRuntimOnly } or null if no source counterpart exists.
- */
-function releaseToSource(releaseRelPath, releaseDir) {
-  // Root-level files
-  if (ROOT_SOURCE_FILES.includes(releaseRelPath)) {
-    return { sourcePath: path.join(ROOT, releaseRelPath), runtimeOnly: true };
-  }
-
-  // Mod asset dirs
-  for (const dir of MOD_ASSET_DIRS) {
-    if (releaseRelPath.startsWith(dir + '/') || releaseRelPath === dir) {
-      return { sourcePath: path.join(ROOT, releaseRelPath), runtimeOnly: true };
-    }
-  }
-
-  // core/ runtime files
-  for (const f of CORE_RUNTIME_FILES) {
-    const releasePath = 'core/' + f;
-    if (releaseRelPath === releasePath) {
-      return { sourcePath: path.join(CORE, f), runtimeOnly: true };
-    }
-  }
-
-  // core/src/ → core/src/
-  if (releaseRelPath.startsWith('core/src/')) {
-    const subPath = releaseRelPath.slice('core/src/'.length);
-    return { sourcePath: path.join(CORE, 'src', subPath), runtimeOnly: true };
-  }
-
-  // core/scripts/ → core/scripts/
-  if (releaseRelPath.startsWith('core/scripts/')) {
-    const subPath = releaseRelPath.slice('core/scripts/'.length);
-    return { sourcePath: path.join(CORE, 'scripts', subPath), runtimeOnly: true };
-  }
-
-  // core/archive/docs/ (review-base only)
-  if (releaseRelPath.startsWith('core/archive/docs/')) {
-    const subPath = releaseRelPath.slice('core/archive/docs/'.length);
-    return { sourcePath: path.join(CORE, 'archive', 'docs', subPath), runtimeOnly: false };
-  }
-
-  // core/archive/dbold/ (review-base only — .md files, not .db)
-  if (releaseRelPath.startsWith('core/archive/dbold/')) {
-    const subPath = releaseRelPath.slice('core/archive/dbold/'.length);
-    return { sourcePath: path.join(CORE, 'archive', 'dbold', subPath), runtimeOnly: false };
-  }
-
-  // core/tests/ (review-base only)
-  if (releaseRelPath.startsWith('core/tests/')) {
-    const subPath = releaseRelPath.slice('core/tests/'.length);
-    return { sourcePath: path.join(CORE, 'tests', subPath), runtimeOnly: false };
-  }
-
-  // Build artifact files
-  if (releaseRelPath === '.build-manifest.json') {
-    return null; // Never has a source counterpart
-  }
-  if (releaseRelPath === 'AGENTS.md') {
-    return { sourcePath: path.join(ROOT, 'AGENTS.md'), runtimeOnly: false };
-  }
-
-  return null;
-}
-
-// ── Walk release directory ────────────────────────────────────────────
-
-function walkRelease(dir, baseDir) {
-  const result = [];
-  if (!fs.existsSync(dir)) return result;
-
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      result.push(...walkRelease(fullPath, baseDir));
-    } else {
-      const relPath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
-      result.push({ relPath, absPath: fullPath });
-    }
-  }
-  return result;
-}
+// Source → Release Mapping, Walk release directory, Helpers — imported from vendor-utils.js
 
 // ── Main check ────────────────────────────────────────────────────────
 
@@ -209,7 +95,7 @@ function checkVendorDrift(targetRelease) {
   for (const rf of releaseFiles) {
     if (rf.relPath === '.build-manifest.json') continue;
 
-    const mapping = releaseToSource(rf.relPath, release.path);
+    const mapping = releaseToSource(rf.relPath);
 
     if (!mapping) {
       addFinding('ORPHANED', 'WARN', null, rf.relPath,

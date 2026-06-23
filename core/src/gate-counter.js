@@ -83,4 +83,16 @@ function getGateCounter(opts) {
 }
 function resetGateCounter() { _singleton = null; }
 
-module.exports = { createGateCounter: createGateCounter, getGateCounter: getGateCounter, resetGateCounter: resetGateCounter, RUNS_PATH: RUNS_PATH };
+/**
+ * safeRecord — fire-and-forget wrapper for getGateCounter().record().
+ * Eliminates the `try { getGateCounter().record(...) } catch (_) {}` pattern
+ * that was duplicated across dispatcher.js, exporter.js, and validator.js.
+ * @param {string} gateId
+ * @param {string} action
+ * @param {object} [meta]
+ */
+function safeRecord(gateId, action, meta) {
+  try { getGateCounter().record(gateId, action, meta || {}); } catch (_) {}
+}
+
+module.exports = { createGateCounter: createGateCounter, getGateCounter: getGateCounter, resetGateCounter: resetGateCounter, safeRecord: safeRecord, RUNS_PATH: RUNS_PATH };

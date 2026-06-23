@@ -158,13 +158,21 @@ function extractStrings(content) {
 /**
  * Shields complex placeholders and tags with simple tokens to protect them from LLMs.
  * Token format: __SHLD_N__ (instead of old [[N]]) to avoid collision with SoS [[...]] markers.
+ *
+ * Plugin-delegated (R-SHIELD): if shieldPlaceholders._plugin is set, uses the
+ * plugin's getPlaceholderRegex() for format-specific placeholder detection.
+ * Falls back to SoS regex.
+ *
  * @param {string} text 
  * @returns {Object} { shieldedText, map }
  */
 function shieldPlaceholders(text) {
   const map = new Map();
-  // Regex for Songs of Syx placeholders and tags
-  const regex = /<[^>]+>|__VAR\d+__|\{[^}]+\}|\$[A-Za-z0-9_]+|%[^%\s]+%/g;
+  // R-SHIELD: Plugin-delegated placeholder regex
+  const plugin = shieldPlaceholders._plugin;
+  const regex = (plugin && typeof plugin.getPlaceholderRegex === 'function')
+    ? plugin.getPlaceholderRegex()
+    : /<[^>]+>|__VAR\d+__|\{[^}]+\}|\$[A-Za-z0-9_]+|%[^%\s]+%/g;
     
   let index = 0;
   const shieldedText = text.replace(regex, (match) => {

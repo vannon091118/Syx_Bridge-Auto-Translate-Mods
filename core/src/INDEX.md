@@ -1,7 +1,7 @@
-# 📖 INDEX — core/src/ (30 Dateien, ~10.000 LOC)
+# 📖 INDEX — core/src/ (33 Dateien, ~10.050 LOC)
 
-> **Generiert:** 2026-06-20 | **Version:** v0.20.0-pre-release
-> **Zuletzt verifiziert:** 2026-06-20 (better-sqlite3-Migration + translateHttpError)
+> **Generiert:** 2026-06-20 | **Version:** v0.22.0
+> **Zuletzt verifiziert:** 2026-06-23 (S-007/S-008/S-009 Extraktionen)
 > **Zweck:** Referenzbuch — jeder Agent findet hier Funktionen + Zeilennummern OHNE den gesamten Code durchsuchen zu müssen.
 > **Format:** DATEI:ZEILE_START-ZEILE_ENDE: FUNKTION — Kurzbeschreibung
 > **CHANGELOG-Refs:** Jede Funktion die im CHANGELOG erwähnt wird, hat ein [CL:TAG] Verweis.
@@ -36,10 +36,13 @@
 | [runtime-ops.js](#runtime-opsjs) | 270 | 5 | Native Mode, Backup-Locks, Write-Pipeline |
 | [scanner.js](#scannerjs) | 48 | 3 | File-Klassifikation, Mod-Scanning |
 | [sos-runtime.js](#sos-runtimejs) | 60 | 4 | SoS-Config, Launcher-Sync |
-| [text-core.js](#text-corejs) | 530 | 17 | Prompt-Building, Validation, Placeholder |
+| [text-core.js](#text-corejs) | 402 | 14 | Validation, Placeholder, Extraction (S-009) |
+| [text-prompts.js](#text-promptsjs) | 251 | 4 | LLM Prompt-Building: Batch + Proofread (S-009) |
 | [translation-db.js](#translation-dbjs) | 419 | 11 | DB-Interface, Cache, Glossary, Save, Recovery |
 | [translation-quality.js](#translation-qualityjs) | 170 | 7 | Quality-Scoring, Native-Decision, Flagging |
-| [translation-runtime.js](#translation-runtimejs) | 1300 | 21 | Pipeline-Kern: Translate, Polish, Deep-Polish, Recovery |
+| [translation-dnt.js](#translation-dntjs) | 67 | 2 | DNT Double-Shielding (S-008) |
+| [translation-phases.js](#translation-phasesjs) | 704 | 7 | Pipeline-Phasen: Cache, Native, Translate, QA, Deep-Polish (S-007) |
+| [translation-runtime.js](#translation-runtimejs) | 667 | 8 | Pipeline-Kern: Translate, Polish, Batch-Routing (S-007+S-008) |
 | [ui.js](#uijs) | 65 | 3 | CLI-Menü, Mod-Auswahl, Bestätigung |
 | [validator.js](#validatorjs) | 240 | 8 | Marker-Validation, Syntax-Check, QA-Score |
 
@@ -513,8 +516,20 @@
 
 ---
 
-## text-core.js (530 LOC)
-*Prompt-Building, Placeholder-Shielding, Validation, Response-Parsing*
+## text-prompts.js (251 LOC)
+*LLM Prompt-Building für Translation und Proofread. Extrahiert aus text-core.js (S-009).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 24 | `normalizePromptItem(item)` | Prompt-Item normalisieren (string → object) |
+| 55 | `summarizeGrammarContext(grammarContext)` | Grammatik-Kontext kondensieren |
+| 78 | `buildBatchPrompt(items, targetLang, grammarContext, strictTerms)` | **Batch-Prompt bauen** mit Plugin-Kontext |
+| 131 | `buildProofreadPrompt(items, targetLang, grammarContext, strictTerms)` | **Proofread-Prompt bauen** mit Plugin-Kontext |
+
+---
+
+## text-core.js (402 LOC)
+*Placeholder-Shielding, Validation, Response-Parsing. Prompt-Building extrahiert nach text-prompts.js (S-009).*
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
@@ -528,8 +543,8 @@
 | 177-207 | `summarizeGrammarContext(grammarContext)` | Grammatik-Kontext |
 | 208-211 | `cleanTranslationArtifact(raw)` | Artefakte bereinigen |
 | 212-244 | `parseBatchResponse(text, options)` | **Batch-Response parsen** |
-| 245-319 | `buildBatchPrompt(items, targetLang, grammarContext, strictTerms)` | **Batch-Prompt bauen** |
-| 320-398 | `buildProofreadPrompt(items, targetLang, grammarContext, strictTerms)` | **Proofread-Prompt bauen** |
+| 245-319 | `buildBatchPrompt(items, targetLang, grammarContext, strictTerms)` | **Batch-Prompt bauen** → re-exportiert aus text-prompts.js |
+| 320-398 | `buildProofreadPrompt(items, targetLang, grammarContext, strictTerms)` | **Proofread-Prompt bauen** → re-exportiert aus text-prompts.js |
 | 399-415 | `placeholdersValid(...)` | Placeholder-Validierung |
 | 416-436 | `translationCriticalCheck(...)` | **Kritischer Check** |
 | 437-449 | `assessTranslationWarnings(...)` | Warning-Assessment |
@@ -600,29 +615,46 @@
 
 ---
 
-## translation-runtime.js (1300 LOC)
-*Pipeline-Kern: Translate, Polish, Deep-Polish, DNT-Shielding, 5-Phasen-Orchestrator, Review-Recovery*
+## translation-dnt.js (67 LOC)
+*DNT (Do Not Translate) Double-Shielding — isoliertes Utility-Modul. Extrahiert aus translation-runtime.js (S-008).*
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
-| 13-131 | `createTranslationRuntime(options)` | **Factory** — initialisiert gesamte Runtime |
-| 126-129 | `parseBatchResponseWithMaps(...)` | Response-Parsing mit Maps |
-| 130-142 | `buildBatchPromptForCurrentConfig(...)` | Config-aware Prompt |
-| 143-158 | `dntShieldEntries(...)` | **DNT-Shielding** für argos/google |
-| 159-179 | `dntRestoreTranslations(...)` | DNT-Restore |
-| 180-228 | `googleFreePreflight(...)` | Google-Free Stress-Test |
-| 229-497 | `translateBatch(...)` | **Haupt-Translation** — 3-Tier Accept/Reject |
-| 498-520 | `translateBatchWithRouting(...)` | Routing-aware Translation |
-| 521-623 | `fixGrammarBatch(...)` | **Grammar-Fix** (Polish) |
-| 624-658 | `flagPotentialErrors(...)` | Error-Flagging |
-| 659-666 | `getBestAvailableQualityModel()` | Bestes Quality-Modell |
-| 667-721 | `cachePhase(ctx)` | **Phase 1: Cache** — mit P2 critical_reject Loop-Breaker |
-| 722-768 | `nativePhase(ctx)` | **Phase 2: Native** |
-| 769-960 | `translatePhase(ctx)` | **Phase 3: Translate** — mit P2 critical_reject flagging + P3 skipReviewIncrement |
-| 933-1043 | `qaPhase(ctx)` | **Phase 4: QA** |
-| 1044-1067 | `deepPolishPhase(ctx)` | **Phase 5: Deep Polish** |
-| 1068-1140 | `ensureTranslations(texts, options)` | **ORCHESTRATOR** — 5 Phasen + P1 Recovery (once per session) |
-| 1110-1210 | `runDeepPolishBatch(...)` | Deep-Polish-Batch |
+| 29 | `dntShieldEntries(entries)` | __SHLD_N__ → _DNT_N_ Token-Ersatz für Argos/Google |
+| 47 | `dntRestoreTranslations(rawTranslations, dntMaps)` | _DNT_N_ → __SHLD_N__ Wiederherstellung nach Provider-Response |
+
+---
+
+## translation-phases.js (704 LOC)
+*Pipeline-Phasen für ensureTranslations mit Dependency-Injection. Extrahiert aus translation-runtime.js (S-007).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 17 | `createTranslationPhases(deps)` | **Factory** — erhält alle Dependencies via deps-Objekt |
+| 51 | `cachePhase(ctx)` | **Phase 1: Cache** — mit BU-034 Score<30 Refresh, P2 critical_reject Loop-Breaker |
+| 117 | `nativePhase(ctx)` | **Phase 2: Native** — Native-Reuse + Glossary |
+| 157 | `translatePhase(ctx)` | **Phase 3: Translate** — Batch-Translation mit Fail-Path |
+| 304 | `qaPhase(ctx)` | **Phase 4: QA** — Flag-Check + A/B Polish |
+| 426 | `deepPolishPhase(_ctx)` | **Phase 5: Deep Polish** — Auto-Trigger für pending entries |
+| 443 | `ensureTranslations(texts, options)` | **ORCHESTRATOR** — 5 Phasen + P1 Recovery |
+| 486 | `runDeepPolishBatch(targetLang, batchSize)` | Deep-Polish-Batch mit Retry |
+
+---
+
+## translation-runtime.js (667 LOC)
+*Pipeline-Kern: Translate, Polish, Batch-Routing, Stress-Test. Phasen und DNT ausgelagert (S-007+S-008).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 15 | `createTranslationRuntime(options)` | **Factory** — initialisiert Runtime + Phasen-Modul |
+| 113 | `parseBatchResponseWithMaps(...)` | Response-Parsing mit Maps |
+| 118 | `buildBatchPromptForCurrentConfig(...)` | Config-aware Prompt |
+| 130 | `googleFreePreflight(...)` | Google-Free Stress-Test mit DNT-Shielding |
+| 180 | `translateBatch(...)` | **Haupt-Translation** — 3-Tier Accept/Reject |
+| 406 | `translateBatchWithRouting(...)` | Routing-aware Translation |
+| 429 | `fixGrammarBatch(...)` | **Grammar-Fix** (Polish/Audit) |
+| 517 | `flagPotentialErrors(...)` | Error-Flagging via Audit-Provider |
+| 552 | `getBestAvailableQualityModel()` | Bestes Quality-Modell |
 
 **CHANGELOG-Ref (16× translateBatch, 12× ensureTranslations):**
 - [CL:0.15.0-alpha] Deep Polish A/B-Vergleich (fixGrammarBatch), Revision System (saveTranslation)

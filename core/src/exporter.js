@@ -1,4 +1,4 @@
-const { getGateCounter } = require('./gate-counter');
+const { safeRecord } = require('./gate-counter');
 const fs = require('fs').promises;
 const path = require('path');
 const { validateFileSyntax, validateFileMarkers } = require('./validator');
@@ -43,12 +43,12 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
 
   // ── Post-Write Syntax Validation: compare source/target file structure ──
   const syntaxResult = validateFileSyntax(content, newContent);
-  try { getGateCounter().record('exporter:validateFileSyntax', (syntaxResult && syntaxResult.valid) ? 'keep' : 'discard', { valid: !!(syntaxResult && syntaxResult.valid) }); } catch (_) {}
+  safeRecord('exporter:validateFileSyntax', (syntaxResult && syntaxResult.valid) ? 'keep' : 'discard', { valid: !!(syntaxResult && syntaxResult.valid) });
 
   // ── Marker-Level Integration Check ────────────────────────────────────
   const shieldResults = (translations && translations.__shieldResults) || null;
   const markerResult = validateFileMarkers(content, newContent, shieldResults);
-  try { getGateCounter().record('exporter:validateFileMarkers', markerResult.valid ? 'keep' : 'discard', { issues: markerResult.issues.length }); } catch (_) {}
+  safeRecord('exporter:validateFileMarkers', markerResult.valid ? 'keep' : 'discard', { issues: markerResult.issues.length });
   if (!markerResult.valid) {
     const fileName = path.basename(outputPath);
     const hasCriticalMarkerLoss = markerResult.issues.some(i => i.startsWith('MARKER_COUNT_MISMATCH') || i.startsWith('SHIELD_RESTORE_FAIL'));

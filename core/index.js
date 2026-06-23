@@ -33,8 +33,9 @@ const {
 } = require('./src/config-runtime');
 
 const { setupLogging, setDb, logPayload } = require('./src/logger');
-const { restorePlaceholders, getHash } = require('./src/extractor');
+const { restorePlaceholders, getHash, shieldPlaceholders } = require('./src/extractor');
 const parser = require('./src/parser');
+const { validateFileSyntax } = require('./src/validator');
 const {
   protectPlaceholders,
   isProperNoun,
@@ -94,6 +95,10 @@ let activePlugin = createPlugin(envFirst('GAME') || DEFAULT_GAME);
 let gameAdapter = activePlugin;
 // Wire plugin into buildBatchPrompt for game-specific LLM prompts
 buildBatchPrompt._plugin = activePlugin;
+// R-VAL: Wire plugin into validateFileSyntax for format-specific file validation
+validateFileSyntax._plugin = activePlugin;
+// R-SHIELD: Wire plugin into shieldPlaceholders for format-specific placeholder regex
+shieldPlaceholders._plugin = activePlugin;
 
 function envFirst(...names) {
   for (const name of names) {
@@ -769,7 +774,7 @@ async function runIntegrityAudit() {
 // ── Separater Polish-Lauf (--polish): NUR QA + Deep Polish für bestehende Übersetzungen ──
 async function runPolishOnly(planner) {
   printHeader('Deep Polish Only');
-  const mods = await dbAll("SELECT DISTINCT mod_id FROM files WHERE file_type IN ('TEXT_FILE','WIKI_TEXT')");
+  const mods = await dbAll('SELECT DISTINCT mod_id FROM files WHERE file_type IN (\'TEXT_FILE\',\'WIKI_TEXT\')');
   if (mods.length === 0) {
     console.log('[INFO] Keine Mods mit Text-Dateien in der DB.');
     return;
