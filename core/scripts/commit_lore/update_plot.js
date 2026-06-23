@@ -125,7 +125,8 @@ if (loreText) {
   }
 
   const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
-  const entry = `\n### [${timestamp}]\n${loreText}\n`;
+  const compositeTag = compositeId ? `[${pId}][COMPOSITE:${compositeId}]` : `[${pId}]`;
+  const entry = `\n### [${timestamp}] ${compositeTag}\n${loreText}\n`;
   fs.appendFileSync(plotPath, entry, 'utf8');
   console.log('  Dialog in PLOT_LORE.md angehaengt.');
 }

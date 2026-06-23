@@ -7,6 +7,16 @@
 
 ## [v0.23a-SESSION] — 2026-06-23 — P4 Tasks + Tiefenanalyse + VISION + AGENTS Restructurierung
 
+### CL-RNG PLOT_LORE Composite-Annotation: [pN] → [COMPOSITE:cXjXaXpX]
+> **Commit:** `<hash>` | **Composite:** `c1j53a3p5`
+
+- **annotate_plot_lore.js:** Neues CLI-Script — liest plotchain.json → baut p_id→composite Map, annotiert `###`-Header in PLOT_LORE.md mit `[COMPOSITE:cXjXaXpX]` wenn vorhanden. Nur Nodes mit Composite werden annotiert (kein [pre-composite]-Noise). Idempotent (überspringt bereits annotierte Header).
+- **update_plot.js:** `--lore` Modus schreibt jetzt `[p{N}][COMPOSITE:...]` in den PLOT_LORE-Header — konsistent mit dem Annotation-Format
+- **PLOT_LORE.md:** p18 und p19 Einträge erstellt + annotiert: `[p18][COMPOSITE:c1j94a5p12]` (Phase 2) und `[p19][COMPOSITE:c1j65a2p9]` (Phase 3)
+- **65 weitere Header** mit [p1]..[p20] bleiben unverändert (kein Composite vorhanden, kein Noise)
+- **Dateien:** `core/scripts/commit_lore/annotate_plot_lore.js` (NEU), `core/scripts/commit_lore/update_plot.js`, `core/archive/docs/PLOT_LORE.md`
+
+
 **Scope:** Letzte offene P4-Architektur-Tasks abgeschlossen, vollständige Codebase-Tiefenanalyse,
 VISION.md (Multi-Game Langzeit-Scope) erstellt, AGENTS.md komplett umstrukturiert.
 
