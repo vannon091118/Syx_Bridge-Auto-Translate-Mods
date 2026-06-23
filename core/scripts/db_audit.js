@@ -79,8 +79,8 @@ async function countEntries() {
 
   const total      = (await q1('SELECT COUNT(*) as c FROM translations')).c;
   const flagged    = (await q1('SELECT COUNT(*) as c FROM translations WHERE flagged=1')).c;
-  const stale      = (await q1("SELECT COUNT(*) as c FROM translations WHERE translation=source_text")).c;
-  const empty      = (await q1("SELECT COUNT(*) as c FROM translations WHERE translation IS NULL OR translation=''")).c;
+  const stale      = (await q1('SELECT COUNT(*) as c FROM translations WHERE translation=source_text')).c;
+  const empty      = (await q1('SELECT COUNT(*) as c FROM translations WHERE translation IS NULL OR translation=\'\'')).c;
   const stage0     = (await q1('SELECT COUNT(*) as c FROM translations WHERE audit_stage=0')).c;
   const stage1     = (await q1('SELECT COUNT(*) as c FROM translations WHERE audit_stage=1')).c;
   const stage2     = (await q1('SELECT COUNT(*) as c FROM translations WHERE audit_stage=2')).c;
@@ -210,12 +210,12 @@ async function analyzeFlags() {
   }
 
   // Shield leak detection (new __SHLD_ + legacy [[ ]] format)
-  const shieldLeaks = await q1("SELECT COUNT(*) as c FROM translations WHERE translation LIKE '%__SHLD_%' OR translation LIKE '%[[%' OR translation LIKE '%]]%'");
+  const shieldLeaks = await q1('SELECT COUNT(*) as c FROM translations WHERE translation LIKE \'%__SHLD_%\' OR translation LIKE \'%[[%\' OR translation LIKE \'%]]%\'');
   subSection('Shield-Leak Detection');
   console.log(`  Einträge mit unreplaced Tokens: ${shieldLeaks.c}`);
 
   // Java structural noise
-  const javaNoise = await q1("SELECT COUNT(*) as c FROM translations WHERE source_text LIKE '%view.sett%' OR source_text LIKE '%world.map%'");
+  const javaNoise = await q1('SELECT COUNT(*) as c FROM translations WHERE source_text LIKE \'%view.sett%\' OR source_text LIKE \'%world.map%\'');
   console.log(`  Java-Klassenpfade:       ${javaNoise.c}`);
 
   return {
@@ -420,7 +420,7 @@ async function diffSnapshots() {
   const metrics = [
     ['Einträge gesamt',     'SELECT COUNT(*) FROM translations'],
     ['Flagged',             'SELECT COUNT(*) FROM translations WHERE flagged=1'],
-    ['Stale',               "SELECT COUNT(*) FROM translations WHERE translation=source_text"],
+    ['Stale',               'SELECT COUNT(*) FROM translations WHERE translation=source_text'],
     ['Stage 0',             'SELECT COUNT(*) FROM translations WHERE audit_stage=0'],
     ['Stage 2',             'SELECT COUNT(*) FROM translations WHERE audit_stage=2'],
     ['Revisions',           'SELECT COUNT(*) FROM translation_revisions'],
@@ -492,7 +492,7 @@ async function diffWithCurrentDb(snapshotPath) {
   const metrics = [
     ['Einträge gesamt', 'SELECT COUNT(*) as c FROM translations'],
     ['Flagged', 'SELECT COUNT(*) as c FROM translations WHERE flagged=1'],
-    ['Stale', "SELECT COUNT(*) as c FROM translations WHERE translation=source_text"],
+    ['Stale', 'SELECT COUNT(*) as c FROM translations WHERE translation=source_text'],
     ['Stage 0', 'SELECT COUNT(*) as c FROM translations WHERE audit_stage=0'],
     ['Stage 2', 'SELECT COUNT(*) as c FROM translations WHERE audit_stage=2'],
   ];
@@ -557,7 +557,7 @@ async function trendAnalysis() {
         name: f.replace('translations_', '').replace('.db', ''),
         total: query('SELECT COUNT(*) FROM translations'),
         flagged: query('SELECT COUNT(*) FROM translations WHERE flagged=1'),
-        stale: query("SELECT COUNT(*) FROM translations WHERE translation=source_text"),
+        stale: query('SELECT COUNT(*) FROM translations WHERE translation=source_text'),
         stage0: query('SELECT COUNT(*) FROM translations WHERE audit_stage=0'),
         stage2: query('SELECT COUNT(*) FROM translations WHERE audit_stage=2'),
         revisions: query('SELECT COUNT(*) FROM translation_revisions'),
@@ -655,7 +655,7 @@ async function generateReport(stats, flags, parserResult, diffResult, trendData)
     for (const [reason, count] of Object.entries(flags.flaggedReasons)) {
       lines.push(`| ${reason} | ${count} |`);
     }
-    lines.push('', `| Parser-Metriken | Wert |`);
+    lines.push('', '| Parser-Metriken | Wert |');
     lines.push('|-----------------|------|');
     lines.push(`| Würde skippen (Parser) | ${flags.shouldBeSkipped} |`);
     lines.push(`| Stale ohne Flag | ${flags.staleNotFlagged} |`);

@@ -447,11 +447,11 @@ async function cleanupDB(dbRun) {
   try {
     // Delete all translations that have our unique [#N] suffix pattern
     await dbRun(
-      "DELETE FROM translations WHERE target_lang = 'German' AND source_text LIKE '%[#%]%'",
+      'DELETE FROM translations WHERE target_lang = \'German\' AND source_text LIKE \'%[#%]%\'',
       []
     );
     await dbRun(
-      "DELETE FROM translation_revisions WHERE target_lang = 'German' AND source_text LIKE '%[#%]%'",
+      'DELETE FROM translation_revisions WHERE target_lang = \'German\' AND source_text LIKE \'%[#%]%\'',
       []
     );
     console.log('  [OK]   Test entries cleaned from DB');

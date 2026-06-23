@@ -502,38 +502,40 @@ PHASE 4 — WIDERLEGUNGSPROBE DER LISTE
 # 📝 COMMIT {#commit}
 
 > **Wann:** IMMER nach Code-Änderungen. JEDER Commit MUSS via basher (RULE 3).
+> **Ton:** Arbeitsplatz. Beschreibe was gemacht wurde, warum, und was als nächstes kommt. Klar, präzise, menschlich.
 
 ## 📋 Regel-Checkliste
 
-| # | Regel | |
-|---|-------|---|
-| ☑ | **RULE 3:** Commit NUR via basher — Orchestrator darf NIEMALS selbst git ausführen | |
-| ☑ | **RULE 2:** Lore-Regeln aus writing_rules.json werden von verify_commit_msg.js enforced | |
-| ☑ | **[MODEL:<name>]:** Pflicht-Token — Modell das den Commit erstellt (Regex: `/\[MODEL:([a-z0-9._-]+)\]/i`) | |
-| ☑ | **[REF:<last-entry>]:** Pflicht-Token — Letzter plotchain-Node (verify_commit_msg prüft auf aktuellsten Node) | |
-| ☑ | **Sidejoke:** Via get_sidejoke.js — MUSS exakt aus dem Pool kommen | |
-| ☑ | **Wortzahl:** Mindestwortzahl aus writing_rules.json (aktuell 200 Wörter für STANDARD) | |
-| ☑ | **Files referenzieren:** Alle gestagten Files via basename/stem in der Message nennen | |
-| ☑ | **Kein Code-Commit ohne Doc-Commit:** CHANGELOG + Folder-INDEX müssen aktuell sein | |
-| ☑ | **Cross-Reference Enforcement:** Commit-Message muss mindestens einen Eintrag aus cross_references.json referenzieren | |
+| # | Regel | Pflicht? |
+|---|-------|----------|
+| ☑ | **RULE 3:** Commit NUR via basher — Orchestrator darf NIEMALS selbst git ausführen | **PFLICHT** |
+| ☑ | **[MODEL:<name>]:** Modell das den Commit erstellt (z.B. `[MODEL:mimo-v2.5-pro]`) | **PFLICHT** |
+| ☑ | **[IMPULSE:<text>]:** User-Auftrag der diesen Commit ausgelöst hat | **PFLICHT** |
+| ☑ | **Wortzahl:** STANDARD=150, TRIVIAL=30, LORE-ONLY=50 (aus writing_rules.json) | **PFLICHT** |
+| ☑ | **Files referenzieren:** Alle gestagten Files via basename/stem in der Message nennen | **PFLICHT** |
+| ☑ | **[REF:<id>]:** Frei wählbarer Plotchain-Node als Rückbezug | optional |
+| ☑ | **Sidejoke:** Aus dem Pool — organisch eingebettet, nicht erzwungen | optional |
+| ☑ | **Arc-Referenz:** Verweis auf aktuellen Versions-Arc | optional |
 
 ## Workflow
 
 ```
-1. Sidejoke via get_sidejoke.js holen
-2. Letzten plotchain-Node via plotchain.json ermitteln
-3. update_plot.js mit --model=<id> --ref=<last-node> ausführen → erzeugt Plot-Dialog
-4. Commit-Text schreiben (Sidejoke + substantieller Text + [MODEL:] + [REF:] + Files)
-5. core/.commit_msg.txt schreiben
-6. basher ausführen:
+1. Commit-Text schreiben:
+   - Kurze Beschreibung was gemacht wurde und warum
+   - [MODEL:<name>] einfügen
+   - [IMPULSE:<user-auftrag>] einfügen
+   - Alle geänderten Dateien im Text erwähnen
+2. core/.commit_msg.txt schreiben
+3. basher ausführen:
    git add <files>
    && node core/scripts/verify_commit_msg.js core/.commit_msg.txt
    && git commit -F core/.commit_msg.txt
    && git push
    && rm core/.commit_msg.txt
-7. NICHT nochmal update_plot.js aufrufen — wurde bereits in Schritt 3 erledigt
+4. Optional: update_plot.js mit --ref=<id> für Plot-Chain-Eintrag
 
-BEI BLOCK: verify_commit_msg.js exit 1 → Fehler lesen, .commit_msg.txt korrigieren, erneut basher
+BEI BLOCK: verify_commit_msg.js zeigt ALLE fehlenden Pflichtfelder auf einmal.
+Fehler lesen, .commit_msg.txt korrigieren, erneut basher.
 ```
 
 ---

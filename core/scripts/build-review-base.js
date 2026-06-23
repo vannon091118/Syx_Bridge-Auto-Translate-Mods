@@ -33,7 +33,7 @@ const zipName = `${stageName}.zip`;
 const zipPath = path.join(releaseDir, zipName);
 
 console.log('========================================');
-console.log(`   SYX BRIDGE — REVIEW BASE BUILD`);
+console.log('   SYX BRIDGE — REVIEW BASE BUILD');
 console.log(`   Version:    ${version}`);
 console.log(`   Label:      ${reviewBaseVersion}`);
 console.log('========================================');

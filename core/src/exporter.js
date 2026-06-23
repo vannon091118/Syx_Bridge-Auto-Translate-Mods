@@ -27,6 +27,51 @@ async function mergeRecursive(src, dest) {
 }
 
 /**
+ * Validates translated content and prepares it with plugin headers.
+ * C-001: Shared between writeTranslatedFile() and export_stage2.js.
+ * Returns { content, skip, issues }.
+ */
+function validateAndPrepareContent(content, newContent, translations, outputPath, plugin) {
+  const syntaxResult = validateFileSyntax(content, newContent);
+  const shieldResults = (translations && translations.__shieldResults) || null;
+  const markerResult = validateFileMarkers(content, newContent, shieldResults);
+  const allIssues = [...syntaxResult.issues, ...markerResult.issues];
+  const valid = syntaxResult.valid && markerResult.valid;
+
+  if (!markerResult.valid) {
+    const fileName = path.basename(outputPath);
+    const hasCriticalMarkerLoss = markerResult.issues.some(i => i.startsWith('MARKER_COUNT_MISMATCH') || i.startsWith('SHIELD_RESTORE_FAIL'));
+    if (hasCriticalMarkerLoss) {
+      console.error(`[CRITICAL-MARKER] "${fileName}": Marker-Struktur zerstoert (${markerResult.issues.join('; ')}). Write BLOCKIERT.`);
+      return { content: newContent, skip: true, issues: markerResult.issues };
+    }
+    console.warn(`[MARKER] Marker-Abweichung in "${fileName}": ${markerResult.issues.join('; ')}`);
+    console.warn(`[MARKER] Source: ${JSON.stringify(markerResult.summary.source)} Target: ${JSON.stringify(markerResult.summary.target)}`);
+  }
+
+  if (plugin && typeof plugin.getFileHeader === 'function') {
+    const header = plugin.getFileHeader(outputPath);
+    if (header && !newContent.startsWith(header.trim())) {
+      newContent = header + newContent;
+    }
+  }
+
+  const hasCriticalSyntaxError = syntaxResult.issues.some(i => i.startsWith('KEY_COUNT_MISMATCH'));
+  if (hasCriticalSyntaxError) {
+    const fileName = path.basename(outputPath);
+    console.error(`[CRITICAL-SYNTAX] "${fileName}": KEY-Struktur zerstoert (${syntaxResult.keyCount.source} -> ${syntaxResult.keyCount.target}). Write BLOCKIERT.`);
+    return { content: newContent, skip: true, issues: syntaxResult.issues };
+  }
+
+  if (!valid) {
+    const fileName = path.basename(outputPath);
+    console.warn(`[SYNTAX] Struktur-Abweichung in "${fileName}": ${allIssues.join('; ')}`);
+  }
+
+  return { content: newContent, skip: false, issues: allIssues };
+}
+
+/**
  * Writes a translated file to the output path.
  */
 async function writeTranslatedFile(fullPath, content, replacements, translations, outputPath, plugin) {
@@ -42,54 +87,13 @@ async function writeTranslatedFile(fullPath, content, replacements, translations
   // Der Header wird erst DANACH hinzugefügt (vor dem disk-write).
 
   // ── Post-Write Syntax Validation: compare source/target file structure ──
-  const syntaxResult = validateFileSyntax(content, newContent);
-  safeRecord('exporter:validateFileSyntax', (syntaxResult && syntaxResult.valid) ? 'keep' : 'discard', { valid: !!(syntaxResult && syntaxResult.valid) });
+  const results = validateAndPrepareContent(content, newContent, translations, outputPath, plugin);
+  newContent = results.content;
+  safeRecord('exporter:validateFileSyntax', !results.issues.some(i => i.startsWith('KEY_COUNT_MISMATCH')) ? 'keep' : 'discard', { valid: !results.skip });
+  safeRecord('exporter:validateFileMarkers', !results.issues.some(i => i.startsWith('MARKER_COUNT_MISMATCH') || i.startsWith('SHIELD_RESTORE_FAIL')) ? 'keep' : 'discard', { issues: results.issues.length });
 
-  // ── Marker-Level Integration Check ────────────────────────────────────
-  const shieldResults = (translations && translations.__shieldResults) || null;
-  const markerResult = validateFileMarkers(content, newContent, shieldResults);
-  safeRecord('exporter:validateFileMarkers', markerResult.valid ? 'keep' : 'discard', { issues: markerResult.issues.length });
-  if (!markerResult.valid) {
-    const fileName = path.basename(outputPath);
-    const hasCriticalMarkerLoss = markerResult.issues.some(i => i.startsWith('MARKER_COUNT_MISMATCH') || i.startsWith('SHIELD_RESTORE_FAIL'));
-
-    if (hasCriticalMarkerLoss) {
-      console.error(`[CRITICAL-MARKER] "${fileName}": Marker-Struktur zerstoert (${markerResult.issues.join('; ')}). Write BLOCKIERT.`);
-      return { skipped: true, reason: 'critical_marker_loss', issues: markerResult.issues };
-    }
-
-    console.warn(`[MARKER] Marker-Abweichung in "${fileName}": ${markerResult.issues.join('; ')}`);
-    console.warn(`[MARKER] Source: ${JSON.stringify(markerResult.summary.source)} Target: ${JSON.stringify(markerResult.summary.target)}`);
-  }
-
-  // ── Plugin-Header: Plugin entscheidet ob Header nötig sind ──────────
-  // Jedes Game-Plugin definiert eigenständig welche Headers es braucht.
-  // SoS: Patch-Modus (kein __OVERWRITE) für Übersetzungs-Mods.
-  // Andere Games könnten andere Headers brauchen.
-  if (plugin && typeof plugin.getFileHeader === 'function') {
-    const header = plugin.getFileHeader(outputPath);
-    if (header && !newContent.startsWith(header.trim())) {
-      newContent = header + newContent;
-    }
-  }
-
-
-  // CRITICAL GATE: KEY_COUNT_MISMATCH means file structure is destroyed.
-  // The game engine would crash or produce garbage. Block the write.
-  const hasCriticalSyntaxError = syntaxResult.issues.some(i => i.startsWith('KEY_COUNT_MISMATCH'));
-
-  if (hasCriticalSyntaxError) {
-    const fileName = path.basename(outputPath);
-    console.error(`[CRITICAL-SYNTAX] "${fileName}": KEY-Struktur zerstoert (${syntaxResult.keyCount.source} -> ${syntaxResult.keyCount.target}). Write BLOCKIERT. Original erhalten.`);
-    return { skipped: true, reason: 'critical_syntax_error', issues: syntaxResult.issues };
-  }
-
-  if (!syntaxResult.valid) {
-    // Non-kritische Issues (UNBALANCED_QUOTES, QUOTE_COUNT_DIFF, LINE_COUNT_DIFF):
-    // Warnen aber schreiben — Deep Polish wird spaeter nachbessern.
-    const fileName = path.basename(outputPath);
-    console.warn(`[SYNTAX] Struktur-Abweichung in "${fileName}": ${syntaxResult.issues.join('; ')}`);
-    console.warn(`[SYNTAX] Keys: source=${syntaxResult.keyCount.source} target=${syntaxResult.keyCount.target}`);
+  if (results.skip) {
+    return { skipped: true, reason: 'validation_failed', issues: results.issues };
   }
 
   await ensureDir(path.dirname(outputPath));
@@ -129,6 +133,7 @@ async function bundleBridgeCore(selectedPatches, patchRoot, coreModPath) {
 module.exports = {
   ensureDir,
   mergeRecursive,
+  validateAndPrepareContent,
   writeTranslatedFile,
   bundleBridgeCore
 };

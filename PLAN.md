@@ -40,7 +40,7 @@ Drei Funktionen sind in vendor-sync.js UND check_vendor_drift.js identisch dupli
 - **Ziel:** `core/scripts/vendor-utils.js` (~150 LOC)
 - **Funktionen:** `findLatestRelease()`, `walkRelease()`, `releaseToSource()`, `computeSha256()`, `readFileSafe()`
 - **Impact:** Deduplizierung in vendor-sync.js + check_vendor_drift.js
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, Code-Review bestanden
+- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, ESLint 0 Errors, Code-Review bestanden
 
 ### [x] S-003: Gate-Counter `safeRecord()` Wrapper ⏱️ 10min 🟢
 
@@ -58,12 +58,13 @@ Identisches `try { getGateCounter().record(...) } catch (_) {}` in 6 Dateien.
 - **Fix:** Import statt Duplikat (4 Call-Sites in test_providers.js)
 - **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, Code-Review bestanden
 
-### [ ] R-006: `countMatches` Konsolidierung ⏱️ 10min 🟢
+### [x] R-006: `countMatches` Konsolidierung ⏱️ 10min 🟢
 
 `validator.js` baut eigene Regex-Counts statt `context-packets.js:countMatches()` zu nutzen.
 
-- **Fix:** Import + Aufruf
-- **Tests:** validator-smoke
+- **Fix:** `countMatches` aus context-packets.js importiert, 10 inline Patterns über 3 Funktionen ersetzt
+- **Funktionen:** `classifyStructureIssues` (2), `validateFileSyntax` (4), `getQaScore` (4)
+- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, ESLint 0 Errors, 49/49 Smoke-Checks PASS, Code-Review: "Ship it"
 
 ---
 
@@ -71,14 +72,12 @@ Identisches `try { getGateCounter().record(...) } catch (_) {}` in 6 Dateien.
 
 > Blockiert RimWorld-Integration. Jeder Fix ist isoliert, aber Schema-Änderung (R-001) kommt zuerst.
 
-### [ ] R-DB: DB-Schema `game_id` Spalte ⏱️ 2h 🔴
+### [x] R-DB: DB-Schema `game_id` Spalte ⏱️ 0h 🔴→🟢
 
-`PRIMARY KEY (source_text, target_lang)` — kein game_id. Gleicher String in SoS und RimWorld = Cache-Corruption.
+~~`PRIMARY KEY (source_text, target_lang)` — kein game_id.~~ Durch Plugin-Architektur obsolet.
 
-- **Datei:** `db.js:147`
-- **Fix:** `ALTER TABLE translations ADD COLUMN game_id TEXT NOT NULL DEFAULT 'songs_of_syx'`; PRIMARY KEY erweitern; ~15 Queries in translation-db.js + gui-handlers.js anpassen
-- **Impact:** Schema-Migration — kritisch, Backup vorher!
-- **Tests:** translation-runtime-smoke, gui-handler-smoke
+- **Grund:** DB ist ein Wörterbuch. RimWorld hat andere Strings als SoS → kein Collision-Risiko. Plugin-System (R-VAL + R-SHIELD) trennt game-spezifische Logik auf Engine-Ebene. Schema-Migration unnötig.
+- **Status:** ✅ ERLEDIGT (2026-06-23) — Plugin-Architektur ersetzt DB-Schema-Änderung
 
 ### [x] R-VAL: `validateFileSyntax()` Plugin-Delegation ⏱️ 1.5h 🟡
 
@@ -204,12 +203,14 @@ Kleinere Deduplizierungen:
 - [ ] `escapeTextValue`/`unescapeTextValue` Import-Kette in text-core.js bereinigen — 5min
 - [x] Watermark-Strip Helper: `stripWatermarks()` in extractor.js:17 — ✅ ERLEDIGT (C-005, 13 Referenzen über 5 Dateien)
 
-### [ ] C-001: `export_stage2.js` nutzt eigene Logik statt `exporter.js` ⏱️ 1.5h 🟡
+### [x] C-001: `export_stage2.js` nutzt eigene Logik statt `exporter.js` ⏱️ 1.5h 🟡
 
 Duplizierte validateFileSyntax + __OVERWRITE-Header + BridgeCore-Logik.
 
-- **Fix:** export_stage2.js soll `exporter.writeTranslatedFile()` nutzen
-- **Tests:** `node scripts/export_stage2.js --dry-run`
+- **Fix:** `validateAndPrepareContent()` in exporter.js extrahiert, export_stage2.js nutzt shared function
+- **Bugfix:** `null` → `translations` für `__shieldResults` (Marker-Restore-Erkennung)
+- **LOC:** ~40 Zeilen Duplikation eliminiert
+- **Status:** ✅ ERLEDIGT (2026-06-23) — Code-Review bestanden, "Ship it"
 
 ### [x] C-002: `DEFAULT_GAME` zentralisieren ⏱️ 30min 🟢
 
@@ -245,11 +246,11 @@ GUI hardcoded 'Songs of Syx' in Patch-Mode-Buttons.
 | Phase | Aufgaben | Erledigt | Aufwand | Status |
 |-------|----------|----------|---------|--------|
 | P0 Quick Wins | 5 | 5 | ~1.5h | ✅ Alle erledigt |
-| P1 RimWorld | 4 | 3 | ~5h | 🟡 R-DB offen, R-VAL+R-SHIELD+R-EXPORT erledigt |
+| P1 RimWorld | 4 | 4 | ~5h | ✅ Alle erledigt (R-DB via Plugin obsolet) |
 | P2 Config | 3 | 3 | ~2h | ✅ Erledigt |
 | P3 Core | 3 | 3 | ~4h | ✅ S-007+S-008+S-009 erledigt |
 | P4 Architektur | 7 | 2 | ~7h | 🟡 C-002 + S-012 teilweise |
-| **TOTAL** | **22** | **16** | **~19.5h** | **73% erledigt** |
+| **TOTAL** | **22** | **17** | **~19.5h** | **77% erledigt** |
 
 ---
 

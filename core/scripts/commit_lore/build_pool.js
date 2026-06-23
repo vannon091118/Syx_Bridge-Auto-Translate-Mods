@@ -149,7 +149,7 @@ if (final.length < 10) {
 // ─── Backup vor Ueberschreiben ────────────────────────────────────────────
 if (fs.existsSync(poolPath)) {
   fs.copyFileSync(poolPath, backupPath);
-  console.log(`Backup: sidejoke_pool.backup.json gesichert.`);
+  console.log('Backup: sidejoke_pool.backup.json gesichert.');
 }
 fs.writeFileSync(poolPath, JSON.stringify(final, null, 2), 'utf8');
 console.log(`✓ sidejoke_pool.json: ${final.length} Einträge`);
