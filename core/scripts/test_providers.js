@@ -25,6 +25,7 @@ const axios = require('axios');
 
 const ROOT = path.join(__dirname, '..');
 const ENV_PATH = path.join(ROOT, '.env');
+const { maskSecret } = require('../src/config-keys');
 
 // ── CLI ─────────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -81,10 +82,7 @@ function parseKeys(raw) {
   });
 }
 
-function maskKey(key) {
-  if (!key || key.length < 8) return '(leer)';
-  return key.slice(0, 6) + '...' + key.slice(-4);
-}
+// maskKey → maskSecret (config-keys.js) — R-001 Deduplizierung
 
 // ── translateHttpError import ───────────────────────────────────────────────
 let translateHttpError;
@@ -208,7 +206,7 @@ async function main() {
       tests.push((async () => {
         const r = await testGroq(key);
         r.ms = Date.now() - started;
-        return { provider: 'Groq', keyIdx: i + 1, keyMask: maskKey(key), ...r };
+        return { provider: 'Groq', keyIdx: i + 1, keyMask: maskSecret(key), ...r };
       })());
     });
   } else {
@@ -223,7 +221,7 @@ async function main() {
       tests.push((async () => {
         const r = await testGemini(key);
         r.ms = Date.now() - started;
-        return { provider: 'Gemini', keyIdx: i + 1, keyMask: maskKey(key), ...r };
+        return { provider: 'Gemini', keyIdx: i + 1, keyMask: maskSecret(key), ...r };
       })());
     });
   } else {
@@ -238,7 +236,7 @@ async function main() {
       tests.push((async () => {
         const r = await testOpenRouter(key);
         r.ms = Date.now() - started;
-        return { provider: 'OpenRouter', keyIdx: i + 1, keyMask: maskKey(key), ...r };
+        return { provider: 'OpenRouter', keyIdx: i + 1, keyMask: maskSecret(key), ...r };
       })());
     });
   } else {
@@ -253,7 +251,7 @@ async function main() {
       tests.push((async () => {
         const r = await testNvidia(key);
         r.ms = Date.now() - started;
-        return { provider: 'NVIDIA', keyIdx: i + 1, keyMask: maskKey(key), ...r };
+        return { provider: 'NVIDIA', keyIdx: i + 1, keyMask: maskSecret(key), ...r };
       })());
     });
   } else {

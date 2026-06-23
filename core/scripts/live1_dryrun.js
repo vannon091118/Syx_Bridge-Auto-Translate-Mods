@@ -35,7 +35,7 @@ async function run() {
   console.log('\n📊 DB Schema & State\n');
   try {
     const db = dbManager.db();
-    const cols = db.prepare("PRAGMA table_info(translations)").all();
+    const cols = db.prepare('PRAGMA table_info(translations)').all();
     const colNames = cols.map(c => c.name);
     check('translations table exists', cols.length > 0, `${cols.length} columns`);
     check('Has source_text', colNames.includes('source_text'));
@@ -48,13 +48,13 @@ async function run() {
     const total = db.prepare('SELECT COUNT(*) as c FROM translations').get();
     const flagged = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flagged = 1').get();
     const stale = db.prepare('SELECT COUNT(*) as c FROM translations WHERE translation = source_text').get();
-    const pendingP = db.prepare("SELECT COUNT(*) as c FROM translations WHERE polish_status = 'pending'").get();
-    const failedP = db.prepare("SELECT COUNT(*) as c FROM translations WHERE polish_status = 'failed'").get();
+    const pendingP = db.prepare('SELECT COUNT(*) as c FROM translations WHERE polish_status = \'pending\'').get();
+    const failedP = db.prepare('SELECT COUNT(*) as c FROM translations WHERE polish_status = \'failed\'').get();
     const avgQ = db.prepare('SELECT ROUND(AVG(quality_score),1) as a FROM translations').get();
-    const shieldL = db.prepare("SELECT COUNT(*) as c FROM translations WHERE flag_reason = 'shield_leak'").get();
-    const critR = db.prepare("SELECT COUNT(*) as c FROM translations WHERE flag_reason = 'critical_reject'").get();
+    const shieldL = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flag_reason = \'shield_leak\'').get();
+    const critR = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flag_reason = \'critical_reject\'').get();
 
-    console.log(`\n  📈 DB Metrics:`);
+    console.log('\n  📈 DB Metrics:');
     console.log(`    Total entries:     ${total.c}`);
     console.log(`    Flagged:           ${flagged.c} (${(flagged.c/total.c*100).toFixed(1)}%)`);
     console.log(`    Stale (src=tgt):   ${stale.c}`);
@@ -140,7 +140,7 @@ async function run() {
   const wsPath = paths.MOD_ROOT;
   if (fs.existsSync(wsPath)) {
     const mods = fs.readdirSync(wsPath).filter(e => fs.statSync(path.join(wsPath, e)).isDirectory());
-    check(`Workshop mods available`, mods.length > 0, `${mods.length} mods`);
+    check('Workshop mods available', mods.length > 0, `${mods.length} mods`);
     console.log(`  Total mods in Workshop: ${mods.length}`);
   }
 
@@ -148,7 +148,7 @@ async function run() {
   const adPath = paths.GAME_MOD_ROOT;
   if (fs.existsSync(adPath)) {
     const localMods = fs.readdirSync(adPath).filter(e => fs.statSync(path.join(adPath, e)).isDirectory());
-    check(`AppData mods available`, localMods.length > 0, `${localMods.length} mods`);
+    check('AppData mods available', localMods.length > 0, `${localMods.length} mods`);
     console.log(`  Total mods in AppData: ${localMods.length}`);
   }
 

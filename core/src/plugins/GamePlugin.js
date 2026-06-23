@@ -137,6 +137,39 @@ class GamePlugin extends GameAdapter {
     return {};
   }
 
+  // ── File-Level Validation (Plugin-Delegated) ────────────────────────
+
+  /**
+   * Format-specific file syntax validation.
+   * Called by validator.js validateFileSyntax() when plugin is wired.
+   *
+   * SoS: counts KEY:-lines, quote balance, line count
+   * XML: counts tag balance, attribute count, line count
+   *
+   * @param {string} sourceContent - Original file content
+   * @param {string} targetContent - Translated file content
+   * @returns {{ valid: boolean, issues: string[], keyCount: {source: number, target: number} }}
+   */
+  validateFileSyntax(sourceContent, targetContent) {
+    // Default: no format-specific validation
+    return { valid: true, issues: [], keyCount: { source: 0, target: 0 } };
+  }
+
+  // ── Placeholder Regex (Plugin-Delegated) ────────────────────────────
+
+  /**
+   * Returns the regex pattern for identifying placeholders/tags that must
+   * survive translation unchanged.
+   *
+   * SoS: /<[^>]+>|__VAR\d+__|\{[^}]+\}|\$[A-Za-z0-9_]+|%[^%\s]+%/g
+   * XML: /<[^>]+>|\{[^}]+\}|\$[A-Za-z0-9_]+|%(?:\w+\$)?[dsf]/g (future)
+   *
+   * @returns {RegExp} Global regex for placeholder matching
+   */
+  getPlaceholderRegex() {
+    return /<[^>]+>|__VAR\d+__|\{[^}]+\}|\$[A-Za-z0-9_]+|%[^%\s]+%/g;
+  }
+
   // ── File Headers ────────────────────────────────────────────────────
 
   /**

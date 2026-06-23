@@ -8,12 +8,13 @@
  */
 
 const SongsOfSyxPlugin = require('./plugins/SongsOfSyxPlugin');
+const RimWorldPlugin = require('./plugins/RimWorldPlugin');
 
 const DEFAULT_GAME = 'songs_of_syx';
 
 const PLUGIN_REGISTRY = {
-  'songs_of_syx': SongsOfSyxPlugin
-  // 'rimworld': RimWorldPlugin   ← example future entry
+  'songs_of_syx': SongsOfSyxPlugin,
+  'rimworld': RimWorldPlugin
 };
 
 /**

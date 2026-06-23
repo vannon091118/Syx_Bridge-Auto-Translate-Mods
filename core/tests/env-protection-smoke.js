@@ -68,7 +68,7 @@ async function main() {
   // Empty key CAN be overwritten with empty value (no data loss)
   const emptyExisting = readEnvValue(testLines, 'EMPTY_KEY');
   const emptyWouldBlank = emptyExisting !== '' && ('' === '' || !'');
-  assert(!emptyWouldBlank, `EMPTY_KEY ist bereits leer → kein Schutz noetig (existing="" )`);
+  assert(!emptyWouldBlank, 'EMPTY_KEY ist bereits leer → kein Schutz noetig (existing="" )');
 
   // --- TEST 4: .env.backup exists after persistConfigToEnv ---
   console.log('');
@@ -76,15 +76,16 @@ async function main() {
 
   // Wir pruefen nur, ob das Backup-Pattern im Code existiert
   // (Integrationstest wuerde ENV_PATH patchen muessen)
-  const configSource = fs.readFileSync(path.join(__dirname, '..', 'src', 'config-runtime.js'), 'utf-8');
-  const hasCopyFileSync = configSource.includes('fs.copyFileSync(ENV_PATH, backupPath)');
-  const hasBackupPath = configSource.includes("ENV_PATH + '.backup'") || configSource.includes("ENV_PATH + '.backup'");
+  // S-005: Persistenz-Logik ist jetzt in config-persist.js extrahiert
+  const persistSource = fs.readFileSync(path.join(__dirname, '..', 'src', 'config-persist.js'), 'utf-8');
+  const hasCopyFileSync = persistSource.includes('fs.copyFileSync(ENV_PATH, backupPath)');
+  const hasBackupPath = persistSource.includes('ENV_PATH + \'.backup\'');
   assert(hasCopyFileSync, 'fs.copyFileSync(ENV_PATH, backupPath) existiert im Code');
-  assert(hasBackupPath, ".env.backup Path wird aus ENV_PATH + '.backup' gebildet");
+  assert(hasBackupPath, '.env.backup Path wird aus ENV_PATH + \'.backup\' gebildet');
 
   // Key-blanking check im Code
-  const hasKeyBlanking = configSource.includes('readEnvValue(lines, safeKey)') ||
-                         configSource.includes('preserved-non-empty');
+  const hasKeyBlanking = persistSource.includes('readEnvValue(lines, safeKey)') ||
+                         persistSource.includes('preserved-non-empty');
   assert(hasKeyBlanking, 'Key-blanking Protection existiert in persistSingleEnvVar');
 
   // --- RESULT ---

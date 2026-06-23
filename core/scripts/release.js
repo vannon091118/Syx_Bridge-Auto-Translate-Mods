@@ -14,14 +14,14 @@ const ZIP = path.join(CORE, 'release', `${STAGE}.zip`);
 try {
   const checkScript = path.join(__dirname, 'check_vendor_drift.js');
   if (fs.existsSync(checkScript)) {
-    console.log(`[RELEASE] Pre-Release Drift Check...`);
+    console.log('[RELEASE] Pre-Release Drift Check...');
     execSync(`node "${checkScript}"`, { cwd: CORE, stdio: 'pipe', timeout: 15000 });
-    console.log(`[RELEASE] ✓ Kein Drift — Release kann gebaut werden.`);
+    console.log('[RELEASE] ✓ Kein Drift — Release kann gebaut werden.');
   }
 } catch (e) {
-  console.warn(`[RELEASE] ⚠️  Vendor-Drift erkannt — Release trotzdem bauen?`);
-  console.warn(`[RELEASE]    → Führe "node scripts/check_vendor_drift.js" manuell aus.`);
-  console.warn(`[RELEASE]    → Drift-Details oben oder in der Konsole.`);
+  console.warn('[RELEASE] ⚠️  Vendor-Drift erkannt — Release trotzdem bauen?');
+  console.warn('[RELEASE]    → Führe "node scripts/check_vendor_drift.js" manuell aus.');
+  console.warn('[RELEASE]    → Drift-Details oben oder in der Konsole.');
   // Warn but don't block — release continues
 }
 

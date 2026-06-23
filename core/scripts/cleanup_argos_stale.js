@@ -118,7 +118,7 @@ async function main() {
   console.log(`Remaining argos source_reused: ${remaining.c || 0}`);
 
   const totalStale = await runWithTimeout(
-    db.get(`SELECT COUNT(*) AS stale FROM translations WHERE translation = source_text AND target_lang = 'German'`),
+    db.get('SELECT COUNT(*) AS stale FROM translations WHERE translation = source_text AND target_lang = \'German\''),
     QUERY_TIMEOUT_MS,
     'TOTAL_STALE'
   );

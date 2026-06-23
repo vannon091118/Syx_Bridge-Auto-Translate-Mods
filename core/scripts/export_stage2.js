@@ -42,7 +42,7 @@ const exporter = require('../src/exporter');
 const { applyTranslations } = require('../src/text-core');
 const { getHash } = require('../src/extractor');
 const { shouldTranslate } = require('../src/text-core');
-const { validateFileSyntax, validateFileMarkers } = require('../src/validator');
+const { validateAndPrepareContent } = require('../src/exporter');
 // Dynamic plugin loading via GAME env var (default: songs_of_syx)
 const { createPlugin, DEFAULT_GAME } = require('../src/plugin-registry');
 const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
@@ -203,35 +203,14 @@ async function exportMod(modDir, modName) {
       // Apply translations directly (no API, just DB Map)
       let newContent = applyTranslations(job.content, job.replacements, translations, plugin);
 
-      // ── Validierung (wie exporter.writeTranslatedFile) ──────────
-      const syntaxResult = validateFileSyntax(job.content, newContent);
-      const markerResult = validateFileMarkers(job.content, newContent, null);
-
-      const hasCriticalSyntax = syntaxResult.issues.some(i => i.startsWith('KEY_COUNT_MISMATCH'));
-      const hasCriticalMarker = markerResult.valid === false
-        && markerResult.issues.some(i => i.startsWith('MARKER_COUNT_MISMATCH') || i.startsWith('SHIELD_RESTORE_FAIL'));
-
-      if (hasCriticalSyntax) {
-        console.error(`[BLOCKED] ${job.relativePath}: KEY-Struktur zerstört (${syntaxResult.keyCount.source}→${syntaxResult.keyCount.target}). Überspringe.`);
+      // ── C-001: Shared validation via exporter.validateAndPrepareContent ──
+      // Fixes: null → translations für __shieldResults (Marker-Restore-Erkennung)
+      const results = validateAndPrepareContent(job.content, newContent, translations, outPath, plugin);
+      newContent = results.content;
+      if (results.skip) {
+        console.error(`[BLOCKED] ${job.relativePath}: Validation fehlgeschlagen (${results.issues.join('; ')}). Überspringe.`);
         skipped++;
         continue;
-      }
-      if (hasCriticalMarker) {
-        console.error(`[BLOCKED] ${job.relativePath}: Marker-Struktur zerstört (${markerResult.issues.join('; ')}). Überspringe.`);
-        skipped++;
-        continue;
-      }
-      if (!syntaxResult.valid || !markerResult.valid) {
-        const issues = [...(syntaxResult.valid ? [] : syntaxResult.issues), ...(markerResult.valid ? [] : markerResult.issues)];
-        console.warn(`[WARN] ${job.relativePath}: Struktur-Abweichung: ${issues.join('; ')}`);
-      }
-
-      // ── Plugin-Header: Plugin entscheidet ob Header nötig sind ────────
-      if (plugin && typeof plugin.getFileHeader === 'function') {
-        const header = plugin.getFileHeader(outPath);
-        if (header && !newContent.startsWith(header.trim())) {
-          newContent = header + newContent;
-        }
       }
 
       await fsp.writeFile(outPath, newContent, 'utf-8');

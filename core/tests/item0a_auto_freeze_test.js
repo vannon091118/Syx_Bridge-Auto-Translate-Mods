@@ -206,13 +206,13 @@ async function test4_concreteModelUntouched() {
   // ensurePrimaryModel should return early (valid model, not "auto")
   // PRIMARY_MODEL should stay unchanged
   if (config.PRIMARY_MODEL !== 'llama-3.3-70b-versatile') {
-    console.error(`  ❌ FEHLER: Konkretes PRIMARY_MODEL wurde verändert!`);
+    console.error('  ❌ FEHLER: Konkretes PRIMARY_MODEL wurde verändert!');
     return false;
   }
 
   // EFFECTIVE should NOT be set because ensurePrimaryModel skipped resolution
   if (config.EFFECTIVE_PRIMARY_MODEL !== undefined) {
-    console.warn(`  ⚠️ HINWEIS: EFFECTIVE_PRIMARY_MODEL wurde trotz konkretem Modell gesetzt (unerwartet aber harmlos)`);
+    console.warn('  ⚠️ HINWEIS: EFFECTIVE_PRIMARY_MODEL wurde trotz konkretem Modell gesetzt (unerwartet aber harmlos)');
   }
 
   console.log('  ✅ TEST 4 BESTANDEN: Konkretes Modell unverändert');
@@ -233,9 +233,9 @@ async function test4_concreteModelUntouched() {
 
   const passed = results.filter(Boolean).length;
   const total = results.length;
-  console.log(`\n═══════════════════════════════════════════`);
+  console.log('\n═══════════════════════════════════════════');
   console.log(`  ERGEBNIS: ${passed}/${total} Tests bestanden`);
-  console.log(`═══════════════════════════════════════════`);
+  console.log('═══════════════════════════════════════════');
 
   process.exit(passed === total ? 0 : 1);
 })();

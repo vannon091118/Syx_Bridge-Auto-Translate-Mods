@@ -13,7 +13,6 @@ core/patches/
 core/translations.db*
 debug_payloads.txt
 server_output.txt
-VannonDoNotPlayGames.js
 # Personal test scripts (Vannon)
 **/*_test_run.js
 **/*vannon*
@@ -52,5 +51,17 @@ nul
 core/.commit_msg*.txt
 
 # Root Docs (Proxy-Kopien, nicht auf GitHub)
-WORKFLOW.md
 LLM-AGENTS-EntryPoint.md
+VISION.md
+
+# Test-Mods (nur lokal, nicht auf GitHub)
+test_mods/
+
+# Release-ZIPs (nur lokal)
+SyxBridge_*.zip
+
+# Backup-Dateien
+*.backup.json
+
+# Temp/Test-Files
+core/.test_commit_bad.txt

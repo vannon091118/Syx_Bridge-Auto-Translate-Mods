@@ -4,194 +4,41 @@ const axios = require('axios');
 const prompts = require('prompts');
 const { exec, execSync } = require('child_process');
 
-// NOTE: No hardcoded vendor model names here.
-// The router always prefers 'auto' (runtime discovery) or the user-specified model.
-// For OpenRouter we default to the free tier so there is always a zero-cost fallback.
-const OPENROUTER_FREE_MODEL = 'openrouter/free';
-// F3 Fix: gemma-7b-it (deprecated Dec 2024) + llama3-8b-8192 (decommissioned) ersetzt
-// durch aktuell von Groq gelistete Modelle (Stand 2026-06-17).
-const GROQ_FALLBACK_MODELS   = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'gemma2-9b-it'];
-const OLLAMA_FALLBACK_MODELS = ['llama3.2', 'llama3.1', 'mistral', 'gemma3', 'gemma4', 'phi4'];
-const OLLAMA_DEFAULT_URL     = 'http://localhost:11434';
-const PLAYER2_DEFAULT_URL    = 'http://localhost:4315/v1';
-const FCM_DEFAULT_URL       = 'http://localhost:19280/v1';  // NVIDIA-Fallbacks aktualisiert 2026-06-21: nemotron-mini deaktiviert (deprecated),
-  // 49b durch 70b ersetzt (aktueller Catalog-Stand). Siehe build.nvidia.com/models.
-  const NVIDIA_FALLBACK_MODELS  = ['meta/llama-3.3-70b-instruct', 'meta/llama-3.1-8b-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct'];
+// ── S-006: Key-Management & Utilities aus config-keys.js ────────────
+const {
+  ENV_PATH, OLLAMA_DEFAULT_URL, PLAYER2_DEFAULT_URL, FCM_DEFAULT_URL,
+  firstDefined, parseEnvFlag, parseDryRunFlag, isDryRun, resetDryRunCache,
+  getGateCounterOpts, parseKeys, maskSecret,
+} = require('./config-keys');
 
-const MODEL_BLACKLIST = ['whisper', 'stt', 'tts', 'embedding', 'bert', 'vision', 'guard', 'moderation', 'rerank'];
-// P0-4: ZWEI Caches statt einem.
-// _metricsCache: { "provider:model": { avg_quality, total_calls } }  — AGGREGIERT (für rankModel/filterLLMs)
-// _metricsCacheByTask: { "provider:model:task_type": { avg_quality, total_calls } }  — PER-TASK (für getModelMetrics/getDynamicScore)
-// Vor P0-4 wurde task_type verworfen → Modell bekam denselben Score für Translate/Polish/Audit
-// obwohl es z.B. bei Translation 85/100 aber bei Polish 20/100 erreichte.
-// Jetzt: getModelMetrics() liefert task_type-spezifische Werte.
-let _metricsCache = null;
-let _metricsCacheByTask = null;
+// ── S-004: Model-Metriken & Filtering aus config-discovery.js ───────
+const {
+  OPENROUTER_FREE_MODEL, GROQ_FALLBACK_MODELS, OLLAMA_FALLBACK_MODELS,
+  NVIDIA_FALLBACK_MODELS, MODEL_BLACKLIST,
+  setMetricsCache, isUsableTextModel, rankModel, getModelMetrics,
+  filterLLMs, getDefaultModelForProvider,
+} = require('./config-discovery');
 
-/**
- * Setzt BEIDE Metrik-Caches.
- * @param {Object} snapshot — Output von db.getMetricsSnapshot():
- *   { "provider:model:task_type": { avg_quality, success_count, fail_count, total_calls } }
- */
-function setMetricsCache(snapshot) {
-  if (!snapshot || Object.keys(snapshot).length === 0) {
-    _metricsCache = null;
-    _metricsCacheByTask = null;
-    return;
-  }
+// ── S-005: .env-Persistenz aus config-persist.js (Factory-Pattern) ──
+const { createConfigPersist } = require('./config-persist');
 
-  // Cache 1: PER-TASK (ungefiltert, task_type bleibt erhalten)
-  _metricsCacheByTask = {};
-  for (const [key, val] of Object.entries(snapshot)) {
-    if (val.total_calls > 0) {
-      _metricsCacheByTask[key] = {
-        avg_quality: val.avg_quality || 0,
-        total_calls: val.total_calls || 0
-      };
-    }
-  }
-
-  // Cache 2: AGGREGIERT pro Provider+Model (für rankModel/filterLLMs)
-  const agg = {};  // { "provider:model": { weightedSum, totalCalls } }
-  for (const [key, val] of Object.entries(snapshot)) {
-    const lastColon = key.lastIndexOf(':');
-    const providerModel = key.substring(0, lastColon);  // "provider:model"
-    if (!agg[providerModel]) agg[providerModel] = { weightedSum: 0, totalCalls: 0 };
-    agg[providerModel].weightedSum += (val.avg_quality || 0) * (val.total_calls || 0);
-    agg[providerModel].totalCalls += (val.total_calls || 0);
-  }
-  _metricsCache = {};
-  for (const [pm, a] of Object.entries(agg)) {
-    _metricsCache[pm] = a.totalCalls > 0
-      ? { avg_quality: Math.round(a.weightedSum / a.totalCalls), total_calls: a.totalCalls }
-      : { avg_quality: 0, total_calls: 0 };
-  }
-}
-
-// P5 Fix: Resolve .env path relative to project root (core/), not process.cwd().
-// When the bridge is started from a parent directory, process.cwd() points elsewhere
-// and persistSingleEnvVar/persistConfigToEnv would write to the wrong location.
-const ENV_PATH = path.join(__dirname, '..', '.env');
-
-function firstDefined(...values) {
-  for (const value of values) {
-    if (value !== undefined && value !== null && value !== '') return value;
-  }
-  return '';
-}
-
-function parseDryRunFlag(value) { return parseEnvFlag(value, false); }
-function isDryRun() {
-  if (_dryRunCache === null) {
-    _dryRunCache = parseDryRunFlag(process.env.SYXBRIDGE_DRY_RUN);
-  }
-  return _dryRunCache;
-}
-function resetDryRunCache() { _dryRunCache = null; }
-let _dryRunCache = null;
-function getGateCounterOpts(logger) { return { logger: logger || null, dryRun: isDryRun(), source: 'config-runtime' }; }
-function parseEnvFlag(value, defaultValue = false) {
-  if (value === undefined || value === null || value === '') return defaultValue;
-  if (typeof value === 'boolean') return value;
-  const normalized = String(value).trim().toLowerCase();
-  if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
-  if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
-  return defaultValue;
-}
-
-function parseKeys(val) {
-  if (!val) return [];
-  if (Array.isArray(val)) return val;
-  return val.split(',').map(k => k.trim()).filter(Boolean);
-}
-
-function isUsableTextModel(model) {
-  const name = String(model || '').toLowerCase();
-  if (!name || name === 'auto') return false;
-  return !MODEL_BLACKLIST.some(term => name.includes(term));
-}
-
-/**
- * Item 3/9: DB-gestütztes Model-Ranking.
- * Aggregiert avg_quality aus model_task_metrics über ALLE task_types
- * für das gegebene Provider+Model-Paar.
- *
- * @param {string} model — Modellname (z.B. 'llama-3.1-8b-instant')
- * @param {string} [provider='openrouter'] — Provider-Name. Default 'openrouter'
- *   weil filterLLMs() hauptsächlich OpenRouter-Modelle sortiert.
- * @returns {number} 0-100 (avg_quality) oder 0 wenn keine Metriken vorhanden.
- */
-function rankModel(model, provider = 'openrouter') {
-  if (!_metricsCache || !model) return 0;
-  const key = `${provider}:${model}`;
-  const entry = _metricsCache[key];
-  return entry ? entry.avg_quality : 0;
-}
-
-/**
- * P0-4: Batch-Größen — liefert avg_quality + total_calls für Erfolgsraten-Schätzung.
- * Genutzt von getBatchProfile() in client-factory.js als successMult-Faktor.
- *
- * Nutzt jetzt _metricsCacheByTask (task_type-bewusst) statt _metricsCache (aggregiert).
- * Fallback auf aggregierten Cache wenn kein per-task-Eintrag existiert.
- *
- * @param {string} provider — Provider-Name (z.B. 'groq')
- * @param {string} model — Modellname (z.B. 'llama-3.1-8b-instant')
- * @param {string} [taskType='translate'] — Task-Typ WIRD JETZT GENUTZT
- * @returns {{ avg_quality: number, total_calls: number }|null} Metriken oder null.
- */
-function getModelMetrics(provider, model, taskType = 'translate') {
-  if (!provider || !model) return null;
-  // 1. Per-Task-Cache (präzise)
-  if (_metricsCacheByTask) {
-    const taskKey = `${provider}:${model}:${taskType}`;
-    const taskEntry = _metricsCacheByTask[taskKey];
-    if (taskEntry && taskEntry.total_calls > 0) {
-      return { avg_quality: taskEntry.avg_quality, total_calls: taskEntry.total_calls, task_type: taskType };
-    }
-  }
-  // 2. Fallback: aggregierter Cache (wenn keine per-task-Daten)
-  if (_metricsCache) {
-    const key = `${provider}:${model}`;
-    const entry = _metricsCache[key];
-    if (entry && entry.total_calls > 0) {
-      return { avg_quality: entry.avg_quality, total_calls: entry.total_calls, task_type: taskType };
-    }
-  }
-  return null;
-}
-
-function filterLLMs(models, freeOnly = false) {
-  // Item 0b: freeOnly-Filter nutzt jetzt die Provider-bewusste isFreeModel()
-  // statt der alten Namens-Heuristik (name.endsWith(':free') || name === 'openrouter/free')
-  return [...new Set([...(freeOnly ? [OPENROUTER_FREE_MODEL] : []), ...(models || [])])]
-    .filter(isUsableTextModel)
-    .filter(model => !freeOnly || require('./router').isFreeModel('openrouter', model))
-    .sort((a, b) => rankModel(b, 'openrouter') - rankModel(a, 'openrouter') || String(a).localeCompare(String(b)));
-}
-
+// ── Router-Imports (kein Zirkular-Import: router.js importiert NICHT von hier) ──
 const { translateHttpError, PROVIDER_REGISTRY } = require('./router');
 const { setOpenRouterFreeModels, setNvidiaFreeModels, setGeminiFreeModels } = require('./router');
 const { DEFAULT_GAME } = require('./plugin-registry');
 
-function getDefaultModelForProvider(provider) {
-  const reg = PROVIDER_REGISTRY[provider];
-  return reg ? reg.defaultModel : 'auto';
-}
+// ── S-005: Persistenz-Funktionen mit DEFAULT_GAME injiziert ─────────
+const { persistConfigToEnv, persistSingleEnvVar, readEnvValue } = createConfigPersist(DEFAULT_GAME);
 
-function maskSecret(value) {
-  if (!value) return '(kein Key)';
-  if (value.length <= 12) return `${value.slice(0, 3)}...${value.slice(-2)}`;
-  return `${value.slice(0, 6)}...${value.slice(-4)}`;
-}
+// ─────────────────────────────────────────────────────────────────────
+// ConfigRuntime-Klasse (bleibt hier — stark an this.config gebunden)
+// ─────────────────────────────────────────────────────────────────────
 
 class ConfigRuntime {
   constructor(config) {
     this.config = config;
     this.providerHealth = {};
-    // Dynamically populated from key config; no provider hard-wired here.
     this.providerStats = {};
-    // Per-key cooldown tracking: { provider: { keyIndex: cooldownUntilMs } }
     this.keyCooldowns = {};
   }
 
@@ -210,12 +57,9 @@ class ConfigRuntime {
   getProviderStatus() {
     const routerStats = this.router ? this.router.getAllProviderStatuses() : {};
     const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'player2', 'nvidia', 'fcm'];
-
-    // Also include any providers that have keys configured
     const configProviders = Object.keys(this.config)
       .filter(k => k.endsWith('_KEYS') && Array.isArray(this.config[k]) && this.config[k].length > 0)
       .map(k => k.replace('_KEYS', '').toLowerCase());
-
     const allProviders = [...new Set([...knownProviders, ...configProviders])];
 
     for (const provider of allProviders) {
@@ -231,7 +75,6 @@ class ConfigRuntime {
         }
       }
     }
-    // Strip internal Sets before returning to GUI (JSON-safe)
     const clean = {};
     for (const [prov, stats] of Object.entries(this.providerStats)) {
       clean[prov] = { valid: stats.valid || 0, invalid: stats.invalid || 0, total: stats.total || 0, rateLimited: !!stats.rateLimited, last429: stats.last429 || null, flaggedForReview: !!stats.flaggedForReview, lastErrorStatus: stats.lastErrorStatus || 0 };
@@ -260,9 +103,6 @@ class ConfigRuntime {
     }
   }
 
-  /**
-   * Mark a specific key as rate-limited so rotateApiKey() skips it.
-   */
   markKeyCooldown(provider, keyIndex, cooldownMs = 30000) {
     if (!this.keyCooldowns[provider]) this.keyCooldowns[provider] = {};
     this.keyCooldowns[provider][keyIndex] = Date.now() + cooldownMs;
@@ -271,17 +111,12 @@ class ConfigRuntime {
   rotateApiKey(provider) {
     const keys = this.config[`${provider.toUpperCase()}_KEYS`];
     if (!keys || keys.length <= 1) return false;
-
     const now = Date.now();
     const cooldowns = this.keyCooldowns[provider] || {};
     const currentIndex = this.config.KEY_INDICES[provider] || 0;
-
-    // Clean up expired cooldown entries
     for (const idx of Object.keys(cooldowns)) {
       if (cooldowns[idx] <= now) delete cooldowns[idx];
     }
-
-    // Try each key starting from the next one, skip keys with active cooldown
     for (let attempt = 1; attempt < keys.length; attempt++) {
       const candidateIndex = (currentIndex + attempt) % keys.length;
       const cooldownUntil = cooldowns[candidateIndex] || 0;
@@ -293,8 +128,6 @@ class ConfigRuntime {
       console.log(`[AUTH] Key-Rotation fuer ${provider}: Wechsle zu Key #${candidateIndex + 1}/${keys.length}`);
       return true;
     }
-
-    // All keys in cooldown — rotate anyway to the next key (best effort)
     const fallbackIndex = (currentIndex + 1) % keys.length;
     this.config.KEY_INDICES[provider] = fallbackIndex;
     console.warn(`[AUTH] Alle Keys fuer ${provider} im Cooldown. Fallback auf Key #${fallbackIndex + 1}/${keys.length}`);
@@ -340,12 +173,9 @@ class ConfigRuntime {
         .filter(m => m.supportedGenerationMethods.includes('generateContent'))
         .map(m => m.name.replace('models/', ''))
         .sort();
-      // P0-6: Gemini API liefert KEIN Free-Tier-Flag → Cache NICHT auto-befüllen.
-      // Die statische GEMINI_FREE_MODELS-Liste bleibt der Fallback.
-      // setGeminiFreeModels() existiert für manuelle Updates via Docs-Recherche.
       return models;
     } catch (e) {
-      return []; // Let router fall through to next provider
+      return [];
     }
   }
 
@@ -392,9 +222,6 @@ class ConfigRuntime {
         });
         const models = (response.data.data || []).map(m => m.id).filter(isUsableTextModel).sort();
         if (models.length > 0) {
-          // P0-6: NVIDIA-API-Keys haben NUR Zugriff auf Free-Tier-Modelle.
-          // Alle via /v1/models zurückgegebenen Modelle sind implizit free-tier.
-          // Cache wird hier befüllt — isFreeModel() nutzt ihn vor statischer Liste.
           setNvidiaFreeModels(models);
           console.log(`[FREE-CACHE] ${models.length} NVIDIA-Modelle via /v1/models erkannt (alle implizit Free-Tier).`);
           return models;
@@ -406,15 +233,7 @@ class ConfigRuntime {
     return [...NVIDIA_FALLBACK_MODELS];
   }
 
-
-  /**
-   * Pull live model rankings from free-coding-models (FCM).
-   * Strategy 1: Try FCM HTTP daemon API on port 19280 (fastest, no subprocess).
-   * Strategy 2: Fall back to CLI subprocess with --json --best.
-   * Strategy 3: Return [] if FCM is not installed or not running.
-   */
   async fetchFcmModelRankings() {
-    // Strategy 1: FCM Daemon HTTP API (port 19280)
     try {
       const response = await axios.get('http://localhost:19280/api/models', { timeout: 3000 });
       const data = response.data;
@@ -425,7 +244,6 @@ class ConfigRuntime {
     } catch (e) {
       // Daemon not running — try CLI
     }
-    // Strategy 2: CLI subprocess
     try {
       try { execSync('where free-coding-models', { timeout: 2000, stdio: 'ignore' }); }
       catch { return []; }
@@ -434,7 +252,6 @@ class ConfigRuntime {
           if (err) reject(err); else resolve(stdout);
         });
       });
-      // Strip ANSI / warning lines before the JSON array
       const match = raw.match(/(\[\s*\{[\s\S]*\])/m);
       if (!match) return [];
       const models = JSON.parse(match[1]);
@@ -445,7 +262,6 @@ class ConfigRuntime {
     }
   }
 
-  /** Normalize FCM model objects to SyxBridge-compatible format. */
   _normalizeFcmModels(list) {
     return list.map(m => ({
       id: m.modelId || m.model || m.id || '',
@@ -465,14 +281,8 @@ class ConfigRuntime {
     })).filter(m => m.id);
   }
 
-  /**
-   * Merge FCM live rankings into an existing model list.
-   * Sorts by: FCM tier > ping > SyxBridge rankModel score.
-   */
   enhanceModelListWithFcm(modelList, fcmRankings) {
     if (!fcmRankings || fcmRankings.length === 0) return modelList;
-    // Item 3/9: rankModel() mit Provider-Parameter — nutzt DB-Metriken
-    // statt String-Heuristik. FCM-Rankings liefern .provider für jedes Modell.
     const fcmMap = new Map(fcmRankings.map(r => [r.id, r]));
     const tierWeight = { 'S+': 100, 'S': 80, 'A+': 60, 'A': 50, 'B': 30, 'C': 10 };
     return [...new Set(modelList)].sort((a, b) => {
@@ -492,22 +302,16 @@ class ConfigRuntime {
       const headers = key ? { Authorization: `Bearer ${key}` } : {};
       const response = await axios.get('https://openrouter.ai/api/v1/models', { headers, timeout: 15000 });
       const allModels = response.data.data || [];
-
-      // Item 0b: Parse pricing data to build dynamic free-model cache.
-      // OpenRouter liefert pricing.prompt + pricing.completion als Strings (USD/Token).
-      // "0" für beide Felder = kostenloses Modell.
       const freeModelIds = allModels
         .filter(m => {
           const p = m.pricing || {};
           return String(p.prompt || '') === '0' && String(p.completion || '') === '0';
         })
         .map(m => m.id);
-
       if (freeModelIds.length > 0) {
         setOpenRouterFreeModels(freeModelIds);
         console.log(`[FREE-CACHE] ${freeModelIds.length} OpenRouter Free-Modelle via Pricing erkannt.`);
       }
-
       const models = allModels.map(model => model.id).filter(Boolean);
       const filtered = filterLLMs(models, freeOnly);
       return filtered.length > 0 ? filtered : [OPENROUTER_FREE_MODEL];
@@ -521,10 +325,7 @@ class ConfigRuntime {
     try {
       let response;
       if (provider === 'gemini') {
-        // Use the lightest available model for key tests; list first from API
         const models = await this.fetchGeminiModels();
-        // F4 Fix: gemini-1.5-flash-latest ist seit März 2025 vollständig abgeschaltet (404).
-        // Ersetzt durch gemini-2.5-flash-lite — aktuell lebendes Leichtgewicht-Modell.
         const testModel = models.find(m => m.includes('flash') || m.includes('lite')) || models[0] || 'gemini-2.5-flash-lite';
         const cleanModel = testModel.startsWith('models/') ? testModel.replace('models/', '') : testModel;
         response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`, {
@@ -549,7 +350,6 @@ class ConfigRuntime {
         return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${testModel})`, ms: `${Date.now() - startedAt}ms` };
       }
       if (provider === 'openrouter') {
-        // Test with the free model – no cost
         response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
           model: OPENROUTER_FREE_MODEL,
           messages: [{ role: 'user', content: 'Return OK.' }],
@@ -567,7 +367,6 @@ class ConfigRuntime {
         return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${OPENROUTER_FREE_MODEL})`, ms: `${Date.now() - startedAt}ms` };
       }
       if (provider === 'nvidia') {
-        // Use a small fast model for key validation
         const testModel = NVIDIA_FALLBACK_MODELS.find(m => m.includes('8b')) || NVIDIA_FALLBACK_MODELS[2];
         response = await axios.post('https://integrate.api.nvidia.com/v1/chat/completions', {
           model: testModel,
@@ -584,7 +383,6 @@ class ConfigRuntime {
       return { provider, index, key: maskSecret(key), ok: false, detail: 'Unbekannter Provider', ms: `${Date.now() - startedAt}ms` };
     } catch (e) {
       const status = e.response ? e.response.status : 'offline';
-      // translateHttpError() aus router.js — dieselbe Mapping-Logik wie handleFailure()
       const errInfo = translateHttpError(status === 'offline' ? 0 : status);
       const fallback = errInfo.severity === 'unknown' ? `: ${e.message}` : '';
       return { provider, index, key: maskSecret(key), ok: false, detail: `${errInfo.meaning} (${status})${fallback}`, ms: `${Date.now() - startedAt}ms` };
@@ -628,9 +426,6 @@ class ConfigRuntime {
         return await fn();
       } catch (e) {
         lastError = e;
-        // BU-020: AbortController — cancelled requests must NOT be retried.
-        // axios.isCancel checks for legacy Cancel objects; code === 'ERR_CANCELED'
-        // catches modern Axios AbortError; name === 'CanceledError' is the safe fallback.
         if (axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') throw e;
         const status = e.response && e.response.status;
         const retryable = !status || status === 429 || status >= 500;
@@ -679,7 +474,6 @@ class ConfigRuntime {
         }
         return;
       }
-
       const findBestModel = (preferred, fallbacks) => {
         if (preferred && preferred !== 'auto' && models.includes(preferred)) return preferred;
         for (const f of fallbacks) {
@@ -689,13 +483,11 @@ class ConfigRuntime {
         }
         return models[0];
       };
-
       const discoveredDefault = findBestModel(
         this.config.OLLAMA_DEFAULT_MODEL || this.config.PRIMARY_MODEL,
         OLLAMA_FALLBACK_MODELS
       );
       this.config.OLLAMA_DEFAULT_MODEL = discoveredDefault;
-
       if (this.config.PRIMARY_PROVIDER === 'ollama') {
         const replacement = findBestModel(this.config.PRIMARY_MODEL, [discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
         if (replacement !== this.config.PRIMARY_MODEL) {
@@ -703,7 +495,6 @@ class ConfigRuntime {
           this.config.EFFECTIVE_PRIMARY_MODEL = replacement;
         }
       }
-
       if (this.config.AUDITOR_PROVIDER === 'ollama') {
         const auditorPref = this.config.AUDITOR_MODEL || 'auto';
         const replacement = findBestModel(auditorPref, ['1b', 'tiny', 'phi', 'phi3:mini', 'gemma:2b', discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
@@ -711,7 +502,6 @@ class ConfigRuntime {
           this.config.EFFECTIVE_AUDITOR_MODEL = replacement;
         }
       }
-
       if (this.config.POLISHER_PROVIDER === 'ollama') {
         const polisherPref = this.config.POLISHER_MODEL || 'auto';
         const replacement = findBestModel(polisherPref, ['8b', 'mistral', 'llama3.1', discoveredDefault, ...OLLAMA_FALLBACK_MODELS]);
@@ -753,20 +543,11 @@ class ConfigRuntime {
     }
   }
 
-  /**
-   * Dispatch-Methode: ruft die richtige fetchXxxModels()-Methode für einen Provider auf.
-   * Ersetzt 3× duplizierte if/else-Ketten (ensurePrimaryModel, configure, gui-handlers.js).
-   * Ist ein Provider in PROVIDER_REGISTRY aber hat KEIN fetchMethod → UNVOLLSTÄNDIG (sichtbar im Diff).
-   * @param {string} provider
-   * @param {boolean} [freeOnly=false] — Nur für OpenRouter relevant
-   * @returns {Promise<string[]>} Modell-IDs
-   */
   async fetchModelsFor(provider, freeOnly = false) {
     const reg = PROVIDER_REGISTRY[provider];
     if (!reg) throw new Error(`Unbekannter Provider: ${provider}`);
     if (!reg.fetchMethod) return [];
     const result = await this[reg.fetchMethod](freeOnly);
-    // FCM: fetchFcmModelRankings liefert Objekte, keine Strings
     if (provider === 'fcm' && Array.isArray(result) && result.length > 0 && typeof result[0] === 'object') {
       return result.map(r => r.id);
     }
@@ -776,13 +557,11 @@ class ConfigRuntime {
   async ensurePrimaryModel() {
     const model = this.config.PRIMARY_MODEL;
     if (model && model !== 'auto' && isUsableTextModel(model)) return;
-
     console.warn(`[WARN] Modell "${model}" erfordert auto-discovery fuer ${this.config.PRIMARY_PROVIDER}...`);
     let models = [];
     try {
       models = await this.fetchModelsFor(this.config.PRIMARY_PROVIDER, this.config.PRIMARY_PROVIDER === 'openrouter');
     } catch (e) {}
-
     const freeOnly = this.config.PRIMARY_PROVIDER === 'openrouter';
     const replacement = filterLLMs(models, freeOnly)[0] || getDefaultModelForProvider(this.config.PRIMARY_PROVIDER);
     if (replacement && replacement !== 'auto') {
@@ -790,8 +569,6 @@ class ConfigRuntime {
       console.log(`[INFO] Nutze Ersatzmodell: ${this.config.EFFECTIVE_PRIMARY_MODEL}`);
       return;
     }
-
-    // Last-resort: try providers in cost order, prefer free tier
     const routedFallbacks = [
       { provider: 'openrouter', model: OPENROUTER_FREE_MODEL, enabled: !!this.getApiKey('openrouter') && this.isProviderHealthy('openrouter') },
       { provider: 'groq',       model: 'auto',                enabled: !!this.getApiKey('groq') && this.isProviderHealthy('groq') },
@@ -809,11 +586,10 @@ class ConfigRuntime {
   async configure() {
     console.log('\n========================================\n  AI BRIDGE KONFIGURATION\n========================================');
     console.log('Hinweis: Mehrere API Keys koennen kommagetrennt eingegeben werden.');
-        
     const strategy = await prompts({
       type: 'select',
       name: 'mode',
-      message: 'WÃ¤hle den Ãœbersetzungs-Modus:',
+      message: 'Wähle den Übersetzungs-Modus:',
       choices: [
         { title: 'AI API (Cloud Modelle)', value: 'api' },
         { title: 'Offline / Argos (Komplett lokal)', value: 'local' },
@@ -821,13 +597,12 @@ class ConfigRuntime {
       ]
     });
     if (!strategy.mode) return;
-
     const providerSetup = {};
     if (strategy.mode !== 'local') {
       const pp = await prompts({
         type: 'select',
         name: 'primary_provider',
-        message: 'Haupt-Anbieter fÃ¼r Ãœbersetzungen:',
+        message: 'Haupt-Anbieter für Übersetzungen:',
         initial: ['ollama','openrouter','player2','groq','gemini'].indexOf(this.config.PRIMARY_PROVIDER),
         choices: [
           { title: 'Ollama (Lokal)', value: 'ollama' },
@@ -839,22 +614,18 @@ class ConfigRuntime {
       });
       if (!pp.primary_provider) return;
       providerSetup.primary_provider = pp.primary_provider;
-
       if (providerSetup.primary_provider === 'ollama') {
         const r = await prompts({ type: 'text', name: 'ollama_key', message: 'Ollama API Key(s) [optional, kommagetrennt]:', initial: (this.config.OLLAMA_KEYS || []).join(',') });
         providerSetup.ollama_key = r.ollama_key;
       }
-
-      // Helper: validate API keys (async — prompts validate must be sync, so we validate after)
       const validateKeys = async (provider, input) => {
         const keys = parseKeys(input);
         if (keys.length === 0) return 'Bitte mindestens einen Key eingeben.';
         for (const k of keys) {
-          if (!await this.testApiKey(provider, k)) return `Key ungÃ¼ltig: ${k.substring(0, 8)}...`;
+          if (!await this.testApiKey(provider, k)) return `Key ungültig: ${k.substring(0, 8)}...`;
         }
         return true;
       };
-
       if (providerSetup.primary_provider === 'gemini' && this.config.GEMINI_KEYS.length === 0) {
         const r = await prompts({ type: 'text', name: 'gemini_key', message: 'Gemini API Key(s) [kommagetrennt]:' });
         if (r.gemini_key) {
@@ -880,15 +651,12 @@ class ConfigRuntime {
         }
       }
     }
-
     this.config.PRIMARY_PROVIDER = providerSetup.primary_provider;
     if (providerSetup.gemini_key) this.config.GEMINI_KEYS = parseKeys(providerSetup.gemini_key);
     if (providerSetup.groq_key) this.config.GROQ_KEYS = parseKeys(providerSetup.groq_key);
     if (providerSetup.nvidia_key) this.config.NVIDIA_KEYS = parseKeys(providerSetup.nvidia_key);
     if (providerSetup.openrouter_key) this.config.OPENROUTER_KEYS = parseKeys(providerSetup.openrouter_key);
-
-    // Load models for selected provider
-    console.log(`[INFO] Lade Modelle fÃ¼r ${this.config.PRIMARY_PROVIDER}...`);
+    console.log(`[INFO] Lade Modelle für ${this.config.PRIMARY_PROVIDER}...`);
     let modelChoices = [];
     try {
       const models = await this.fetchModelsFor(this.config.PRIMARY_PROVIDER, this.config.PRIMARY_PROVIDER === 'openrouter');
@@ -903,28 +671,14 @@ class ConfigRuntime {
       choices: modelChoices.length > 0 ? modelChoices : [{ title: 'auto', value: 'auto' }]
     });
     if (!modelSetup.primary_model) return;
-
     this.config.PRIMARY_MODEL = modelSetup.primary_model;
-
     const extraSetup = await prompts([
-      {
-        type: 'text',
-        name: 'target_lang',
-        message: 'Ziel-Sprache:',
-        initial: this.config.TARGET_LANG
-      },
-      {
-        type: 'confirm',
-        name: 'native_mode',
-        message: 'Native Mode (Originaldateien Ã¼berschreiben)?',
-        initial: this.config.NATIVE_MODE
-      }
+      { type: 'text', name: 'target_lang', message: 'Ziel-Sprache:', initial: this.config.TARGET_LANG },
+      { type: 'confirm', name: 'native_mode', message: 'Native Mode (Originaldateien überschreiben)?', initial: this.config.NATIVE_MODE }
     ]);
     if (!extraSetup.target_lang) return;
-
     this.config.TARGET_LANG = extraSetup.target_lang;
     this.config.NATIVE_MODE = extraSetup.native_mode;
-
     await persistConfigToEnv(this.config);
     console.log('\n[FERTIG] Konfiguration gespeichert.\n');
   }
@@ -962,7 +716,6 @@ class ConfigRuntime {
     }
     checks.push(this.checkLocalProvider('player2'));
     const results = await Promise.all(checks);
-        
     console.log('\n========================================\n  API STATUS\n========================================');
     for (const result of results) {
       const icon = result.ok ? '[OK]' : '[--]';
@@ -977,160 +730,8 @@ class ConfigRuntime {
   }
 }
 
-/**
- * BU-003: Single source of truth for writing the SyxBridge-managed .env keys.
- * Used by CLI (index.js) and config-wizard (ConfigRuntime.configure).
- *
- * Implementation note: this function used to overwrite the whole .env file
- * with `fs.promises.writeFile`. That destroyed any user-added keys (LOG_LEVEL,
- * custom OpenAI-compatible endpoints, NMT settings, etc.) on every save,
- * because the file was rewritten from a fixed allow-list of ~25 keys.
- *
- * Fix: delegate to `persistSingleEnvVar()` for each known key. That helper
- * preserves untouched comments, blank lines, and any unknown keys, so a
- * user's custom additions survive an in-app config save.
- */
-const PERSISTED_KEYS = [
-  ['MOD_PATH',              (c) => firstDefined(c.MOD_ROOT)],
-  ['OUTPUT_PATH',           (c) => firstDefined(c.GAME_MOD_ROOT)],
-  ['TARGET_LANG',           (c) => firstDefined(c.TARGET_LANG)],
-  ['NATIVE_MODE',           (c) => String(!!c.NATIVE_MODE)],
-  ['GRAMMAR_CHECK',         (c) => String(!!c.GRAMMAR_CHECK)],
-  ['PATCH_MODE_ENABLED',    (c) => String(!!c.PATCH_MODE_ENABLED)], // P1-1: Patch Mode User-Opt-Out — SoS OVERRIDE-Loading
-  ['LOCAL_MODELS_ENABLED',  (c) => String(!!c.LOCAL_MODELS_ENABLED)],
-  // NMT_LOCAL_ENABLED removed (BU-040): was VERWAIST — no provider client, router entry, or dispatcher path existed.
-  // warm-model.js remains as roadmap v0.23. Re-add here when NMT provider is implemented.
-  ['PRIMARY_PROVIDER',      (c) => firstDefined(c.PRIMARY_PROVIDER)],
-  ['PRIMARY_MODEL',         (c) => firstDefined(c.PRIMARY_MODEL)],
-  ['POLISHER_PROVIDER',     (c) => firstDefined(c.POLISHER_PROVIDER)],
-  ['POLISHER_MODEL',        (c) => firstDefined(c.POLISHER_MODEL)],
-  ['REPOLISH_BUDGET',       (c) => firstDefined(c.REPOLISH_BUDGET)],
-  ['AUDITOR_PROVIDER',      (c) => firstDefined(c.AUDITOR_PROVIDER)],
-  ['AUDITOR_MODEL',         (c) => firstDefined(c.AUDITOR_MODEL)],
-  ['GEMINI_KEY',            (c) => (c.GEMINI_KEYS || []).join(',')],
-  ['GROQ_KEY',              (c) => (c.GROQ_KEYS || []).join(',')],
-  ['OPENROUTER_KEY',        (c) => (c.OPENROUTER_KEYS || []).join(',')],
-  ['NVIDIA_KEY',            (c) => (c.NVIDIA_KEYS || []).join(',')],
-  ['OLLAMA_KEY',            (c) => (c.OLLAMA_KEYS || []).join(',')],
-  ['OLLAMA_URL',            (c) => firstDefined(c.OLLAMA_URL, OLLAMA_DEFAULT_URL)],
-  ['FCM_URL',               (c) => firstDefined(c.FCM_URL, FCM_DEFAULT_URL)],
-  ['FCM_ENABLED',           (c) => String(!!c.FCM_ENABLED)],
-  ['GOOGLE_FREE_ENABLED',   (c) => String(!!c.GOOGLE_FREE_ENABLED)],
-  ['PLAYER2_KEY',           (c) => (c.PLAYER2_KEYS || []).join(',')],
-  ['PLAYER2_ENABLED',       (c) => String(!!c.PLAYER2_ENABLED)],
-  ['PLAYER2_URL',           (c) => firstDefined(c.PLAYER2_URL, PLAYER2_DEFAULT_URL)],
-  ['BATCH_SIZE',            (c) => firstDefined(c.BATCH_SIZE)],
-  ['MAX_REVIEW_COUNT',      (c) => firstDefined(c.MAX_REVIEW_COUNT, '15')],
-  ['REVIEW_RECOVERY_HOURS', (c) => firstDefined(c.REVIEW_RECOVERY_HOURS, '24')],
-  ['GAME',                  (c) => firstDefined(c.GAME, DEFAULT_GAME)],
-];
-
-async function persistConfigToEnv(config) {
-  // ═══ SAFETY: Backup .env ONCE before the loop ═══
-  // Preserves original state in case the in-memory CONFIG has lost its keys.
-  const backupPath = ENV_PATH + '.backup';
-  try {
-    if (fs.existsSync(ENV_PATH)) {
-      fs.copyFileSync(ENV_PATH, backupPath);
-    }
-  } catch (_) { /* non-critical */ }
-
-  const failures = [];
-  for (const [key, extractor] of PERSISTED_KEYS) {
-    try {
-      await persistSingleEnvVar(key, extractor(config || {}));
-    } catch (e) {
-      // Single-key failure (Permission, Disk-Full, OS-EACCES waehrend eines
-      // Antivirus-Scans) darf nicht alle folgenden Keys unpersistiert lassen.
-      // Tradeoff gegen das alte writeFile-Atomic-Verhalten: im Partial-State
-      // bleiben User-Custom-Env-Vars erhalten, aber einzelne SyxBridge-Keys
-      // koennen veraltet sein. process.env ist synchron aktualisiert, daher
-      // reflektiert applyEnvToConfig() beim naechsten Start den live CONFIG.
-      failures.push({ key, error: e.message || String(e) });
-    }
-  }
-  if (failures.length > 0) {
-    console.warn(`[WARN] ${failures.length}/${PERSISTED_KEYS.length} .env-Keys konnten nicht persistiert werden:`);
-    for (const f of failures) console.warn(`  - ${f.key}: ${f.error}`);
-  }
-}
-
-/**
- * Reads the current value of a key from the raw .env lines.
- * Returns the unquoted value, or null if the key is not found.
- */
-function readEnvValue(lines, key) {
-  const keyPrefix = `${key}=`;
-  for (const line of lines) {
-    if (line.startsWith(keyPrefix)) {
-      let val = line.slice(keyPrefix.length);
-      // Strip surrounding quotes if present
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith('\'') && val.endsWith('\''))) {
-        val = val.slice(1, -1);
-      }
-      return val;
-    }
-  }
-  return '';
-}
-
-/**
- * Targeted single-variable .env writer.
- * Reads the current .env (if it exists), replaces the line for `key` (or appends
- * a new line if absent), and writes the file back. Preserves all other entries
- * and comments — unlike persistConfigToEnv() which rewrites the whole file and
- * would clobber unrelated custom env vars.
- * @param {string} key Uppercase env var name, e.g. 'TARGET_LANG'
- * @param {string|number|boolean} value Value to persist
- * @returns {Promise<{written: boolean, key: string, value: string}>}
- */
-async function persistSingleEnvVar(key, value) {
-  const envPath = ENV_PATH;
-  const safeKey = String(key || '').trim();
-  if (!safeKey) throw new Error('persistSingleEnvVar: key is required');
-  const safeValue = String(value ?? '').replace(/"/g, '\\"');
-
-  let lines = [];
-  if (fs.existsSync(envPath)) {
-    const raw = await fs.promises.readFile(envPath, 'utf-8');
-    lines = raw.split(/\r?\n/);
-  }
-
-  // ═══ SAFETY: Never blank out a non-empty key ═══
-  // If the new value is empty/falsy but the .env currently has a non-empty
-  // value for this key, preserve the existing value. This prevents
-  // persistConfigToEnv from wiping API keys when called with an in-memory
-  // CONFIG that loaded empty keys from a partially-corrupted .env.
-  const existingValue = readEnvValue(lines, safeKey);
-  if ((!safeValue || safeValue === '') && existingValue && existingValue.trim() !== '') {
-    console.warn(`[ENV-SAFETY] ${safeKey}: würde leeren Wert schreiben, aber .env hat nicht-leeren Wert — bewahre existierenden.`);
-    return { written: false, key: safeKey, value: existingValue, reason: 'preserved-non-empty' };
-  }
-
-  const keyPrefix = `${safeKey}=`;
-  let found = false;
-  // Match either active lines (`KEY=...`) or commented-out lines (`#KEY=...` /
-  // `  # KEY=...`); the latter should be stripped to avoid leaving dead duplicates
-  // in .env when the user uncomments + re-runs the wizard.
-  const commentedKeyRe = new RegExp(`^\\s*#\\s*${safeKey}\\s*=`);
-  const updated = lines
-    .filter((line) => !commentedKeyRe.test(line))
-    .map((line) => {
-      if (line.startsWith(keyPrefix)) {
-        found = true;
-        return `${safeKey}="${safeValue}"`;
-      }
-      return line;
-    });
-  if (!found) updated.push(`${safeKey}="${safeValue}"`);
-
-  // Strip trailing empty lines but keep exactly one final newline
-  while (updated.length > 0 && updated[updated.length - 1].trim() === '') updated.pop();
-  await fs.promises.writeFile(envPath, `${updated.join('\n')}\n`, 'utf-8');
-  process.env[safeKey] = safeValue;
-  return { written: true, key: safeKey, value: safeValue };
-}
-
+// ── Backward-Compatible Re-Exports ──────────────────────────────────
+// Alle bisherigen module.exports bleiben erhalten — Consumer müssen NICHT geändert werden.
 module.exports = {
   ConfigRuntime,
   persistConfigToEnv,
@@ -1148,4 +749,15 @@ module.exports = {
   setMetricsCache,
   rankModel,
   getModelMetrics,
+  maskSecret,
+  OPENROUTER_FREE_MODEL,
+  GROQ_FALLBACK_MODELS,
+  OLLAMA_FALLBACK_MODELS,
+  NVIDIA_FALLBACK_MODELS,
+  MODEL_BLACKLIST,
+  ENV_PATH,
+  OLLAMA_DEFAULT_URL,
+  PLAYER2_DEFAULT_URL,
+  FCM_DEFAULT_URL,
+  firstDefined,
 };

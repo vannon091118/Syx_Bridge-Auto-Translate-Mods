@@ -247,6 +247,53 @@ class SongsOfSyxPlugin extends GamePlugin {
   }
 
   /**
+   * SoS-specific file syntax validation.
+   * Counts KEY:-lines (SoS format), quote balance, line count.
+   * Delegated from validator.js via _plugin pattern.
+   */
+  validateFileSyntax(sourceContent, targetContent) {
+    const issues = [];
+
+    // Count KEY: patterns (Songs of Syx format)
+    const sourceKeys = (sourceContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
+    const targetKeys = (targetContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
+    if (sourceKeys !== targetKeys) {
+      issues.push(`KEY_COUNT_MISMATCH: source=${sourceKeys} target=${targetKeys}`);
+    }
+
+    // Count quoted strings
+    const sourceQuotes = (sourceContent.match(/"/g) || []).length;
+    const targetQuotes = (targetContent.match(/"/g) || []).length;
+    if (sourceQuotes % 2 !== targetQuotes % 2) {
+      issues.push(`UNBALANCED_QUOTES: source=${sourceQuotes} target=${targetQuotes}`);
+    } else if (Math.abs(sourceQuotes - targetQuotes) > 4) {
+      issues.push(`QUOTE_COUNT_DIFF: source=${sourceQuotes} target=${targetQuotes}`);
+    }
+
+    // Line count sanity check (should be within 20% or ±5 lines)
+    const sourceLines = sourceContent.split('\n').length;
+    const targetLines = targetContent.split('\n').length;
+    const lineDiff = Math.abs(sourceLines - targetLines);
+    if (lineDiff > Math.max(5, sourceLines * 0.2)) {
+      issues.push(`LINE_COUNT_DIFF: source=${sourceLines} target=${targetLines}`);
+    }
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      keyCount: { source: sourceKeys, target: targetKeys }
+    };
+  }
+
+  /**
+   * SoS placeholder regex — covers all SoS placeholder/tag formats.
+   * `<tag>`, `__VAR_N__`, `{N}`, `$VAR`, `%s`.
+   */
+  getPlaceholderRegex() {
+    return /<[^>]+>|__VAR\d+__|\{[^}]+\}|\$[A-Za-z0-9_]+|%[^%\s]+%/g;
+  }
+
+  /**
    * SoS-specific: check quote balancing.
    * (Universal checks like placeholder loss are in translationCriticalCheck.)
    */

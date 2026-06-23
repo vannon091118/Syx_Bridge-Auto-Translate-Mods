@@ -1,5 +1,5 @@
-const { getGateCounter } = require('./gate-counter');
-function _gcRec(gateId, action, meta) { try { getGateCounter().record(gateId, action, meta || {}); } catch (_) {} }
+const { safeRecord } = require('./gate-counter');
+const { countMatches } = require('./context-packets');
 /**
  * Validates that placeholders like __VAR0__, {0}, or $VAR are preserved.
  */
@@ -59,8 +59,8 @@ function classifyStructureIssues(source, target) {
   // Quote balance: previously this was critical (blocked acceptance).
   // Now downgraded to WARNING because translated text legitimately
   // introduces quotes (e.g. German quotation marks, direct speech).
-  const sourceQuotes = (source.match(/"/g) || []).length;
-  const targetQuotes = (target.match(/"/g) || []).length;
+  const sourceQuotes = countMatches(source, /"/g);
+  const targetQuotes = countMatches(target, /"/g);
   if (sourceQuotes % 2 !== targetQuotes % 2) {
     warnings.push('UNBALANCED_QUOTES');
   }
@@ -81,29 +81,38 @@ function classifyStructureIssues(source, target) {
 /**
  * Validates the structural integrity of a translated file against its source.
  * Compares KEY count, line count, and quote balance. Does NOT verify content.
+ *
+ * Plugin-delegated (R-VAL): if validateFileSyntax._plugin is set, delegates to
+ * the plugin's format-specific validation. Falls back to SoS logic.
+ *
  * @returns {{ valid: boolean, issues: string[], keyCount: {source: number, target: number} }}
  */
 function validateFileSyntax(sourceContent, targetContent) {
-  _gcRec('validator:validateFileSyntax', 'enter');
+  safeRecord('validator:validateFileSyntax', 'enter');
+
+  // R-VAL: Plugin-delegated format-specific validation
+  const plugin = validateFileSyntax._plugin;
+  if (plugin && typeof plugin.validateFileSyntax === 'function') {
+    return plugin.validateFileSyntax(sourceContent, targetContent);
+  }
+
+  // Fallback: SoS KEY:-format logic (legacy)
   const issues = [];
   
-  // Count KEY: patterns (Songs of Syx format)
-  const sourceKeys = (sourceContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
-  const targetKeys = (targetContent.match(/^\s*[A-Za-z0-9_]+:\s*/gm) || []).length;
+  const sourceKeys = countMatches(sourceContent, /^\s*[A-Za-z0-9_]+:\s*/gm);
+  const targetKeys = countMatches(targetContent, /^\s*[A-Za-z0-9_]+:\s*/gm);
   if (sourceKeys !== targetKeys) {
     issues.push(`KEY_COUNT_MISMATCH: source=${sourceKeys} target=${targetKeys}`);
   }
 
-  // Count quoted strings
-  const sourceQuotes = (sourceContent.match(/"/g) || []).length;
-  const targetQuotes = (targetContent.match(/"/g) || []).length;
+  const sourceQuotes = countMatches(sourceContent, /"/g);
+  const targetQuotes = countMatches(targetContent, /"/g);
   if (sourceQuotes % 2 !== targetQuotes % 2) {
     issues.push(`UNBALANCED_QUOTES: source=${sourceQuotes} target=${targetQuotes}`);
   } else if (Math.abs(sourceQuotes - targetQuotes) > 4) {
     issues.push(`QUOTE_COUNT_DIFF: source=${sourceQuotes} target=${targetQuotes}`);
   }
 
-  // Line count sanity check (should be within 20% or ±5 lines)
   const sourceLines = sourceContent.split('\n').length;
   const targetLines = targetContent.split('\n').length;
   const lineDiff = Math.abs(sourceLines - targetLines);
@@ -224,10 +233,10 @@ function getQaScore(source, target) {
     
   // Check if source had tokens but target lost them
   // Prüft BOTH legacy [[N]] and new __SHLD_N__ format
-  const sourceLegacyTokens = (source.match(/\[\[\d+\]\]/g) || []).length;
-  const sourceShieldTokens = (source.match(/__SHLD_\d+__/g) || []).length;
-  const targetLegacyTokens = (target.match(/\[\[\d+\]\]/g) || []).length;
-  const targetShieldTokens = (target.match(/__SHLD_\d+__/g) || []).length;
+  const sourceLegacyTokens = countMatches(source, /\[\[\d+\]\]/g);
+  const sourceShieldTokens = countMatches(source, /__SHLD_\d+__/g);
+  const targetLegacyTokens = countMatches(target, /\[\[\d+\]\]/g);
+  const targetShieldTokens = countMatches(target, /__SHLD_\d+__/g);
   if (sourceLegacyTokens > 0 && targetLegacyTokens < sourceLegacyTokens) {
     issues.push('SHIELD_TOKEN_LOST');
     score -= 50;
@@ -243,7 +252,7 @@ function getQaScore(source, target) {
   const structuralIssues = checkStructure(source, target);
   score -= structuralIssues.length * 15;
 
-  try { _gcRec('validator:getQaScore', (typeof score === 'number' && score >= 60) ? 'keep' : 'discard', { score: typeof score === 'number' ? score : null }); } catch (_) {}
+  safeRecord('validator:getQaScore', (typeof score === 'number' && score >= 60) ? 'keep' : 'discard', { score: typeof score === 'number' ? score : null });
   return Math.max(0, score);
 }
 
