@@ -7,6 +7,14 @@
 
 ## [v0.23a-SESSION] — 2026-06-23 — P4 Tasks + Tiefenanalyse + VISION + AGENTS Restructurierung
 
+### Repo-Cleanup: test_mods/, backups/, backup.json aus Git-Tracking entfernt
+> **Commit:** `<hash>` | **Composite:** `c1j57a3p17`
+
+- 14 Dateien via `git rm --cached` aus dem Tracking genommen (bleiben lokal erhalten)
+- `.gitignore` erweitert: `test_mods/`, `SyxBridge_*.zip`, `*.backup.json`, `core/.test_commit_bad.txt`
+- **Dateien:** `.gitignore`
+
+
 ### CL-RNG PLOT_LORE Composite-Annotation: [pN] → [COMPOSITE:cXjXaXpX]
 > **Commit:** `<hash>` | **Composite:** `c1j53a3p5`
 

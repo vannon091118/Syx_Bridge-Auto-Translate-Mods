@@ -157,5 +157,14 @@
     "ref_to": "plot-2026-06-23T19:16:00",
     "model_id": "deepseek-v4-pro",
     "composite": "c1j53a3p5"
+  },
+  {
+    "p_id": "p22",
+    "id": "plot-2026-06-23T19:56:47",
+    "timestamp": "2026-06-23 19:56:47",
+    "summary": "Repo-Cleanup: test_mods/, core/archive/backups/, sidejoke_pool.backup.json aus Git-Tracking entfernt. .gitignore um test_mods/, SyxBridge_*.zip, *.backup.json, core/.test_commit_bad.txt erweitert. 14 Dateien weniger, 3.5MB ZIP abgefangen.",
+    "ref_to": "plot-2026-06-23T19:16:00",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c1j57a3p17"
   }
 ]
