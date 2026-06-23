@@ -522,3 +522,6 @@ Doku+Lore Nachzug aus vorheriger Session. Reports und Dokumentation die in der B
 > **User-Impuls:** User-Auftrag: Vollstaendigen Commit aller uncommitted Changes erstellen (CHANGELOG-Split, Language-Tag, Credit, SHIELD-Fix, Doku-Konsolidierung)
 
 CHANGELOG-Split: Doku-Konsolidierung + Language-Tag + SHIELD-Fix + Translation-Credit — v0.22.0 Doku komplett nachgezogen.
+
+### [2026-06-23 00:34:59]
+Git-Reparatur: Neues .git im Projekt-Root, Remote verbunden, v0.22 von GitHub gezogen. Doku-Abgleich abgeschlossen — alle 228 Dateien getrackt, keine Abweichungen.

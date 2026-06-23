@@ -1,0 +1,557 @@
+
+============================================================
+DIRECTORY STATE (Run-Start)
+============================================================
+CWD: C:\Users\Vannon\Desktop\SyxBridge_Live\core
+
+  [DIR]  archive/
+  [DIR]  backups/
+  [DIR]  data/
+  [DIR]  logs/
+  [DIR]  node_modules/
+  [DIR]  patches/
+  [DIR]  release/
+  [DIR]  scripts/
+  [DIR]  src/
+  [DIR]  tests/
+  [FILE] .commit_msg.txt
+  [FILE] .env
+  [FILE] .env.backup
+  [FILE] .native_confirmed
+  [FILE] LICENSE
+  [FILE] TREE.md
+  [FILE] debug_payloads.txt
+  [FILE] eslint.config.mjs
+  [FILE] index.js
+  [FILE] log.txt
+  [FILE] nul
+  [FILE] package-lock.json
+  [FILE] package.json
+  [FILE] runs.jsonl
+  [FILE] translations.db
+============================================================
+
+[2026-06-22T19:03:32.305Z] [INFO] [DB] Schema v7 aktuell — überspringe Migrationen (HDD-Optimierung).
+[2026-06-22T19:03:32.309Z] [INFO] [DB] risk_score migration: checked (addColumnIfMissing).
+[2026-06-22T19:03:32.310Z] [INFO] [DB] Read-Only Connection geoeffnet.
+[2026-06-22T19:03:32.338Z] [INFO] 
+==================================================
+  AUTOMATISCHE SYNCHRONISATION
+==================================================
+[2026-06-22T19:03:32.469Z] [INFO] [PREFLIGHT] ℹ️  680 NATIVE_STALE Einträge (Proper Nouns/Eigennamen — keine Übersetzung nötig, kein Fehler).
+[2026-06-22T19:03:32.481Z] [INFO] [PREFLIGHT] ✅ DB healthy — no issues found.
+[2026-06-22T19:03:32.488Z] [INFO] [PREFLIGHT] Analysis complete in 143ms.
+[2026-06-22T19:03:32.512Z] [INFO] [INFO] Erstelle Patches für 6 Mods...
+[2026-06-22T19:03:32.520Z] [INFO] 
+[RUN] Starte Durchlauf #11 (Modus: SYNC)
+[2026-06-22T19:03:32.522Z] [INFO] [PHASE] Scanning Mods...
+[2026-06-22T19:03:32.523Z] [INFO] [INFO] 6 Mods uebergeben.
+[2026-06-22T19:03:32.527Z] [INFO] 
+>>> Processing: 3745652499
+[2026-06-22T19:03:32.530Z] [INFO] 
+>>> Uebersetze: Onari Race
+[2026-06-22T19:03:32.531Z] [INFO] [INFO] Native Mode aktiv: Originaldateien werden überschrieben.
+[2026-06-22T19:03:32.534Z] [INFO] [NATIVE] Keine Rückfrage (--auto Flag). Backup wird VOR dem Überschreiben angelegt.
+[2026-06-22T19:03:32.536Z] [INFO] [INFO] Kopiere Mod-Basis nach Onari_Race_German...
+[2026-06-22T19:03:32.921Z] [INFO] 
+[STATUS] Texte gefunden: 1093 (483 eindeutig)
+[2026-06-22T19:03:32.922Z] [INFO] [STATUS] Cache-Hits: 450 | Fehlend: 33
+[2026-06-22T19:03:32.923Z] [INFO] [STATUS] Qualitaet: 317 Deep Polish, 26 Verifiziert, 107 Basis
+[2026-06-22T19:03:33.035Z] [INFO] [PYTHON] Detected: python
+[2026-06-22T19:03:33.127Z] [INFO] [BATCH-RUN] #1/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 12 | Chars: 161
+[2026-06-22T19:03:33.130Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.6) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:03:33.131Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:03:33.135Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [12 Texte] KeyIndex:0/1: aus dem Flussfalltal | Kanzler des tiefen Sum... | Schild der Niederungen | der leuchtenden Linie | des schimmernden Deltas | sie | ihn | ihre | sein | sich selbst | Stille Winde | Stille Pfade
+[2026-06-22T19:03:33.404Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:03:34.235Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:37.320Z] [WARN] [ROUTER] nvidia: Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:03:37.323Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:03:37.325Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:03:37.329Z] [INFO] [BATCH] (fcm/auto) [12 Texte] KeyIndex:0/0: aus dem Flussfalltal | Kanzler des tiefen Sum... | Schild der Niederungen | der leuchtenden Linie | des schimmernden Deltas | sie | ihn | ihre | sein | sich selbst | Stille Winde | Stille Pfade
+[2026-06-22T19:03:37.353Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:03:38.115Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:41.136Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:03:41.138Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:03:41.139Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:03:41.141Z] [INFO] [BATCH] (nvidia/auto) [12 Texte] KeyIndex:0/1: aus dem Flussfalltal | Kanzler des tiefen Sum... | Schild der Niederungen | der leuchtenden Linie | des schimmernden Deltas | sie | ihn | ihre | sein | sich selbst | Stille Winde | Stille Pfade
+[2026-06-22T19:03:41.181Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:03:41.982Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:45.022Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:03:45.023Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:03:45.024Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:03:45.025Z] [INFO] [BATCH] (groq/auto) [12 Texte] KeyIndex:0/3: aus dem Flussfalltal | Kanzler des tiefen Sum... | Schild der Niederungen | der leuchtenden Linie | des schimmernden Deltas | sie | ihn | ihre | sein | sich selbst | Stille Winde | Stille Pfade
+[2026-06-22T19:03:45.761Z] [INFO] [ACCEPT-WARN] "aus dem Flussfalltal" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.762Z] [INFO] [ACCEPT-WARN] "Kanzler des tiefen Sumpfes" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.763Z] [INFO] [ACCEPT-WARN] "Schild der Niederungen" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.765Z] [INFO] [ACCEPT-WARN] "der leuchtenden Linie" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.766Z] [INFO] [ACCEPT-WARN] "des schimmernden Deltas" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.767Z] [INFO] [ACCEPT-WARN] "sie" akzeptiert mit Warnings: UNBALANCED_QUOTES
+[2026-06-22T19:03:45.767Z] [INFO] [ACCEPT-WARN] "ihn" akzeptiert mit Warnings: UNBALANCED_QUOTES
+[2026-06-22T19:03:45.768Z] [INFO] [ACCEPT-WARN] "ihre" akzeptiert mit Warnings: UNBALANCED_QUOTES
+[2026-06-22T19:03:45.769Z] [INFO] [ACCEPT-WARN] "sein" akzeptiert mit Warnings: UNBALANCED_QUOTES
+[2026-06-22T19:03:45.770Z] [INFO] [ACCEPT-WARN] "sich selbst" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.771Z] [INFO] [ACCEPT-WARN] "Stille Winde" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.772Z] [INFO] [ACCEPT-WARN] "Stille Pfade" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:03:45.773Z] [INFO] [INFO] 12/12 Uebersetzungen mit Soft-Warnings akzeptiert (Deep Polish geplant).
+[2026-06-22T19:03:45.793Z] [INFO] [BATCH-RUN] #2/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 32
+[2026-06-22T19:03:45.795Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.3) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:03:45.796Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:03:45.797Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: Bis zur Stille | Ruhe wohl | Verdammt!
+[2026-06-22T19:03:45.839Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:03:46.630Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:49.711Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:03:49.712Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:03:49.712Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:03:49.714Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Bis zur Stille | Ruhe wohl | Verdammt!
+[2026-06-22T19:03:49.723Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:03:50.480Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:53.491Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:03:53.492Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:03:53.493Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:03:53.495Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Bis zur Stille | Ruhe wohl | Verdammt!
+[2026-06-22T19:03:53.800Z] [WARN] [ROUTER] groq: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:03:53.802Z] [WARN] [DISPATCH] translate groq fehlgeschlagen: Provider groq lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:03:53.804Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:03:53.807Z] [INFO] [BATCH] (nvidia/auto) [3 Texte] KeyIndex:0/1: Bis zur Stille | Ruhe wohl | Verdammt!
+[2026-06-22T19:03:53.882Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:03:54.684Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:03:57.727Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:03:57.729Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:03:57.730Z] [INFO] [DISPATCH] translate -> openrouter (auto)
+[2026-06-22T19:03:57.731Z] [INFO] [BATCH] (openrouter/auto) [3 Texte] KeyIndex:0/2: Bis zur Stille | Ruhe wohl | Verdammt!
+[2026-06-22T19:04:03.178Z] [INFO] [BATCH-RUN] #3/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 42
+[2026-06-22T19:04:03.179Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.7) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:04:03.181Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:04:03.182Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:03.284Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:04:04.088Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:04:07.136Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:04:07.137Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:04:07.139Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:04:07.140Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:07.149Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:04:07.904Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:04:10.919Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:04:10.920Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:04:10.921Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:04:10.922Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:11.257Z] [WARN] [CRITICAL] "Stiller Strom!" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:04:11.258Z] [WARN] [CRITICAL] "krummer Schwimmer" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:04:11.259Z] [WARN] [CRITICAL] "hohles Maul" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:04:11.260Z] [WARN] [ROUTER] groq: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:04:11.261Z] [WARN] [DISPATCH] translate groq fehlgeschlagen: Provider groq lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:04:11.262Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:04:11.263Z] [INFO] [BATCH] (nvidia/auto) [3 Texte] KeyIndex:0/1: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:11.305Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:04:12.132Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:04:15.175Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:04:15.176Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:04:15.177Z] [INFO] [DISPATCH] translate -> openrouter (auto)
+[2026-06-22T19:04:15.178Z] [INFO] [BATCH] (openrouter/auto) [3 Texte] KeyIndex:0/2: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:16.962Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:04:18.802Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:04:27.013Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:04:27.014Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:04:27.015Z] [INFO] [DISPATCH] translate -> openrouter (openrouter/free)
+[2026-06-22T19:04:27.016Z] [INFO] [BATCH] (openrouter/openrouter/free) [3 Texte] KeyIndex:0/2: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:30.195Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:04:30.196Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:04:30.197Z] [INFO] [DISPATCH] translate -> google_free (google-translate-free)
+[2026-06-22T19:04:30.199Z] [INFO] [BATCH] (google_free/google-translate-free) [3 Texte] KeyIndex:0/0: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:30.201Z] [INFO] [INFO] Google Translate Free Fallback (3 Texte)...
+[2026-06-22T19:04:31.814Z] [WARN] [ROUTER] google_free: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:04:31.816Z] [WARN] [DISPATCH] translate google_free fehlgeschlagen: Provider google_free lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:04:31.816Z] [INFO] [DISPATCH] translate -> argos (argos-translate-local)
+[2026-06-22T19:04:31.818Z] [INFO] [BATCH] (argos/argos-translate-local) [3 Texte] KeyIndex:0/0: Stiller Strom! | krummer Schwimmer | hohles Maul
+[2026-06-22T19:04:31.819Z] [INFO] [INFO] Argos Translate Local (3 Texte)...
+[2026-06-22T19:05:07.841Z] [WARN] [!] Argos Translate Batch fehlgeschlagen: Argos Batch timed out after 36000ms
+[2026-06-22T19:05:07.842Z] [WARN] [ROUTER] argos: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:05:07.842Z] [WARN] [DISPATCH] translate argos fehlgeschlagen: Argos Batch timed out after 36000ms
+[2026-06-22T19:05:07.844Z] [WARN] [TRANSACTION] Rollback fehlgeschlagen: cannot rollback - no transaction is active
+[2026-06-22T19:05:07.845Z] [ERROR] [!] Batch fehlgeschlagen: Alle translate-Routen fehlgeschlagen. Letzter Fehler: Argos Batch timed out after 36000ms
+[2026-06-22T19:05:07.850Z] [INFO] [BATCH-RUN] #4/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 35
+[2026-06-22T19:05:07.852Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.3) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:05:07.853Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:05:07.854Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:07.982Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:05:08.814Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:05:11.894Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:05:11.896Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:05:11.896Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:05:11.898Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:11.905Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:05:12.660Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:05:15.678Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:05:15.679Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:05:15.679Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:05:15.681Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:15.990Z] [WARN] [ROUTER] groq: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:05:15.991Z] [WARN] [DISPATCH] translate groq fehlgeschlagen: Provider groq lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:05:15.992Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:05:15.994Z] [INFO] [BATCH] (nvidia/auto) [3 Texte] KeyIndex:0/1: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:16.034Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:05:16.861Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:05:19.922Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:05:19.923Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:05:19.924Z] [INFO] [DISPATCH] translate -> openrouter (auto)
+[2026-06-22T19:05:19.925Z] [INFO] [BATCH] (openrouter/auto) [3 Texte] KeyIndex:0/2: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:28.861Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:05:28.862Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:05:28.863Z] [INFO] [DISPATCH] translate -> openrouter (openrouter/free)
+[2026-06-22T19:05:28.864Z] [INFO] [BATCH] (openrouter/openrouter/free) [3 Texte] KeyIndex:0/2: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:30.518Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:05:32.188Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:05:36.270Z] [INFO] [AUTH] Key-Rotation fuer openrouter: Wechsle zu Key #2/2
+[2026-06-22T19:05:36.473Z] [INFO] [AUTH] Key #1/2 fuer openrouter im Cooldown bis 2026-06-22T19:06:06.270Z, ueberspringe.
+[2026-06-22T19:05:36.474Z] [WARN] [AUTH] Alle Keys fuer openrouter im Cooldown. Fallback auf Key #1/2
+[2026-06-22T19:05:37.422Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:05:38.972Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:05:43.020Z] [WARN] [ROUTER] openrouter: Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:05:43.021Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day
+[2026-06-22T19:05:43.022Z] [INFO] [DISPATCH] translate -> google_free (google-translate-free)
+[2026-06-22T19:05:43.023Z] [INFO] [BATCH] (google_free/google-translate-free) [3 Texte] KeyIndex:0/0: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:43.025Z] [INFO] [INFO] Google Translate Free Fallback (3 Texte)...
+[2026-06-22T19:05:44.597Z] [WARN] [ROUTER] google_free: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:05:44.598Z] [WARN] [DISPATCH] translate google_free fehlgeschlagen: Provider google_free lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:05:44.599Z] [INFO] [DISPATCH] translate -> argos (argos-translate-local)
+[2026-06-22T19:05:44.600Z] [INFO] [BATCH] (argos/argos-translate-local) [3 Texte] KeyIndex:0/0: schwacher Floss | saure Zunge | Mein Herr
+[2026-06-22T19:05:44.601Z] [INFO] [INFO] Argos Translate Local (3 Texte)...
+[2026-06-22T19:06:04.570Z] [INFO] [BATCH-RUN] #5/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 60
+[2026-06-22T19:06:04.572Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.3) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:06:04.573Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:06:04.574Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:04.681Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:06:05.469Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:08.523Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:06:08.524Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:06:08.525Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:06:08.526Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:08.533Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:06:09.299Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:12.307Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:12.308Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:06:12.309Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:06:12.310Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:12.629Z] [WARN] [CRITICAL] "Mein stiller Herr" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:12.630Z] [WARN] [CRITICAL] "Erzmeister mit Taillenreif" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:12.631Z] [WARN] [CRITICAL] "Mein sanfter Herr" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:12.632Z] [WARN] [ROUTER] groq: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:12.633Z] [WARN] [DISPATCH] translate groq fehlgeschlagen: Provider groq lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:06:12.634Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:06:12.636Z] [INFO] [BATCH] (nvidia/auto) [3 Texte] KeyIndex:0/1: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:12.705Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:06:13.523Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:16.599Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:06:16.600Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:06:16.600Z] [INFO] [DISPATCH] translate -> openrouter (auto)
+[2026-06-22T19:06:16.602Z] [INFO] [BATCH] (openrouter/auto) [3 Texte] KeyIndex:0/2: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:23.950Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:23.951Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:06:23.952Z] [INFO] [DISPATCH] translate -> openrouter (openrouter/free)
+[2026-06-22T19:06:23.953Z] [INFO] [BATCH] (openrouter/openrouter/free) [3 Texte] KeyIndex:0/2: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:25.906Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:06:34.945Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:34.946Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:06:34.947Z] [INFO] [DISPATCH] translate -> google_free (google-translate-free)
+[2026-06-22T19:06:34.948Z] [INFO] [BATCH] (google_free/google-translate-free) [3 Texte] KeyIndex:0/0: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:34.949Z] [INFO] [INFO] Google Translate Free Fallback (3 Texte)...
+[2026-06-22T19:06:36.476Z] [WARN] [ROUTER] google_free: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:36.477Z] [WARN] [DISPATCH] translate google_free fehlgeschlagen: Provider google_free lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:06:36.478Z] [INFO] [DISPATCH] translate -> argos (argos-translate-local)
+[2026-06-22T19:06:36.479Z] [INFO] [BATCH] (argos/argos-translate-local) [3 Texte] KeyIndex:0/0: Mein stiller Herr | Erzmeister mit Taillen... | Mein sanfter Herr
+[2026-06-22T19:06:36.480Z] [INFO] [INFO] Argos Translate Local (3 Texte)...
+[2026-06-22T19:06:47.905Z] [INFO] [BATCH-RUN] #6/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 31
+[2026-06-22T19:06:47.906Z] [INFO] [DISPATCH] Low-Risk (avgRisk: 1.3) -> nvidia (konfigurierter Primary)
+[2026-06-22T19:06:47.907Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:06:47.908Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:06:48.039Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:06:48.832Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:51.883Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:06:51.884Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:06:51.885Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:06:51.886Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:06:51.902Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:06:52.663Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:55.676Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:55.677Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:06:55.678Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:06:55.680Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:06:55.962Z] [WARN] [CRITICAL] "Mein klarer Herr" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:55.963Z] [WARN] [CRITICAL] "wir" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:55.964Z] [WARN] [CRITICAL] "Schmale Flut" -> pure_number (groq). Fallback auf Original.
+[2026-06-22T19:06:55.965Z] [WARN] [ROUTER] groq: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:06:55.966Z] [WARN] [DISPATCH] translate groq fehlgeschlagen: Provider groq lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:06:55.967Z] [INFO] [DISPATCH] translate -> nvidia (auto)
+[2026-06-22T19:06:55.968Z] [INFO] [BATCH] (nvidia/auto) [3 Texte] KeyIndex:0/1: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:06:56.009Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:06:56.809Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:06:59.854Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:06:59.856Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:06:59.857Z] [INFO] [DISPATCH] translate -> openrouter (auto)
+[2026-06-22T19:06:59.859Z] [INFO] [BATCH] (openrouter/auto) [3 Texte] KeyIndex:0/2: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:07:05.204Z] [WARN] [ROUTER] openrouter: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:07:05.205Z] [WARN] [DISPATCH] translate openrouter fehlgeschlagen: Provider openrouter lieferte keine brauchbaren Uebersetzungen.
+[2026-06-22T19:07:05.206Z] [INFO] [DISPATCH] translate -> openrouter (openrouter/free)
+[2026-06-22T19:07:05.207Z] [INFO] [BATCH] (openrouter/openrouter/free) [3 Texte] KeyIndex:0/2: Mein klarer Herr | wir | Schmale Flut
+[2026-06-22T19:07:12.094Z] [INFO] [BATCH-RUN] #7/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 43
+[2026-06-22T19:07:12.095Z] [INFO] [DISPATCH] Ambiguous-Risk (avgRisk: 2.3) -> Stress-Test erforderlich
+[2026-06-22T19:07:12.098Z] [INFO] [DISPATCH] translate -> nvidia (deepseek-ai/deepseek-v4-flash)
+[2026-06-22T19:07:12.100Z] [INFO] [BATCH] (nvidia/deepseek-ai/deepseek-v4-flash) [3 Texte] KeyIndex:0/1: Stiller Strom | Stille Krone | Anzahl der Cluster
+[2026-06-22T19:07:12.221Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:07:13.024Z] [WARN] [WARN] nvidia API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:07:16.101Z] [ERROR] [ROUTER] nvidia: WIEDERHOLTER Rate-Limit — zu viele Anfragen → Aktuelles Zeitfenster erschöpft. Cooldown oder Key-Rotation aktiv.
+[2026-06-22T19:07:16.102Z] [WARN] [DISPATCH] translate nvidia fehlgeschlagen: Request failed with status code 429
+[2026-06-22T19:07:16.103Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:07:16.105Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Stiller Strom | Stille Krone | Anzahl der Cluster
+[2026-06-22T19:07:16.110Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:07:16.867Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:07:19.884Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:07:19.885Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:07:19.886Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:07:19.887Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Stiller Strom | Stille Krone | Anzahl der Cluster
+[2026-06-22T19:07:20.327Z] [INFO] [ACCEPT-WARN] "Stiller Strom" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:07:20.328Z] [INFO] [ACCEPT-WARN] "Stille Krone" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:07:20.329Z] [INFO] [ACCEPT-WARN] "Anzahl der Cluster" akzeptiert mit Warnings: UNBALANCED_QUOTES, EXTREME_LENGTH_CHANGE
+[2026-06-22T19:07:20.330Z] [INFO] [INFO] 3/3 Uebersetzungen mit Soft-Warnings akzeptiert (Deep Polish geplant).
+[2026-06-22T19:07:20.336Z] [INFO] [BATCH-RUN] #8/2 | Provider: nvidia | Model: deepseek-ai/deepseek-v4-flash | KeyIndex: 0/1 | Items: 3 | Chars: 198
+[2026-06-22T19:07:20.338Z] [INFO] [DISPATCH] UI-String Batch (3/3) -> fcm (score: 85) [dynamic]
+[2026-06-22T19:07:20.339Z] [INFO] [DISPATCH] translate -> fcm (auto)
+[2026-06-22T19:07:20.340Z] [INFO] [BATCH] (fcm/auto) [3 Texte] KeyIndex:0/0: Steigert die Effizienz. | ID:1 [field=NAME | ctx... | Karrun'Tai-Schrein-Auf...
+[2026-06-22T19:07:20.346Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 1/3 in 750ms.
+[2026-06-22T19:07:21.101Z] [WARN] [WARN] fcm API fehlgeschlagen (). Retry 2/3 in 3000ms.
+[2026-06-22T19:07:24.105Z] [WARN] [ROUTER] fcm: Netzwerkfehler (0) → Keine Internetverbindung oder Provider offline. DNS/Proxy prüfen.
+[2026-06-22T19:07:24.107Z] [WARN] [DISPATCH] translate fcm fehlgeschlagen: AggregateError
+[2026-06-22T19:07:24.108Z] [INFO] [DISPATCH] translate -> groq (auto)
+[2026-06-22T19:07:24.109Z] [INFO] [BATCH] (groq/auto) [3 Texte] KeyIndex:0/3: Steigert die Effizienz. | ID:1 [field=NAME | ctx... | Karrun'Tai-Schrein-Auf...
+[2026-06-22T19:07:24.524Z] [INFO] [ACCEPT-WARN] "ID:1 [field=NAME | ctx:risk=2 " akzeptiert mit Warnings: UNBALANCED_QUOTES
+[2026-06-22T19:07:24.526Z] [INFO] [INFO] 1/3 Uebersetzungen mit Soft-Warnings akzeptiert (Deep Polish geplant).
+[2026-06-22T19:07:24.534Z] [INFO] [INFO] QA-Phase: Optimiere 159 Texte (Deep Polish aktiv)...
+[2026-06-22T19:07:24.538Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:07:32.417Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:07:33.011Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 592ms (2 Eintraege)
+[2026-06-22T19:07:34.698Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:07:43.691Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 11271ms (2 Eintraege)
+[2026-06-22T19:08:05.151Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 32730ms (2 Eintraege)
+[2026-06-22T19:08:05.151Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:08:05.153Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:08:05.168Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:08:10.547Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:08:11.192Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 643ms (2 Eintraege)
+[2026-06-22T19:08:11.521Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:08:12.212Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:08:30.933Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 20383ms (2 Eintraege)
+[2026-06-22T19:08:32.709Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 22158ms (2 Eintraege)
+[2026-06-22T19:08:32.710Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:08:32.711Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:08:32.719Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:08:44.277Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:08:44.589Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 310ms (2 Eintraege)
+[2026-06-22T19:08:50.661Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 6381ms (2 Eintraege)
+[2026-06-22T19:08:53.757Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 9477ms (2 Eintraege)
+[2026-06-22T19:08:53.757Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:08:53.758Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:08:53.764Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:08:54.738Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:09:05.372Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:09:05.714Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 340ms (2 Eintraege)
+[2026-06-22T19:09:06.636Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:09:14.464Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 9089ms (2 Eintraege)
+[2026-06-22T19:09:15.860Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 10485ms (2 Eintraege)
+[2026-06-22T19:09:15.861Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:09:15.863Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:09:15.869Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:09:21.379Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:09:21.655Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 274ms (2 Eintraege)
+[2026-06-22T19:09:22.948Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:09:28.274Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 6891ms (2 Eintraege)
+[2026-06-22T19:09:30.272Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:09:36.978Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 15596ms (2 Eintraege)
+[2026-06-22T19:09:36.980Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:09:36.981Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:09:36.987Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:09:47.414Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:09:47.763Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 347ms (2 Eintraege)
+[2026-06-22T19:09:48.234Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:09:50.343Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:09:54.512Z] [INFO] [AUTH] Key-Rotation fuer openrouter: Wechsle zu Key #2/2
+[2026-06-22T19:09:54.701Z] [INFO] [AUTH] Key #1/2 fuer openrouter im Cooldown bis 2026-06-22T19:10:24.512Z, ueberspringe.
+[2026-06-22T19:09:54.702Z] [WARN] [AUTH] Alle Keys fuer openrouter im Cooldown. Fallback auf Key #1/2
+[2026-06-22T19:09:58.467Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 11050ms (2 Eintraege)
+[2026-06-22T19:10:00.037Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 12621ms (2 Eintraege)
+[2026-06-22T19:10:00.038Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:10:00.039Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:10:00.047Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:10:07.631Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:10:08.038Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Die Kapazität der verfügbaren " — fallback to source.
+[2026-06-22T19:10:08.039Z] [WARN] [SHIELD-LEAK] Stage restore failed for "ID:1 [field=NAME | ctx:risk=2 " — fallback to source.
+[2026-06-22T19:10:08.040Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 407ms (2 Eintraege)
+[2026-06-22T19:10:16.821Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 9187ms (2 Eintraege)
+[2026-06-22T19:10:17.549Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 9913ms (2 Eintraege)
+[2026-06-22T19:10:17.549Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:10:17.550Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:10:17.557Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:10:23.665Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:10:24.010Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 344ms (2 Eintraege)
+[2026-06-22T19:10:25.144Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:10:31.198Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 7531ms (2 Eintraege)
+[2026-06-22T19:10:35.896Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 12229ms (2 Eintraege)
+[2026-06-22T19:10:35.897Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:10:35.898Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:10:36.058Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:10:47.304Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:10:47.626Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 320ms (2 Eintraege)
+[2026-06-22T19:10:52.713Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 5406ms (2 Eintraege)
+[2026-06-22T19:11:00.888Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 13581ms (2 Eintraege)
+[2026-06-22T19:11:00.889Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:11:00.890Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:11:00.895Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:11:05.511Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:11:05.817Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Hochwächter des Flutreichs" — fallback to source.
+[2026-06-22T19:11:05.817Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Stimme des Flutinnenreichs" — fallback to source.
+[2026-06-22T19:11:05.818Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 306ms (2 Eintraege)
+[2026-06-22T19:11:06.726Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:07.378Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:08.503Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:11:15.037Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 9524ms (2 Eintraege)
+[2026-06-22T19:11:19.735Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 14221ms (2 Eintraege)
+[2026-06-22T19:11:19.736Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:11:19.737Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:11:19.741Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:11:22.224Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:11:22.513Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 288ms (2 Eintraege)
+[2026-06-22T19:11:23.209Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:23.275Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:25.388Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:11:31.104Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 8878ms (2 Eintraege)
+[2026-06-22T19:11:35.406Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 13179ms (2 Eintraege)
+[2026-06-22T19:11:35.407Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:11:35.407Z] [INFO] [AB-POLISH] Gewinner-Verteilung: openrouter: 1/2, groq: 1/2
+[2026-06-22T19:11:35.412Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:11:36.561Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:38.883Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:11:45.473Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:11:45.760Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Greenfen Legion" — fallback to source.
+[2026-06-22T19:11:45.761Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Moonfen Guard" — fallback to source.
+[2026-06-22T19:11:45.762Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 287ms (2 Eintraege)
+[2026-06-22T19:11:46.770Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:47.201Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:11:48.556Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:11:48.633Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:11:56.502Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 11026ms (2 Eintraege)
+[2026-06-22T19:11:57.577Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 12100ms (2 Eintraege)
+[2026-06-22T19:11:57.577Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:11:57.578Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:11:57.582Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:11:58.705Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:12:02.593Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:12:02.914Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 319ms (2 Eintraege)
+[2026-06-22T19:12:07.088Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 4492ms (2 Eintraege)
+[2026-06-22T19:12:13.160Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 10564ms (2 Eintraege)
+[2026-06-22T19:12:13.161Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:12:13.162Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:12:13.167Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:12:14.165Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:12:18.475Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:12:18.746Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 270ms (2 Eintraege)
+[2026-06-22T19:12:25.607Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 7130ms (2 Eintraege)
+[2026-06-22T19:12:26.733Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 8256ms (2 Eintraege)
+[2026-06-22T19:12:26.734Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:12:26.735Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:12:26.740Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:12:34.743Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:12:35.035Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 290ms (2 Eintraege)
+[2026-06-22T19:12:41.911Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 7166ms (2 Eintraege)
+[2026-06-22T19:12:46.280Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 11534ms (2 Eintraege)
+[2026-06-22T19:12:46.280Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:12:46.281Z] [INFO] [AB-POLISH] Gewinner-Verteilung: openrouter: 1/2, groq: 1/2
+[2026-06-22T19:12:46.287Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:12:50.116Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:12:50.454Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Rangikete" — fallback to source.
+[2026-06-22T19:12:50.455Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Matakite" — fallback to source.
+[2026-06-22T19:12:50.455Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 337ms (2 Eintraege)
+[2026-06-22T19:12:52.212Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:12:54.454Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:12:57.455Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 7336ms (2 Eintraege)
+[2026-06-22T19:13:00.766Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 10647ms (2 Eintraege)
+[2026-06-22T19:13:00.766Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:13:00.767Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:13:00.772Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:13:02.757Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:13:08.510Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:13:08.813Z] [WARN] [SHIELD-LEAK] Stage restore failed for "aus dem Mondhain" — fallback to source.
+[2026-06-22T19:13:08.814Z] [WARN] [SHIELD-LEAK] Stage restore failed for "von Halorin, Moorherr" — fallback to source.
+[2026-06-22T19:13:08.815Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 304ms (2 Eintraege)
+[2026-06-22T19:13:10.307Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:13:17.665Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 9153ms (2 Eintraege)
+[2026-06-22T19:13:18.411Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 9899ms (2 Eintraege)
+[2026-06-22T19:13:18.412Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:13:18.413Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:13:18.418Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:13:26.077Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:13:26.470Z] [WARN] [SHIELD-LEAK] Stage restore failed for "von Tierlachs, Hofpatron" — fallback to source.
+[2026-06-22T19:13:26.471Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Marschall des mondbeschienenen" — fallback to source.
+[2026-06-22T19:13:26.472Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 393ms (2 Eintraege)
+[2026-06-22T19:13:27.593Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:13:29.248Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:13:34.210Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 8130ms (2 Eintraege)
+[2026-06-22T19:13:34.213Z] [INFO] [AUTH] Key-Rotation fuer openrouter: Wechsle zu Key #2/2
+[2026-06-22T19:13:34.427Z] [INFO] [AUTH] Key #1/2 fuer openrouter im Cooldown bis 2026-06-22T19:14:04.213Z, ueberspringe.
+[2026-06-22T19:13:34.428Z] [WARN] [AUTH] Alle Keys fuer openrouter im Cooldown. Fallback auf Key #1/2
+[2026-06-22T19:13:47.622Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 21542ms (2 Eintraege)
+[2026-06-22T19:13:47.623Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:13:47.623Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:13:47.630Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:13:48.992Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:13:58.891Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:13:59.194Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 301ms (2 Eintraege)
+[2026-06-22T19:13:59.599Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:00.431Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:03.748Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 4854ms (2 Eintraege)
+[2026-06-22T19:14:05.185Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 6290ms (2 Eintraege)
+[2026-06-22T19:14:05.186Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:14:05.187Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:14:05.192Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:14:06.172Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:11.672Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:14:12.280Z] [WARN] [AB-POLISH] groq/auto fehlgeschlagen: Ungueltige polish-Antwort: 25/2.
+[2026-06-22T19:14:12.672Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:18.594Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 6919ms (2 Eintraege)
+[2026-06-22T19:14:25.320Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 13645ms (2 Eintraege)
+[2026-06-22T19:14:25.320Z] [INFO] [AB-POLISH] 2/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:14:25.321Z] [INFO] [AB-POLISH] Gewinner-Verteilung: openrouter: 2/2
+[2026-06-22T19:14:25.327Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:14:28.862Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:14:29.095Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 232ms (2 Eintraege)
+[2026-06-22T19:14:33.260Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 4396ms (2 Eintraege)
+[2026-06-22T19:14:36.204Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 7340ms (2 Eintraege)
+[2026-06-22T19:14:36.205Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:14:36.206Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:14:36.211Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:14:40.081Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:14:40.503Z] [WARN] [AB-POLISH] groq/auto fehlgeschlagen: Ungueltige polish-Antwort: 16/2.
+[2026-06-22T19:14:40.772Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:42.685Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:43.016Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:14:47.362Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 7279ms (2 Eintraege)
+[2026-06-22T19:14:53.528Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 13444ms (2 Eintraege)
+[2026-06-22T19:14:53.528Z] [INFO] [AB-POLISH] 2/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:14:53.529Z] [INFO] [AB-POLISH] Gewinner-Verteilung: openrouter: 2/2
+[2026-06-22T19:14:53.536Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:14:57.502Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:14:57.718Z] [WARN] [SHIELD-LEAK] Stage restore failed for "Daughter" — fallback to source.
+[2026-06-22T19:14:57.718Z] [WARN] [SHIELD-LEAK] Stage restore failed for "children" — fallback to source.
+[2026-06-22T19:14:57.719Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 216ms (2 Eintraege)
+[2026-06-22T19:14:59.148Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:14:59.231Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:15:03.473Z] [INFO] [AB-POLISH] openrouter/openrouter/free abgeschlossen in 5968ms (2 Eintraege)
+[2026-06-22T19:15:05.624Z] [INFO] [AB-POLISH] openrouter/auto abgeschlossen in 8120ms (2 Eintraege)
+[2026-06-22T19:15:05.625Z] [INFO] [AB-POLISH] 3/3 Provider erfolgreich. Vergleiche Ergebnisse...
+[2026-06-22T19:15:05.626Z] [INFO] [AB-POLISH] Gewinner-Verteilung: groq: 2/2
+[2026-06-22T19:15:05.630Z] [INFO] [DISPATCH] audit -> openrouter (auto)
+[2026-06-22T19:15:06.810Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 1/3 in 750ms.
+[2026-06-22T19:15:09.147Z] [WARN] [WARN] openrouter API fehlgeschlagen (Request failed with status code 429). Retry 2/3 in 3000ms.
+[2026-06-22T19:15:13.314Z] [INFO] [AUTH] Key-Rotation fuer openrouter: Wechsle zu Key #2/2
+[2026-06-22T19:15:13.588Z] [INFO] [AUTH] Key #1/2 fuer openrouter im Cooldown bis 2026-06-22T19:15:43.314Z, ueberspringe.
+[2026-06-22T19:15:13.590Z] [WARN] [AUTH] Alle Keys fuer openrouter im Cooldown. Fallback auf Key #1/2
+[2026-06-22T19:15:26.004Z] [INFO] [AB-POLISH] Starte Multi-Provider Vergleich mit 3 Providern: groq/auto, openrouter/auto, openrouter/openrouter/free
+[2026-06-22T19:15:26.242Z] [INFO] [AB-POLISH] groq/auto abgeschlossen in 237ms (2 Eintraege)
