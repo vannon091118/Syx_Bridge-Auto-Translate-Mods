@@ -31,7 +31,7 @@ const CORE = path.join(__dirname, '..');
 const RELEASE_ROOT = path.join(CORE, 'release');
 
 // ── Config ────────────────────────────────────────────────────────────
-const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt', 'VannonDoNotPlayGames.js'];
+const ROOT_SOURCE_FILES = ['start.bat', 'README.md', '_Info.txt', 'TUTORIAL.txt'];
 const MOD_ASSET_DIRS = ['V70', 'V71'];
 const CORE_RUNTIME_FILES = ['index.js', 'package.json', 'LICENSE'];
 

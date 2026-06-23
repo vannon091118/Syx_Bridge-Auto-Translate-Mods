@@ -3,7 +3,7 @@
 > **Version:** v0.22.0 | **Stand:** 2026-06-22
 > **Funktion:** Fortsetzung des FREEZE_INDEX — dokumentiert den Entwicklungsprozess AB der Sinnhaftigkeitsanalyse (15 systemische Fixes).
 > **Vorgänger:** `FREEZE_INDEX.md` (142 Einträge, 16.06.–20.06.2026, archiviert).
-> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (88) = **230 Buch-Einträge**
+> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (93) = **235 Buch-Einträge**
 > **Vorgänger:** `FREEZE_INDEX_v0.20.0_archived.md` — 142 Glossary-Einträge, 33 Sektionen, gesamter Entwicklungsprozess 16.06.–20.06.2026.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
 > **Archivstand:** FREEZE_INDEX_v0.20.0.md wurde am 2026-06-20 als abgeschlossen archiviert. Dieses Dokument (FREEZE_INDEX_2) setzt die Indexierung ab Commit `9a853ef` fort.
@@ -36,8 +36,14 @@
 22. [Item 2 Phase 2 — deepPolishBatch Metriken in model_task_metrics (2026-06-22)](#22-item-2-phase-2--deeppolishbatch-metriken-in-model_task_metrics)
 23. [Item 3/9 — rankModel() DB-gestützt statt String-Heuristik (2026-06-22)](#23-item-39--rankmodel-db-gestützt-statt-string-heuristik)
 24. [Commit-Layer Rewrite Plan — Verifikation + Broken-Entry-Repair (2026-06-22)](#24-commit-layer-rewrite-plan--verifikation--broken-entry-repair)
+25. [Doku-Konsolidierung — 3 Commits (2026-06-22)](#25-doku-konsolidierung--3-commits-in-chronologischer-reihenfolge-2026-06-22)
+26. [Session Report — Forensische Analyse 2026-06-22 (2026-06-22)](#26-session-report--forensische-analyse-2026-06-22-commit-911dee4)
+27. [Weitere Doku-Dokumente — Language-Tag + Bug-Report + Prototype (2026-06-22)](#27-weitere-doku-dokumente--language-tag-credit-fix--bug-report--prototype-comparison-2026-06-22)
+28. [Workflow + HANDSHAKE-2026-06-22 archiviert (2026-06-22)](#28-workflow--handshake-2026-06-22--dokumente-archiviert)
+29. [MASTER_DOC §3 — 3 behobene Bugs archiviert (2026-06-23)](#29-master_doc--3--3-behobene-bugs-archiviert-2026-06-23)
+30. [MASTER_DOC §6 — 2 erledigte ROADMAP-Items archiviert (2026-06-23)](#30-master_doc--6--2-erledigte-roadmap-items-archiviert-2026-06-23)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **88** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **93** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1 + §29: 3 + §30: 2)
 
 ---
 
@@ -1052,9 +1058,69 @@
 
 ---
 
+## 29. MASTER_DOC §3 — 3 behobene Bugs archiviert (2026-06-23)
+
+> **Aktion:** 3 OBSOLETE-Einträge aus MASTER_DOC.md §3 (Offene Bugs) ins Buch überführt.
+> **Quelle:** `core/archive/docs/MASTER_DOC.md` §3 — F.C, A3-1, A3-2 (alle ✅ BEHOBEN)
+> **Regel:** Behobene Bugs die im CHANGELOG dokumentiert sind gehören nicht in die SSOT.
+> **Datum der Archivierung:** 2026-06-23
+
+---
+
+### 📋 MD3-001 — F.C: CodeRabbit-Auto-Fix unreviewed
+- **Datum:** 2026-06-21 | **Version:** v0.22.0
+- **Kategorie:** Behobener Bug (aus MASTER_DOC §3 archiviert)
+- **Zusammenfassung:** Automatische Änderungen aus PR #5 (CodeRabbit-Auto-Fix) könnten unentdeckte Bugs enthalten. Diff-Review: 2 Regex-Bereinigungen in gui-handlers.js (readDisplayName) und polish-arbiter.js (Bracket-Regex), kein Verhaltensdiff.
+- **Ursache der Obsoleszenz:** BEHOBEN + VERIFIZIERT. Diff-Review 2026-06-21, Commit `1e1e846`.
+- **LIVE-Ersatz:** CHANGELOG [v0.22.0]
+- **Status:** ✅ Archiviert — kein offener Rest
+
+### 📋 MD3-002 — A3-1: sos-runtime.js Settings-Pfad hardcodiert
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Behobener Bug (aus MASTER_DOC §3 archiviert)
+- **Zusammenfassung:** Plugin-Readiness-Audit A3: sos-runtime.js Settings-Pfad war hardcodiert statt über GameAdapter abstrahiert. Fix: `getLauncherSettingsPath()` implementiert (sos-runtime.js:41,57,91).
+- **Ursache der Obsoleszenz:** BEHOBEN + VERIFIZIERT. Commit [ITEM-0a] 2026-06-22.
+- **LIVE-Ersatz:** CHANGELOG [ITEM-0a] + FREEZE_INDEX_2 §19
+- **Status:** ✅ Archiviert — kein offener Rest
+
+### 📋 MD3-003 — A3-2: index.js Plugin-Instanziierung hart codiert
+- **Datum:** 2026-06-22 | **Version:** v0.22.0
+- **Kategorie:** Behobener Bug (aus MASTER_DOC §3 archiviert)
+- **Zusammenfassung:** Plugin-Readiness-Audit A3: index.js Plugin-Instanziierung war hart codiert statt über Config/CLI-Flag. Fix: `createPlugin(CONFIG.GAME)` via plugin-registry.js:23, index.js:19.
+- **Ursache der Obsoleszenz:** BEHOBEN + VERIFIZIERT. Commit [ITEM-0a] 2026-06-22.
+- **LIVE-Ersatz:** CHANGELOG [ITEM-0a] + FREEZE_INDEX_2 §19
+- **Status:** ✅ Archiviert — kein offener Rest
+
+---
+
+## 30. MASTER_DOC §6 — 2 erledigte ROADMAP-Items archiviert (2026-06-23)
+
+> **Aktion:** 2 OBSOLETE-Roadmap-Items aus MASTER_DOC.md §6 (Roadmap) ins Buch überführt.
+> **Quelle:** `core/archive/docs/MASTER_DOC.md` §6 — ~~sos-runtime~~ (A3-1), ~~Plugin-Instanziierung~~ (A3-2)
+> **Regel:** Erledigte ROADMAP-Items mit CHANGELOG-Verweis gehören nicht in die SSOT-Roadmap.
+> **Datum der Archivierung:** 2026-06-23
+
+---
+
+### 📋 RD-011 — sos-runtime.js Settings-Pfad in GameAdapter abstrahieren (A3-1)
+- **Datum:** 2026-06-22 | **Commit:** [ITEM-0a] | **Version:** v0.22.0
+- **Kategorie:** Erledigter Roadmap-Punkt (aus MASTER_DOC §6 archiviert)
+- **Zusammenfassung:** P1-Aufgabe: sos-runtime.js Settings-Pfad war hardcodiert. `getLauncherSettingsPath()` in GameAdapter implementiert, von SongsOfSyxPlugin geerbt.
+- **LIVE-Ersatz:** CHANGELOG [ITEM-0a] + FREEZE_INDEX_2 §19
+- **Status:** ✅ Archiviert
+
+### 📋 RD-012 — index.js Plugin-Instanziierung über Config/CLI-Flag (A3-2)
+- **Datum:** 2026-06-22 | **Commit:** [ITEM-0a] | **Version:** v0.22.0
+- **Kategorie:** Erledigter Roadmap-Punkt (aus MASTER_DOC §6 archiviert)
+- **Zusammenfassung:** P1-Aufgabe: index.js Plugin-Instanziierung war hart codiert. `createPlugin(CONFIG.GAME)` via plugin-registry.js implementiert.
+- **LIVE-Ersatz:** CHANGELOG [ITEM-0a] + FREEZE_INDEX_2 §19
+- **Status:** ✅ Archiviert
+
+---
+
 *📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
 *Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 88 (dieses Dokument) = **230 Buch-Einträge**.*
+*Gesamt: 142 (archiviert) + 93 (dieses Dokument) = **235 Buch-Einträge**.*
 *CODE IST DIE EINZIGE WAHRHEIT.*
 
 ---

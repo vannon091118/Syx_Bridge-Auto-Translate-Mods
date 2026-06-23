@@ -1,4 +1,4 @@
-# 📖 INDEX — core/src/ (27 Dateien, ~10.000 LOC)
+# 📖 INDEX — core/src/ (30 Dateien, ~10.000 LOC)
 
 > **Generiert:** 2026-06-20 | **Version:** v0.20.0-pre-release
 > **Zuletzt verifiziert:** 2026-06-20 (better-sqlite3-Migration + translateHttpError)
@@ -13,7 +13,10 @@
 | Datei | LOC | Funktionen | Beschreibung |
 |-------|-----|------------|--------------|
 | [cli-progress.js](#cli-progressjs) | 267 | 19 | ANSI-Progress-Box für Non-GUI-Mode |
-| [config-runtime.js](#config-runtimejs) | 975 | 29 | Config, API-Keys, Provider, Model-Discovery |
+| [config-keys.js](#config-keysjs) | 82 | 12 | Key-Management, Env-Flags, Provider-URLs (S-006) |
+| [config-discovery.js](#config-discoveryjs) | 141 | 11 | Model-Metriken, Ranking, Filtering (S-004) |
+| [config-persist.js](#config-persistjs) | 147 | 1 | .env-Persistenz Factory (S-005) |
+| [config-runtime.js](#config-runtimejs) | 763 | 29 | ConfigRuntime-Klasse, Re-Exports (S-004/005/006) |
 | [context-packets.js](#context-packetsjs) | 190 | 6 | Risk-Scoring, Context-Enrichment |
 | [db.js](#dbjs) | 325 | 8 | SQLite Connection, Init, Migration |
 | [diagnostics.js](#diagnosticsjs) | 55 | 2 | System-Diagnose, Cache-Clear |
@@ -73,8 +76,53 @@
 
 ---
 
-## config-runtime.js (985 LOC)
-*Config-Management: API-Keys, Provider-Discovery, Model-Ranking, .env-Persistenz, translateHttpError-Integration*
+## config-keys.js (82 LOC)
+*Key-Management, Env-Flag-Parsing, Provider-URL-Konstanten. Extrahiert aus config-runtime.js (S-006).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 14 | `ENV_PATH` | .env Pfad-Konstante |
+| 17-19 | `OLLAMA_DEFAULT_URL`, `PLAYER2_DEFAULT_URL`, `FCM_DEFAULT_URL` | Provider-URL-Konstanten |
+| 23 | `firstDefined(...values)` | Erster definierter Wert |
+| 30 | `parseEnvFlag(value, defaultValue)` | Env-Boolean parsen |
+| 39 | `parseDryRunFlag(value)` | Dry-Run-Flag parsen |
+| 41 | `isDryRun()` | Dry-Run-Status prüfen |
+| 46 | `resetDryRunCache()` | Dry-Run-Cache leeren |
+| 48 | `getGateCounterOpts(logger)` | Gate-Counter-Optionen |
+| 53 | `parseKeys(val)` | Komma-separierte Keys parsen |
+| 59 | `maskSecret(value)` | Key-Masking für Logs |
+
+---
+
+## config-discovery.js (141 LOC)
+*Model-Metriken, Ranking, LLM-Filterung. Extrahiert aus config-runtime.js (S-004).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 10-15 | `OPENROUTER_FREE_MODEL`, `GROQ_FALLBACK_MODELS`, `OLLAMA_FALLBACK_MODELS`, `NVIDIA_FALLBACK_MODELS`, `MODEL_BLACKLIST` | Provider-Konstanten |
+| 28 | `setMetricsCache(snapshot)` | Beide Metrik-Caches setzen |
+| 63 | `isUsableTextModel(model)` | Modell-Tauglichkeits-Check |
+| 70 | `rankModel(model, provider)` | DB-gestütztes Model-Ranking |
+| 82 | `getModelMetrics(provider, model, taskType)` | Per-Task Metriken |
+| 102 | `filterLLMs(models, freeOnly)` | LLM-Filter + Sortierung |
+| 111 | `getDefaultModelForProvider(provider)` | Default-Modell pro Provider |
+
+---
+
+## config-persist.js (147 LOC)
+*.env-Persistenz via Factory-Pattern. Extrahiert aus config-runtime.js (S-005).*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 23 | `createConfigPersist(defaultGame)` | Factory (injected defaultGame) |
+| 79 | `readEnvValue(lines, key)` | .env-Wert lesen |
+| 95 | `persistSingleEnvVar(key, value)` | Einzelnen .env-Key schreiben |
+| 133 | `persistConfigToEnv(config)` | Alle SyxBridge-Keys schreiben |
+
+---
+
+## config-runtime.js (763 LOC)
+*ConfigRuntime-Klasse + Re-Exports aller config-* Module. Importiert von config-keys, config-discovery, config-persist.*
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
