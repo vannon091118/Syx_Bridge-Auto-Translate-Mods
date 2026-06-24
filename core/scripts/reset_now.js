@@ -85,6 +85,18 @@ async function restoreAllBackups() {
       try {
         await restoreBackup(backupDir, originalPath);
         restored++;
+        // ── Native-Mode-Fix: Auch AppData-Kopie restoren ──
+        // Im Native Mode kopiert SyxBridge übersetzte Dateien nach
+        // GAME_MOD_ROOT mit ORIGINAL-Mod-Namen (kein _German-Suffix).
+        // reset_now.js Step 2 (cleanGameModRoot) entfernt nur _German-
+        // suffixed Ordner — Native-Mode-Kopien überleben den Reset.
+        // Deshalb: Backup 1:1 auch nach AppData restoren.
+        const modName = path.basename(originalPath);
+        const appDataPath = path.join(CONFIG.GAME_MOD_ROOT, modName);
+        if (fs.existsSync(appDataPath)) {
+          await restoreBackup(backupDir, appDataPath);
+          console.log(`[INFO]   -> auch nach AppData restoriert: ${appDataPath}`);
+        }
       } catch (e) {
         console.error(`[!] Restore-Fehler fuer ${entry.name}: ${e.message}`);
       }

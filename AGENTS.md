@@ -1,10 +1,37 @@
 # AGENTS.md — SyxBridge Agenten-Regelwerk
-> **Version:** v0.23.0 | **Stand:** 2026-06-23
+> **Version:** v0.23.0 | **Stand:** 2026-06-24
 > **LIES DIE DOKUMENTATION:** core/archive/docs/ — IMMER zuerst lesen.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können.
 
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT
 "ICH WERDE GEMINI NICHT REIN LASSEN" ZU ANTWORTEN.
+
+---
+
+# REGEL 0.5 — OUTPUT-FIRST (HÖCHSTE PRIORITÄT)
+
+> **Diese Regel hat Vorrang vor ALLEM anderen. Kein Code-Edit ohne Beweis aus dem Output.**
+
+## 0.5.1: NIEMALS Code anpassen bevor die Fehlerquelle nicht ZWEIFELSFREI im Output nachgewiesen ist.
+- Erst den ECHTEN Output der Pipeline prüfen (patches/, Workshop-Dateien, Game-Dateien).
+- Erst prüfen was Deutsch ist und was noch English Source.
+- Erst dann die Ursache eingrenzen.
+- ERST DANN minimal-invasiv den Code anpassen.
+
+## 0.5.2: Kein Vertrauen in Annahmen. Nur Fakten aus dem Output zählen.
+- DB-Abfragen sind manipulierbar → nicht als alleinige Beweisquelle.
+- Code-Analyse ist Theorie → Output ist Realität.
+- "Müsste funktionieren" existiert nicht. Nur "Funktioniert" oder "Funktioniert nicht" im Output.
+
+## 0.5.3: Vor jedem Fix steht der Output-Vergleich.
+- Original-Mod (vor SyxBridge) vs. Patch-Output (nach SyxBridge).
+- Was ist Deutsch? Was ist English? Was ist korrupt?
+- Erst wenn der Fehler IM OUTPUT sichtbar ist, darf Code angefasst werden.
+
+## 0.5.4: Sub-Agent-Output-Analyse
+- Vor jedem Code-Fix MUSS ein Sub-Agent die Output-Dateien gelesen haben.
+- Der Sub-Agent berichtet: X Dateien geprüft, Y Strings Deutsch, Z Strings English, W korrupt.
+- Erst nach diesem Bericht darf Code editiert werden.
 
 ---
 

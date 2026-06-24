@@ -5,6 +5,44 @@
 
 ---
 
+## [OUTPUT-FIRST-SESSION] — 2026-06-24 — _Info.txt Übersetzung + Dead Code + Reset-Fix + REGEL 0.5
+
+> **Composite:** `c39j31n4a5p22`
+> **Warum:** Output-Analyse (REGEL 0.5) zeigte 3 Bugs: _Info.txt DESC/INFO 100% English, tote Imports, Native-Mode Reset unvollständig.
+> **Dateien:** `runtime-ops.js`, `SongsOfSyxPlugin.js`, `text-core.js`, `reset_now.js`, `AGENTS.md`
+
+### _Info.txt in Übersetzungspipeline aufgenommen
+- `_Info.txt` wurde in `translateMod()` explizit aus der Übersetzung gefiltert → DESC/INFO blieben English
+- **Fix:** Filter entfernt, `_Info.txt` wird jetzt normal mitübersetzt (NAME, DESC, INFO)
+- **AUTHOR-Schutz:** Original-Autor wird NACH der Übersetzung per Regex wiederhergestellt (nicht parseMetadata→formatMetadata wg. Escaping-Bug)
+- **Native-Mode:** `_Info.txt` wird jetzt auch ins Workshop/AppData kopiert
+- `applyPatchModifications()`-Kommentar aktualisiert (DESC wird jetzt via Pipeline übersetzt)
+- **Dateien:** `core/src/runtime-ops.js`, `core/src/plugins/SongsOfSyxPlugin.js`
+
+### Dead Code entfernt
+- `SongsOfSyxPlugin.js`: `WATERMARK_CONFIG` unused import entfernt (ZWSP-Injektion war bereits entfernt)
+- `text-core.js`: Doppeltes `require('./extractor')` ohne Destructuring entfernt (Zeile 10)
+- **Dateien:** `core/src/plugins/SongsOfSyxPlugin.js`, `core/src/text-core.js`
+
+### Reset-Fix: Native-Mode AppData-Kopien
+- `reset_now.js` Step 2 (`cleanGameModRoot`) entfernte nur `_German`-suffixed Ordner
+- Native Mode kopiert mit ORIGINAL-Mod-Namen → AppData-Kopien überlebten Reset
+- **Fix:** `restoreAllBackups()` restored Backup jetzt auch nach `GAME_MOD_ROOT` wenn Ordner existiert
+- **Dateien:** `core/scripts/reset_now.js`
+
+### REGEL 0.5 — Output-First
+- Neue Regel GANZ OBEN in AGENTS.md: Erst Output prüfen, dann Code anpassen
+- Faktenbasierte Fehlersuche — kein Vertrauen in Annahmen, nur in echten Output-Dateien
+- **Dateien:** `AGENTS.md`
+
+### Verifikation
+- 100/100 plugin-boundary PASS
+- 49/49 validator PASS
+- 26/26 parser PASS
+- Syntax: 4/4 OK
+
+---
+
 ## [SQLITE-BUSY-FIX] — 2026-06-24 — DB-Lock durch concurrent writes behoben
 
 > **Composite:** `c38j4n3a1p9`

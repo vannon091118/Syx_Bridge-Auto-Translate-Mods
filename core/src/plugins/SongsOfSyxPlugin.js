@@ -13,8 +13,6 @@ const { escapeTextValue, unescapeTextValue } = require('../extractor');
 const path = require('path');
 const os = require('os');
 
-const WATERMARK_CONFIG = require('../watermark-config');
-
 class SongsOfSyxPlugin extends GamePlugin {
 
   // ═══ GameAdapter methods (inherited from SongsOfSyxAdapter pattern) ═══
@@ -86,11 +84,13 @@ class SongsOfSyxPlugin extends GamePlugin {
   }
 
   applyPatchModifications(infoObj, targetLanguage) {
-    // ── Minimal-Invasiv: Original-Autor-Werte erhalten, nur Label anhängen ──
+    // ── Minimal-Invasiv: Nur Label + Credit, niemals AUTHOR anfassen ──
     // NAME: Sprach-Tag anhängen (z.B. "DEUTSCH") — sichtbar im Launcher.
-    // DESC: UNVERÄNDERT lassen — Original-Beschreibung des Autors respektieren.
-    // INFO: Credit nur setzen wenn leer — bestehenden Text des Autors nicht überschreiben.
-    // __OVERWRITE: Wird NICHT angefasst — ist legitime Workshop-Direktive.
+    //        NAME + DESC werden jetzt durch die normale Übersetzungs-Pipeline
+    //        übersetzt (runtime-ops.js filtert _Info.txt nicht mehr aus).
+    // INFO: Credit nur setzen wenn leer — bestehenden Text nicht überschreiben.
+    // AUTHOR: Wird NIEMALS angefasst (Original-Autor muss erhalten bleiben).
+    // __OVERWRITE: Wird NICHT angefasst — legitime Workshop-Direktive.
     const langTag = targetLanguage.toUpperCase();
     const currentName = infoObj.NAME || '';
     if (currentName && !currentName.endsWith(langTag)) {
@@ -99,7 +99,6 @@ class SongsOfSyxPlugin extends GamePlugin {
     if (!infoObj.INFO) {
       infoObj.INFO = this.getTranslationCredit();
     }
-    // DESC wird NICHT modifiziert — Original-Beschreibung des Mod-Autors bleibt.
     return infoObj;
   }
 

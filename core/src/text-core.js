@@ -7,7 +7,6 @@ const {
   getHash,
   stripWatermarks
 } = require('./extractor');
-require('./extractor');
 const { validatePlaceholders, validateTags, checkStructure, classifyStructureIssues } = require('./validator');
 // S-009: Prompt-Building Funktionen extrahiert nach text-prompts.js
 const { buildBatchPrompt, buildProofreadPrompt } = require('./text-prompts');

@@ -286,25 +286,12 @@ function createRuntimeOps(options) {
       }
     }
 
-    // Patch Mode: add patch suffix and notice to the mod copy
-    // Native Mode: also write _Info.txt to staging (will be copied to Workshop later)
-    if (!dryRun) {
-      // ── _Info.txt: Original-Autor-Werte erhalten, nur Label anhängen ──
-      // applyPatchModifications() für BEIDE Modi: NAME += Sprach-Tag, INFO += Credit.
-      // DESC und alle anderen Felder bleiben vom Original-Autor unverändert.
-      // __OVERWRITE-Direktive wird NICHT angefasst.
-      const updatedInfo = { ...info };
-      if (!updatedInfo.NAME) updatedInfo.NAME = modName;
-      gameAdapter.applyPatchModifications(updatedInfo, config.TARGET_LANG);
-      // Nur fehlende Pflichtfelder ergänzen — bestehende Werte NICHT überschreiben.
-      // AUTHOR: spread oben hat bereits info.AUTHOR übernommen.
-      if (!updatedInfo.VERSION) updatedInfo.VERSION = info.VERSION || '1.0.0';
-      if (!updatedInfo.GAME_VERSION_MAJOR) updatedInfo.GAME_VERSION_MAJOR = info.GAME_VERSION_MAJOR || 71;
-      if (updatedInfo.GAME_VERSION_MINOR === undefined) updatedInfo.GAME_VERSION_MINOR = info.GAME_VERSION_MINOR !== undefined ? info.GAME_VERSION_MINOR : 0;
-      await fsp.writeFile(path.join(stagingPath, gameAdapter.getMetadataFileName()), gameAdapter.formatMetadata(updatedInfo), 'utf-8');
-    }
+    // ── _Info.txt wird jetzt MIT übersetzt (NAME, DESC, INFO) ──
+    // applyPatchModifications() läuft NACH der Übersetzung und stellt
+    // sicher: AUTHOR = Original-Autor (niemals überschrieben),
+    // NAME += Sprach-Tag, INFO += Credit (wenn leer).
 
-    const files = (await collectTextFiles(modDir, modDir)).filter(f => f.relativePath !== gameAdapter.getMetadataFileName());
+    const files = await collectTextFiles(modDir, modDir);
     const jobs = (await mapLimit(files, options.maxParallelFiles || 8, readFileJob)).filter(Boolean);
     const allTexts = jobs.flatMap(job => job.replacements.map(r => ({
       source: r.value,
@@ -364,17 +351,64 @@ function createRuntimeOps(options) {
       const skippedCount = results.filter(result => result.skipped).length;
       console.log(`[INFO] Dateien: ${jobs.length}, uebersprungen: ${skippedCount}, geschrieben: ${jobs.length - skippedCount}`);
 
+      // ── _Info.txt: AUTHOR schützen + Sprach-Tag nach Übersetzung ──
+      // _Info.txt wurde mitübersetzt (NAME, DESC, INFO). Jetzt per Regex:
+      // 1. AUTHOR-Zeile auf Original-Autor zurücksetzen (niemals überschreiben!)
+      // 2. NAME-Zeile: Sprach-Tag anhängen ("DEUTSCH")
+      // 3. INFO-Zeile: Credit setzen wenn leer
+      // Regex-Ansatz vermeidet parseMetadata→formatMetadata Roundtrip
+      // (formatMetadata escaped keine Werte → Bug bei " in DESC).
+      const translatedInfoPath = path.join(stagingPath, gameAdapter.getMetadataFileName());
+      if (fs.existsSync(translatedInfoPath)) {
+        try {
+          let translatedInfoContent = await fsp.readFile(translatedInfoPath, 'utf-8');
+          const langTag = config.TARGET_LANG.toUpperCase();
+          // AUTHOR: nur ersetzen wenn Original einen AUTHOR hatte
+          if (info.AUTHOR) {
+            translatedInfoContent = translatedInfoContent.replace(
+              /^(\s*AUTHOR:\s*)".*?",?\s*$/m,
+              `$1"${info.AUTHOR}",`
+            );
+          }
+          // NAME: Sprach-Tag anhängen wenn nicht schon vorhanden
+          const nameMatch = translatedInfoContent.match(/^(\s*NAME:\s*)"(.*?)",?\s*$/m);
+          if (nameMatch) {
+            const nameValue = nameMatch[2];
+            if (nameValue && !nameValue.endsWith(` ${langTag}`)) {
+              translatedInfoContent = translatedInfoContent.replace(
+                /^(\s*NAME:\s*)".*?",?\s*$/m,
+                `$1"${nameValue} ${langTag}",`
+              );
+            }
+          }
+          // INFO: Credit setzen wenn Feld existiert aber leer ist
+          const infoMatch = translatedInfoContent.match(/^(\s*INFO:\s*)"(.*?)",?\s*$/m);
+          if (infoMatch && !infoMatch[2].trim()) {
+            const credit = gameAdapter.getTranslationCredit
+              ? gameAdapter.getTranslationCredit()
+              : 'Translation by Vannon with SyxBridge';
+            translatedInfoContent = translatedInfoContent.replace(
+              /^(\s*INFO:\s*)".*?",?\s*$/m,
+              `$1"${credit}",`
+            );
+          }
+          await fsp.writeFile(translatedInfoPath, translatedInfoContent, 'utf-8');
+          console.log('[INFO] _Info.txt: AUTHOR geschuetzt, Sprach-Tag + Credit gesetzt.');
+        } catch (metaErr) {
+          console.warn(`[WARN] _Info.txt Post-Processing fehlgeschlagen: ${metaErr.message}. Original _Info.txt bleibt unverändert.`);
+        }
+      }
+
       // ── Native Mode: Copy & Replace from staging to Workshop + AppData ──
       // Übersetzte Dateien werden vom Patch-Ordner ins Original-Workshop-Mod
-      // kopiert. _Info.txt wird NICHT überschrieben (Workshop-Metadaten bleiben).
+      // kopiert — inklusive _Info.txt (enthält jetzt übersetzte DESC/NAME).
       //
       // BUGFIX (INPLACE): Songs of Syx lädt Mods NICHT aus dem Steam-Workshop-
       // Ordner, sondern aus %APPDATA%/songsofsyx/mods/. Deshalb müssen die
       // übersetzten Dateien ZUSÄTZLICH nach GAME_MOD_ROOT kopiert werden, damit
       // das Spiel die Übersetzungen ohne manuellen "Sync"-Klick findet.
       if (config.NATIVE_MODE) {
-        const stagingEntries = (await collectTextFiles(stagingPath, stagingPath))
-          .filter(f => f.relativePath !== gameAdapter.getMetadataFileName());
+        const stagingEntries = await collectTextFiles(stagingPath, stagingPath);
 
         // ── Copy to source directory (Steam Workshop or local mod dir) ──
         console.log(`[NATIVE] Kopiere Übersetzungen ins Workshop-Mod: ${modDir}`);
