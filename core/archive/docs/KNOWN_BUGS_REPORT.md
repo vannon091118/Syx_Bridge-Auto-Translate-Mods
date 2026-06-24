@@ -1,8 +1,8 @@
-# 🐛 KNOWN BUGS REPORT — SyxBridge v0.22.0
+# 🐛 KNOWN BUGS REPORT — SyxBridge v0.23.0
 
 > **Typ:** Persistenter Bug-Triage-Report (fortschreiben, nicht überschreiben)
-> **Datum:** 2026-06-19 (erstellt) · 2026-06-22 (letztes Update) | **Methodik:** PHASE 0-4
-> **Faktenbasis:** PREFLIGHT 2026-06-21: 2.702 Einträge, 0 issues, DB HEALTHY
+> **Datum:** 2026-06-19 (erstellt) · 2026-06-24 (letztes Update) | **Methodik:** PHASE 0-4
+> **Faktenbasis:** DB Fresh Reset 2026-06-24: 0 Einträge (hart resettet), 15 Commits heute
 > **Grundregel:** Kein Fix in diesem Lauf — nur Finden, Beschreiben, Clustern.
 > **Archivierung:** 27 behobene Bugs → FREEZE_INDEX_2.md §16 (KB-001–KB-008, 28 Einträge).
 
@@ -12,14 +12,15 @@
 ## 1. AKTIVE BUGS (7 — sortiert nach ID)
 ## ══════════════════════════════════════════
 
-### 🔴 BU-OVERWRITE-2026-06-22 — __OVERWRITE: true zerstört Vanilla-DE-Texte
+### ✅ BU-OVERWRITE-2026-06-22 — __OVERWRITE: true zerstört Vanilla-DE-Texte
 - **Symptom:** Das gesamte Spiel zeigt Englisch statt Deutsch. Vanilla-Lokalisierung wird ignoriert.
 - **Trigger:** Jede V71+ Textdatei mit `__OVERWRITE: true` Header.
 - **Betroffene Dateien:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`.
 - **Ursache:** `getFileHeader()` gibt `__OVERWRITE: true` für ALLE V71-Dateien zurück. Das löscht die komplette Vanilla-Datei. Nur übersetzte Keys bleiben → Rest fällt auf Englisch-Defaults.
 - **Reproduzierbarkeit:** 100% — betrifft alle V71-Dateien.
 - **Status:** ✅ BEHOBEN (2026-06-22) — Plugin gibt `''` zurück, 39 V71-Dateien bereinigt.
-- **Root-Cause-Doku:** `BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`
+- **Korrigierter Fix:** __OVERWRITE-Strip wurde REVERTIERT (legitime Workshop-Direktive). Echte Ursache war getFileHeader().
+- **Root-Cause-Doku:** `BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`, CHANGELOG [OVERWRITE-CRASH-FIX]
 
 ### 🟡 BU-004 — Backup-Race-Condition bei File-Locks
 - **Symptom:** Gleichzeitige Zugriffe auf `patches/` und `backups/` konnten Dateien korrumpieren.

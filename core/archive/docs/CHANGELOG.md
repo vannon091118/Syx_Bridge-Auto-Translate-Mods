@@ -5,6 +5,19 @@
 
 ---
 
+## [DOKU-CLEAN-V023] — 2026-06-24 — Doku-Bereinigung v0.23.0
+
+> **Composite:** `c39j95n10a4p3`
+> **Warum:** Doku-Struktur war veraltet (v0.22.0 Referenzen, falsche DB-Stats, DOCU_AUDIT-Dateien noch im aktiven Bereich).
+> **Dateien:** `MASTER_DOC.md`, `KNOWN_BUGS_REPORT.md`, `LIVE_INDEX.md`, 4× `DOCU_AUDIT_*.md`
+
+- **MASTER_DOC.md:** Version v0.22.0 → v0.23.0, DB-Stats aktualisiert (Fresh Reset 2026-06-24, 0 Einträge), Roadmap P1-DB-Sanitization + P2-DB-Cleanup als erledigt markiert, RimWorld-Status v0.22 → v0.23
+- **KNOWN_BUGS_REPORT.md:** Version v0.22.0 → v0.23.0, Faktenbasis aktualisiert (DB Reset), BU-OVERWRITE Status 🔴 → ✅ mit Korrektur-Hinweis (Workshop-Direktive)
+- **LIVE_INDEX.md:** Version v0.22.0 → v0.23.0, DOCU_AUDIT (4 Dateien) von LIVE → FREEZE verschoben, PLAN_COMMIT_LAYER_RNG als abgeschlossen markiert, PREFLIGHT_LATEST als auto-gen markiert
+- **DOCU_AUDIT (4 Dateien):** Von `core/archive/docs/` nach `core/archive/docs/FREEZE/` verschoben (Einmal-Audit 2026-06-23, Ergebnisse in MASTER_DOC + LIVE_INDEX überführt)
+- **AGENTS.md v0.23.0:** Bereits aktuell (keine Änderung nötig)
+- **CHANGELOGs (Root + Archive):** SSOT synchronisiert
+
 ## [NARRATIVE-EXPANSION-2] — 2026-06-24 — 5 neue Narrative (10-14) für Commit-Layer
 
 > **Composite:** `c39j39n8a1p34`

@@ -1,6 +1,6 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
-**Stand:** 23.06.2026 | **Version:** v0.22.0 | **Autor:** Vannon & Sub-Agents
+**Stand:** 24.06.2026 | **Version:** v0.23.0 | **Autor:** Vannon & Sub-Agents
 **Destilliert aus:** MASTER_DOC.md (Basis), FREEZE_INDEX_2.md, CHANGELOG.md, CHANGELOG_1.md
 
 ---
@@ -86,7 +86,7 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
   SoS: `<tags>` + `__VAR__` + `{N}`. RimWorld: `{N}` + `$VAR` + `%d` (KEINE XML-Tags —
   strukturelle Tags bleiben ungeshielded).
 
-### 4.3 RimWorldPlugin — Status (v0.22)
+### 4.3 RimWorldPlugin — Status (v0.23)
 
 - **11 Format-Hooks FERTIG:** Serialisierung (XML Entity-Escaping), Extraktion, Validierung
   (Tag-Balancing), Placeholder-Regex, Prompt-Context (Sci-fi/Survival), Path-Rules,
@@ -104,16 +104,15 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 ---
 
-## 5. DB-Stand (2026-06-21 — Reality-Check verifiziert)
+## 5. DB-Stand (2026-06-24 — Fresh Reset)
 
 
-> **Live-DB Stand 2026-06-22 (PREFLIGHT):** ~4.390 Einträge, 113 Issues auto-repariert (101 UNFLAGGED_STALE, 12 LOW_SCORE), 0 SHIELD_LEAK, 1.003 NATIVE_STALE (informational).
+> **Live-DB Stand 2026-06-24:** **0 Einträge** — DB wurde am 24.06.2026 hart resettet (Commit `c35j3n1a5p21`).
+> Beim nächsten Start wird die DB frisch initialisiert. Alle alten Einträge gelöscht.
 > **Provider:** 9 aktive Provider — siehe §2 Provider Matrix.
-> **Watermarks in DB:** 0 — alle 5 Defense-Schichten aktiv.
-> **Score:** 90.1% (Runtime Score, gewichteter Durchschnitt über 8 Personas).
-> Frühere DB-Resets dokumentiert: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test).
 > **better-sqlite3 aktiv** — Schema-Version **6** mit try/catch-Fehleranleitung.
-> **PREFLIGHT (2026-06-22 21:12):** 101 UNFLAGGED_STALE (auto-repariert), 12 LOW_SCORE, 0 SHIELD_LEAK, 1.003 NATIVE_STALE (informational), 3.277 NEVER_STRESS_TESTED.
+> Frühere DB-Resets: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test), Fresh Reset (4.390 → 0).
+> **Runtime Score (vor Reset):** 90.1% (gewichteter Durchschnitt über 8 Personas).
 
 ---
 
@@ -124,9 +123,8 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 | Prio | Aufgabe | Status/Aufwand |
 |---|---|---|
-| P1 | DB-Sanitization: Watermarks aus alten Einträgen (db_repair.js Schritt 8) | ~1h |
-
-| P2 | DB-Cleanup `stale_retranslate` | ~2h |
+| P1 | ~~DB-Sanitization: Watermarks aus alten Einträgen~~ | ✅ Erledigt (DB Fresh Reset 2026-06-24) |
+| P2 | ~~DB-Cleanup `stale_retranslate`~~ | ✅ Erledigt (DB Fresh Reset 2026-06-24) |
 | P2 | Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
 
 

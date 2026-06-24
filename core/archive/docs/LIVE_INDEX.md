@@ -1,28 +1,28 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
-> **Stand:** 2026-06-23 | **Version:** v0.22.0
-> **Status:** 9 LIVE + 16 FREEZE + 11 PLAN + 7 Root + 8 INDEX
+> **Stand:** 2026-06-24 | **Version:** v0.23.0
+> **Status:** 5 LIVE + 20 FREEZE + 12 PLAN + 7 Root + 8 INDEX
 > **Regel:** Nur Pflicht-Dokus bleiben. Alle Einmal-Audits, HANDSHAKEs und Specs vollarchiviert.
-> **Letzter Doku-Audit:** 2026-06-23 — 10 gefreezed, 12 entfernt, 73 Dokumente inventarisiert.
+> **Letzter Doku-Audit:** 2026-06-24 — 4 DOCU_AUDIT gefreezed, Versionen aktualisiert.
 
-## LIVE-Dokumente (9)
+## LIVE-Dokumente (5)
 
 | # | Dokument | Zweck | Typ |
 |---|----------|-------|-----|
 | 1 | `CHANGELOG.md` | Versionshistorie — Commits, Fixes, Features | Pflicht (persistent) |
 | 2 | `MASTER_DOC.md` | SSOT: aktueller Stand, Architektur, Roadmap | Pflicht |
-| 3 | `PREFLIGHT_LATEST.md` | Aktueller PREFLIGHT-Report — DB-Health | Pflicht (auto-gen) |
-| 4 | `AGENTS.md` | SSOT: Agent-Regeln (Root-Sync) | Pflicht |
-| 5 | `KNOWN_BUGS_REPORT.md` | Bug-Triage — 7 aktive Bugs | Pflicht |
-| 6 | `LIVE_INDEX.md` | ← DIESES DOKUMENT | Pflicht |
-| 7 | `PLOT_LORE.md` | RULE 2 Lore Layer (commit_lore System) | Sonderstatus |
-| 8 | `RUNTIME_SCORE_HISTORY.md` | Runtime-Score Tracking (appended by tool) | Tracking |
-| 9 | `DOCU_AUDIT_*.md` (4 Dateien) | Doku-Audit Ergebnisse 2026-06-23 | Temporär (nächster Audit ersetzt) |
+| 3 | `AGENTS.md` | SSOT: Agent-Regeln (Root-Sync) | Pflicht |
+| 4 | `KNOWN_BUGS_REPORT.md` | Bug-Triage — 5 aktive + 29 behobene Bugs | Pflicht |
+| 5 | `LIVE_INDEX.md` | ← DIESES DOKUMENT | Pflicht |
 
-## FREEZE-Dokumente (16)
+> **Hinweis:** PREFLIGHT_LATEST.md ist auto-generated, nicht im Git-Tracking.
+> PLOT_LORE.md und RUNTIME_SCORE_HISTORY.md werden von Tools beschrieben (Sonderstatus).
+> DOCU_AUDIT_*.md (4 Dateien) → FREEZE/ verschoben (2026-06-24).
 
-> **31 Doku-Konsolidierungs-Durchläufe abgeschlossen. 235 Buch-Einträge (142 archiviert + 93 FREEZE_INDEX_2).**
-> **118 Dokumente archiviert/gelöscht.** (108 vorher + 10 aus diesem Audit)
+## FREEZE-Dokumente (20)
+
+> **32 Doku-Konsolidierungs-Durchläufe abgeschlossen. 235 Buch-Einträge (142 archiviert + 93 FREEZE_INDEX_2).**
+> **122 Dokumente archiviert/gelöscht.** (108 vorher + 10 Audit 7 + 4 DOCU_AUDIT 2026-06-24)
 
 | # | Dokument | Rolle |
 |---|----------|------|
@@ -42,8 +42,12 @@
 | 14 | `FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md` | **[NEU]** ✅ ABGESCHLOSSEN + nach PLAN_MASTER migriert. |
 | 15 | `FREEZE/HANDSHAKE_2026-06-19.md` | **[NEU]** Historischer Session-Handshake v0.20.0. |
 | 16 | `FREEZE/DB_STATISTICS.md` | **[NEU]** Konsolidiert. Daten in DB_TREND_REPORT. |
+| 17 | `FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md` | **[NEU]** Doku-Audit Abbau-Ergebnisse. |
+| 18 | `FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md` | **[NEU]** Doku-Audit Freeze-Ergebnisse. |
+| 19 | `FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md` | **[NEU]** Doku-Audit Gesamtindex (73 Dokumente). |
+| 20 | `FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md` | **[NEU]** Doku-Audit Pflichtdokumentenliste. |
 
-## Plan-Dokumente (11)
+## Plan-Dokumente (12)
 
 > **Pläne zählen als Einzeldokumente. Fertig → Freeze → Index. Offen/Teilweise → LIVE behalten.**
 
@@ -60,6 +64,7 @@
 | 9 | `plans/PLAN_PRIORISIERUNG.md` | 🟡 OFFEN (0/6) | PRIORISIERUNG_2026-06-19.md |
 | 10 | `plans/PLAN_RUNTIME_PROBABILITY.md` | 🟡 OFFEN (0/5) | FOREIGN_MACHINE_PROBABILITY_2026-06-21.md (archiviert) |
 | 11 | `plans/PLAN_STABILISIERUNG.md` | 🟡 TEILWEISE (2/9) | STABILISIERUNGS_SCOPE_2026-06-21.md (archiviert) |
+| 12 | `plans/PLAN_COMMIT_LAYER_RNG.md` | ✅ ABGESCHLOSSEN | Commit-Layer RNG System (5 Phasen) |
 
 **Legende:** Fertig → Freeze → Index → löschen. Offen/Teilweise → LIVE behalten.
 
@@ -71,7 +76,7 @@
 | 2 | `CHANGELOG.md` | Aktuelle Versionshistorie ab v0.22.0 | Pflicht (persistent) |
 | 3 | `CHANGELOG_1.md` | Archiv-Changelog v0.19–v0.21 | Pflicht |
 | 4 | `README.md` | Projektreadme (User-facing) | Pflicht |
-| 5 | `PLAN.md` | Master-Plan v0.22.0 (22 Tasks, P0–P4) | Pflicht |
+| 5 | `PLAN.md` | Master-Plan v0.23.0 (22 Tasks, P0–P4, 86% done) | Pflicht |
 | 6 | `TUTORIAL.txt` | Peer-Review-Tutorial (DE/EN) | Pflicht |
 | 7 | `_Info.txt` | Mod-Metadaten (Laufzeit) | Pflicht |
 
