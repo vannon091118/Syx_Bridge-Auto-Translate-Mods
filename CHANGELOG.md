@@ -5,6 +5,27 @@
 
 ---
 
+## [SYSTEM-ARCHITECTURE-DOC] — 2026-06-25 — Komplette Architekturerklärung als Referenzdokument
+
+> **Composite:** `c39j26n3a5p27`
+> **Commit:** `<hash>` | **Model:** mimo-v2.5-pro | **Narrator:** Thinker (Analyse-Agent)
+> **Warum:** Es fehlte eine zentrale Architektur-Referenz die alle Schichten, Dependencies und Entscheidungsbegründungen zusammenfasst.
+> **Dateien:** `core/archive/docs/SYSTEM_ARCHITECTURE.md` (NEU)
+
+### SYSTEM_ARCHITECTURE.md (~850 Zeilen, 13 Kapitel)
+- **Schicht 1:** Entry-Point (index.js) + Configuration (config-runtime.js, .env)
+- **Schicht 2:** Datenbank (db.js, better-sqlite3, 12 Tabellen, WAL-Mode)
+- **Schicht 3:** Plugin-System (GameAdapter→GamePlugin→SongsOfSyxPlugin, 3 Ebenen, Factory)
+- **Schicht 4:** Text-Pipeline (scanner→parser→text-core→validator→exporter)
+- **Schicht 5:** Translation-Runtime (dispatcher→router→client-factory→phases, 9 Provider)
+- **Schicht 6:** Commit-Layer (rng.js→derive→verify→update_plot, 14 Narrative, Cross-Narrator)
+- **Schicht 7:** GUI (server.js HTTP/SSE + app.js Client + index.html)
+- **Dependency-Graph:** Vollständig, ohne zirkuläre Dependencies
+- **12 Entscheidungsbegründungen:** Plugin-System, better-sqlite3, RNG, Plugin-Delegation, Dynamisches Routing, Cross-Narrator
+- **Kennzahlen:** ~8500 LOC, 35 JS-Dateien, 12 Tabellen, 9 Provider, 14 Narrative
+
+---
+
 ## [WORDLIMIT-EXPANSION] — 2026-06-25 — Wortgrenzen fuer Commit-Narrative erhöht (+70%/+200%)
 
 > **Composite:** `c39j79n13a4p27`
