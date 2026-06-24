@@ -53,7 +53,7 @@
 
 | # | Dokument | Status | Quelle |
 |---|----------|--------|--------|
-| 1 | `plans/PLAN_MASTER.md` | 🟡 AKTIV | Zentrale Roadmap — Übersicht über alle Pläne |
+| 1 | `plans/PLAN_MASTER.md` | ✅ ARCHIVIERT → `FREEZE/PLAN_MASTER_2026-06-20.md` | v0.21 Roadmap (historisch). Durch PLAN.md v0.22.0 ersetzt. |
 | 2 | `plans/PLAN_BUG_TRIAGE.md` | 🟡 OFFEN (0/6) | KNOWN_BUGS_REPORT.md |
 | 3 | `plans/PLAN_BYPASS_REMOVAL.md` | 🟡 OFFEN (0/6) | BYPASS_AUDIT_2026-06-21.md (archiviert) |
 | 4 | `plans/PLAN_DEAD_FLAGS.md` | 🟡 OFFEN (0/5) | DEAD_FLAG_REPORT_2026-06-19.md (archiviert) |

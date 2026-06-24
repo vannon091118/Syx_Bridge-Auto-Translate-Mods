@@ -2,7 +2,7 @@
 type: plan
 topic: plan-audit
 status: active
-origin: PLAN_MASTER.md
+origin: PLAN.md
 created: 2026-06-22
 audited_by: deepseek-v4-pro
 method: Sub-Agent-basierte Doku-Recherche + Thinker-Cluster-Analyse
@@ -14,7 +14,7 @@ method: Sub-Agent-basierte Doku-Recherche + Thinker-Cluster-Analyse
 IST (was tut sie) vs SOLL (warum existiert sie laut Plan). Cluster nach Produkt-/UX-Scope.
 Constraints getrennt, Schnittstellen durch Muster sichtbar.
 
-**📎 Origin:** `PLAN_MASTER.md` + 9 weitere Plan-Dokumente + 3 INDEX.md Dateien
+**📎 Origin:** `PLAN.md` (Root, v0.22.0) + 9 weitere Plan-Dokumente + 3 INDEX.md Dateien
 **🔗 Verwandte Pläne:** ALLE Pläne in `core/archive/docs/plans/`
 **Methode:** JEDE Annahme durch frischen Sub-Agent via Doku-Recherche verifiziert — KEIN Direkt-Scan.
 
@@ -363,7 +363,8 @@ Constraints getrennt, Schnittstellen durch Muster sichtbar.
 
 ## 🔗 CROSS-REFERENCES
 
-- **PLAN_MASTER.md** — Übergeordnete Strategie
+- **PLAN.md** — Aktuelle Roadmap (v0.22.0, 86% erledigt)
+- **PLAN_MASTER.md** — Übergeordnete Strategie (v0.21, archiviert)
 - **PLAN_STABILISIERUNG.md** — ST-1 bis ST-8 konkrete Härtungsziele
 - **PLAN_PRIORISIERUNG.md** — 5-Stufen-Priorisierung
 - **PLAN_FEATURE_GAPS.md** — 2-3 Feature-Lücken

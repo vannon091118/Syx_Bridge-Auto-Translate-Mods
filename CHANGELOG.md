@@ -5,6 +5,26 @@
 
 ---
 
+## [PLAN-MASTER-FREEZE] — 2026-06-24 — PLAN_MASTER.md nach FREEZE/ verschoben (C2 aus DOCU_AUDIT_ABBAU)
+
+> **Composite:** `c39j66n4a5p28`
+> **Commit:** `<hash>` | **Model:** mimo-v2.5-pro | **Narrator:** Ghost (Chronist)
+> **Warum:** PLAN_MASTER.md (v0.21, 2026-06-20) war von PLAN.md (v0.22.0, 86% DONE) vollständig ersetzt. Alle Items aus PLAN_MASTER.md sind in PLAN.md bereits erledigt oder überholt. C2 aus DOCU_AUDIT_ABBAU empfahl die Archivierung.
+> **Dateien:** `core/archive/docs/plans/PLAN_MASTER.md` → `core/archive/docs/FREEZE/PLAN_MASTER_2026-06-20.md`, `LIVE_INDEX.md`, `MASTER_DOC.md`, `PLAN_PLAN_AUDIT.md`, `DOCU_AUDIT_ABBAU_2026-06-23.md`
+
+### Migration
+- **Verschoben:** `PLAN_MASTER.md` von `plans/` nach `FREEZE/PLAN_MASTER_2026-06-20.md` (historisches Datum als Suffix)
+- **LIVE_INDEX.md:** PLAN_MASTER.md als 🔴 ARCHIVIERT/FREEZE markiert, PLAN.md als 🟢 AKTIV bestätigt
+- **MASTER_DOC.md:** "Zentrale Roadmap"-Referenz auf PLAN.md aktualisiert, FREEZE-Verweis hinzugefügt
+- **PLAN_PLAN_AUDIT.md:** `origin` von `PLAN_MASTER.md` → `PLAN.md`, Cross-References aktualisiert
+- **DOCU_AUDIT_ABBAU.md:** C2 als ✅ Erledigt markiert — "PLAN.md ist die aktuelle Roadmap. PLAN_MASTER.md nach FREEZE verschoben."
+
+### Verifikation
+- Physische Prüfung: `plans/PLAN_MASTER.md` existiert nicht mehr ✅
+- `FREEZE/PLAN_MASTER_2026-06-20.md` existiert ✅
+
+---
+
 ## [DOKU-HYGIENE-2026-06-24] — 2026-06-24 — Doku-Audit Abbauliste abgearbeitet + Plan-Status sync
 
 > **Composite:** `c39j38n8a2p6`

@@ -188,7 +188,7 @@ core/archive/docs/
 │   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # TOC
 │   └── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikation
 └── plans/
-    ├── PLAN_MASTER.md         # Zentrale Roadmap
+    ├── PLAN_MASTER.md         # Zentrale Roadmap (v0.21, archiviert → FREEZE/PLAN_MASTER_2026-06-20.md)
     ├── PLAN_BUG_TRIAGE.md     # 🟡 OFFEN (0/6)
     ├── PLAN_BYPASS_REMOVAL.md # 🟡 OFFEN (0/6)
     ├── PLAN_DEAD_FLAGS.md     # 🟡 OFFEN (0/5)

@@ -90,7 +90,7 @@
 
 | Aktuell | Vorschlag | Grund |
 |---------|-----------|-------|
-| `PLAN_MASTER.md` (plans/) + `PLAN.md` (Root) | **PLAN.md ist die aktuelle Roadmap.** PLAN_MASTER.md enthält die ältere Struktur. Prüfen ob PLAN_MASTER noch referenziert wird — wenn nicht, nach FREEZE. | Doppelung vermeiden. |
+| `PLAN_MASTER.md` (plans/) + `PLAN.md` (Root) | ✅ ERLEDIGT — PLAN_MASTER.md nach FREEZE/PLAN_MASTER_2026-06-20.md verschoben. PLAN.md ist die aktuelle Roadmap. Alle 4 aktiven Referenzen (LIVE_INDEX, MASTER_DOC, PLAN_PLAN_AUDIT, DOCU_AUDIT) aktualisiert. | Doppelung vermeiden. |
 
 ---
 
