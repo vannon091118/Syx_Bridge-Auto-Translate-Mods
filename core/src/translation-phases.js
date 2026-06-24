@@ -202,7 +202,6 @@ function createTranslationPhases(deps) {
 
       try {
         const result = await translateBatchWithRouting(currentBatch);
-        const savePromises = [];
         const batchMeta = result._meta || [];
 
         // ── Collect shield restoration results for validateFileMarkers ────
@@ -249,7 +248,8 @@ function createTranslationPhases(deps) {
 
           // polishLevel 2 = final (deep-polished / proper-noun). Für Override markiert
           // das den Eintrag als terminal, sodass Deep-Polish-SELECT ihn ueberspringt.
-          savePromises.push(saveTranslation(entry, translated, properNounOverride ? 2 : 0, saveMeta));
+          // SQLITE_BUSY-Fix: Sequenzielle Writes statt Promise.all (better-sqlite3 ist synchron).
+          await saveTranslation(entry, translated, properNounOverride ? 2 : 0, saveMeta);
           ctx.cachedData.set(source, {
             translation: translated,
             polishLevel: properNounOverride ? 2 : 0,
@@ -259,9 +259,8 @@ function createTranslationPhases(deps) {
             qualityScore: saveMeta.qualityScore,
             sourceHash: getEntryHash(entry)
           });
-          savePromises.push(learnGlossary(source, translated, entry));
+          await learnGlossary(source, translated, entry);
         }
-        for (const p of savePromises) { await p; }
         
         // Commit all saveTranslation calls in ONE transaction (HDD optimization)
         try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch (re) { console.warn('[TRANSACTION] Rollback nach Commit-Fehler fehlgeschlagen:', re.message); } }
@@ -298,42 +297,40 @@ function createTranslationPhases(deps) {
           // Non-critical — fall through to source fallback
         }
 
-        const failPromises = [];
         // Begin transaction BEFORE fail-path save-loop (HDD optimization)
         try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Begin fehlgeschlagen: ${e.message}`); }
-        for (const item of currentBatch) {
-          const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
-          const existingFallback = existingFallbackMap.get(item.source);
-          const fallbackTranslation = existingFallback ? existingFallback.translation : item.source;
-          const fallbackScore = existingFallback ? existingFallback.qualityScore : (isPN ? NATIVE_RUNTIME_DEFAULT_QUALITY : 20);
-          ctx.translations.set(item.source, fallbackTranslation);
-          const hasExistingTranslation = !!existingFallback;
-          const failProvider = isPN ? 'native_runtime' : (hasExistingTranslation ? 'db_fallback' : 'native_fallback');
-          const failReason = isPN ? 'proper_noun' : (hasExistingTranslation ? 'db_fallback_used' : 'all_routes_failed');
-          failPromises.push(saveTranslation(item, fallbackTranslation, isPN ? 2 : 0, {
-            provider: failProvider,
-            model: 'native_fallback',
-            taskType: 'translate',
-            flagReason: failReason,
-            qualityScore: fallbackScore,
-            polishStatus: isPN ? 'completed' : (hasExistingTranslation ? 'completed' : 'pending'),
-            requiresDeepPolish: !isPN && !hasExistingTranslation,
-            overwriteFallbackUsed: !hasExistingTranslation,
-            skipReviewIncrement: true
-          }));
-          ctx.cachedData.set(item.source, {
-            translation: fallbackTranslation,
-            polishLevel: isPN ? 2 : 0,
-            flagged: !isPN && !hasExistingTranslation,
-            flagReason: failReason,
-            provider: failProvider,
-            qualityScore: fallbackScore,
-            sourceHash: getEntryHash(item)
-          });
-        }
-        // J2-Fix: Wrap Promise.all + commitTransaction in try/catch.
         try {
-          await Promise.all(failPromises);
+          for (const item of currentBatch) {
+            const isPN = isProperNoun(item.source) || classifyPath(item.relativePath) === 'proper_noun';
+            const existingFallback = existingFallbackMap.get(item.source);
+            const fallbackTranslation = existingFallback ? existingFallback.translation : item.source;
+            const fallbackScore = existingFallback ? existingFallback.qualityScore : (isPN ? NATIVE_RUNTIME_DEFAULT_QUALITY : 20);
+            ctx.translations.set(item.source, fallbackTranslation);
+            const hasExistingTranslation = !!existingFallback;
+            const failProvider = isPN ? 'native_runtime' : (hasExistingTranslation ? 'db_fallback' : 'native_fallback');
+            const failReason = isPN ? 'proper_noun' : (hasExistingTranslation ? 'db_fallback_used' : 'all_routes_failed');
+            // SQLITE_BUSY-Fix: Sequenzielle Writes statt Promise.all.
+            await saveTranslation(item, fallbackTranslation, isPN ? 2 : 0, {
+              provider: failProvider,
+              model: 'native_fallback',
+              taskType: 'translate',
+              flagReason: failReason,
+              qualityScore: fallbackScore,
+              polishStatus: isPN ? 'completed' : (hasExistingTranslation ? 'completed' : 'pending'),
+              requiresDeepPolish: !isPN && !hasExistingTranslation,
+              overwriteFallbackUsed: !hasExistingTranslation,
+              skipReviewIncrement: true
+            });
+            ctx.cachedData.set(item.source, {
+              translation: fallbackTranslation,
+              polishLevel: isPN ? 2 : 0,
+              flagged: !isPN && !hasExistingTranslation,
+              flagReason: failReason,
+              provider: failProvider,
+              qualityScore: fallbackScore,
+              sourceHash: getEntryHash(item)
+            });
+          }
           try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] Fail Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch (re) { console.warn('[TRANSACTION] Rollback nach Fail-Commit fehlgeschlagen:', re.message); } }
         } catch (saveErr) {
           try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Rollback fehlgeschlagen:', e.message); }
@@ -376,8 +373,6 @@ function createTranslationPhases(deps) {
 
       const flags = await flagPotentialErrors(batchValues);
       const problematicIdx = [];
-      const batchUpdatePromises = [];
-
       // Begin transaction BEFORE the polish save-loop (HDD optimization)
       try { await beginTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Begin fehlgeschlagen: ${e.message}`); }
 
@@ -390,13 +385,14 @@ function createTranslationPhases(deps) {
 
         const cached = ctx.cachedData.get(key) || {};
         if (cached.polishLevel < 1) {
-          batchUpdatePromises.push(saveTranslation(entry, ctx.translations.get(key), 1, {
+          // SQLITE_BUSY-Fix: Sequenzielle Writes statt batchUpdatePromises.push().
+          await saveTranslation(entry, ctx.translations.get(key), 1, {
             provider: cached.provider || 'native_review',
             model: 'native_review',
             taskType: 'audit',
             flagReason: (flags[j] === true) ? 'needs_polish' : '',
             qualityScore: scoreTranslationQuality(key, ctx.translations.get(key))
-          }));
+          });
         }
       }
 
@@ -456,7 +452,8 @@ function createTranslationPhases(deps) {
 
             // Item 2 Phase 2: Echte Polish-Route (polishRoute.provider/model) statt
             // SyxBridge-interner Labels ('ab_polish'/'polish_single').
-            batchUpdatePromises.push(saveTranslation(entry, improved, 2, {
+            // SQLITE_BUSY-Fix: Sequenzielle Writes statt Promise.all.
+            await saveTranslation(entry, improved, 2, {
               provider: polishRoute.provider,
               model: polishRoute.model,
               taskType: 'polish',
@@ -465,8 +462,8 @@ function createTranslationPhases(deps) {
               skipReviewIncrement: isNoChange,
               polishStatus: 'completed',
               requiresDeepPolish: false
-            }));
-            batchUpdatePromises.push(learnGlossary(key, improved, entry));
+            });
+            await learnGlossary(key, improved, entry);
           }
         } catch (e) {
           // Rollback any open transaction from failed polish (HDD optimization)
@@ -495,11 +492,9 @@ function createTranslationPhases(deps) {
             }
           }
           // J1-Fix: Skip to next batch iteration.
-          batchUpdatePromises.length = 0;
           continue;
         }
       }
-      await Promise.all(batchUpdatePromises);
       // Commit all polish saveTranslation calls in ONE transaction (HDD optimization)
       try { await commitTransaction(); } catch (e) { console.warn(`[TRANSACTION] QA Commit fehlgeschlagen: ${e.message}`); try { await rollbackTransaction(); } catch (e) { console.warn('[TRANSACTION] Fail-Rollback fehlgeschlagen:', e.message); } }
     }

@@ -5,6 +5,23 @@
 
 ---
 
+## [SQLITE-BUSY-FIX] — 2026-06-24 — DB-Lock durch concurrent writes behoben
+
+> **Composite:** `c38j4n3a1p9`
+> **Warum:** `translation-phases.js` nutzte `Promise.all` auf `saveTranslation()` + `learnGlossary()` — `better-sqlite3` ist synchron, concurrent async wrappers erzeugen interleaved writes auf der selben Connection → `SQLITE_BUSY: database is locked`. Sync scheiterte konsistent beim 3. Mod.
+> **Dateien:** `core/src/translation-phases.js`
+
+- **translatePhase Success-Path:** `savePromises.push()` + `Promise.all(savePromises)` → sequenzielle `await saveTranslation()` + `await learnGlossary()` innerhalb der Loop
+- **translatePhase Fail-Path:** `failPromises.push()` + `Promise.all(failPromises)` → sequenzielle `await saveTranslation()` innerhalb der Loop
+- **qaPhase:** `batchUpdatePromises.push()` + `Promise.all(batchUpdatePromises)` → sequenzielle `await saveTranslation()` + `await learnGlossary()` innerhalb der Loop
+- Dead variables (`savePromises`, `failPromises`, `batchUpdatePromises`) entfernt
+- Orphaned `try {` aus vorherigem Cleanup entfernt
+- db.js: `{ timeout: 15000 }` war bereits gesetzt (busy_timeout) — kein zusätzlicher Fix nötig
+- Verifikation: Syntax OK, 100/100 plugin-boundary, 49/49 validator, 26/26 parser PASS
+- Code-Review: "Ship it" — behavioral change minimal (better-sqlite3 war nie wirklich parallel)
+
+---
+
 ## [NARRATIVE-EXPANSION] — 2026-06-24 — 5 neue Narrative (5-9) für Commit-Layer
 
 > **Composite:** `c37j100n8a3p5`
