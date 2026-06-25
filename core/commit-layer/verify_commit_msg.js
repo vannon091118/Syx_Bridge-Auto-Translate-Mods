@@ -45,11 +45,11 @@ const plotchainPath       = path.join(COMMIT_LORE_DIR, 'plotchain.json');
 const characterSheetsPath = path.join(COMMIT_LORE_DIR, 'character_sheets.json');
 const writingRulesPath    = path.join(COMMIT_LORE_DIR, 'writing_rules.json');
 const changelogPath = (() => {
-  const root = path.join(repoRoot, 'CHANGELOG.md');
   const docs  = path.join(repoRoot, 'core/archive/docs/CHANGELOG.md');
-  if (fs.existsSync(root)) return root;
-  if (fs.existsSync(docs))  return docs;
-  return root; // fallback
+  const root = path.join(repoRoot, 'CHANGELOG.md');
+  if (fs.existsSync(docs))  return docs;   // SSoT — existiert immer
+  if (fs.existsSync(root)) return root;    // optionales Root-Symlink
+  return docs; // fallback
 })();
 
 let characterSheets = null;
@@ -269,10 +269,12 @@ if (parsedComposite?.a && fs.existsSync(loreArcsPath)) {
 // CHANGELOG-Anker — prüft staged Content bevor Working Directory
 if (compositeMatch) {
   let changelogContent = '';
-  const stagePaths = ['CHANGELOG.md', 'core/archive/docs/CHANGELOG.md'];
+  // Archive zuerst — existiert immer. Root nur als Fallback (optionales Symlink).
+  // stdio:'pipe' unterdrückt das "fatal: path does not exist"-Stderr-Geräusch.
+  const stagePaths = ['core/archive/docs/CHANGELOG.md', 'CHANGELOG.md'];
   for (const sp of stagePaths) {
     try {
-      changelogContent = execSync(`git show :${sp}`, { encoding: 'utf8' });
+      changelogContent = execSync(`git show :${sp}`, { encoding: 'utf8', stdio: 'pipe' });
       if (changelogContent) break;
     } catch (_) {}
   }

@@ -208,12 +208,17 @@ const fileStr = fileNames.length === 1
 commitBody += `\n\nBetroffen: ${fileStr}.`;
 if (stagedFiles.length > 15) commitBody += ` (+ ${stagedFiles.length - 15} nicht gelistet)`;
 
-// ─── 8. Tokens ────────────────────────────────────────────────────────────
+// ─── 8. Tokens + Subject ───────────────────────────────────────────────
 const skipToken = stagedFiles.length > 20 ? '\n[FILES:SKIP]' : '';
 const catToken  = category !== 'STANDARD' ? ` [CATEGORY:${category}]` : '';
-const headerLine = `[NARRATOR:${selectedNarrator.name}] [MODEL:${model}] [IMPULSE:${impulse}] [COMPOSITE:${compositeHash}]${catToken}${skipToken}`;
 
-const fullCommitMessage = `${headerLine}\n\n${commitBody}`;
+// Subject: "Name: Titel" — sauber, lesbar, kein Token-Müll
+const subjectLine = `${selectedNarrator.name}: ${impulse}`;
+
+// Metadata-Footer: Tokens für verify_commit_msg.js (CHECK 1–5)
+const metadataFooter = `\n---\n[NARRATOR:${selectedNarrator.name}] [MODEL:${model}] [IMPULSE:${impulse}] [COMPOSITE:${compositeHash}]${catToken}${skipToken}`;
+
+const fullCommitMessage = `${subjectLine}\n\n${commitBody}${metadataFooter}\n`;
 
 // ─── Timestamp für CHANGELOG + Plotchain ───────────────────────────────────
 const isoTimestamp = new Date().toISOString().substring(0, 19).replace('T', ' ');
@@ -222,18 +227,33 @@ const isoTimestamp = new Date().toISOString().substring(0, 19).replace('T', ' ')
 // Der CHANGELOG enthält KEINE arc/plot-Counts — beeinflusst den Composite-Check nicht.
 // Er muss VOR dem Commit gestaged sein, damit verify_commit_msg.js den Composite-Anker prüfen kann.
 // plotchain.json und composite_chain.json bleiben post-commit (sie bestimmen den nächsten Composite).
-const changelogEntry = `### [${isoTimestamp}] ${impulse}\n**Narrator:** ${selectedNarrator.name} | **Model:** ${model} | **Composite:** \`${compositeHash}\`\n- ${stagedFiles.length} Datei(en) geändert.\n\n`;
 
+// Duplikat-Prüfung: Composite-Hash darf nicht bereits im CHANGELOG stehen
 let changelog;
+let isDuplicate = false;
 if (fs.existsSync(PATHS.changelog)) {
   changelog = fs.readFileSync(PATHS.changelog, 'utf8');
-  changelog = changelog.replace(/^(# .+?\n\n)/s, `$1${changelogEntry}`);
-} else {
-  changelog = `# CHANGELOG\n\n${changelogEntry}`;
+  if (changelog.includes(`\`${compositeHash}\``)) {
+    console.log(`📋 CHANGELOG: Composite \`${compositeHash}\` bereits vorhanden — überspringe Eintrag (Duplikat).`);
+    isDuplicate = true;
+  }
 }
-fs.writeFileSync(PATHS.changelog, changelog, 'utf8');
-execSync(`git add "${PATHS.changelog}"`, { stdio: 'inherit' });
-console.log(`📋 CHANGELOG aktualisiert + gestaged (SSoT: ${path.relative(REPO_ROOT, PATHS.changelog)})`);
+
+if (!isDuplicate) {
+  const changelogEntry = `### [${isoTimestamp}] ${impulse}\n**Narrator:** ${selectedNarrator.name} | **Model:** ${model} | **Composite:** \`${compositeHash}\`\n- ${stagedFiles.length} Datei(en) geändert.\n\n`;
+
+  if (fs.existsSync(PATHS.changelog)) {
+    changelog = changelog.replace(/^(# .+?\n\n)/s, `$1${changelogEntry}`);
+  } else {
+    changelog = `# CHANGELOG\n\n${changelogEntry}`;
+  }
+  fs.writeFileSync(PATHS.changelog, changelog, 'utf8');
+  execSync(`git add "${PATHS.changelog}"`, { stdio: 'inherit' });
+  console.log(`📋 CHANGELOG aktualisiert + gestaged (SSoT: ${path.relative(REPO_ROOT, PATHS.changelog)})`);
+} else {
+  // Duplikat — CHANGELOG unverändert, aber trotzdem für Commit stagen
+  execSync(`git add "${PATHS.changelog}"`, { stdio: 'inherit' });
+}
 
 // ─── 10. Commit Message schreiben ─────────────────────────────────────────
 fs.writeFileSync(PATHS.commitMsg, fullCommitMessage, 'utf8');

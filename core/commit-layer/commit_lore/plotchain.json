@@ -2377,5 +2377,27 @@
         "file": "core/scripts/update-badges.js"
       }
     ]
+  },
+  {
+    "p_id": "p51",
+    "id": "plot-2026-06-25T22:48:56",
+    "timestamp": "2026-06-25 22:48:56",
+    "summary": "author_system.js: Subject-Format Name: Titel statt Token-Wüste, CHANGELOG-Duplikat-Schutz. verify_commit_msg.js: CHANGELOG-Pfad-Fix. CHANGELOG.md: tote CHANGELOG_1.md-Links entfernt",
+    "narrator": "Basher",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c46j97n2a2p49",
+    "ref_to": "plot-2026-06-25T22:35:45",
+    "prev_narrator": "Ghost",
+    "data_changes": [
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/commit-layer/author_system.js"
+      },
+      {
+        "file": "core/commit-layer/verify_commit_msg.js"
+      }
+    ]
   }
 ]

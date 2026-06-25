@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 22:46:56] author_system.js: Subject-Format Name: Titel statt Token-Wüste, CHANGELOG-Duplikat-Schutz. verify_commit_msg.js: CHANGELOG-Pfad-Fix (fatal-Fehler weg). CHANGELOG.md: tote CHANGELOG_1.md-Links entfernt
+**Narrator:** Basher | **Model:** deepseek-v4-pro | **Composite:** `c46j97n2a2p49`
+- 3 Datei(en) geändert.
+
 ### [2026-06-25 22:35:45] update-badges.js gehärtet: --cached Mode, Exit-Code 1 bei fehlenden Test-Zahlen, expliziter Cache-Fallback. FREEZE_INDEX_2 §31 DD-004 auf ABGESCHLOSSEN gesetzt
 **Narrator:** Ghost | **Model:** deepseek-v4-pro | **Composite:** `c45j75n8a2p44`
 - 2 Datei(en) geändert.
@@ -223,8 +227,6 @@
 ### Verifikation
 - Syntax: 5/5 OK
 - verify_commit_msg.js PASS
-
-> **Historische Entwicklung v0.19.0 bis v0.21.0:** [`CHANGELOG_1.md`](CHANGELOG_1.md)
 
 ---
 
@@ -1233,7 +1235,7 @@ Vollständiger Repo-Audit im Squizzle-Modus: Doku-Scan, CHANGELOG-Check, Plan-Pr
 
 ---
 
-→ **Historische Entwicklung v0.19.0 bis v0.21.0:** [`CHANGELOG_1.md`](CHANGELOG_1.md)  
+> **Historische Entwicklung v0.19.0 bis v0.21.0:** Alle Einträge sind in diesem CHANGELOG dokumentiert.
 → **Plot & Agenten-Dialoge (die Geschichte dahinter):** [`PLOT_LORE.md`](core/archive/docs/PLOT_LORE.md)  
 → **Architektur-Referenz:** [`MASTER_DOC.md`](core/archive/docs/MASTER_DOC.md)
 
