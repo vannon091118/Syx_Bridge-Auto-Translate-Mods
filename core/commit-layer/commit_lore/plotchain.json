@@ -2035,5 +2035,106 @@
     ],
     "narrator": "Ghost",
     "composite": "c39j20n8a3p4"
+  },
+  {
+    "p_id": "p43",
+    "id": "plot-2026-06-25T21:22:43",
+    "timestamp": "2026-06-25 21:22:43",
+    "summary": "Gemini 3.1 Pro (High)",
+    "ref_to": "plot-2026-06-25T19:47:29",
+    "recent_commits": [
+      {
+        "hash": "7eba98a",
+        "subject": "[NARRATOR:Echo] [MODEL:Gemini 3.1 Pro (High)] [IMPULSE:Reinige die repo, Changelog in docs, Readme visual rework] [REF:2",
+        "date": "2026-06-25 23:21:37 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          ".kiro/specs/native-windows-gui/.config.kiro",
+          ".kiro/specs/native-windows-gui/IMPLEMENTATION_GUIDE.md",
+          ".kiro/specs/native-windows-gui/design.md",
+          ".kiro/specs/native-windows-gui/requirements.md",
+          ".kiro/specs/native-windows-gui/tasks.md",
+          "CHANGELOG.md",
+          "CHANGELOG_1.md",
+          "README.md",
+          "core/GUI/public/app.js",
+          "core/GUI/public/index.html",
+          "core/TREE.md",
+          "core/Translation/config/config-keys.js",
+          "core/Translation/config/config-persist.js",
+          "core/Translation/config/config-runtime.js",
+          "core/Translation/providers/client-factory.js"
+        ]
+      },
+      {
+        "hash": "a44a1e2",
+        "subject": "[NARRATOR:Glitch] [MODEL:mimo-v2.5-pro] [IMPULSE:Provider-Bereinigung, Domäne-Struktur und Rohdaten-Cleanup] [COMPOSITE:",
+        "date": "2026-06-25 22:20:47 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "core/.commit_msg.txt",
+          "core/.native_confirmed",
+          "core/DB/analyze_snapshots.js",
+          "core/DB/audit_db.js",
+          "core/DB/cleanup_argos_stale.js",
+          "core/DB/db.js",
+          "core/DB/db_audit.js",
+          "core/DB/db_query.js",
+          "core/DB/db_repair.js",
+          "core/DB/db_snapshot.js",
+          "core/DB/preflight.js",
+          "core/DB/sanitize_watermarks.js",
+          "core/GUI/INDEX.md"
+        ]
+      },
+      {
+        "hash": "06614dc",
+        "subject": "[NARRATOR:Basher] [MODEL:kiro] [IMPULSE:npm audit ausführen Ursachenforschung und Probleme lösen] [COMPOSITE:c39j42n2a3p",
+        "date": "2026-06-25 19:36:56 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          "CHANGELOG.md",
+          "PLAN.md",
+          "core/scripts/commit_lore/update_plot.js",
+          "core/src/db.js",
+          "core/src/text-core.js",
+          "core/tests/env-protection-smoke.js"
+        ]
+      },
+      {
+        "hash": "556ada1",
+        "subject": "[NARRATOR:Flux] [MODEL:spec-task-execution] [IMPULSE:Commit-Layer-Standardisierung, AGENTS.md TEIL 9 Compliance] [COMPOS",
+        "date": "2026-06-25 18:50:22 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          ".kiro/specs/native-windows-gui/IMPLEMENTATION_GUIDE.md",
+          "CHANGELOG.md",
+          "core/.commit_msg.txt"
+        ]
+      },
+      {
+        "hash": "ea0916f",
+        "subject": "Die Spec-Struktur für Native Windows GUI stabilisiert sich — weil Echo die Langzeitperspektive gebracht hat und die Stab",
+        "date": "2026-06-25 18:14:30 +0200",
+        "author": "Felix Schneider",
+        "files_touched": [
+          ".kiro/specs/native-windows-gui/.config.kiro",
+          ".kiro/specs/native-windows-gui/design.md",
+          ".kiro/specs/native-windows-gui/requirements.md",
+          ".kiro/specs/native-windows-gui/tasks.md"
+        ]
+      }
+    ],
+    "data_changes": [],
+    "causal_chain_summary": [
+      "7eba98a: [NARRATOR:Echo] [MODEL:Gemini 3.1 Pro (High)] [IMPULSE:Reinige die repo, Changelog in docs, Readme visual rework] [REF:2",
+      "a44a1e2: [NARRATOR:Glitch] [MODEL:mimo-v2.5-pro] [IMPULSE:Provider-Bereinigung, Domäne-Struktur und Rohdaten-Cleanup] [COMPOSITE:",
+      "06614dc: [NARRATOR:Basher] [MODEL:kiro] [IMPULSE:npm audit ausführen Ursachenforschung und Probleme lösen] [COMPOSITE:c39j42n2a3p",
+      "556ada1: [NARRATOR:Flux] [MODEL:spec-task-execution] [IMPULSE:Commit-Layer-Standardisierung, AGENTS.md TEIL 9 Compliance] [COMPOS",
+      "ea0916f: Die Spec-Struktur für Native Windows GUI stabilisiert sich — weil Echo die Langzeitperspektive gebracht hat und die Stab"
+    ],
+    "prev_narrator": "Ghost"
   }
 ]
