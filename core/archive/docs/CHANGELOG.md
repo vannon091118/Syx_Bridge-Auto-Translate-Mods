@@ -1,5 +1,31 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 22:29:53] DD-004 Fix: ESLint no-unused-vars in author_system.js behoben, README Test-Badge 111→119 (Live-Zahl aus npm test), update-badges.js Script erstellt als strukturellen Fix gegen Stale-Badges
+**Narrator:** Devin | **Model:** deepseek-v4-pro | **Composite:** `c43j75n6a3p11`
+- 4 Datei(en) geändert.
+
+### [2026-06-25 22:29:01] DD-004 Fix: ESLint no-unused-vars in author_system.js behoben, README Test-Badge 111→119 (Live-Zahl aus npm test), update-badges.js Script erstellt als strukturellen Fix gegen Stale-Badges
+**Narrator:** Devin | **Model:** deepseek-v4-pro | **Composite:** `c43j75n6a3p11`
+- 4 Datei(en) geändert.
+
+### [2026-06-26] DD-004-Fix: ESLint no-unused-vars in author_system.js behoben + README Test-Badge 111→119 + update-badges.js (struktureller Fix gegen Stale-Badges)
+**Narrator:** Buffy | **Model:** deepseek-v4-pro | **Composite:** audit-only
+- author_system.js:222 — `let changelog = ''` → `let changelog;` (ESLint no-unused-vars, 0 errors confirmed)
+- README.md — Test-Badge: 111→119 (Live-Zahl aus npm test: 84 Contract + 35 E2E = 119 PASS)
+- core/scripts/update-badges.js — NEU: Auto-generiert Test-Badge aus npm test-Output
+- 3 Datei(en) geändert.
+
+### [2026-06-26] DOKU-DIVERGENZ-AUDIT — 7 Divergenzen gefunden + behoben (DD-001–DD-007)
+**Narrator:** Buffy | **Model:** deepseek-v4-pro | **Composite:** audit-only
+- Provider-Zahl: README 8→11, MASTER_DOC/SYSTEM_ARCHITECTURE aktualisiert (Code hat 11 Provider)
+- AGENTS.md SSOT: Root↔Archive synchronisiert (TEIL 9 Commit-Layer)
+- DB-Status: MASTER_DOC "0 Einträge"→3.797 (live)
+- LOC-Zahlen: SongsOfSyxPlugin 290→377, index.js 600→962, app.js 1517→1854, total 8.500→30.000
+- Methoden-Zahlen: GamePlugin 11→12, SoS 23→35, RimWorld 24→28
+- MASTER_DOC Datum 24.06→26.06
+- FREEZE_INDEX_2.md: §31 mit allen 7 DD-Einträgen (Vier-Stationen-Kette) indexiert
+- 8 Datei(en) geändert.
+
 ### [2026-06-25 22:13:25] Release-Prep v0.23.0: Eye-Catcher Banner ohne Versionsnummer (banner-main.jpg), AGENTS.md Datum-Sync, author_system.js Lint-Fix, Doku-Sync MASTER_DOC und SYSTEM_ARCHITECTURE
 **Narrator:** Buffy | **Model:** Claude Sonnet 4.6 | **Composite:** `c42j47n1a2p1`
 - 10 Datei(en) geändert.

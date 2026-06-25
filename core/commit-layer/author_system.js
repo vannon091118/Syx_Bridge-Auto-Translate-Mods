@@ -224,7 +224,7 @@ const isoTimestamp = new Date().toISOString().substring(0, 19).replace('T', ' ')
 // plotchain.json und composite_chain.json bleiben post-commit (sie bestimmen den nächsten Composite).
 const changelogEntry = `### [${isoTimestamp}] ${impulse}\n**Narrator:** ${selectedNarrator.name} | **Model:** ${model} | **Composite:** \`${compositeHash}\`\n- ${stagedFiles.length} Datei(en) geändert.\n\n`;
 
-let changelog = '';
+let changelog;
 if (fs.existsSync(PATHS.changelog)) {
   changelog = fs.readFileSync(PATHS.changelog, 'utf8');
   changelog = changelog.replace(/^(# .+?\n\n)/s, `$1${changelogEntry}`);

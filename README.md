@@ -6,7 +6,7 @@
 
 <!-- BADGES — STATUS BOARD -->
 <a href="https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods/releases"><img src="https://img.shields.io/badge/version-v0.23.0-7C3AED?style=for-the-badge&logo=git&logoColor=white" alt="Version"/></a>&nbsp;
-<a href="#"><img src="https://img.shields.io/badge/tests-111%20PASS%20%C2%B7%200%20FAIL-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Tests"/></a>&nbsp;
+<a href="#"><img src="https://img.shields.io/badge/tests-119%20PASS%20%C2%B7%200%20FAIL-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Tests"/></a>&nbsp;
 <a href="#-quality-metrics--qualit%C3%A4tsmetriken"><img src="https://img.shields.io/badge/runtime%20score-90.1%25-F59E0B?style=for-the-badge" alt="Score"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/cache-3%2C288%20strings-8B5CF6?style=for-the-badge" alt="Cache"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/watermarks-0-10B981?style=for-the-badge" alt="Watermarks"/></a>&nbsp;
@@ -42,7 +42,7 @@
 SyxBridge ist eine vollautomatische Mod-Übersetzungs-Pipeline für Strategiespiele. Du wirfst einen Mod-Ordner rein — raus kommt dieselbe Mod, auf Deutsch (oder jede andere Sprache). Keine manuelle Arbeit, keine zerstörten Lore-Begriffe, kein API-Rätselraten.
 
 > [!IMPORTANT]
-> **Das hier ist kein Wrapper um Google Translate.** Es ist eine vollständige Pipeline mit Placeholder-Schutz, Glossar-System, LLM-Audit-Pass, SQLite-Cache, Smart-Routing über 10 Provider und einem Web-Dashboard das live zeigt was passiert.
+> **Das hier ist kein Wrapper um Google Translate.** Es ist eine vollständige Pipeline mit Placeholder-Schutz, Glossar-System, LLM-Audit-Pass, SQLite-Cache, Smart-Routing über 11 Provider und einem Web-Dashboard das live zeigt was passiert.
 
 <details>
 <summary><b>🎯 Drei reale Use-Cases</b></summary>
@@ -73,7 +73,7 @@ Keine Black Box. Das Dashboard zeigt live welcher String gerade läuft, welcher 
 
 ---
 
-## ⚡ Smart Routing — 10 Provider
+## ⚡ Smart Routing — 11 Provider
 
 Das System hat eine interne Capability-Matrix. Du gibst Strings rein, es wählt automatisch den besten verfügbaren Provider. Automatische Key-Rotation gegen Rate-Limits. Keys liegen nur lokal in deiner `.env`.
 
@@ -185,7 +185,7 @@ start.bat
 | Übersetzte Strings im Cache | **3.288** | 🟢 |
 | Watermarks / LLM-Artefakte | **0** | 🟢 |
 | Runtime Score | **90.1%** | 🟢 |
-| Test-Suite | **111 PASS · 0 FAIL** | 🟢 |
+| Test-Suite | **119 PASS · 0 FAIL** | 🟢 |
 | Plattform | **Windows** *(Linux experimentell)* | 🟡 |
 
 </div>
@@ -197,10 +197,149 @@ start.bat
 
 ## 🗺 Roadmap
 
-- [x] **Phase 1** — Songs of Syx: Vollständige Pipeline, Plugin-Architektur, Web-Dashboard, 10 Provider
-- [ ] **Phase 2** — RimWorld: Adapter-Hooks, Def-Parser, XML-Exporter, Mod-Folder-Scanner
-- [ ] **Phase 3** — Mod-Loader: DAG Load-Order, Conflict-Detection, SteamCMD Integration
-- [ ] **Phase 4** — Community: Kenshi, Stardew Valley, geteilte Glossar-Caches
+```mermaid
+timeline
+    title SyxBridge — Entwicklungs-Roadmap
+    section ✅ Phase 1 · Songs of Syx
+        v0.19 : Plugin-Architektur (GameAdapter → GamePlugin)
+              : SQLite-Cache + Revisionshistorie
+              : Erster vollständiger Übersetzungslauf
+        v0.20 : Commit-Layer RNG (deterministisch)
+              : 9 Provider integriert
+              : Web-Dashboard MVP
+        v0.21 : Placeholder-Shield-System
+              : FCM Live-Rankings
+              : isProperNoun() + Glossar-System
+        v0.22 : P0 __OVERWRITE-Crash-Fix
+              : Groq Garbage-Detection
+              : 11 Provider · OpenAI + Custom API
+        v0.23 : Bilinguales README · GitHub-Features
+              : Code-Refactoring M-1..M-4
+              : RimWorld Plugin-Foundation (Format-Hooks)
+    section 🔄 Phase 2 · RimWorld
+        v0.24 : Adapter-Hooks (13 Methoden)
+              : Def-Parser · XML-Exporter
+              : Mod-Folder-Scanner
+    section 🔮 Phase 3 · Mod-Loader
+        v0.25 : DAG Load-Order · Conflict-Detection
+              : SteamCMD Integration
+    section 🌍 Phase 4 · Community
+        v1.0  : Kenshi · Stardew Valley
+              : Geteilte Glossar-Caches
+```
+
+<div align="center">
+
+| Checkpoint | Version | Status | Was wurde erreicht |
+|:---:|:---:|:---:|:---|
+| 🏁 **CP-1** | v0.20 | ✅ Done | Plugin-Architektur, SQLite-Cache, Erster vollständiger Sync |
+| 🏁 **CP-2** | v0.22 | ✅ Done | 11 Provider, Crash-frei, Garbage-Detection, Dashboard vollständig |
+| 🏁 **CP-3** | v0.23 | ✅ Done | Code-Hardening, RimWorld Foundation, Bilinguales Release |
+| 🔄 **CP-4** | v0.24 | 🚧 In Progress | RimWorld vollständig spielbar (~16h Arbeit) |
+| 🔮 **CP-5** | v0.25+ | 📋 Geplant | Mod-Loader, Multi-Game Community |
+
+</div>
+
+---
+
+## 📋 Release Notes
+
+<details>
+<summary><b>🟣 v0.23.0 — 2026-06-25</b> · Code-Hardening + RimWorld Foundation + Bilinguales Release</summary>
+<br/>
+
+**Highlights:**
+- **OpenAI + Custom API** vollständig integriert (11 Provider total)
+- **Ollama Cloud-Mode** mit Remote-URL + `_OLLAMA_URL_RAW` Bugfix
+- **Code-Refactoring M-1..M-4:** `withTransaction()`, `parseJsonBody()`, `_testOpenAiChat()`, Export-Block — 4 Duplizierungs-Patterns beseitigt
+- **RimWorld Plugin Foundation:** 11 Format-Hooks fertig (XML-Escaping, Tag-Validation, Placeholder-Regex), 13 Adapter-Stubs bereit
+- **README komplett neugeschrieben:** Bilingual DE/EN, Banner, GitHub-Features, Navigation-Badges
+- **Security Audit:** 0 Vulnerabilities, ESLint 4 Errors → 0 Errors
+- **Narrative Commit-Layer:** 14 Charaktere, Cross-Narrator-Referenzen, Author System
+- **DOKU-Divergenz-Audit:** 7 Divergenzen gefunden + behoben (DD-001–DD-007)
+
+| Metrik | v0.22 | v0.23 |
+|:---|:---:|:---:|
+| Provider | 9 | **11** |
+| Test-Suite | 100 PASS | **111 PASS** |
+| LOC (gesamt) | ~8.500 | **~30.000** |
+| Commit-Charaktere | 9 | **14** |
+
+</details>
+
+<details>
+<summary><b>🔵 v0.22.0 — 2026-06-22</b> · P0/P1/P2 Härtung · Crash-frei · 11 Provider</summary>
+<br/>
+
+**Highlights:**
+- **P0 — `__OVERWRITE`-Crash-Fix:** `SongsOfSyxPlugin.getFileHeader()` gab `__OVERWRITE: true` für alle V71-Dateien zurück → Vanilla-DE-Texte wurden zerstört. Fix: `''` statt Header.
+- **P0 — Basis-Fallback:** Wenn alle Provider fehlschlagen, wird existierende Übersetzung aus DB genutzt statt leerer Export
+- **P1 — Groq Garbage-Detection:** `consecutiveGarbageBatches`-Counter — bei ≥2 Müll-Batches wird Provider aus Route-Plan ausgeschlossen
+- **P1 — SHIELD-Preservation:** Placeholder-Token bleiben nach LLM-Pass korrekt erhalten
+- **P2 — Path-Validation:** `modsOverride`-Pfade werden via `existsSync` geprüft
+- **Language-Tag:** Übersetzte Mods bekommen `DEUTSCH`-Suffix im Namen
+- **Translation-Credit:** `_Info.txt` enthält jetzt immer „Translation by Vannon with SyxBridge"
+- **isFreeModel():** Provider-bewusste Free-Erkennung (NVIDIA statisch, Groq alle, Gemini statisch, OpenRouter dynamisch)
+- **rankModel():** DB-gestützt statt String-Heuristik — aggregiert `avg_quality` aus Metriken
+- **deepPolishBatch:** Metriken fließen jetzt für jeden Deep-Polish-Durchlauf
+- **5 Thin-Wrapper** aus `client-factory.js` entfernt
+
+</details>
+
+<details>
+<summary><b>🟢 v0.21.0 — 2026-06-22</b> · Commit-Layer · Dashboard-Features · Bugfix-Welle</summary>
+<br/>
+
+**Highlights:**
+- **Commit-Layer RNG Phase 5:** Charakterblatt-System — 4 Erzähler (Buffy, Basher, Thinker, Vannon), deterministisch via XorShift128
+- **Narrative Expansion:** 5 weitere Charaktere (Squizzle, Devin, Argos, Ghost, Spark)
+- **GUI v0.22.0:** Version-Highlights-Modal, Preflight-Status, Runtime Score Panel (minimiert by default), Backup-Panel komprimiert
+- **SQLITE-BUSY-Fix:** `Promise.all` auf `saveTranslation()` → sequenzielle Writes — `SQLITE_BUSY: database is locked` beim 3. Mod behoben
+- **ZWSP-Removal:** Unsichtbare Unicode-Zeichen injiziert in JEDE String → SoS-Crash (libGDX Glyph-Atlas) → komplett entfernt
+- **DB Fresh Reset:** Dev-DB aus Repo entfernt, Fresh-State für Onboarding
+- **Eval-Score-Fix:** `computeRunEvaluation()` Score 55.7% → 85.1% (zwei Formel-Bugs)
+- **isProperNoun()-Fix:** Denylist ~80 → ~200+ Einträge — NAME-Felder wie `Calm`, `Genius` wurden nicht übersetzt
+- **LLM-Safety-Label-Filter:** „User Safety: safe" erschien im Mod-Output → `cleanTranslationArtifact()` filtert es
+- **_Info.txt Pipeline:** `_Info.txt` war aus Übersetzung gefiltert → DESC/INFO blieben English → Fix
+- **Output-First REGEL 0.5:** Neue Entwicklungsregel — erst Output prüfen, dann Code ändern
+
+</details>
+
+<details>
+<summary><b>🟡 v0.20.0 — 2026-06-21</b> · Plugin-Architektur · Commit-Layer RNG · GUI MVP</summary>
+<br/>
+
+**Highlights:**
+- **Plugin-Architektur (3 Ebenen):** `GameAdapter` → `GamePlugin` → `SongsOfSyxPlugin` — erweiterbar auf jedes Spiel
+- **`plugin-registry.js`:** `createPlugin(gameName)` Factory — neues Spiel in 4 Schritten
+- **Commit-Layer RNG Phase 1–4:** `rng.js` (XorShift128 + djb2), `composite_chain.json`, `verify_commit_msg.js` mit 5 Checks, `derive_composite.js` — deterministisch reproduzierbar
+- **Causality-System:** Commit-Narrative referenzieren letzte 5 Commits + Diff-Statistiken
+- **FCM Live-Rankings:** Modell-Tiers, Ping, Stabilität im Dashboard
+- **API-Key-Manager:** Keys verwalten und testen direkt aus dem UI
+- **Revisionshistorie:** Jeder String hat vollständige Änderungshistorie
+- **DB-Repair:** Automatische Integritätsprüfung mit visuellen Warnstufen
+- **export_stage2.js Deduplizierung:** `validateAndPrepareContent()` aus exporter.js extrahiert
+- **countMatches-Konsolidierung:** 10 inline Patterns ersetzt
+- **Plugin-Boundary-Contract:** 84 dynamische Interface-Checks
+
+</details>
+
+<details>
+<summary><b>⚪ v0.19.0 — 2026-06-19</b> · Erster vollständiger Sync · SQLite-Cache · 7 Provider</summary>
+<br/>
+
+**Highlights:**
+- **Erster vollständiger Übersetzungslauf:** Songs of Syx Mod komplett auf Deutsch — Pipeline Ende-zu-Ende
+- **SQLite-Cache** (`better-sqlite3`, WAL-Mode, 12 Tabellen) — zweiter Run nutzt Cache, API-Kosten gegen Null
+- **Placeholder-Shield System:** `{NAME}`, `{VAR}` werden vor LLM ausgeblendet, nach Übersetzung wiederhergestellt
+- **7 Provider:** Groq, OpenRouter, Gemini, NVIDIA NIM, FCM, Argos, Google Translate
+- **Smart Routing:** Capability-Matrix + automatische Key-Rotation
+- **Native Mode:** Direkt in Mod-Dateien schreiben + Backup automatisch
+- **Patch Mode:** Separater Übersetzungsmod-Ordner (Workshop-kompatibel)
+- **SCAN → SHIELD → TRANSLATE → QA → SAVE** Pipeline vollständig
+- **`start.bat`:** Ein Klick → Dependencies installiert, Server startet, Browser öffnet sich
+
+</details>
 
 ---
 
@@ -232,7 +371,7 @@ start.bat
 SyxBridge is a fully automated mod translation pipeline for strategy games. Drop in a mod folder — out comes the same mod, in German (or any other language). No manual work, no destroyed lore terms, no API guesswork.
 
 > [!IMPORTANT]
-> **This is not a Google Translate wrapper.** It's a complete pipeline with placeholder protection, glossary system, LLM audit pass, SQLite cache, smart routing across 10 providers, and a web dashboard that shows you live what's happening.
+> **This is not a Google Translate wrapper.** It's a complete pipeline with placeholder protection, glossary system, LLM audit pass, SQLite cache, smart routing across 11 providers, and a web dashboard that shows you live what's happening.
 
 <details>
 <summary><b>🎯 Three real use-cases</b></summary>
@@ -248,7 +387,7 @@ SyxBridge is a fully automated mod translation pipeline for strategy games. Drop
 
 ---
 
-## ⚡ Smart Routing — 10 Providers
+## ⚡ Smart Routing — 11 Providers
 
 The system has an internal capability matrix. Feed it strings, it automatically picks the best available provider. Automatic key rotation against rate limits. Keys live only locally in your `.env`.
 
@@ -317,7 +456,7 @@ start.bat
 | Cached strings | **3,288** | 🟢 |
 | Watermarks / LLM artifacts | **0** | 🟢 |
 | Runtime Score | **90.1%** | 🟢 |
-| Test suite | **111 PASS · 0 FAIL** | 🟢 |
+| Test suite | **119 PASS · 0 FAIL** | 🟢 |
 | Platform | **Windows** *(Linux experimental)* | 🟡 |
 
 </div>
@@ -329,10 +468,149 @@ start.bat
 
 ## 🗺 Roadmap
 
-- [x] **Phase 1** — Songs of Syx: Full pipeline, plugin architecture, web dashboard, 10 providers
-- [ ] **Phase 2** — RimWorld: Adapter hooks, Def parser, XML exporter, mod folder scanner
-- [ ] **Phase 3** — Mod Loader: DAG load order, conflict detection, SteamCMD integration
-- [ ] **Phase 4** — Community: Kenshi, Stardew Valley, shared glossary caches
+```mermaid
+timeline
+    title SyxBridge — Development Roadmap
+    section ✅ Phase 1 · Songs of Syx
+        v0.19 : Plugin Architecture (GameAdapter → GamePlugin)
+              : SQLite Cache + Revision History
+              : First complete translation run
+        v0.20 : Commit Layer RNG (deterministic)
+              : 9 Providers integrated
+              : Web Dashboard MVP
+        v0.21 : Placeholder Shield System
+              : FCM Live Rankings
+              : isProperNoun() + Glossary System
+        v0.22 : P0 __OVERWRITE Crash Fix
+              : Groq Garbage Detection
+              : 11 Providers · OpenAI + Custom API
+        v0.23 : Bilingual README · GitHub Features
+              : Code Refactoring M-1..M-4
+              : RimWorld Plugin Foundation
+    section 🔄 Phase 2 · RimWorld
+        v0.24 : Adapter Hooks (13 methods)
+              : Def Parser · XML Exporter
+              : Mod Folder Scanner
+    section 🔮 Phase 3 · Mod Loader
+        v0.25 : DAG Load Order · Conflict Detection
+              : SteamCMD Integration
+    section 🌍 Phase 4 · Community
+        v1.0  : Kenshi · Stardew Valley
+              : Shared Glossary Caches
+```
+
+<div align="center">
+
+| Checkpoint | Version | Status | What was achieved |
+|:---:|:---:|:---:|:---|
+| 🏁 **CP-1** | v0.20 | ✅ Done | Plugin architecture, SQLite cache, first complete sync |
+| 🏁 **CP-2** | v0.22 | ✅ Done | 11 providers, crash-free, garbage detection, full dashboard |
+| 🏁 **CP-3** | v0.23 | ✅ Done | Code hardening, RimWorld foundation, bilingual release |
+| 🔄 **CP-4** | v0.24 | 🚧 In Progress | RimWorld fully playable (~16h of work) |
+| 🔮 **CP-5** | v0.25+ | 📋 Planned | Mod Loader, multi-game community |
+
+</div>
+
+---
+
+## 📋 Release Notes
+
+<details>
+<summary><b>🟣 v0.23.0 — 2026-06-25</b> · Code Hardening + RimWorld Foundation + Bilingual Release</summary>
+<br/>
+
+**Highlights:**
+- **OpenAI + Custom API** fully integrated (11 providers total)
+- **Ollama Cloud Mode** with remote URL + `_OLLAMA_URL_RAW` bugfix
+- **Code Refactoring M-1..M-4:** `withTransaction()`, `parseJsonBody()`, `_testOpenAiChat()`, export block — 4 duplication patterns eliminated
+- **RimWorld Plugin Foundation:** 11 format hooks complete (XML escaping, tag validation, placeholder regex), 13 adapter stubs ready
+- **README fully rewritten:** bilingual DE/EN, banner, GitHub features, navigation badges
+- **Security Audit:** 0 vulnerabilities, ESLint 4 errors → 0 errors
+- **Narrative Commit Layer:** 14 characters, cross-narrator references, author system
+- **Docs Divergence Audit:** 7 divergences found and fixed (DD-001–DD-007)
+
+| Metric | v0.22 | v0.23 |
+|:---|:---:|:---:|
+| Providers | 9 | **11** |
+| Test Suite | 100 PASS | **111 PASS** |
+| LOC (total) | ~8,500 | **~30,000** |
+| Commit Characters | 9 | **14** |
+
+</details>
+
+<details>
+<summary><b>🔵 v0.22.0 — 2026-06-22</b> · P0/P1/P2 Hardening · Crash-Free · 11 Providers</summary>
+<br/>
+
+**Highlights:**
+- **P0 — `__OVERWRITE` Crash Fix:** `SongsOfSyxPlugin.getFileHeader()` returned `__OVERWRITE: true` for all V71 files → vanilla DE texts were destroyed. Fix: `''` instead of header.
+- **P0 — Base Fallback:** When all providers fail, existing translation from DB is used instead of empty export
+- **P1 — Groq Garbage Detection:** `consecutiveGarbageBatches` counter — after ≥2 garbage batches, provider excluded from route plan
+- **P1 — SHIELD Preservation:** Placeholder tokens correctly survive the LLM pass
+- **P2 — Path Validation:** `modsOverride` paths validated via `existsSync`
+- **Language Tag:** Translated mods get `DEUTSCH` suffix in mod name
+- **Translation Credit:** `_Info.txt` always includes "Translation by Vannon with SyxBridge"
+- **isFreeModel():** Provider-aware free detection (NVIDIA static list, Groq all, Gemini static, OpenRouter dynamic)
+- **rankModel():** DB-backed instead of string heuristic — aggregates `avg_quality` from metrics
+- **deepPolishBatch:** Metrics now recorded for every deep polish pass
+- **5 thin wrappers** removed from `client-factory.js`
+
+</details>
+
+<details>
+<summary><b>🟢 v0.21.0 — 2026-06-22</b> · Commit Layer · Dashboard Features · Bug Wave</summary>
+<br/>
+
+**Highlights:**
+- **Commit Layer RNG Phase 5:** Character sheet system — 4 narrators (Buffy, Basher, Thinker, Vannon), deterministic via XorShift128
+- **Narrative Expansion:** 5 more characters (Squizzle, Devin, Argos, Ghost, Spark)
+- **GUI v0.22.0:** Version highlights modal, preflight status, runtime score panel (minimized by default), backup panel compact
+- **SQLITE-BUSY Fix:** `Promise.all` on `saveTranslation()` → sequential writes — `SQLITE_BUSY: database is locked` on 3rd mod fixed
+- **ZWSP Removal:** Invisible Unicode chars injected into every translated string → SoS crash (libGDX glyph atlas) → removed entirely
+- **DB Fresh Reset:** Dev DB removed from repo, fresh state for onboarding
+- **Eval Score Fix:** `computeRunEvaluation()` score 55.7% → 85.1% (two formula bugs)
+- **isProperNoun() Fix:** Denylist ~80 → ~200+ entries — NAME fields like `Calm`, `Genius` were not being translated
+- **LLM Safety Label Filter:** "User Safety: safe" appeared in mod output → `cleanTranslationArtifact()` filters it
+- **_Info.txt Pipeline:** `_Info.txt` was filtered out of translation → DESC/INFO stayed English → fixed
+- **Output-First RULE 0.5:** New development rule — always check output first, then change code
+
+</details>
+
+<details>
+<summary><b>🟡 v0.20.0 — 2026-06-21</b> · Plugin Architecture · Commit Layer RNG · GUI MVP</summary>
+<br/>
+
+**Highlights:**
+- **Plugin Architecture (3 layers):** `GameAdapter` → `GamePlugin` → `SongsOfSyxPlugin` — extensible to any game
+- **`plugin-registry.js`:** `createPlugin(gameName)` factory — new game in 4 steps
+- **Commit Layer RNG Phase 1–4:** `rng.js` (XorShift128 + djb2), `composite_chain.json`, `verify_commit_msg.js` with 5 checks, `derive_composite.js` — deterministically reproducible
+- **Causality System:** Commit narratives reference last 5 commits + diff statistics
+- **FCM Live Rankings:** Model tiers, ping, stability in dashboard
+- **API Key Manager:** Manage and test keys directly from UI
+- **Revision History:** Every string has a complete change history
+- **DB Repair:** Automatic integrity check with visual warning levels
+- **export_stage2.js Deduplication:** `validateAndPrepareContent()` extracted from exporter.js
+- **countMatches Consolidation:** 10 inline patterns replaced
+- **Plugin Boundary Contract:** 84 dynamic interface checks
+
+</details>
+
+<details>
+<summary><b>⚪ v0.19.0 — 2026-06-19</b> · First Complete Sync · SQLite Cache · 7 Providers</summary>
+<br/>
+
+**Highlights:**
+- **First complete translation run:** Songs of Syx mod fully translated to German — pipeline end-to-end
+- **SQLite Cache** (`better-sqlite3`, WAL mode, 12 tables) — second run hits cache, API costs near zero
+- **Placeholder Shield System:** `{NAME}`, `{VAR}` hidden from LLM, correctly restored after translation
+- **7 Providers:** Groq, OpenRouter, Gemini, NVIDIA NIM, FCM, Argos, Google Translate
+- **Smart Routing:** Capability matrix + automatic key rotation
+- **Native Mode:** Write directly to mod files + automatic backup
+- **Patch Mode:** Separate translation mod folder (Workshop compatible)
+- **SCAN → SHIELD → TRANSLATE → QA → SAVE** pipeline complete
+- **`start.bat`:** One click → installs dependencies, starts server, opens browser
+
+</details>
 
 ---
 
