@@ -14,7 +14,7 @@ try {
   console.error('[DB]   3. Falls das fehlschlägt: npm install --build-from-source better-sqlite3');
   console.error('[DB]      (dafür werden C++ Build-Tools benötigt — Visual Studio Build Tools auf Windows)');
   console.error('[DB] Fehlerdetails:', e.message);
-  throw new Error('better-sqlite3 konnte nicht geladen werden: ' + e.message);
+  throw new Error('better-sqlite3 konnte nicht geladen werden: ' + e.message, { cause: e });
 }
 
 const path = require('path');

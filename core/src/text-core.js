@@ -138,7 +138,7 @@ function isProperNoun(text) {
   if (value.length <= 1 || value.length >= 40) return false;
   
   // Enthält Satzzeichen? → kein Eigenname
-  if (/[.,!?;:()\[\]{}]/.test(value)) return false;
+  if (/[.,!?;:()[\]{}]/.test(value)) return false;
   
   // Suffix-Heuristik: Englische Wort-Endungen → KEIN Eigenname
   // Echte Eigennamen enden selten auf diese Suffixe

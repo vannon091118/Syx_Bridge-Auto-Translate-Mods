@@ -248,7 +248,7 @@ if (loreText) {
   const headerLine = headerParts.join(' ');
 
   // Narrator-Monolog: Wenn Narrator gesetzt, schreibe als Monolog aus dieser Perspektive
-  let entry = '';
+  let entry;
   if (narratorId) {
     entry = `\n### [${timestamp}] ${headerLine}\n`;
     entry += `> **Erzähler:** ${narratorId} — ${narratorVoice || 'Siehe character_sheets.json'}\n`;

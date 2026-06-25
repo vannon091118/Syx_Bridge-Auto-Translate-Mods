@@ -67,7 +67,7 @@ async function main() {
 
   // Empty key CAN be overwritten with empty value (no data loss)
   const emptyExisting = readEnvValue(testLines, 'EMPTY_KEY');
-  const emptyWouldBlank = emptyExisting !== '' && ('' === '' || !'');
+  const emptyWouldBlank = emptyExisting !== '' && '';
   assert(!emptyWouldBlank, 'EMPTY_KEY ist bereits leer → kein Schutz noetig (existing="" )');
 
   // --- TEST 4: .env.backup exists after persistConfigToEnv ---

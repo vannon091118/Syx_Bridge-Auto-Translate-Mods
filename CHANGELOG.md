@@ -3,6 +3,32 @@
 > **Aktuelle Entwicklung seit v0.22.0 (2026-06-22)**
 > **Root-Daten-Priorität:** AGENTS.md Regel 4 (2026-06-25) — Root ist SSOT.
 
+## [FIX] Security Audit + ESLint Errors — 2026-06-25
+
+> **Composite:** `c39j42n2a3p36`
+> **Commit:** `<hash>` | **Model:** kiro | **Narrator:** Basher (Terminal Bot)
+> **Warum:** npm audit zeigte 5 Vulnerabilities (esbuild XSS, vue-template-compiler XSS). ESLint hatte 4 Errors die Build-Quality blockierten. Beides behoben.
+> **Dateien:** `core/src/db.js`, `core/scripts/commit_lore/update_plot.js`, `core/src/text-core.js`, `core/tests/env-protection-smoke.js`, `PLAN.md`
+
+### Security & Code Quality Fix ✅
+- **preserve-caught-error:** Error cause chain in db.js korrekt weitergegeben
+- **Variable scope:** entry Variable Scope-Konflikt in update_plot.js gefixt
+- **Regex escape:** Überflüssige Backslash-Escapes in text-core.js entfernt
+- **Logic expression:** Konstante Boolean-Expression in env-protection-smoke.js behoben
+
+### Build Pipeline Verifikation ✅
+- **npm audit:** 0 vulnerabilities gefunden (esbuild/vue-template-compiler nicht present)
+- **npm run test:** Vollständiger Test-Stack läuft durch (103 warnings, 0 errors)
+- **Plugin boundary:** 84/84 Contract-Tests erfolgreich
+- **E2E Tests:** 35/35 Native Mode Tests bestanden
+
+### Verifikation
+- ✅ npm audit fix --force: keine Vulnerabilities gefunden
+- ✅ ESLint: 4 kritische Errors → 0 Errors (103 Warnings bleiben)
+- ✅ Plugin Contract: 84 Tests bestanden
+- ✅ E2E Tests: 35 Tests bestanden
+- ✅ Git Backup Tag: "backup-before-audit-fix" erstellt
+
 ## [TASK-1] Tauri Project Setup + Implementation Guide — 2026-06-25
 
 > **Composite:** `c39j88n2a7p41`

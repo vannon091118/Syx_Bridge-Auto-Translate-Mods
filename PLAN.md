@@ -3,7 +3,9 @@
 > **Stand:** 2026-06-25 | **Konsolidiert aus:** MODULARISIERUNGS_PLAN, DEAD_CODE_REPORT, SCOPE_REPORT, 11 Sub-Plänen, RimWorld-Recherche
 > **Letzte Prüfung:** 2026-06-25 — Pläne-Audit: 11 Pläne geprüft (3 DONE, 8 OFFEN). RimWorld-Plan erstellt.
 > **Regel:** Max 4 Dateien pro Schritt. Alle Smoke-Tests müssen nach jedem Schritt bestehen.
-> **Smoke-Test-Suite:** `node scripts/check_syntax.js` + `npm run test` (78 Dateien OK, 2 ESLint-Errors, 81 Warnings)
+> **Smoke-Test-Suite:** `node scripts/check_syntax.js` + `npm run test` (87 Dateien OK, 0 ESLint-Errors, 0 Failures)
+> **NPM SECURITY STATUS:** ✅ 0 vulnerabilities — esbuild/vue-template-compiler XSS Fixes applied 2026-06-25
+> **ESLint Status:** 0 Errors (4 fixes: db.js cause chain, update_plot.js scope, text-core.js regex, env-protection-smoke.js logic)
 
 ---
 
