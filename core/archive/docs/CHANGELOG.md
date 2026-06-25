@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 23:40:05] author_system.js: Narrator-Voice-Injection — Attitudes aus character_sheets + Mood-Modifier → template-basierte Voice-Intros (kein LLM). buildVoiceIntro() generiert narratorspezifische Eröffnung. Commits klingen jetzt dramatisch unterschiedlich.
+**Narrator:** Ghost | **Model:** deepseek-v4-pro | **Composite:** `c55j35n8a4p26`
+- 2 Datei(en) geändert.
+
 ### [2026-06-25 23:33:52] config-runtime.js: 7 fetch*Models-Methoden zu generischer _fetchModels() vereinheitlicht. Key-Check, Auth-Typ (bearer/keyInUrl), preFilter+filterFn Pipeline, Fallback — alles in einer Hilfsfunktion. 6 Thin-Wrapper + 1 partielle Delegation (NVIDIA).
 **Narrator:** Flux | **Model:** deepseek-v4-pro | **Composite:** `c54j67n13a3p54`
 - 2 Datei(en) geändert.

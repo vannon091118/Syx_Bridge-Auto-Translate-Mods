@@ -1,13 +1,16 @@
-Vereinheitliche 7 fetch*Models()-Methoden zu einer generischen _fetchModels()-Hilfsfunktion.
+Narrator-Voice-Injection in author_system.js — das fehlende Glied zwischen Verhältnisse-System und Commit-Nachrichten.
 
-_g fetchModels({ provider, url, authType, responseField, mapFn, preFilter, filterFn, fallback, timeout, requireKey })
-  - authType: 'bearer' | 'keyInUrl' | null — abstrahiert Key-Handling pro Provider
-  - preFilter: applied BEFORE map on raw response items (z.B. Gemini supportedGenerationMethods)
-  - filterFn: applied AFTER map on extracted IDs (z.B. OpenAI ft:-Exclusion, NVIDIA isUsableTextModel)
-  - Pipeline: preFilter → map → filterFn → filter(Boolean) → sort → fallback
+Ursache: Die Verhältnisse (Attitudes) wurden in character_sheets.json definiert und in derive_composite.js berechnet, aber author_system.js hat sie nie in den Commit-Body injiziert. Alle Commits klangen gleich — der neutrale customBody dominierte.
 
-6 Methoden zu Thin-Wrappern reduziert: fetchGeminiModels, fetchGroqModels, fetchOllamaModels, fetchPlayer2Models, fetchOpenAIModels, fetchCustomApiModels.
-fetchNvidiaModels nutzt _fetchModels partiell für den API-Call, behält aber side effect (setNvidiaFreeModels) und Fallthrough zu NVIDIA_FALLBACK_MODELS.
-fetchOpenRouterModels und fetchFcmModelRankings unverändert (komplexe Pricing-Filter/CLI-Fallback-Logik).
+Root Cause: author_system.js fehlte eine Funktion, die Attitudes in narratorspezifischen Text übersetzt.
 
-~45 LOC copy-paste eliminiert (6x ~8 LOC try/catch/key-check-Boilerplate), 1 zentrale try/catch-Stelle.
+Fix — Section 4b (finale Attitudes): Basis-Attitudes aus selectedNarrator.attitudes + Mood-Deltas aus narrative_params.attitude_modifiers[derived.mood], geclampt 0-10.
+
+Fix — Section 4c (buildVoiceIntro): Template-basierte Voice-Generierung ohne LLM-Call:
+- Jeder Narrator bekommt 0-2 attitude-getriebene Sätze (nur die 2 extremsten Abweichungen von 5)
+- Verbosity steuert die Länge: Basher (0) = kein Intro, Vannon (1-2) = ein Satz, normal (3-5) = kurzes italic-Intro, Ghost/Sage/Flux (8-9) = langes Intro mit tone_brief + Mood-Kombo
+- Attitude-gesteuerte Sätze: code_love≥8 → "Genau mein Ding.", cleanup≥8 → "Schon wieder hinterherräumen.", doku≥8 → "Und jetzt auch noch Doku.", critic≥8 → "Das hätte man auch gleich richtig machen können.", praise≥8 → "Richtig gut geworden!", optimist≤1 → "Wird eh wieder kaputtgehen."
+
+Fix — Section 7: Voice-Intro wird VOR cross-narrator reference + customBody injiziert.
+
+Empfehlung: Die Voice-Regeln können später pro Narrator in character_sheets.json ausgelagert werden, aber der template-basierte Ansatz funktioniert bereits mit den existierenden Attitude-Scores.

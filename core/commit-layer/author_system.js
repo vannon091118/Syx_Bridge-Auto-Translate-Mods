@@ -131,6 +131,81 @@ if (!selectedNarrator) {
 
 console.log(`🎭 Narrator: ${selectedNarrator.name} (${selectedNarrator.role})`);
 
+// ─── 4b. Finale Attitudes berechnen (Basis + Mood-Modifier → 0-10) ────────
+// Dieselbe Logik wie derive_composite.js — Basis-Attitudes aus character_sheets,
+// Mood-Deltas aus narrative_params.attitude_modifiers, geclampt 0-10.
+const baseAtts = selectedNarrator.attitudes || {};
+const moodMods = narrativeParams?.attitude_modifiers?.[derived.mood] || {};
+const finalAttitudes = {};
+for (const [key, val] of Object.entries(baseAtts)) {
+  finalAttitudes[key] = Math.max(0, Math.min(10, val + (moodMods[key] || 0)));
+}
+const moodNarratorKey = `${selectedNarrator.name}+${derived.mood}`;
+const moodNarratorCombo = narrativeParams?.narrator_mood_combination?.examples?.[moodNarratorKey] || '';
+
+// ─── 4c. Narrator-Voice-Intro generieren (template-basiert, kein LLM-Call) ──
+// Jeder Narrator bekommt eine individuelle Eröffnung basierend auf seinen Attitudes.
+// Dies ist DAS Element, das Commit-Nachrichten unterscheidbar macht.
+function buildVoiceIntro(narrator, att, mood, combo, impulse) {
+  const name = narrator.name;
+  const brief = narrator.tone_brief || '';
+  const codeLove = att.code_love || 5;
+  const cleanup = att.cleanup_resentment || 5;
+  const doku = att.doku_irritation || 5;
+  const critic = att.criticism_tendency || 5;
+  const praise = att.praise_tendency || 5;
+  const verbose = att.verbosity_bias || 5;
+  const optimist = att.optimism || 5;
+
+  // Attitude-getriebene Sätze — jeder Narrator pickt max 2 extremste (Abweichung von 5)
+  const candidates = [];
+
+  // Code-Liebe / Code-Frust
+  if (codeLove >= 8) candidates.push({ dev: codeLove - 5, text: 'Genau mein Ding. ' });
+  else if (codeLove <= 2) candidates.push({ dev: 5 - codeLove, text: 'Code. Egal. ' });
+
+  // Aufräum-Frust
+  if (cleanup >= 8) candidates.push({ dev: cleanup - 5, text: 'Schon wieder hinterherräumen. ' });
+  else if (cleanup <= 2) candidates.push({ dev: 5 - cleanup, text: 'Sauber. Aufgeräumt. ' });
+
+  // Doku-Genervtheit
+  if (doku >= 8) candidates.push({ dev: doku - 5, text: 'Und jetzt auch noch Doku. Na toll. ' });
+  else if (doku <= 1) candidates.push({ dev: 5 - doku, text: 'Dokumentiert. Nachvollziehbar. ' });
+
+  // Kritik-Neigung
+  if (critic >= 8) candidates.push({ dev: critic - 5, text: 'Das hätte man auch gleich richtig machen können. ' });
+
+  // Lob-Neigung
+  if (praise >= 8) candidates.push({ dev: praise - 5, text: 'Richtig gut geworden! ' });
+
+  // Optimismus
+  if (optimist >= 8) candidates.push({ dev: optimist - 5, text: 'Wird schon halten. ' });
+  else if (optimist <= 1) candidates.push({ dev: 5 - optimist, text: 'Wird eh wieder kaputtgehen. ' });
+
+  // Nur die 2 extremsten Attitude-Abweichungen behalten
+  candidates.sort((a, b) => b.dev - a.dev);
+  const lines = candidates.slice(0, 2).map(c => c.text);
+
+  // Verbosity — kurze vs. lange Variante
+  const introShort = lines.join('');
+  const introLong = `${name} (${narrator.role}) — ${brief} Mood: ${mood}. ${introShort}`;
+
+  // Basher (verbosity_bias=0): Nur Fakten, kein Intro
+  if (verbose <= 0) return '';
+
+  // Vannon (verbosity_bias=1): Ein knapper Satz
+  if (verbose <= 2) return `${introShort.trim()}\n\n`;
+
+  // Normal: kurzes Intro
+  if (verbose <= 5) return introShort ? `_${introShort.trim()}_\n\n` : '';
+
+  // Ghost/Sage/Flux (verbose 8-9): Ausführliches Intro mit Mood-Kombo
+  const comboLine = combo ? ` ${combo}` : '';
+  return `_${introLong.trim()}${comboLine}_\n\n`;
+}
+
+const voiceIntro = buildVoiceIntro(selectedNarrator, finalAttitudes, derived.mood, moodNarratorCombo, impulse);
+
 // ─── 5. Cross-Narrator aus Plotchain ─────────────────────────────────────── 
 let prevNarratorName = null;
 for (let i = plotchain.length - 1; i >= 0; i--) {
@@ -173,6 +248,9 @@ let commitBody = '';
 
 // Sidejoke — erste Zeile (nur wenn nicht leer)
 if (joke) commitBody += `${joke}\n\n`;
+
+// Narrator-Voice-Intro (NEU v0.25 — macht Commits unterscheidbar)
+if (voiceIntro) commitBody += voiceIntro;
 
 // Cross-Narrator-Referenz einweben (Pflicht für verify_commit_msg.js Check 6)
 if (prevNarratorName) {
