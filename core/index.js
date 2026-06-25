@@ -60,7 +60,8 @@ const {
 } = require('./Translation/sos-runtime');
 
 const GuiServer = require('./GUI/server');
-const { registerGuiHandlers, readDisplayName, restoreBackup } = require('./GUI/gui-handlers');
+const { registerGuiHandlers } = require('./GUI/gui-handlers');
+const { readDisplayName, restoreBackup } = require('./GUI/backup-utils');
 const { createPreflight } = require('./DB/preflight');
 
 const { isArgosInstalled, ensureArgos } = require('./scripts/check_argos');

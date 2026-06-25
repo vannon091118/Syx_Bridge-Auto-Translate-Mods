@@ -1,40 +1,17 @@
-## Verhältnisse-System (Attitudes) für alle 14 Narratoren
+## gui-handlers.js (794 → ~540 LOC, -254)
+Zwei Extraktionen, Null Architektur-Risiko:
 
-Jeder Commit-Erzähler hat jetzt individuelle Dispositionen — sieben Werte (0-10)
-die bestimmen, WAS ihn an diesem Commit stört oder freut:
+### run-evaluation.js (NEU, ~105 LOC)
+computeRunEvaluation() + RUN_CATEGORY_DESCRIPTIONS extrahiert.
+Reine Berechnungslogik, keine externen Abhängigkeiten.
+8 Kategorien, weighted scoring (0-100%).
 
-| Dimension | Bedeutung |
-|-----------|----------|
-| code_love | Freude an sauberem Code |
-| cleanup_resentment | Genervtheit vom Hinterherräumen |
-| doku_irritation | Wie sehr Doku-Arbeit nervt |
-| criticism_tendency | Neigung zu kritisieren |
-| praise_tendency | Neigung zu loben |
-| verbosity_bias | Extra-Wortschwall-Tendenz |
-| optimism | Glas halbvoll vs. halbleer |
+### backup-utils.js (NEU, ~95 LOC)
+readDisplayName(), restoreBackup(), collectAllFiles() extrahiert.
+Reine Utility-Funktionen für Backup-Restore und Mod-Metadaten.
+Abhängigkeiten: nur fs, fsp, path (Node-Standard).
 
-Beispiele: Buffy (code_love=8, criticism=8) liebt eleganten Code und meckert
-trotzdem. Spark (code_love=9, praise=9) findet ALLES super. Null (optimism=0,
-praise=0) glaubt an gar nichts. Argos (cleanup_resentment=9, criticism=9) hat
-es satt, anderer Leute Müll wegzuräumen.
-
-## Mood-Overlay (attitude_modifiers in narrative_params.json)
-
-10 Moods modifizieren die Basis-Werte mit Deltas (-4 bis +4).
-Z.B. "triumphierend" boostet praise +4 und senkt criticism -3.
-"erschöpft" boostet cleanup_resentment +3 und senkt optimism -3.
-"alarmiert" senkt optimism um satte -4 (größter Einzel-Delta).
-
-Endwerte werden auf 0-10 geclampt — ein "triumphierender" Null erreicht
-trotzdem nur praise=4/10 (Basis 0 + 4 = 4).
-
-## derive_composite.js
-
-Berechnet finale Attitudes (Basis + Mood-Modifier) und gibt sie im
-Konsolen-Output aus — das LLM liest sie als Prompt-Kontext.
-
-## Code-Review-Fixes
-
-- Null: cleanup_resentment 2 → 4 (resigniert, aber nicht völlig gleichgültig)
-- Spark: criticism_tendency 1 → 2 (selbst der Neuling behält einen Hauch Kritik)
-- writing_rules.json: required: true → false + _note (Prompt-Regel, kein Verifikations-Check)
+### Import-Updates
+index.js: readDisplayName/restoreBackup jetzt aus ./GUI/backup-utils
+reset_now.js: restoreBackup jetzt aus ./backup-utils
+gui-handlers.js: require von beiden neuen Dateien

@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 23:21:45] gui-handlers.js (794→540 LOC): computeRunEvaluation + RUN_CATEGORY_DESCRIPTIONS nach run-evaluation.js extrahiert, readDisplayName + restoreBackup + collectAllFiles nach backup-utils.js extrahiert. Import-Pfade in index.js und reset_now.js aktualisiert
+**Narrator:** Basher | **Model:** deepseek-v4-pro | **Composite:** `c51j32n2a1p40`
+- 6 Datei(en) geändert.
+
 ### [2026-06-25 23:18:40] Verhaeltnisse-System (Attitudes): alle 14 Narratoren bekommen individuelle Dispositionen (code_love, cleanup_resentment, doku_irritation, criticism_tendency, praise_tendency, verbosity_bias, optimism 0-10). Moods modifizieren mit Deltas. derive_composite.js berechnet finale Attitudes fuer LLM-Kontext
 **Narrator:** Glitch | **Model:** deepseek-v4-pro | **Composite:** `c50j53n10a4p25`
 - 5 Datei(en) geändert.

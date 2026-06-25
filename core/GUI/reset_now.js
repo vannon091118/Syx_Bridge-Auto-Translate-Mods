@@ -30,7 +30,7 @@ const path = require('path');
 const os = require('os');
 
 const dbManager = require('../DB/db');
-const { restoreBackup } = require('./gui-handlers');
+const { restoreBackup } = require('./backup-utils');
 const { parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../Translation/sos-runtime');
 
 // ── Config resolution (mirror core/index.js behavior) ────────────────────
