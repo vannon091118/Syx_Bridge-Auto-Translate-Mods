@@ -75,29 +75,15 @@ const SYNC_TARGETS = [
     ]
   },
   {
-    file: 'core/src/cli-progress.js',
+    file: 'core/Translation/cli-progress.js',
     replacements: [
       { pattern: /(SYX BRIDGE CLI[^v]*)v[^'"]+([\s'])/, replacement: `$1v${v}$2` }
     ]
   },
+  // core/docs/README.md — removed (file no longer exists; archive/docs/ has no README.md)
+  // core/docs/TODO.md — removed (file no longer exists)
   {
-    file: 'core/docs/README.md',
-    replacements: [
-      { pattern: /(Version:\s*`?)v?[^`]+(`?)/, replacement: `$1${v}$2` },
-      { pattern: /(Produktiver Stand In\s+`?)v?[^`]+(`?)/, replacement: `$1${v}$2` },
-      { pattern: /(erweitert\s+v)[\d.]+[\w.]*/g, replacement: `$1${v}` },
-      { pattern: /(NEU\s+v)[\d.]+[\w.]*/g, replacement: `$1${v}` },
-      { pattern: /(Stand\s+v)[\d.]+[\w.]*/g, replacement: `$1${v}` }
-    ]
-  },
-  {
-    file: 'core/docs/TODO.md',
-    replacements: [
-      { pattern: /(Syx-Bridge\s+)v?[^—\s]+(\s+—\s+TODO)/, replacement: `$1v${v}$2` }
-    ]
-  },
-  {
-    file: 'core/docs/CHANGELOG.md',
+    file: 'core/archive/docs/CHANGELOG.md',
     replacements: [
       // Only sync the latest section header — historical headers stay as-is
       // m flag required: ^ must match start of LINE, not just start of string

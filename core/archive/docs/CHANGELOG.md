@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 23:03:26] sync-version.js: veraltete Pfade gefixt (core/docs/ → core/archive/docs/), tote Targets entfernt (README.md + TODO.md), cli-progress.js Pfad korrigiert
+**Narrator:** Devin | **Model:** deepseek-v4-pro | **Composite:** `c48j19n6a5p27`
+- 1 Datei(en) geändert.
+
 ### [2026-06-25 22:50:42] core/package.json version 0.22.0 → 0.23.0 (war asynchron zu AGENTS.md/README/_Info.txt)
 **Narrator:** Flux | **Model:** deepseek-v4-pro | **Composite:** `c47j89n13a1p9`
 - 1 Datei(en) geändert.

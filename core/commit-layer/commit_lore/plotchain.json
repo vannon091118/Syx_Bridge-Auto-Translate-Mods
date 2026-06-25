@@ -2421,5 +2421,24 @@
         "file": "core/package.json"
       }
     ]
+  },
+  {
+    "p_id": "p53",
+    "id": "plot-2026-06-25T23:03:50",
+    "timestamp": "2026-06-25 23:03:50",
+    "summary": "sync-version.js: veraltete Pfade gefixt (core/docs/ → core/archive/docs/), tote Targets entfernt, cli-progress.js Pfad korrigiert",
+    "narrator": "Devin",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c48j19n6a5p27",
+    "ref_to": "plot-2026-06-25T22:51:36",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/scripts/sync-version.js"
+      }
+    ]
   }
 ]
