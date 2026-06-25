@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 22:50:42] core/package.json version 0.22.0 → 0.23.0 (war asynchron zu AGENTS.md/README/_Info.txt)
+**Narrator:** Flux | **Model:** deepseek-v4-pro | **Composite:** `c47j89n13a1p9`
+- 1 Datei(en) geändert.
+
 ### [2026-06-25 22:46:56] author_system.js: Subject-Format Name: Titel statt Token-Wüste, CHANGELOG-Duplikat-Schutz. verify_commit_msg.js: CHANGELOG-Pfad-Fix (fatal-Fehler weg). CHANGELOG.md: tote CHANGELOG_1.md-Links entfernt
 **Narrator:** Basher | **Model:** deepseek-v4-pro | **Composite:** `c46j97n2a2p49`
 - 3 Datei(en) geändert.
