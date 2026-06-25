@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 21:50:40] Commit Layer zu deterministic Authorsystem ausbauen, README und PLAN.md konsolidieren
+**Narrator:** Buffy | **Model:** Claude Sonnet 4.6 | **Composite:** `c39j97n1a5p4`
+- 9 Datei(en) geändert.
+
 > **Aktuelle Entwicklung seit v0.22.0 (2026-06-22)**
 > **Root-Daten-Priorität:** AGENTS.md Regel 4 (2026-06-25) — Root ist SSOT.
 

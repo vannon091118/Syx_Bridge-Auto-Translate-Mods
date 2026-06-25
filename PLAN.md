@@ -1,11 +1,9 @@
 # 📋 SyxBridge — Master-Plan (v0.23.0)
 
 > **Stand:** 2026-06-25 | **Konsolidiert aus:** MODULARISIERUNGS_PLAN, DEAD_CODE_REPORT, SCOPE_REPORT, 11 Sub-Plänen, RimWorld-Recherche
-> **Letzte Prüfung:** 2026-06-25 — Pläne-Audit: 11 Pläne geprüft (3 DONE, 8 OFFEN). RimWorld-Plan erstellt.
-> **Regel:** Max 4 Dateien pro Schritt. Alle Smoke-Tests müssen nach jedem Schritt bestehen.
-> **Smoke-Test-Suite:** `node scripts/check_syntax.js` + `npm run test` (87 Dateien OK, 0 ESLint-Errors, 0 Failures)
-> **NPM SECURITY STATUS:** ✅ 0 vulnerabilities — esbuild/vue-template-compiler XSS Fixes applied 2026-06-25
-> **ESLint Status:** 0 Errors (4 fixes: db.js cause chain, update_plot.js scope, text-core.js regex, env-protection-smoke.js logic)
+> **Letzte Prüfung:** 2026-06-25 — Pläne-Audit: 11 Pläne geprüft (3 DONE, 8 OFFEN)
+> **Smoke-Test-Suite:** `node scripts/check_syntax.js` + `npm run test`
+> **NPM SECURITY:** ✅ 0 vulnerabilities | **ESLint:** ✅ 0 Errors
 
 ---
 
@@ -16,354 +14,119 @@
 | `[ ]` | Offen |
 | `[~]` | In Arbeit |
 | `[x]` | Erledigt |
-| ⏱️ | Geschätzter Aufwand |
-| 🔗 | Blockiert von (Schritt-ID) |
-| 🔴🟡🟢 | Risiko: Hoch / Mittel / Niedrig |
+| ⏱️ | Aufwand |
+| 🔗 | Blockiert von |
+| 🔴🟡🟢 | Risiko |
 
 ---
 
-## P0 — QUICK WINS (Sofort startbar, ~1.5h)
+## ✅ DONE-INDEX (Abgeschlossen — Referenz)
 
-> Risikolos. Rein additive Extraktion + Deduplizierung. Keine Logik-Änderung.
+> Diese Tasks sind erledigt. Keine weiteren Maßnahmen nötig. Nur zur Nachvollziehbarkeit gelistet.
 
-### [x] S-001: `safeRecord()` Deduplizierung ⏱️ 15min 🟢
-
-Gemeinsame `try { getGateCounter().record(...) } catch (_) {}` Pattern dedupliziert.
-
-- **Ziel:** `safeRecord()` in gate-counter.js (nicht shared-utils.js — Scope war übertrieben)
-- **Analyseergebnis:** maskSecret, countMatches, collectFilesRecursive sind NICHT dupliziert (je nur 1× vorhanden). Nur safeRecord-Pattern war 7× inline dupliziert.
-- **Ersetzt:** dispatcher.js (4×), exporter.js (2×), validator.js (_gcRec-Wrapper)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — ESLint 0 Errors, Syntax OK
-
-### [x] S-002: `vendor-utils.js` extrahieren ⏱️ 20min 🟢
-
-Drei Funktionen sind in vendor-sync.js UND check_vendor_drift.js identisch dupliziert.
-
-- **Ziel:** `core/scripts/vendor-utils.js` (~150 LOC)
-- **Funktionen:** `findLatestRelease()`, `walkRelease()`, `releaseToSource()`, `computeSha256()`, `readFileSafe()`
-- **Impact:** Deduplizierung in vendor-sync.js + check_vendor_drift.js
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, ESLint 0 Errors, Code-Review bestanden
-
-### [x] S-003: Gate-Counter `safeRecord()` Wrapper ⏱️ 10min 🟢
-
-Identisches `try { getGateCounter().record(...) } catch (_) {}` in 6 Dateien.
-
-- **Ziel:** `safeRecord(gateId, action, meta)` in gate-counter.js
-- **Consumer:** validator.js (2×), exporter.js (2×), dispatcher.js (5×), runtime-ops.js (1×)
-- **Impact:** -12 LOC (15 Zeilen → 3 Zeilen Aufruf)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Identisch mit S-001 (safeRecord Deduplizierung)
-
-### [x] R-001: `maskKey` → `maskSecret` importieren ⏱️ 5min 🟢
-
-`test_providers.js:84` hat eigene `maskKey()` — identisch mit `config-keys.js:63 maskSecret()`.
-
-- **Fix:** Import statt Duplikat (4 Call-Sites in test_providers.js)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, Code-Review bestanden
-
-### [x] R-006: `countMatches` Konsolidierung ⏱️ 10min 🟢
-
-`validator.js` baut eigene Regex-Counts statt `context-packets.js:countMatches()` zu nutzen.
-
-- **Fix:** `countMatches` aus context-packets.js importiert, 10 inline Patterns über 3 Funktionen ersetzt
-- **Funktionen:** `classifyStructureIssues` (2), `validateFileSyntax` (4), `getQaScore` (4)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Syntax OK, ESLint 0 Errors, 49/49 Smoke-Checks PASS, Code-Review: "Ship it"
+| ID | Beschreibung | Erledigt |
+|----|--------------|---------|
+| S-001 | `safeRecord()` Deduplizierung (7× inline → Helper in gate-counter.js) | 2026-06-23 |
+| S-002 | `vendor-utils.js` extrahieren (findLatestRelease, walkRelease, computeSha256) | 2026-06-23 |
+| S-003 | Gate-Counter `safeRecord()` Wrapper | 2026-06-23 |
+| S-004 | `config-discovery.js` extrahieren (9 Fetch-Funktionen, −34% config-runtime.js) | 2026-06-23 |
+| S-005 | `config-persist.js` extrahieren (.env-Persistenz) | 2026-06-23 |
+| S-006 | `config-keys.js` extrahieren (maskSecret, rotateApiKey, markKeyStatus) | 2026-06-23 |
+| S-007 | `translation-phases.js` extrahieren (5 Phasen, −53% translation-runtime.js) | 2026-06-23 |
+| S-008 | `translation-dnt.js` extrahieren (DNT-Shielding) | 2026-06-23 |
+| S-009 | `text-prompts.js` extrahieren (buildBatchPrompt, buildProofreadPrompt) | 2026-06-23 |
+| R-001 | `maskKey` → `maskSecret` importieren (test_providers.js) | 2026-06-23 |
+| R-006 | `countMatches` Konsolidierung (validator.js) | 2026-06-23 |
+| R-DB  | DB-Schema `game_id` — obsolet durch Plugin-Architektur | 2026-06-23 |
+| R-VAL | `validateFileSyntax()` Plugin-Delegation | 2026-06-23 |
+| R-SHIELD | `shieldPlaceholders()` Regex dynamisieren | 2026-06-23 |
+| R-EXPORT | `__OVERWRITE`-Fallback entfernen | 2026-06-22 |
+| C-001 | `export_stage2.js` → shared `validateAndPrepareContent()` | 2026-06-23 |
+| C-002 | `DEFAULT_GAME` in plugin-registry.js zentralisiert | 2026-06-23 |
+| M-REFACTOR | M-1 bis M-4: withTransaction, parseJsonBody, _testOpenAiChat, Export-Block | 2026-06-25 |
+| SEC-AUDIT | npm audit 5→0 vulns, ESLint 4→0 Errors | 2026-06-25 |
+| REPO-CLEAN | Dev-Daten, CHANGELOG_1.md, test_mods/, logs/, screenshots/ gelöscht | 2026-06-25 |
+| COMMIT-LAYER | author_system.js, pre-push Hook, character relationships, SSoT CHANGELOG | 2026-06-25 |
 
 ---
 
-## P1 — RIMWORLD-BLOCKER (Voraussetzung für zweites Game) ⏱️ ~5h
-
-> Blockiert RimWorld-Integration. Jeder Fix ist isoliert, aber Schema-Änderung (R-001) kommt zuerst.
-
-### [x] R-DB: DB-Schema `game_id` Spalte ⏱️ 0h 🔴→🟢
-
-~~`PRIMARY KEY (source_text, target_lang)` — kein game_id.~~ Durch Plugin-Architektur obsolet.
-
-- **Grund:** DB ist ein Wörterbuch. RimWorld hat andere Strings als SoS → kein Collision-Risiko. Plugin-System (R-VAL + R-SHIELD) trennt game-spezifische Logik auf Engine-Ebene. Schema-Migration unnötig.
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Plugin-Architektur ersetzt DB-Schema-Änderung
-
-### [x] R-VAL: `validateFileSyntax()` Plugin-Delegation ⏱️ 1.5h 🟡
-
-Zählt KEY:-Patterns (SoS-Format). XML hat keine KEY:-Zeilen → immer MISMATCH.
-
-- **Datei:** `validator.js:90-94`
-- **Fix:** `validateFileSyntax._plugin` Property-Pattern (wie buildBatchPrompt._plugin)
-- **Ergebnis:** GamePlugin hat `validateFileSyntax()`, SongsOfSyxPlugin implementiert SoS-KEY:-Logik, RimWorldPlugin implementiert XML-Tag-Count
-- **Status:** ✅ ERLEDIGT (2026-06-23) — ESLint 0 Errors, Runtime-Verifikation bestanden
-
-### [x] R-SHIELD: `shieldPlaceholders()` Regex dynamisieren ⏱️ 1h 🟡
-
-Regex `/<[^>]+>|__VAR\d+__|...` ist hardcodiert. RimWorld nutzt andere Tag-Formate.
-
-- **Datei:** `extractor.js:149`
-- **Fix:** `shieldPlaceholders._plugin.getPlaceholderRegex()` Property-Pattern
-- **Ergebnis:** GamePlugin hat `getPlaceholderRegex()`, SoS-Plugin behält aktuelle Regex, RimWorldPlugin hat XML-optimierte Regex (keine Tag-Shielding)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — ESLint 0 Errors, Runtime-Verifikation bestanden
-
-### [x] R-EXPORT: `__OVERWRITE`-Fallback entfernen ⏱️ 30min 🟢
-
-`if (outputPath.includes('V71'))` — SoS-Versionslogik in der Engine.
-
-- **Datei:** `exporter.js:74`
-- **Fix:** Plugin gibt '' zurück für V71+ (Patch-Modus)
-- **Status:** ✅ ERLEDIGT (2026-06-22) — P0 Critical-Fix im v0.22 Release
-
----
-
-## P2 — SHORT-TERM: CONFIG-REFAKTORIERUNG (~2h)
-
-> config-runtime.js (1.151 LOC) wird in 3 fokussierte Module aufgeteilt.
-
-### [x] S-004: `config-discovery.js` extrahieren ⏱️ 1h 🟡
-
-Model-Fetch-Logik (9 fetch-Funktionen + 2 check-Funktionen + withRetry).
-
-- **Quelle:** config-runtime.js:243-500
-- **Ziel:** `core/src/config-discovery.js` (✅ 141 LOC)
-- **Strategie:** Fetch-Funktionen als standalone exportieren, ConfigRuntime delegiert via require
-- **Impact:** config-runtime.js 1.151 → 763 LOC (−34%)
-- **Tests:** test_providers.js, env-protection-smoke
-
-### [x] S-005: `config-persist.js` extrahieren ⏱️ 30min 🟢
-
-.env-Persistenz-Funktionen (persistConfigToEnv, readEnvValue, persistSingleEnvVar).
-
-- **Quelle:** config-runtime.js:1028-1130
-- **Ziel:** `core/src/config-persist.js` (✅ 147 LOC)
-- **Impact:** config-runtime.js → 763 LOC
-- **Tests:** env-protection-smoke
-
-### [x] S-006: `config-keys.js` extrahieren ⏱️ 45min 🟡
-
-Key-Management (maskSecret, parseKeys, rotateApiKey, markKeyCooldown, markKeyStatus).
-
-- **Ziel:** `core/src/config-keys.js` (✅ 82 LOC)
-- **Tests:** test_providers.js, env-protection-smoke
-- 🔗 S-001 (maskSecret lebt jetzt in config-keys, nicht in shared-utils — S-001 braucht Update)
-
----
-
-## P3 — MEDIUM-TERM: CORE-EXTRAKTIONEN (~4h)
-
-> Grösster Impact. translation-runtime.js (1.431 LOC) und text-core.js (606 LOC) werden aufgeteilt.
-
-### [x] S-008: `translation-dnt.js` extrahieren ⏱️ 45min 🟡
-
-DNT-Shielding isoliert als reines Utility-Modul.
-
-- **Quelle:** translation-runtime.js:143-228
-- **Ziel:** `core/src/translation-dnt.js` (✅ 67 LOC)
-- **Impact:** translation-runtime.js 1.431 → 667 LOC (−53%)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — reine Funktionen, keine Closure-Abhängigkeiten
-
-### [x] S-009: `text-prompts.js` extrahieren ⏱️ 1h 🟡
-
-Prompt-Building (buildBatchPrompt, buildProofreadPrompt, summarizeGrammarContext, normalizePromptItem).
-
-- **Quelle:** text-core.js:253-398
-- **Ziel:** `core/src/text-prompts.js` (✅ 251 LOC)
-- **Impact:** text-core.js 530 → 402 LOC (−24%)
-- **Strategie:** text-prompts.js importiert shieldPlaceholders direkt aus extractor.js (kein Circular Dep). text-core.js re-exportiert buildBatchPrompt/buildProofreadPrompt. _protectPlaceholders als interner Helper in text-prompts.js.
-- **Status:** ✅ ERLEDIGT (2026-06-23) — ESLint 0 Errors, Regex-Bug gefixt, Code-Review bestanden
-
-### [x] S-007: `translation-phases.js` extrahieren ⏱️ 2h 🔴
-
-Die 5 Phasen (cache, native, translate, qa, deepPolish) + ensureTranslations + runDeepPolishBatch.
-
-- **Quelle:** translation-runtime.js:703-1067
-- **Ziel:** `core/src/translation-phases.js` (✅ 704 LOC)
-- **Impact:** translation-runtime.js 1.431 → 667 LOC (−53%)
-- **Strategie:** createTranslationPhases(deps) mit Dependency-Injection. Ref-Objekte für shared mutable state (consecutiveGrammarFailuresRef, _recoveryDoneRef)
-- **Status:** ✅ ERLEDIGT (2026-06-23) — ESLint 0 Errors, Syntax OK
-
----
-
-## P4 — LONG-TERM: ARCHITEKTUR (~3.5h)
-
-> Strukturelle Verbesserungen. Niedrige Dringlichkeit, aber hoher Langzeitwert.
+## P4 — OFFEN: Architektur-Verbesserungen (~5h)
 
 ### [ ] S-010: DB-Access vereinheitlichen ⏱️ 1h 🟡
 
 5 verschiedene DB-Access-Layer → einheitlicher DI-basierter Zugang.
 
-- **Betroffen:** planner.js, diagnostics.js (von direktem Import auf DI umstellen)
-- **Impact:** Konsistenter DB-Pfad, weniger Migrations-Risiko
-- **Tests:** Alle Smoke-Tests (DB ist überall)
+- **Betroffen:** planner.js, diagnostics.js
+- **Tests:** Alle Smoke-Tests
 
 ### [ ] S-011: `gui-backup.js` extrahieren ⏱️ 20min 🟢
 
 Backup-Logik (restoreBackup, collectAllFiles) aus gui-handlers.js.
 
-- **Quelle:** gui-handlers.js:39-92
-- **Ziel:** `core/src/gui-backup.js` (~60 LOC)
-- **Impact:** gui-handlers.js → ~730 LOC
+- **Ziel:** `core/GUI/gui-backup.js` (~60 LOC)
 
-### [~] S-012: Redundanz Quick Wins ⏱️ 20min 🟢
+### [ ] S-012: Redundanz Quick Wins ⏱️ 20min 🟢
 
-Kleinere Deduplizierungen:
+- [ ] `parseBatchResponseWithMaps` inline auflösen (translation-runtime.js:145)
+- [ ] `escapeTextValue`/`unescapeTextValue` Import-Kette bereinigen
 
-- [ ] `parseBatchResponseWithMaps` inline auflösen (translation-runtime.js:145) — 5min
-- [ ] `escapeTextValue`/`unescapeTextValue` Import-Kette in text-core.js bereinigen — 5min
-- [x] Watermark-Strip Helper: `stripWatermarks()` in extractor.js:17 — ✅ ERLEDIGT (C-005, 13 Referenzen über 5 Dateien)
+### [ ] GUI-HARDCODE: Songs-of-Syx-Referenzen dynamisieren ⏱️ 1h 🟢
 
-### [x] C-001: `export_stage2.js` nutzt eigene Logik statt `exporter.js` ⏱️ 1.5h 🟡
-
-Duplizierte validateFileSyntax + __OVERWRITE-Header + BridgeCore-Logik.
-
-- **Fix:** `validateAndPrepareContent()` in exporter.js extrahiert, export_stage2.js nutzt shared function
-- **Bugfix:** `null` → `translations` für `__shieldResults` (Marker-Restore-Erkennung)
-- **LOC:** ~40 Zeilen Duplikation eliminiert
-- **Status:** ✅ ERLEDIGT (2026-06-23) — Code-Review bestanden, "Ship it"
-
-### [x] C-002: `DEFAULT_GAME` zentralisieren ⏱️ 30min 🟢
-
-`process.env.GAME || 'songs_of_syx'` steht 6× in 4 Dateien.
-
-- **Fix:** Zentralen DEFAULT_GAME in plugin-registry.js, alle Imports nutzen den
-- **Betroffen:** index.js:93,113 | config-runtime.js:28 | sos-runtime.js:10 | export_stage2.js:47
-- **Status:** ✅ ERLEDIGT — `DEFAULT_GAME` lebt in plugin-registry.js:12, alle Consumer importieren korrekt
-
-### [x] M-REFACTOR: M-1 bis M-4 Deduplizierung ⏱️ 1.5h 🟢
-
-Fünf Code-Duplizierungen konsolidiert (2026-06-25).
-
-- **M-1:** `withTransaction()` in translation-phases.js (3× try/catch → 1 Helper)
-- **M-2:** `parseJsonBody()` in server.js (8× JSON-Parse → 1 Funktion)
-- **M-3:** `_testOpenAiChat()` in config-runtime.js (3× axios.post → 1 Methode)
-- **M-4:** Export-Block konsolidiert (router.js Object.assign) + isLarge Mirror Sync (app.js)
-- **Status:** ✅ ERLEDIGT (2026-06-25) — Commit `8fb4250`, 8 Dateien, verify_commit_msg.js PASS
-
-### [ ] GUI-HARDCODE: 6 Songs-of-Syx-Referenzen in GUI dynamisieren ⏱️ 1h 🟢
-
-GUI hardcoded 'Songs of Syx' in Patch-Mode-Buttons.
-
-- **Datei:** `gui/public/app.js:277-355`
-- **Fix:** Texte via `plugin.getPromptContext().gameName` dynamisieren
+GUI hardcoded 'Songs of Syx' in Patch-Mode-Buttons → via `plugin.getPromptContext().gameName`.
 
 ### [ ] SOS-RUNTIME: SoS-spezifische Logik in Plugin verschieben ⏱️ 2h 🟡
 
-`parseSoSConfig()` und `syncLauncherSettings()` sind SoS-spezifisch.
-
-- **Fix:** LauncherSettings-Logik in SongsOfSyxPlugin; Generic interface: `plugin.getActiveMods()`, `plugin.syncLauncherSettings()`
+`parseSoSConfig()` + `syncLauncherSettings()` → SongsOfSyxPlugin.
 
 ### [ ] PROPER-NOUN: Allowlist in Plugin auslagern ⏱️ 30min 🟢
 
-30+ hardcoded englische Common-Nouns als Allowlist in translation-runtime.js:425-431.
-
-- **Fix:** `plugin.getProperNounAllowlist()` einführen
+30+ hardcoded englische Common-Nouns → `plugin.getProperNounAllowlist()`.
 
 ---
 
-## P5 — RIMWORLD-IMPLEMENTIERUNG (~16h) 🆕
+## P5 — RIMWORLD-IMPLEMENTIERUNG (~16h)
 
-> **Plan:** [`core/archive/docs/plans/PLAN_RIMWORLD.md`](core/archive/docs/plans/PLAN_RIMWORLD.md)
-> **Forschung:** researcher-web + researcher-docs (2026-06-25) — RimWorld Wiki, Community Docs
-> **Status:** 🟡 PLANUNG — 19 Tasks, 0/19 erledigt
+> **Detailplan:** [`core/archive/docs/plans/PLAN_RIMWORLD.md`](core/archive/docs/plans/PLAN_RIMWORLD.md)
+> **Status:** 🟡 PLANUNG — 0/19 Tasks erledigt
 
 ### Phase 1: Adapter-Hooks (13 Methoden) ⏱️ ~8h
 
-13 Methoden in RimWorldPlugin.js von STUB → implementiert:
 `scanMod`, `parseMetadata`, `formatMetadata`, `getCoreModFolderName`, `getCoreModMetadata`,
 `applyPatchModifications`, `getBackupDirectoryName`, `isBackupDirectory`, `isVersionDirectory`,
 `getOverrideHeader`, `formatPatchNotice`, `getLauncherSettingsPath`.
 
-### Phase 2: Scanner/Parser (3 Tasks) ⏱️ ~4h
+### Phase 2: Scanner/Parser ⏱️ ~4h
 
-XML-Parser für Def-Dateien, Scanner für `Mods/`-Struktur, Exporter für XML-Output.
+XML-Parser für Def-Dateien, Mods/-Struktur-Scanner, XML-Exporter.
 
-### Phase 3: Integration & Tests (3 Tasks) ⏱️ ~4h
+### Phase 3: Integration & Tests ⏱️ ~4h
 
-plugin-boundary-contract erweitern (76→89 Checks), RimWorld E2E-Test, Dokumentation.
+plugin-boundary-contract erweitern (76→89 Checks), RimWorld E2E-Test.
 
 ---
 
 ## 📊 Fortschritts-Tracker
 
-| Phase | Aufgaben | Erledigt | Aufwand | Status |
-|-------|----------|----------|---------|--------|
-| P0 Quick Wins | 5 | 5 | ~1.5h | ✅ Alle erledigt |
-| P1 RimWorld-Blocker | 4 | 4 | ~5h | ✅ Alle erledigt |
-| P2 Config | 3 | 3 | ~2h | ✅ Erledigt |
-| P3 Core | 3 | 3 | ~4h | ✅ Erledigt |
-| P4 Architektur | 8 | 4 | ~9h | 🟡 4/8 erledigt + M-REFACTOR |
-| P5 RimWorld-Impl | 19 | 0 | ~16h | 🟡 PLANUNG (PLAN_RIMWORLD.md) |
-| **TOTAL** | **42** | **19** | **~37.5h** | **45% erledigt** |
-
-### Sub-Plan-Status (Audit 2026-06-25)
-
-| Plan | Status | Items | FREEZE_INDEX_2 |
-|------|--------|-------|----------------|
-| `PLAN_COMMIT_LAYER_RNG.md` | ✅ DONE | 5 Phasen | — |
-| `PLAN_GLOBAL_SCORE.md` | ✅ DONE | 6/6 | — |
-| `PLAN_STABILISIERUNG.md` | 🟡 TEILWEISE | 5/9 DONE | §10, §11 |
-| `PLAN_BYPASS_REMOVAL.md` | 🟡 TEILWEISE | 1/6 DONE | §10 |
-| `PLAN_FEATURE_GAPS.md` | 🟡 TEILWEISE | 1/5 DONE | §8, §9, §11 |
-| `PLAN_BUG_TRIAGE.md` | 🟡 OFFEN | 0/6 | — |
-| `PLAN_DEAD_FLAGS.md` | 🟡 OFFEN | 0/5 | — |
-| `PLAN_LATENT_RISKS.md` | 🟡 OFFEN | 0/5 | — |
-| `PLAN_PRIORISIERUNG.md` | 🟡 OFFEN | 0/6 | §10, §11 |
-| `PLAN_RUNTIME_PROBABILITY.md` | 🟡 OFFEN | 0/5 | — |
-| `PLAN_PLAN_AUDIT.md` | ⚠️ TEILWEISE | ~250 Funktionen | — |
-| `PLAN_RIMWORLD.md` | 🟡 PLANUNG | 0/19 | §19–§23 |
+| Phase | Aufgaben | Erledigt | Status |
+|-------|----------|----------|--------|
+| P0 Quick Wins | 5 | 5 | ✅ |
+| P1 RimWorld-Blocker | 4 | 4 | ✅ |
+| P2 Config | 3 | 3 | ✅ |
+| P3 Core | 3 | 3 | ✅ |
+| P4 Architektur | 6 | 0 | 🟡 0/6 offen |
+| P5 RimWorld-Impl | 19 | 0 | 🟡 PLANUNG |
+| **TOTAL** | **40** | **19+DONE-INDEX** | **Kern ✅** |
 
 ---
 
-## ⚠️ Abhängigkeiten-Graph
+## 🔍 Verifikations-Checkliste
 
-```
-S-001 (shared-utils)
-  └→ S-006 (config-keys braucht maskSecret)
-  └→ R-001 (maskKey → maskSecret)
-
-S-004 (config-discovery)
-  └→ S-007 (translation-phases braucht saubere Config)
-
-S-008 (translation-dnt)
-  └→ S-007 (translation-phases, weniger Closure-Druck)
-
-R-DB (game_id Schema)
-  └→ R-VAL (validateFileSyntax)
-  └→ R-SHIELD (shieldPlaceholders)
-
-S-001 bis S-003: UNABHÄNGIG — sofort parallel startbar
-```
+- [ ] `node scripts/check_syntax.js` — Syntax OK
+- [ ] `npm run test` — alle Tests grün
+- [ ] Folder-INDEX betroffener Domänen aktualisiert
+- [ ] CHANGELOG-Eintrag mit Composite vorhanden
+- [ ] Code-Review durchgeführt (>10 Zeilen)
 
 ---
 
-## 🔍 Verifikations-Checkliste (nach JEDEM Schritt)
-
-- [ ] Alle Smoke-Tests bestehen: `node scripts/check_syntax.js`
-- [ ] `npm run test` besteht
-- [ ] `node -e "require('./core/src/<datei>')"` — kein Syntax-Error
-- [ ] Folder-INDEX.md der betroffenen Dateien aktualisiert
-- [ ] Keine neuen `any`-Casts oder verwaiste Imports
-- [ ] Code-Review durchgeführt
-
----
-
-## 🏗️ Monolith-Status (Ziel: keine Datei >900 LOC)
-
-> **Geprüft:** 2026-06-23 — Alle Werte via `wc -l` verifiziert.
-
-| Datei | PLAN-alt | LIVE (2026-06-23) | Nach P0-P3 | Ziel | Status |
-|-------|----------|-------------------|------------|------|--------|
-| translation-runtime.js | 1.431 | **667** | — | <900 | ✅ S-007+S-008 ERLEDIGT (−53%) |
-| translation-phases.js | — | **704** | — | <900 | ✅ NEU (extrahiert) |
-| translation-dnt.js | — | **67** | — | <100 | ✅ NEU (extrahiert) |
-| config-runtime.js | 1.151 | **763** | ~750 | <800 | ✅ P2 ERLEDIGT (−34%) |
-| client-factory.js | 750 | **753** | 753 | <800 | ✅ OK |
-| gui-handlers.js | 793 | **793** | ~730 | <800 | ✅ OK (grenzwertig) |
-| text-core.js | 606 | **402** | — | <500 | ✅ S-009 ERLEDIGT (−24%) |
-| text-prompts.js | — | **251** | — | <300 | ✅ NEU (extrahiert) |
-| router.js | 556 | **556** | 556 | <800 | ✅ OK |
-| translation-db.js | 513 | **513** | 513 | <800 | ✅ OK |
-| dispatcher.js | — | **207** | — | — | ✅ OK |
-| runtime-ops.js | — | **441** | — | — | ✅ OK |
-| db.js | — | **438** | — | — | ✅ OK |
-| SongsOfSyxPlugin.js | — | **335** | — | — | ✅ OK |
-
----
-
-*Plan erstellt 2026-06-23 — Aktualisiert 2026-06-25 mit RimWorld-Plan, Sub-Plan-Audit, M-REFACTOR.*
-*Quelldokumente (archiviert): MODULARISIERUNGS_PLAN_2026-06-23.md, DEAD_CODE_REPORT_2026-06-23.md, SCOPE_REPORT.md*
-*Sub-Pläne: 12 Dateien in core/archive/docs/plans/ (3 DONE, 8 OFFEN/TEILWEISE, 1 PLANUNG)*
-*CODE IST DIE EINZIGE WAHRHEIT.*
+*Konsolidiert 2026-06-25 — Done-Tasks in DONE-INDEX ausgelagert, P0-P3 bereinigt.*

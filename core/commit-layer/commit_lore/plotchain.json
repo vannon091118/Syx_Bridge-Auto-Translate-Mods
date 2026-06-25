@@ -2136,5 +2136,45 @@
       "ea0916f: Die Spec-Struktur für Native Windows GUI stabilisiert sich — weil Echo die Langzeitperspektive gebracht hat und die Stab"
     ],
     "prev_narrator": "Ghost"
+  },
+  {
+    "p_id": "p44",
+    "id": "plot-2026-06-25T21:50:40",
+    "timestamp": "2026-06-25 21:50:40",
+    "summary": "Commit Layer zu deterministic Authorsystem ausbauen, README und PLAN.md konsolidieren",
+    "narrator": "Buffy",
+    "model_id": "Claude Sonnet 4.6",
+    "composite": "c39j97n1a5p4",
+    "ref_to": "plot-2026-06-25T21:22:43",
+    "prev_narrator": "Ghost",
+    "data_changes": [
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "core/commit-layer/author_system.js"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/character_sheets.json"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/narrative_params.json"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/sidejoke_pool.json"
+      },
+      {
+        "file": "core/commit-layer/verify_commit_msg.js"
+      },
+      {
+        "file": "core/scripts/migrate_pools.js"
+      }
+    ]
   }
 ]

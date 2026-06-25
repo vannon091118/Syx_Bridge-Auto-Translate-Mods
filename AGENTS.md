@@ -183,16 +183,15 @@ Alle 4 Lösch-Kriterien müssen erfüllt sein.
 
 # TEIL 9 — COMMIT (Standalone)
 
-## Workflow
-1. Sidejoke via get_sidejoke.js
-2. Letzten Plotchain-Node via plotchain.json
-3. update_plot.js mit --model --ref
-4. Commit-Text: Sidejoke + Text + [MODEL:] + [IMPULSE:] + Files
-   - Alle Tasks NAMENTLICH (U-6)
-   - Modularisierung/Extraktion nennen
-   - writing_rules.json Constraints beachten (Mindestwortzahl)
-5. core/.commit_msg.txt schreiben
-6. basher: git add + verify + commit + push + cleanup
+Das Narrative Commit Layer ist ein vollständig vernetztes Autoren-System. Force-Pushes (`--force`) sind **STRIKT VERBOTEN** (gesperrt via `pre-push` Hook), um die Kausalitätskette nicht zu brechen. CHANGELOG.md dient als Single Source of Truth (SSoT) und wird synchron gehalten.
+
+## Workflow (Author System)
+1. Dateien zum Staging hinzufügen (`git add`).
+2. Den Unified Author System Layer aufrufen (dieser ersetzt `git commit`!):
+   `node core/commit-layer/author_system.js --impulse="[Beschreibung]" --model="[Model-Name]"`
+3. Das System berechnet **deterministisch** den Composite-Hash, wählt den Charakter (basierend auf Mood & Beziehungen im Pool), generiert den Joke, synct das SSoT `CHANGELOG.md` und commitet sicher.
+4. Push durchführen (`git push`).
+5. (Optional) Bei spezifischem Charakter-Wunsch: `--narrator=Buffy` anhängen.
 
 ---
 
