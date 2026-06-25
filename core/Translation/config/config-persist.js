@@ -11,7 +11,7 @@
  */
 
 const fs = require('fs');
-const { ENV_PATH, firstDefined, OLLAMA_DEFAULT_URL, FCM_DEFAULT_URL, PLAYER2_DEFAULT_URL } = require('./config-keys');
+const { ENV_PATH, firstDefined, OLLAMA_DEFAULT_URL, FCM_DEFAULT_URL, PLAYER2_DEFAULT_URL, OPENAI_DEFAULT_URL, CUSTOM_API_DEFAULT_URL } = require('./config-keys');
 
 /**
  * Factory: erstellt die Persistenz-Funktionen mit injected defaultGame.
@@ -42,13 +42,22 @@ function createConfigPersist(defaultGame) {
     ['OPENROUTER_KEY',        (c) => (c.OPENROUTER_KEYS || []).join(',')],
     ['NVIDIA_KEY',            (c) => (c.NVIDIA_KEYS || []).join(',')],
     ['OLLAMA_KEY',            (c) => (c.OLLAMA_KEYS || []).join(',')],
-    ['OLLAMA_URL',            (c) => firstDefined(c.OLLAMA_URL, OLLAMA_DEFAULT_URL)],
+    ['OLLAMA_URL',            (c) => firstDefined(c._OLLAMA_URL_RAW, c.OLLAMA_URL, OLLAMA_DEFAULT_URL)],
+    ['OLLAMA_CLOUD_ENABLED',  (c) => String(!!c.OLLAMA_CLOUD_ENABLED)],
+    ['OLLAMA_CLOUD_URL',      (c) => firstDefined(c.OLLAMA_CLOUD_URL)],
     ['FCM_URL',               (c) => firstDefined(c.FCM_URL, FCM_DEFAULT_URL)],
     ['FCM_ENABLED',           (c) => String(!!c.FCM_ENABLED)],
     ['GOOGLE_FREE_ENABLED',   (c) => String(!!c.GOOGLE_FREE_ENABLED)],
     ['PLAYER2_KEY',           (c) => (c.PLAYER2_KEYS || []).join(',')],
     ['PLAYER2_ENABLED',       (c) => String(!!c.PLAYER2_ENABLED)],
     ['PLAYER2_URL',           (c) => firstDefined(c.PLAYER2_URL, PLAYER2_DEFAULT_URL)],
+    ['OPENAI_KEY',            (c) => (c.OPENAI_KEYS || []).join(',')],
+    ['OPENAI_URL',            (c) => firstDefined(c.OPENAI_URL, OPENAI_DEFAULT_URL)],
+    ['OPENAI_ENABLED',        (c) => String(c.OPENAI_ENABLED !== false)],
+    ['CUSTOM_API_KEY',        (c) => (c.CUSTOM_API_KEYS || []).join(',')],
+    ['CUSTOM_API_URL',        (c) => firstDefined(c.CUSTOM_API_URL, CUSTOM_API_DEFAULT_URL)],
+    ['CUSTOM_API_MODEL',      (c) => firstDefined(c.CUSTOM_API_MODEL)],
+    ['CUSTOM_API_ENABLED',    (c) => String(c.CUSTOM_API_ENABLED !== false)],
     ['BATCH_SIZE',            (c) => firstDefined(c.BATCH_SIZE)],
     ['MAX_REVIEW_COUNT',      (c) => firstDefined(c.MAX_REVIEW_COUNT, '15')],
     ['REVIEW_RECOVERY_HOURS', (c) => firstDefined(c.REVIEW_RECOVERY_HOURS, '24')],

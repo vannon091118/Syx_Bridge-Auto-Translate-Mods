@@ -6,7 +6,7 @@ const { exec, execSync } = require('child_process');
 
 // ── S-006: Key-Management & Utilities aus config-keys.js ────────────
 const {
-  ENV_PATH, OLLAMA_DEFAULT_URL, PLAYER2_DEFAULT_URL, FCM_DEFAULT_URL,
+  ENV_PATH, OLLAMA_DEFAULT_URL, PLAYER2_DEFAULT_URL, FCM_DEFAULT_URL, OPENAI_DEFAULT_URL, CUSTOM_API_DEFAULT_URL,
   firstDefined, parseEnvFlag, parseDryRunFlag, isDryRun, resetDryRunCache,
   getGateCounterOpts, parseKeys, maskSecret,
 } = require('./config-keys');
@@ -56,7 +56,7 @@ class ConfigRuntime {
 
   getProviderStatus() {
     const routerStats = this.router ? this.router.getAllProviderStatuses() : {};
-    const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'player2', 'nvidia', 'fcm'];
+    const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'player2', 'nvidia', 'fcm', 'openai', 'custom_api'];
     const configProviders = Object.keys(this.config)
       .filter(k => k.endsWith('_KEYS') && Array.isArray(this.config[k]) && this.config[k].length > 0)
       .map(k => k.replace('_KEYS', '').toLowerCase());
@@ -206,6 +206,37 @@ class ConfigRuntime {
   async fetchPlayer2Models() {
     try {
       const response = await axios.get(`${this.config.PLAYER2_URL}/models`, { timeout: 5000 });
+      return (response.data.data || []).map(m => m.id).sort();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  async fetchOpenAIModels() {
+    const key = this.getApiKey('openai');
+    if (!key) return [];
+    try {
+      const url = `${this.config.OPENAI_URL || OPENAI_DEFAULT_URL}/models`;
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${key}` },
+        timeout: 10000
+      });
+      const models = (response.data.data || [])
+        .map(m => m.id)
+        .filter(id => id && !id.startsWith('ft:')) // exclude fine-tuned
+        .sort();
+      return models;
+    } catch (e) {
+      return ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'];
+    }
+  }
+
+  async fetchCustomApiModels() {
+    const url = this.config.CUSTOM_API_URL || CUSTOM_API_DEFAULT_URL;
+    const key = this.getApiKey('custom_api');
+    try {
+      const headers = key ? { Authorization: `Bearer ${key}` } : {};
+      const response = await axios.get(`${url}/models`, { headers, timeout: 5000 });
       return (response.data.data || []).map(m => m.id).sort();
     } catch (e) {
       return [];
@@ -365,6 +396,25 @@ class ConfigRuntime {
         const text = response.data.choices?.[0]?.message?.content || '';
         return { provider, index, key: maskSecret(key), ok: /ok/i.test(text) || response.status === 200, detail: `chat ok (${testModel})`, ms: `${Date.now() - startedAt}ms` };
       }
+      if (provider === 'openai') {
+        const models = await this.fetchOpenAIModels();
+        const testModel = models.find(m => m.includes('gpt-4o-mini')) || models.find(m => m.includes('gpt')) || models[0] || 'gpt-4o-mini';
+        const url = `${this.config.OPENAI_URL || OPENAI_DEFAULT_URL}/chat/completions`;
+        response = await this._testOpenAiChat(url, key, testModel, {}, 10000);
+        const text = response.data.choices?.[0]?.message?.content || '';
+        return { provider, index, key: maskSecret(key), ok: /ok/i.test(text), detail: `chat ok (${testModel})`, ms: `${Date.now() - startedAt}ms` };
+      }
+      if (provider === 'custom_api') {
+        const url = `${this.config.CUSTOM_API_URL || CUSTOM_API_DEFAULT_URL}/chat/completions`;
+        const model = this.config.CUSTOM_API_MODEL || 'auto';
+        try {
+          response = await this._testOpenAiChat(url, key || 'no-key', model, {}, 10000);
+          const text = response.data.choices?.[0]?.message?.content || '';
+          return { provider, index: 0, key: key ? maskSecret(key) : '(kein Key)', ok: /ok/i.test(text) || response.status === 200, detail: `chat ok (${model})`, ms: `${Date.now() - startedAt}ms` };
+        } catch (e) {
+          return { provider, index: 0, key: '(optional)', ok: false, detail: `nicht erreichbar: ${e.message}`, ms: `${Date.now() - startedAt}ms` };
+        }
+      }
       return { provider, index, key: maskSecret(key), ok: false, detail: 'Unbekannter Provider', ms: `${Date.now() - startedAt}ms` };
     } catch (e) {
       const status = e.response ? e.response.status : 'offline';
@@ -378,6 +428,20 @@ class ConfigRuntime {
     const startedAt = Date.now();
     if (provider === 'player2' && !this.config.PLAYER2_ENABLED) {
       return { provider, ok: false, detail: 'deaktiviert', ms: `${Date.now() - startedAt}ms` };
+    }
+    if (provider === 'custom_api') {
+      const enabled = this.config.CUSTOM_API_ENABLED !== false;
+      if (!enabled) return { provider, ok: false, detail: 'deaktiviert', ms: `${Date.now() - startedAt}ms` };
+      try {
+        const url = `${this.config.CUSTOM_API_URL || CUSTOM_API_DEFAULT_URL}/models`;
+        const key = this.getApiKey('custom_api');
+        const headers = key ? { Authorization: `Bearer ${key}` } : {};
+        const response = await axios.get(url, { headers, timeout: 3000 });
+        const models = (response.data.data || []).map(m => m.id);
+        return { provider, ok: models.length > 0, detail: `${models.length} Modell(e) verfügbar`, ms: `${Date.now() - startedAt}ms` };
+      } catch (e) {
+        return { provider, ok: false, detail: 'nicht erreichbar', ms: `${Date.now() - startedAt}ms` };
+      }
     }
     try {
       const url = provider === 'ollama' ? `${this.config.OLLAMA_URL}/api/tags` : `${this.config.PLAYER2_URL}/models`;
@@ -588,10 +652,12 @@ class ConfigRuntime {
         type: 'select',
         name: 'primary_provider',
         message: 'Haupt-Anbieter für Übersetzungen:',
-        initial: ['ollama','openrouter','player2','groq','gemini'].indexOf(this.config.PRIMARY_PROVIDER),
+        initial: ['ollama','openrouter','player2','groq','gemini','openai','custom_api'].indexOf(this.config.PRIMARY_PROVIDER),
         choices: [
           { title: 'Ollama (Lokal)', value: 'ollama' },
           { title: 'OpenRouter (Free zuerst)', value: 'openrouter' },
+          { title: 'OpenAI (GPT)', value: 'openai' },
+          { title: 'Custom API (OpenAI-kompatibel)', value: 'custom_api' },
           { title: 'Player2 (Desktop)', value: 'player2' },
           { title: 'Groq (Llama 3.3)', value: 'groq' },
           { title: 'Gemini (Google)', value: 'gemini' }
@@ -635,12 +701,21 @@ class ConfigRuntime {
           providerSetup.openrouter_key = r.openrouter_key;
         }
       }
+      if (providerSetup.primary_provider === 'openai' && this.config.OPENAI_KEYS.length === 0) {
+        const r = await prompts({ type: 'text', name: 'openai_key', message: 'OpenAI API Key(s) [kommagetrennt]:' });
+        if (r.openai_key) {
+          const v = await validateKeys('openai', r.openai_key);
+          if (v !== true) { console.log(v); return; }
+          providerSetup.openai_key = r.openai_key;
+        }
+      }
     }
     this.config.PRIMARY_PROVIDER = providerSetup.primary_provider;
     if (providerSetup.gemini_key) this.config.GEMINI_KEYS = parseKeys(providerSetup.gemini_key);
     if (providerSetup.groq_key) this.config.GROQ_KEYS = parseKeys(providerSetup.groq_key);
     if (providerSetup.nvidia_key) this.config.NVIDIA_KEYS = parseKeys(providerSetup.nvidia_key);
     if (providerSetup.openrouter_key) this.config.OPENROUTER_KEYS = parseKeys(providerSetup.openrouter_key);
+    if (providerSetup.openai_key) this.config.OPENAI_KEYS = parseKeys(providerSetup.openai_key);
     console.log(`[INFO] Lade Modelle für ${this.config.PRIMARY_PROVIDER}...`);
     let modelChoices = [];
     try {
@@ -669,7 +744,7 @@ class ConfigRuntime {
   }
 
   async checkConfig() {
-    if (this.config.GEMINI_KEYS.length === 0 && this.config.GROQ_KEYS.length === 0 && this.config.OPENROUTER_KEYS.length === 0 && this.config.NVIDIA_KEYS.length === 0 && !['ollama', 'player2', 'fcm'].includes(this.config.PRIMARY_PROVIDER)) {
+    if (this.config.GEMINI_KEYS.length === 0 && this.config.GROQ_KEYS.length === 0 && this.config.OPENROUTER_KEYS.length === 0 && this.config.NVIDIA_KEYS.length === 0 && this.config.OPENAI_KEYS.length === 0 && !['ollama', 'player2', 'fcm', 'custom_api'].includes(this.config.PRIMARY_PROVIDER)) {
       await this.configure();
     } else {
       await this.ensureGroqModel();
@@ -700,6 +775,14 @@ class ConfigRuntime {
       }
     }
     checks.push(this.checkLocalProvider('player2'));
+    if (this.config.OPENAI_KEYS.length > 0) {
+      this.config.OPENAI_KEYS.forEach((key, index) => {
+        checks.push(this.checkCloudKey('openai', key, index + 1));
+      });
+    } else if (this.config.PRIMARY_PROVIDER === 'openai') {
+      checks.push(Promise.resolve({ provider: 'openai', index: 0, key: '(kein Key)', ok: false, detail: 'nicht konfiguriert', ms: '-' }));
+    }
+    checks.push(this.checkLocalProvider('custom_api'));
     const results = await Promise.all(checks);
     console.log('\n========================================\n  API STATUS\n========================================');
     for (const result of results) {

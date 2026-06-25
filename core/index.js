@@ -148,8 +148,15 @@ let CONFIG = {
   OPENROUTER_KEYS: parseKeys(envFirst('OPENROUTER_KEY', 'OPENROUTER_KEYS')),
   NVIDIA_KEYS: parseKeys(envFirst('NVIDIA_KEY', 'NVIDIA_KEYS')),
   OLLAMA_KEYS: parseKeys(envFirst('OLLAMA_KEY', 'OLLAMA_KEYS')),
+  OPENAI_KEYS: parseKeys(envFirst('OPENAI_KEY', 'OPENAI_KEYS')),
+  OPENAI_URL: envFirst('OPENAI_URL') || 'https://api.openai.com/v1',
+  CUSTOM_API_KEYS: parseKeys(envFirst('CUSTOM_API_KEY', 'CUSTOM_API_KEYS')),
+  CUSTOM_API_URL: envFirst('CUSTOM_API_URL') || 'http://localhost:8080/v1',
+  CUSTOM_API_MODEL: envFirst('CUSTOM_API_MODEL') || 'auto',
     
   OLLAMA_URL: process.env.OLLAMA_URL || 'http://localhost:11434',
+  OLLAMA_CLOUD_ENABLED: parseEnvFlag(process.env.OLLAMA_CLOUD_ENABLED, false),
+  OLLAMA_CLOUD_URL: process.env.OLLAMA_CLOUD_URL || '',
   FCM_URL: process.env.FCM_URL || 'http://localhost:19280/v1',
   FCM_ENABLED: parseEnvFlag(process.env.FCM_ENABLED, true),
   GOOGLE_FREE_ENABLED: parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, true),
@@ -163,6 +170,20 @@ let CONFIG = {
 // ── Provider Inheritance: Polisher/Auditor inherit PRIMARY_PROVIDER if not set ──
 if (!CONFIG.POLISHER_PROVIDER) CONFIG.POLISHER_PROVIDER = CONFIG.PRIMARY_PROVIDER;
 if (!CONFIG.AUDITOR_PROVIDER) CONFIG.AUDITOR_PROVIDER = CONFIG.PRIMARY_PROVIDER;
+
+// ── Ollama Cloud Resolution: Effektive URL setzen ─────────────────
+// Wenn Cloud-Modus aktiv UND URL gesetzt: OLLAMA_URL auf Cloud-URL umleiten.
+// Alle Downstream-Consumer (client-factory, router, model-registry) nutzen
+// automatisch die aufgelöste URL via CONFIG.OLLAMA_URL.
+// BUGFIX: _OLLAMA_URL_RAW speichert die originale localhost-URL BEVOR die
+// Cloud-Auflösung CONFIG.OLLAMA_URL überschreibt. Ohne das würde
+// persistConfigToEnv die Cloud-URL als OLLAMA_URL in .env schreiben und
+// die localhost-URL unwiderruflich überschreiben.
+CONFIG._OLLAMA_URL_RAW = CONFIG.OLLAMA_URL;
+if (CONFIG.OLLAMA_CLOUD_ENABLED && CONFIG.OLLAMA_CLOUD_URL) {
+  CONFIG.OLLAMA_URL = CONFIG.OLLAMA_CLOUD_URL;
+  console.log(`[CLOUD] Ollama Cloud-Modus aktiv: ${CONFIG.OLLAMA_CLOUD_URL}`);
+}
 
 const configRuntime = new ConfigRuntime(CONFIG);
 const routingEngine = new Router(CONFIG, {
@@ -390,10 +411,25 @@ function applyEnvToConfig() {
   CONFIG.OPENROUTER_KEYS = parseKeys(envFirst('OPENROUTER_KEY', 'OPENROUTER_KEYS'));
   CONFIG.NVIDIA_KEYS = parseKeys(envFirst('NVIDIA_KEY', 'NVIDIA_KEYS'));
   CONFIG.OLLAMA_KEYS = parseKeys(envFirst('OLLAMA_KEY', 'OLLAMA_KEYS'));
-  CONFIG.OLLAMA_URL = envFirst('OLLAMA_URL') || CONFIG.OLLAMA_URL;
+  CONFIG.OPENAI_KEYS = parseKeys(envFirst('OPENAI_KEY', 'OPENAI_KEYS'));
+  CONFIG.OPENAI_URL = envFirst('OPENAI_URL') || CONFIG.OPENAI_URL;
+  CONFIG.CUSTOM_API_KEYS = parseKeys(envFirst('CUSTOM_API_KEY', 'CUSTOM_API_KEYS'));
+  CONFIG.CUSTOM_API_URL = envFirst('CUSTOM_API_URL') || CONFIG.CUSTOM_API_URL;
+  CONFIG.CUSTOM_API_MODEL = envFirst('CUSTOM_API_MODEL') || CONFIG.CUSTOM_API_MODEL;
+  CONFIG.OLLAMA_CLOUD_ENABLED = parseEnvFlag(process.env.OLLAMA_CLOUD_ENABLED, CONFIG.OLLAMA_CLOUD_ENABLED);
+  CONFIG.OLLAMA_CLOUD_URL = envFirst('OLLAMA_CLOUD_URL') || CONFIG.OLLAMA_CLOUD_URL;
+  // Re-resolve: _OLLAMA_URL_RAW immer auf die rohe localhost-URL setzen
+  CONFIG._OLLAMA_URL_RAW = envFirst('OLLAMA_URL') || CONFIG._OLLAMA_URL_RAW || CONFIG.OLLAMA_URL;
+  if (CONFIG.OLLAMA_CLOUD_ENABLED && CONFIG.OLLAMA_CLOUD_URL) {
+    CONFIG.OLLAMA_URL = CONFIG.OLLAMA_CLOUD_URL;
+  } else {
+    CONFIG.OLLAMA_URL = CONFIG._OLLAMA_URL_RAW;
+  }
   CONFIG.FCM_URL = envFirst('FCM_URL') || CONFIG.FCM_URL;
   CONFIG.FCM_ENABLED = parseEnvFlag(process.env.FCM_ENABLED, CONFIG.FCM_ENABLED);
   CONFIG.GOOGLE_FREE_ENABLED = parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, CONFIG.GOOGLE_FREE_ENABLED);
+  CONFIG.OPENAI_ENABLED = parseEnvFlag(process.env.OPENAI_ENABLED, CONFIG.OPENAI_ENABLED !== false);
+  CONFIG.CUSTOM_API_ENABLED = parseEnvFlag(process.env.CUSTOM_API_ENABLED, CONFIG.CUSTOM_API_ENABLED !== false);
   CONFIG.PLAYER2_ENABLED = parseEnvFlag(process.env.PLAYER2_ENABLED, CONFIG.PLAYER2_ENABLED);
   CONFIG.PLAYER2_URL = envFirst('PLAYER2_URL') || CONFIG.PLAYER2_URL;
   CONFIG.PLAYER2_KEYS = parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS'));

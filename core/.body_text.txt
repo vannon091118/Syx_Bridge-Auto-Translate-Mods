@@ -1,0 +1,8 @@
+README komplett ueberarbeitet.
+
+Aenderungen:
+- Bilingual DE/EN Layout mit Navigation-Badges
+- Banner-Bild (screenshots/banner.jpg) eingebunden
+- GitHub-Features maximal ausgereizt (Dropdowns, Badges, Visual Sections)
+- Gamer-Tone und Feature-Detail-Dropdowns
+- Vollstaendige Beschreibung aller SyxBridge-Features

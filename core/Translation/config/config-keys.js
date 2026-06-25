@@ -10,9 +10,11 @@
 const path = require('path');
 
 // ── Provider-URL-Konstanten ─────────────────────────────────────────
-const OLLAMA_DEFAULT_URL  = 'http://localhost:11434';
-const PLAYER2_DEFAULT_URL = 'http://localhost:4315/v1';
-const FCM_DEFAULT_URL     = 'http://localhost:19280/v1';
+const OLLAMA_DEFAULT_URL      = 'http://localhost:11434';
+const PLAYER2_DEFAULT_URL     = 'http://localhost:4315/v1';
+const FCM_DEFAULT_URL         = 'http://localhost:19280/v1';
+const OPENAI_DEFAULT_URL      = 'https://api.openai.com/v1';
+const CUSTOM_API_DEFAULT_URL  = 'http://localhost:8080/v1';
 
 // P5 Fix: Resolve .env path relative to project root (core/), not process.cwd().
 const ENV_PATH = path.join(__dirname, '..', '.env');
@@ -66,11 +68,28 @@ function maskSecret(value) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
 
+/**
+ * Löst die effektive Ollama-URL auf (Cloud vs. Lokal).
+ * Wenn OLLAMA_CLOUD_ENABLED=true und OLLAMA_CLOUD_URL gesetzt ist,
+ * wird die Cloud-URL zurückgegeben — sonst die lokale URL.
+ *
+ * @param {object} config — CONFIG-Objekt mit OLLAMA_CLOUD_ENABLED, OLLAMA_CLOUD_URL, OLLAMA_URL
+ * @returns {string} Effektive URL
+ */
+function resolveOllamaUrl(config) {
+  if (config && config.OLLAMA_CLOUD_ENABLED && config.OLLAMA_CLOUD_URL) {
+    return config.OLLAMA_CLOUD_URL;
+  }
+  return (config && config.OLLAMA_URL) || OLLAMA_DEFAULT_URL;
+}
+
 module.exports = {
   ENV_PATH,
   OLLAMA_DEFAULT_URL,
   PLAYER2_DEFAULT_URL,
   FCM_DEFAULT_URL,
+  OPENAI_DEFAULT_URL,
+  CUSTOM_API_DEFAULT_URL,
   firstDefined,
   parseEnvFlag,
   parseDryRunFlag,
@@ -79,4 +98,5 @@ module.exports = {
   getGateCounterOpts,
   parseKeys,
   maskSecret,
+  resolveOllamaUrl,
 };

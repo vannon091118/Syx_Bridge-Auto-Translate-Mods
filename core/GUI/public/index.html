@@ -558,6 +558,8 @@
                         <option value="groq">Groq (Fast Cloud)</option>
                         <option value="gemini">Gemini (Google)</option>
                         <option value="nvidia">NVIDIA NIM (NeMo)</option>
+                        <option value="openai">OpenAI (GPT)</option>
+                        <option value="custom_api">Custom API (OpenAI-kompatibel)</option>
                         <option value="fcm">FCM (Free Code Models)</option>
                         <option value="ollama">Ollama (Lokal)</option>
                         <option value="player2">Player2 (Desktop)</option>
@@ -610,6 +612,24 @@
                             </label>
                         </div>
                         <div id="local-models-status" style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">⛔ Lokale LLMs gesperrt (Hardware-Schutz)</div>
+                    </div>
+
+                    <!-- Ollama Cloud Toggle (Remote-URL statt localhost) -->
+                    <div style="margin-top: 8px; padding: 8px; background: rgba(100, 180, 255, 0.05); border: 1px solid rgba(100, 180, 255, 0.2); border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <label class="stat-label" style="margin: 0; color: #5a9fd4;">☁️ Ollama Cloud-Modus</label>
+                                <div style="font-size: 0.6rem; color: var(--muted); margin-top: 2px;">Remote-Server statt localhost</div>
+                            </div>
+                            <label class="toggle-switch" title="Ollama Cloud-Modus aktivieren. AN = Remote-URL wird statt localhost verwendet.">
+                                <input type="checkbox" id="cfg-ollama-cloud" onchange="toggleOllamaCloud()">
+                                <span class="toggle-slider" style="background-color: #1a2a3a;"></span>
+                            </label>
+                        </div>
+                        <div id="ollama-cloud-url-container" style="display: none; margin-top: 6px;">
+                            <input type="text" id="cfg-ollama-cloud-url" placeholder="http://remote-server:11434" style="margin: 0; font-family: monospace; font-size: 0.75rem; background: #000;">
+                        </div>
+                        <div id="ollama-cloud-status" style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">⛔ Lokal (localhost)</div>
                     </div>
                 </div>
 

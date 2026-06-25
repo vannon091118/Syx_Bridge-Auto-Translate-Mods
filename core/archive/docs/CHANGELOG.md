@@ -1,5 +1,17 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-25 22:07:27] Provider-Erweiterung: OpenAI (GPT) + Custom API (OpenAI-kompatibel) vollstaendig integriert. Ollama Cloud-Mode mit Remote-URL und _OLLAMA_URL_RAW Bugfix. writing_rules RESTRUCTURE/HOTFIX Kategorien. Cleanup: .kiro/specs und split_commits.js entfernt. README bilingual DE/EN mit Banner und GitHub-Features maximal ausgereizt
+**Narrator:** Devin | **Model:** Claude Sonnet 4.6 | **Composite:** `c41j100n6a2p40`
+- 21 Datei(en) geändert.
+
+### [2026-06-25 22:07:09] README komplett ueberarbeitet: bilingual DE/EN, Banner, GitHub-Features maximal ausgereizt, Gamer-Tone, Visual Sections, Feature-Detail-Dropdowns, Navigation-Badges
+**Narrator:** Devin | **Model:** Claude Sonnet 4.6 | **Composite:** `c41j100n6a2p40`
+- 21 Datei(en) geändert.
+
+### [2026-06-25 22:04:35] README komplett ueberarbeitet: bilingual DE/EN, Banner, GitHub-Features maximal ausgereizt, Gamer-Tone, Visual Sections, Feature-Detail-Dropdowns, Navigation-Badges
+**Narrator:** Devin | **Model:** Claude Sonnet 4.6 | **Composite:** `c41j100n6a2p40`
+- 2 Datei(en) geändert.
+
 ### [2026-06-25 21:56:32] Files narrativ einweben, Richtungswechsel-Detection und deferred Chain-Integrity-Check
 **Narrator:** Glitch | **Model:** Claude Sonnet 4.6 | **Composite:** `c40j43n10a3p23`
 - 3 Datei(en) geändert.

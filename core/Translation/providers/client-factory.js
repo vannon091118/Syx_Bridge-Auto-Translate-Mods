@@ -69,6 +69,25 @@ function createProviderClients(ctx) {
       handleRateLimits: false,
       markKeyStatus: false,
       jsonRetry: false
+    },
+    openai: {
+      getUrl: () => `${config.OPENAI_URL || 'https://api.openai.com/v1'}/chat/completions`,
+      timeout: 60000,
+      requiresKey: true,
+      authType: 'bearer',
+      handleRateLimits: true,
+      markKeyStatus: true,
+      jsonRetry: true
+    },
+    custom_api: {
+      getUrl: () => `${config.CUSTOM_API_URL || 'http://localhost:8080/v1'}/chat/completions`,
+      timeout: 60000,
+      requiresKey: false,
+      authType: 'bearer-optional',
+      handleRateLimits: false,
+      markKeyStatus: true,
+      jsonRetry: true,
+      noKeyRotation: true
     }
   };
 

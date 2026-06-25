@@ -2198,5 +2198,81 @@
         "file": "core/commit-layer/verify_commit_msg.js"
       }
     ]
+  },
+  {
+    "p_id": "p46",
+    "id": "plot-2026-06-25T22:07:27",
+    "timestamp": "2026-06-25 22:07:27",
+    "summary": "Provider-Erweiterung: OpenAI (GPT) + Custom API (OpenAI-kompatibel) vollstaendig integriert. Ollama Cloud-Mode mit Remote-URL und _OLLAMA_URL_RAW Bugfix. writing_rules RESTRUCTURE/HOTFIX Kategorien. Cleanup: .kiro/specs und split_commits.js entfernt. README bilingual DE/EN mit Banner und GitHub-Features maximal ausgereizt",
+    "narrator": "Devin",
+    "model_id": "Claude Sonnet 4.6",
+    "composite": "c41j100n6a2p40",
+    "ref_to": "plot-2026-06-25T21:56:32",
+    "prev_narrator": "Glitch",
+    "data_changes": [
+      {
+        "file": ".kiro/specs/native-windows-gui/.config.kiro"
+      },
+      {
+        "file": ".kiro/specs/native-windows-gui/IMPLEMENTATION_GUIDE.md"
+      },
+      {
+        "file": ".kiro/specs/native-windows-gui/design.md"
+      },
+      {
+        "file": ".kiro/specs/native-windows-gui/requirements.md"
+      },
+      {
+        "file": ".kiro/specs/native-windows-gui/tasks.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/GUI/public/app.js"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/Translation/config/config-keys.js"
+      },
+      {
+        "file": "core/Translation/config/config-persist.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/Translation/providers/client-factory.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      },
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/writing_rules.json"
+      },
+      {
+        "file": "core/commit-layer/pre-commit.js"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/scripts/split_commits.js"
+      },
+      {
+        "file": "core/tests/ollama_cloud_e2e.js"
+      },
+      {
+        "file": "screenshots/banner.jpg"
+      }
+    ]
   }
 ]

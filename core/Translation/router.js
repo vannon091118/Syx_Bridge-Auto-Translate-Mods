@@ -7,10 +7,12 @@
 //   client-factory.js (getBatchProfile, PROVIDER_CHAT_CONFIG).
 const PROVIDER_REGISTRY = {
   openrouter:   { type: 'cloud', defaultModel: 'openrouter/free',       fetchMethod: 'fetchOpenRouterModels', costClass: 4,  limits: { items: 10, chars: 1800, pItems: 6, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  openai:       { type: 'cloud', defaultModel: 'gpt-4o-mini',          fetchMethod: 'fetchOpenAIModels',     costClass: 5,  limits: { items: 10, chars: 1800, pItems: 6, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   groq:         { type: 'cloud', defaultModel: 'llama-3.1-8b-instant',  fetchMethod: 'fetchGroqModels',       costClass: 4,  limits: { items: 8,  chars: 1200, pItems: 5, pChars: 900 },  caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   gemini:       { type: 'cloud', defaultModel: 'gemini-2.5-flash-lite', fetchMethod: 'fetchGeminiModels',     costClass: 5,  limits: { items: 8,  chars: 1500, pItems: 5, pChars: 1000 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   nvidia:       { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchNvidiaModels',     costClass: 4,  limits: { items: 15, chars: 3000, pItems: 10, pChars: 2200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   fcm:          { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchFcmModelRankings', costClass: 1.5, limits: { items: 14, chars: 2000, pItems: 8, pChars: 1600 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
+  custom_api:   { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchCustomApiModels',  costClass: 3,  limits: { items: 10, chars: 1800, pItems: 6, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   ollama:       { type: 'local', defaultModel: 'llama3.2',              fetchMethod: 'fetchOllamaModels',     costClass: 1,  limits: { items: 12, chars: 1800, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   player2:      { type: 'local', defaultModel: 'auto',                  fetchMethod: 'fetchPlayer2Models',    costClass: 1,  limits: { items: 6,  chars: 900,  pItems: 4, pChars: 700 },  caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   google_free:  { type: 'local', defaultModel: 'google-translate-free', fetchMethod: null,                    costClass: 9,  limits: { items: 8,  chars: 1200, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: false, polish: false, compare: false, review: false } },
@@ -225,6 +227,10 @@ class Router {
     if (id === 'argos') return this.helpers.isArgosInstalled();
     // FCM: local daemon proxy — accessible unless explicitly disabled via FCM_ENABLED=false
     if (id === 'fcm') return isEnabledFlag(this.config.FCM_ENABLED, true);
+    // OpenAI: explicit key required
+    if (id === 'openai') return isEnabledFlag(this.config.OPENAI_ENABLED, true) && !!this.helpers.getApiKey(id);
+    // Custom API: accessible when enabled and URL is configured
+    if (id === 'custom_api') return isEnabledFlag(this.config.CUSTOM_API_ENABLED, true) && !!this.config.CUSTOM_API_URL;
     // Lokale LLM-Modelle (Ollama, Player2) nur mit explizitem Opt-in
     // (Hardware-Schutz: lokale LLMs können GPU/CPU überlasten)
     if (id === 'ollama' || id === 'player2') {
@@ -461,20 +467,24 @@ class Router {
       audit: [
         { provider: userProvider, model: userModel },
         { provider: 'nvidia',     model: 'auto' },
+        { provider: 'openai',     model: 'auto' },
         { provider: 'groq',       model: 'auto' },
         ...freeFallbacks,
         { provider: 'fcm',        model: 'auto' },
         { provider: 'gemini',     model: 'auto' },
-        { provider: 'openrouter', model: 'auto' }
+        { provider: 'openrouter', model: 'auto' },
+        { provider: 'custom_api', model: 'auto' }
       ],
       polish: [
         { provider: userProvider, model: userModel },
         { provider: 'nvidia',     model: 'auto' },
+        { provider: 'openai',     model: 'auto' },
         { provider: 'groq',       model: 'auto' },
         ...freeFallbacks,
         { provider: 'fcm',        model: 'auto' },
         { provider: 'gemini',     model: 'auto' },
-        { provider: 'openrouter', model: 'auto' }
+        { provider: 'openrouter', model: 'auto' },
+        { provider: 'custom_api', model: 'auto' }
       ]
     };
 

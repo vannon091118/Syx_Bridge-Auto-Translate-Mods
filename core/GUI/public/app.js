@@ -454,6 +454,8 @@ function renderProviderStats() {
       groq: 'Groq Cloud — schnelle Inferenz mit Llama-Modellen. Kostenlos mit Account.',
       ollama: 'Ollama — Lokale KI-Modelle. Kein Cloud-Key nötig.',
       player2: 'Player2 — Lokaler KI-Client auf dem Desktop (optional).',
+      openai: 'OpenAI — GPT-4o, GPT-4o-mini, etc. API-Key von platform.openai.com.',
+      custom_api: 'Custom API — Beliebiger OpenAI-kompatibler Endpoint (LM Studio, vLLM, Oobabooga, etc.).',
       nvidia: 'NVIDIA NIM — NeMo & Nemotron Modelle. nvapi-Key von build.nvidia.com.',
       fcm: 'FCM (free-coding-models) — Live-Rankings von kostenlosen AI-APIs.'
     };
@@ -495,7 +497,7 @@ function updateBatchRecommendation() {
   // Item 0b: Mirror of backend isFreeModel() for batch size recommendation.
   // NOTE: Approximate — full accuracy requires backend API endpoint (Item 10).
   // Provider 'groq': all models free-tier accessible (rate limits only).
-  const isFree  = (provider === 'ollama' || provider === 'player2' || provider === 'argos' || provider === 'google_free' || provider === 'fcm' || provider === 'groq')
+  const isFree  = (provider === 'ollama' || provider === 'player2' || provider === 'argos' || provider === 'google_free' || provider === 'fcm' || provider === 'groq' || provider === 'custom_api')
     || modelVal.includes('/free') || modelVal.endsWith(':free') || modelVal === 'openrouter/free';
   // M-3: Synced with client-factory.js getBatchProfile() isLarge terms
   const isLarge = modelVal.includes('70b') || modelVal.includes('pro') || modelVal.includes('sonnet') || modelVal.includes('opus') || modelVal.includes('405b') || modelVal.includes('nemotron');
@@ -503,6 +505,8 @@ function updateBatchRecommendation() {
   let rec;
   if (provider === 'google_free') rec = 8;
   else if (provider === 'ollama' || provider === 'player2') rec = 12;
+  else if (provider === 'openai') rec = 16;
+  else if (provider === 'custom_api') rec = 14;
   else if (provider === 'openrouter' && isFree) rec = 10;
   else if (provider === 'openrouter' && isLarge) rec = 28;
   else if (provider === 'openrouter') rec = 20;
@@ -647,7 +651,9 @@ function renderKeySections() {
     { id: 'gemini',     label: 'Google Gemini', hint: 'Gemini API Key',          keys: currentConfig.GEMINI_KEYS || [] },
     { id: 'nvidia',     label: 'NVIDIA NIM', hint: 'nvapi-... Key von build.nvidia.com', keys: currentConfig.NVIDIA_KEYS || [] },
     { id: 'ollama',     label: 'Ollama (optional Key)', hint: 'Nur wenn Ollama Auth aktiviert', keys: currentConfig.OLLAMA_KEYS || [] },
-    { id: 'player2',    label: 'Player2 (optional Key)', hint: 'Lokaler KI-Client', keys: currentConfig.PLAYER2_KEYS || [] }
+    { id: 'player2',    label: 'Player2 (optional Key)', hint: 'Lokaler KI-Client', keys: currentConfig.PLAYER2_KEYS || [] },
+    { id: 'openai',     label: 'OpenAI (GPT)', hint: 'platform.openai.com — GPT-4o, GPT-4o-mini, etc.', keys: currentConfig.OPENAI_KEYS || [] },
+    { id: 'custom_api', label: 'Custom API (OpenAI-kompatibel)', hint: 'Eigener Endpoint — LM Studio, vLLM, text-generation-webui, etc.', keys: currentConfig.CUSTOM_API_KEYS || [] }
   ];
 
   container.innerHTML = providers.map(p => {
@@ -723,6 +729,8 @@ async function _saveKeysFromModal() {
   currentConfig.NVIDIA_KEYS     = getKeys('nvidia');
   currentConfig.OLLAMA_KEYS     = getKeys('ollama');
   currentConfig.PLAYER2_KEYS    = getKeys('player2');
+  currentConfig.OPENAI_KEYS     = getKeys('openai');
+  currentConfig.CUSTOM_API_KEYS = getKeys('custom_api');
     
   await saveConfig(true);
   closeKeyModal();
@@ -962,6 +970,48 @@ function updateLocalModelsUI() {
     status.style.color = enabled ? 'var(--danger)' : 'var(--muted)';
   }
 }
+
+// ── Ollama Cloud Toggle (Remote-URL statt localhost) ───────────────
+async function _toggleOllamaCloud() {
+  currentConfig.OLLAMA_CLOUD_ENABLED = !currentConfig.OLLAMA_CLOUD_ENABLED;
+  updateOllamaCloudUI();
+  await saveConfig(true);
+}
+
+function updateOllamaCloudUI() {
+  const toggle = document.getElementById('cfg-ollama-cloud');
+  const urlContainer = document.getElementById('ollama-cloud-url-container');
+  const urlInput = document.getElementById('cfg-ollama-cloud-url');
+  const status = document.getElementById('ollama-cloud-status');
+  const enabled = !!currentConfig.OLLAMA_CLOUD_ENABLED;
+  const cloudUrl = currentConfig.OLLAMA_CLOUD_URL || '';
+
+  if (toggle) toggle.checked = enabled;
+  if (urlInput) urlInput.value = cloudUrl;
+  if (urlContainer) urlContainer.style.display = enabled ? 'block' : 'none';
+
+  // Styling: green slider when active
+  if (toggle) {
+    const slider = toggle.nextElementSibling;
+    if (slider) {
+      slider.style.backgroundColor = enabled ? 'rgba(90, 159, 212, 0.3)' : '#1a2a3a';
+      slider.style.borderColor = enabled ? '#5a9fd4' : 'var(--border)';
+    }
+  }
+
+  if (status) {
+    if (enabled && cloudUrl) {
+      status.textContent = `☁️ Cloud-Modus: ${cloudUrl}`;
+      status.style.color = '#5a9fd4';
+    } else if (enabled && !cloudUrl) {
+      status.textContent = '⚠️ Cloud aktiv aber keine URL gesetzt — nutzt localhost als Fallback';
+      status.style.color = 'var(--accent)';
+    } else {
+      status.textContent = '⛔ Lokal (localhost)';
+      status.style.color = 'var(--muted)';
+    }
+  }
+}
 async function onProviderChange() {
   updateBatchRecommendation();
   const provider = document.getElementById('cfg-provider').value;
@@ -997,6 +1047,12 @@ async function saveConfig(silent = false) {
   // Lokale Modelle Toggle explizit auslesen (Sicherheit: falls onchange nicht gefeuert hat)
   const localToggle = document.getElementById('cfg-local-models');
   if (localToggle) currentConfig.LOCAL_MODELS_ENABLED = localToggle.checked;
+
+  // Ollama Cloud Toggle + URL auslesen
+  const cloudToggle = document.getElementById('cfg-ollama-cloud');
+  const cloudUrlInput = document.getElementById('cfg-ollama-cloud-url');
+  if (cloudToggle) currentConfig.OLLAMA_CLOUD_ENABLED = cloudToggle.checked;
+  if (cloudUrlInput) currentConfig.OLLAMA_CLOUD_URL = cloudUrlInput.value.trim();
 
   try {
     await fetch('/api/config', {
@@ -1055,13 +1111,18 @@ async function loadInitialConfig() {
       updateLocalModelsUI();
     }
 
+    // Ollama Cloud Toggle
+    updateOllamaCloudUI();
+
     // Check if keys are missing
     const hasKeys = (currentConfig.GEMINI_KEYS?.length > 0) || 
                    (currentConfig.GROQ_KEYS?.length > 0) || 
                    (currentConfig.OPENROUTER_KEYS?.length > 0) ||
                    (currentConfig.NVIDIA_KEYS?.length > 0) ||
+                   (currentConfig.OPENAI_KEYS?.length > 0) ||
                    currentConfig.PRIMARY_PROVIDER === 'ollama' ||
-                   currentConfig.PRIMARY_PROVIDER === 'player2';
+                   currentConfig.PRIMARY_PROVIDER === 'player2' ||
+                   currentConfig.PRIMARY_PROVIDER === 'custom_api';
     
     if (!hasKeys) {
       console.log('[GUI] Keine API Keys gefunden. Oeffne Modal...');
@@ -1774,6 +1835,7 @@ window.saveDbEntry = _saveDbEntry;
 window.addKeyRow = _addKeyRow;
 window.saveKeysFromModal = _saveKeysFromModal;
 window.toggleLocalModels = _toggleLocalModels;
+window.toggleOllamaCloud = _toggleOllamaCloud;
 window.startSettingsPolling = startSettingsPolling;
 window.stopSettingsPolling = stopSettingsPolling;
 
