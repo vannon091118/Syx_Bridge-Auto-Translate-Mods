@@ -5,12 +5,12 @@ const axios = require('axios');
 const prompts = require('prompts');
 require('dotenv').config({ path: path.join(__dirname, '.env'), quiet: true });
 
-const Router = require('./src/router');
-const Planner = require('./src/planner');
-const exporter = require('./src/exporter');
-const UI = require('./src/ui');
-const dbManager = require('./src/db');
-const { createRuntimeOps } = require('./src/runtime-ops');
+const Router = require('./Translation/router');
+const Planner = require('./Translation/planner');
+const exporter = require('./Translation/exporter');
+const UI = require('./Translation/ui');
+const dbManager = require('./DB/db');
+const { createRuntimeOps } = require('./Translation/runtime-ops');
 // BU-002: SongsOfSyxPlugin extends GameAdapter and exposes the full
 // Songs-of-Syx surface (metadata, version dirs, classifyFile, formatMetadata, ...).
 // The legacy SongsOfSyxAdapter class has been removed — engine code consumes
@@ -18,8 +18,8 @@ const { createRuntimeOps } = require('./src/runtime-ops');
 // plugin-registry: Dynamic plugin loading via GAME config flag.
 // Replaces hardcoded `new SongsOfSyxPlugin()` with `createPlugin(CONFIG.GAME)`.
 // Default is 'songs_of_syx' — backward compatible. New games register in plugin-registry.js.
-const { createPlugin, DEFAULT_GAME } = require('./src/plugin-registry');
-const { createTranslationRuntime } = require('./src/translation-runtime');
+const { createPlugin, DEFAULT_GAME } = require('./Translation/plugin-registry');
+const { createTranslationRuntime } = require('./Translation/translation-runtime');
 const { 
   ConfigRuntime, 
   persistConfigToEnv,
@@ -30,12 +30,12 @@ const {
   filterLLMs,
   getDefaultModelForProvider,
   setMetricsCache
-} = require('./src/config-runtime');
+} = require('./Translation/config/config-runtime');
 
-const { setupLogging, setDb, logPayload } = require('./src/logger');
-const { restorePlaceholders, getHash, shieldPlaceholders } = require('./src/extractor');
-const parser = require('./src/parser');
-const { validateFileSyntax } = require('./src/validator');
+const { setupLogging, setDb, logPayload } = require('./Translation/logger');
+const { restorePlaceholders, getHash, shieldPlaceholders } = require('./Translation/extractor');
+const parser = require('./Translation/parser');
+const { validateFileSyntax } = require('./Translation/validator');
 const {
   protectPlaceholders,
   isProperNoun,
@@ -49,7 +49,7 @@ const {
   translationLooksSafe,
   translationCriticalCheck,
   assessTranslationWarnings,
-} = require('./src/text-core');
+} = require('./Translation/text-core');
 
 const { 
   getActiveMods, 
@@ -57,16 +57,16 @@ const {
   parseSoSConfig,
   stringifySoSConfig,
   SETTINGS_PATH 
-} = require('./src/sos-runtime');
+} = require('./Translation/sos-runtime');
 
-const GuiServer = require('./src/gui/server');
-const { registerGuiHandlers, readDisplayName, restoreBackup } = require('./src/gui-handlers');
-const { createPreflight } = require('./src/preflight');
+const GuiServer = require('./GUI/server');
+const { registerGuiHandlers, readDisplayName, restoreBackup } = require('./GUI/gui-handlers');
+const { createPreflight } = require('./DB/preflight');
 
 const { isArgosInstalled, ensureArgos } = require('./scripts/check_argos');
 const cleanupZombies = require('./scripts/cleanup_zombies');
 const { checkOllama, startOllama } = require('./scripts/start_ollama');
-const { createModelRegistry } = require('./src/model-registry');
+const { createModelRegistry } = require('./Translation/model-registry');
 
 // Constants & Defaults
 const DEFAULT_BATCH_SIZE = 24;
@@ -915,7 +915,7 @@ async function main() {
     else if (menu.action === 'full_reset') await fullReset();
     else if (menu.action === 'config') await configRuntime.configure();
     else if (menu.action === 'qa') {
-      const { runDiagnostics } = require('./src/diagnostics');
+      const { runDiagnostics } = require('./Translation/diagnostics');
       await runDiagnostics();
     } else process.exit(0);
   }

@@ -2,7 +2,7 @@
  * E2E P3 - Dynamic Risk Scoring
  */
 
-const { scoreTranslationRisk, scoreDynamicRisk, buildContextPacket } = require('../src/context-packets');
+const { scoreTranslationRisk, scoreDynamicRisk, buildContextPacket } = require('../Translation/context-packets');
 
 let passed = 0, failed = 0;
 function check(label, cond) {

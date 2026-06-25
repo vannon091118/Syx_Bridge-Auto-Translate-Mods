@@ -111,17 +111,17 @@ function getModelMetrics(provider, model, taskType = 'translate') {
 
 /**
  * Filtert und sortiert Modelle nach Qualität.
- * Lazy require('./router') um Zirkular-Import bei Load-Time zu vermeiden.
+ * Lazy require('../router') um Zirkular-Import bei Load-Time zu vermeiden.
  */
 function filterLLMs(models, freeOnly = false) {
   return [...new Set([...(freeOnly ? [OPENROUTER_FREE_MODEL] : []), ...(models || [])])]
     .filter(isUsableTextModel)
-    .filter(model => !freeOnly || require('./router').isFreeModel('openrouter', model))
+    .filter(model => !freeOnly || require('../router').isFreeModel('openrouter', model))
     .sort((a, b) => rankModel(b, 'openrouter') - rankModel(a, 'openrouter') || String(a).localeCompare(String(b)));
 }
 
 function getDefaultModelForProvider(provider) {
-  const { PROVIDER_REGISTRY } = require('./router');
+  const { PROVIDER_REGISTRY } = require('../router');
   const reg = PROVIDER_REGISTRY[provider];
   return reg ? reg.defaultModel : 'auto';
 }

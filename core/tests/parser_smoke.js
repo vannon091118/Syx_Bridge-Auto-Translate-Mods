@@ -1,6 +1,6 @@
 /** Parser Smoke Test */
 
-const _p = require('../src/parser');
+const _p = require('../Translation/parser');
 const parse = _p.parse;
 const detectFormat = _p.detectFormat;
 const registerFormat = _p.registerFormat;

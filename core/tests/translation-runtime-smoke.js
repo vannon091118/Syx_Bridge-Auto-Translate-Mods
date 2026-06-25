@@ -60,39 +60,39 @@ let isArgosInstalledFn;
 let parseKeysFn, parseEnvFlagFn;
 let gateCounter;
 
-try { dbManager = require('../src/db'); console.log('  [OK]   db.js'); }
+try { dbManager = require('../DB/db'); console.log('  [OK]   db.js'); }
 catch (e) { console.error('  [FAIL] db.js: ' + e.message); process.exit(1); }
 
-try { Router = require('../src/router'); console.log('  [OK]   router.js'); }
+try { Router = require('../Translation/router'); console.log('  [OK]   router.js'); }
 catch (e) { console.error('  [FAIL] router.js: ' + e.message); process.exit(1); }
 
 try {
-  const cr = require('../src/config-runtime');
+  const cr = require('../Translation/config/config-runtime');
   ConfigRuntime = cr.ConfigRuntime;
   parseKeysFn = cr.parseKeys;
   parseEnvFlagFn = cr.parseEnvFlag;
   console.log('  [OK]   config-runtime.js');
 } catch (e) { console.error('  [FAIL] config-runtime.js: ' + e.message); process.exit(1); }
 
-try { textCore = require('../src/text-core'); console.log('  [OK]   text-core.js'); }
+try { textCore = require('../Translation/text-core'); console.log('  [OK]   text-core.js'); }
 catch (e) { console.error('  [FAIL] text-core.js: ' + e.message); process.exit(1); }
 
-try { contextPackets = require('../src/context-packets'); console.log('  [OK]   context-packets.js'); }
+try { contextPackets = require('../Translation/context-packets'); console.log('  [OK]   context-packets.js'); }
 catch (e) { console.error('  [FAIL] context-packets.js: ' + e.message); process.exit(1); }
 
-try { extractor = require('../src/extractor'); console.log('  [OK]   extractor.js'); }
+try { extractor = require('../Translation/extractor'); console.log('  [OK]   extractor.js'); }
 catch (e) { console.error('  [FAIL] extractor.js: ' + e.message); process.exit(1); }
 
-try { logger = require('../src/logger'); console.log('  [OK]   logger.js'); }
+try { logger = require('../Translation/logger'); console.log('  [OK]   logger.js'); }
 catch (e) { console.error('  [FAIL] logger.js: ' + e.message); process.exit(1); }
 
 try { ({ isArgosInstalled: isArgosInstalledFn } = require('../scripts/check_argos')); console.log('  [OK]   check_argos.js'); }
 catch (e) { console.error('  [FAIL] check_argos.js: ' + e.message); process.exit(1); }
 
-try { ({ createTranslationRuntime } = require('../src/translation-runtime')); console.log('  [OK]   translation-runtime.js'); }
+try { ({ createTranslationRuntime } = require('../Translation/translation-runtime')); console.log('  [OK]   translation-runtime.js'); }
 catch (e) { console.error('  [FAIL] translation-runtime.js: ' + e.message); process.exit(1); }
 
-try { gateCounter = require('../src/gate-counter'); console.log('  [OK]   gate-counter.js'); }
+try { gateCounter = require('../Translation/gate-counter'); console.log('  [OK]   gate-counter.js'); }
 catch (e) { console.warn('  [WARN] gate-counter.js optional: ' + e.message); gateCounter = null; }
 
 // ──────────────────────────────────────────────────────────────────────────────

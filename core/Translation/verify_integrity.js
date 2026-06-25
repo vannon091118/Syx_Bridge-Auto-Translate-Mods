@@ -1,4 +1,4 @@
-const { translationLooksSafe } = require('../src/text-core');
+const { translationLooksSafe } = require('./text-core');
 
 const testCases = [
   { source: 'Hello {NAME}!', target: 'Hallo {NAME}!', expected: true, desc: 'Valid placeholder' },

@@ -7,8 +7,8 @@
 
 const path = require('path');
 const fs = require('fs');
-const { createPreflight } = require('../src/preflight');
-const dbManager = require('../src/db');
+const { createPreflight } = require('../DB/preflight');
+const dbManager = require('../DB/db');
 
 let pass = 0, fail = 0;
 function check(name, ok, detail) {

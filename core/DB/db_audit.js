@@ -22,9 +22,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const dbManager = require('../src/db');
-const { getHash, classifyString } = require('../src/extractor');
-const { shouldTranslate } = require('../src/text-core');
+const dbManager = require('./db');
+const { getHash, classifyString } = require('../Translation/extractor');
+const { shouldTranslate } = require('../Translation/text-core');
 
 // ── Paths ──────────────────────────────────────────────────────────────────
 const ROOT_DIR = path.join(__dirname, '..', '..');

@@ -6,9 +6,9 @@ console.log('🚀 Starting Redteam Baseline Test (Mutation-Ready)...');
 
 try {
   // Runtime check: Ensure modules are loadable
-  const textCore = require('../src/text-core');
-  const extractor = require('../src/extractor');
-  const _db = require('../src/db');
+  const textCore = require('./text-core');
+  const extractor = require('./extractor');
+  const _db = require('../DB/db');
   console.log('  ✅ Runtime Check: Core modules loaded.');
 
   const testCases = [

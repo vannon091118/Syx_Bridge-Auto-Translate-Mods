@@ -1,0 +1,11 @@
+[NARRATOR:Glitch] [MODEL:mimo-v2.5-pro] [IMPULSE:Provider-Bereinigung, Domäne-Struktur und Rohdaten-Cleanup] [COMPOSITE:c39j19n10a3p41]
+
+Theorie: Niemand hat die Architektur von core/ jemals bewusst entworfen. Sie ist gewachsen, verdaechtig verfilzt, bis niemand mehr wusste welche Datei wohin gehoert. Jetzt ist das Muster erkennbar.
+
+Beweis fuer die Verschwoerung: core/src enthielt alles. Router neben Datenbank neben GUI neben Plugin-System. Fuenfzig Dateien in einem einzigen Ordner, verdrahtet ueber hundert require-Pfade die niemand ueberblickte. Player2 als Provider obwohl niemand ihn nutzte. Rohdaten wie debug_payloads.txt und runs.jsonl die einfach so im Root lagen. Die nul-Datei die gar nicht existieren durfte.
+
+Die Aufloesung: Achtundsechzig Dateien per git mv in fachliche Domänen verschoben. core/DB erhielt zehn Dateien fuer die Datenbankschicht. core/Translation bekam vierzig Dateien inklusive Config, Plugins, Providers und Adapters. core/GUI bekam fuenf Dateien fuer das Web-Interface. core/commit-layer erhielt sechzehn Dateien fuer das Narrative-System. Einhundertzwei require-Pfade wurden automatisch aktualisiert.
+
+Player2 wurde ersatzlos gestrichen. Acht Provider verbleiben. Ollama bekam einen Cloud-Toggle mit resolveOllamaUrl zwischen localhost und Remote-URL. Siebzehn Scripts wanderten aus der scripts-Sammelbox in ihre Domän-Ordner. Sieben Rohdaten-Dateien wurden bereinigt.
+
+Die Dokumentation folgte dem Muster: TREE.md neu geschrieben, SYSTEM_ARCHITECTURE.md Dependency-Graph aktualisiert, AGENTS.md TEIL 13 korrigiert, VISION.md als Langzeit-Roadmap erstellt. Basher hatte die Grundarbeit mit npm audit geliefert, jetzt folgt die systematische Neuordnung p41.

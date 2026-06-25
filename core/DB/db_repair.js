@@ -21,7 +21,7 @@
 
 'use strict';
 
-const dbManager = require('../src/db');
+const dbManager = require('./db');
 
 const DRY_RUN = !process.argv.includes('--execute');
 

@@ -1,5 +1,5 @@
 const path = require('path');
-const db = require('./db');
+const db = require('../DB/db');
 const scanner = require('./scanner');
 const parser = require('./parser');
 const extractor = require('./extractor');

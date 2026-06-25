@@ -19,7 +19,13 @@ function getFiles(dir) {
   return results;
 }
 
-const files = [path.join(process.cwd(), 'index.js'), ...getFiles(path.join(process.cwd(), 'src')), ...getFiles(path.join(process.cwd(), 'scripts'))];
+const coreDir = process.cwd();
+const domainDirs = ['DB', 'Translation', 'GUI', 'commit-layer'];
+const domainFiles = domainDirs.flatMap(d => {
+  const p = path.join(coreDir, d);
+  return fs.existsSync(p) ? getFiles(p) : [];
+});
+const files = [path.join(coreDir, 'index.js'), ...domainFiles, ...getFiles(path.join(coreDir, 'scripts'))];
 
 console.log(`🔍 Checking syntax for ${files.length} files...`);
 

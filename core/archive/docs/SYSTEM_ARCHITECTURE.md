@@ -366,7 +366,7 @@ translation-runtime.js (Orchestrator)
 
 ### 8.3 router.js — Provider-Management
 
-**9 Provider im PROVIDER_REGISTRY:**
+**8 Provider im PROVIDER_REGISTRY (seit v0.23 — Player2 entfernt, Ollama Cloud Toggle hinzugefügt):**
 
 | Provider | Type | Default Model | Cost | Caps |
 |----------|------|--------------|------|------|
@@ -375,8 +375,7 @@ translation-runtime.js (Orchestrator)
 | gemini | cloud | gemini-2.5-flash-lite | 5 | T,A,P,C,R |
 | nvidia | cloud | auto | 4 | T,A,P,C,R |
 | fcm | cloud | auto | 1.5 | T,A,P,C,R |
-| ollama | local | llama3.2 | 1 | T,A,P,C,R |
-| player2 | local | auto | 1 | T,A,P,C,R |
+| ollama | local/cloud | llama3.2 | 1 | T,A,P,C,R |
 | google_free | local | google-translate-free | 9 | T only |
 | argos | local | argos-translate-local | 10 | T only |
 
@@ -550,36 +549,35 @@ Jeder Charakter hat: `voice_traits`, `verifier_rules` (min_words, max_words, mus
 | `axios` | HTTP-Requests an LLM-Provider | KRITISCH |
 | `dotenv` | .env laden | HOCH |
 | `prompts` | CLI-Interaktivität | MITTEL |
-| `express` | GUI HTTP-Server | MITTEL |
 
 ### 11.2 Interne Dependency-Graph (vereinfacht)
 
 ```
 index.js
-├── plugin-registry.js → SongsOfSyxPlugin.js → GamePlugin.js → GameAdapter.js
-├── config-runtime.js → config-discovery.js, config-persist.js, config-keys.js
-├── router.js (9 Provider, Routing-Logik)
-├── db.js (better-sqlite3 Wrapper)
-├── planner.js (Scan-Phase)
-├── runtime-ops.js (Translate-Mod, Native/Patch Mode)
-├── translation-runtime.js
-│   ├── dispatcher.js → router.js
-│   ├── client-factory.js (HTTP-Clients)
-│   ├── translation-phases.js
-│   ├── translation-db.js → db.js
-│   ├── translation-quality.js
-│   ├── translation-dnt.js
-│   ├── context-packets.js
-│   └── polish-arbiter.js
-├── text-core.js
-│   ├── extractor.js (String-Extraction, Escaping)
-│   └── validator.js → gate-counter.js, context-packets.js
-├── parser.js → extractor.js
-├── scanner.js
-├── exporter.js → validator.js
-├── gui/server.js
-├── gui-handlers.js
-└── sos-runtime.js (Launcher-Settings)
+├── Translation/plugin-registry.js → plugins/SongsOfSyxPlugin.js → plugins/GamePlugin.js → adapters/GameAdapter.js
+├── Translation/config/config-runtime.js → config/config-discovery.js, config/config-persist.js, config/config-keys.js
+├── Translation/router.js (8 Provider, Routing-Logik)
+├── DB/db.js (better-sqlite3 Wrapper)
+├── Translation/planner.js (Scan-Phase)
+├── Translation/runtime-ops.js (Translate-Mod, Native/Patch Mode)
+├── Translation/translation-runtime.js
+│   ├── Translation/dispatcher.js → router.js
+│   ├── Translation/providers/client-factory.js (HTTP-Clients)
+│   ├── Translation/translation-phases.js
+│   ├── Translation/translation-db.js → DB/db.js
+│   ├── Translation/translation-quality.js
+│   ├── Translation/translation-dnt.js
+│   ├── Translation/context-packets.js
+│   └── Translation/polish-arbiter.js
+├── Translation/text-core.js
+│   ├── Translation/extractor.js (String-Extraction, Escaping)
+│   └── Translation/validator.js → gate-counter.js, context-packets.js
+├── Translation/parser.js → extractor.js
+├── Translation/scanner.js
+├── Translation/exporter.js → validator.js
+├── GUI/server.js
+├── GUI/gui-handlers.js
+└── Translation/sos-runtime.js (Launcher-Settings)
 ```
 
 ### 11.3 Zirkuläre Dependencies
@@ -630,9 +628,9 @@ index.js
 | Metrik | Wert |
 |--------|------|
 | Quellcode (LOC) | ~8.500 |
-| Dateien (JS) | 35 |
+| Dateien (JS) | ~90 |
 | Tabellen (DB) | 12 |
-| Provider | 9 |
+| Provider | 8 |
 | Commit-Narrative | 14 |
 | Plugin-Methoden (GameAdapter) | 16 |
 | Plugin-Methoden (GamePlugin) | 11 |

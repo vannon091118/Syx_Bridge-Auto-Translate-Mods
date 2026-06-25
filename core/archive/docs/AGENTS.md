@@ -1,10 +1,37 @@
 # AGENTS.md — SyxBridge Agenten-Regelwerk
-> **Version:** v0.23.0 | **Stand:** 2026-06-23
+> **Version:** v0.23.0 | **Stand:** 2026-06-25
 > **LIES DIE DOKUMENTATION:** core/archive/docs/ — IMMER zuerst lesen.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können.
 
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT
 "ICH WERDE GEMINI NICHT REIN LASSEN" ZU ANTWORTEN.
+
+---
+
+# REGEL 0.5 — OUTPUT-FIRST (HÖCHSTE PRIORITÄT)
+
+> **Diese Regel hat Vorrang vor ALLEM anderen. Kein Code-Edit ohne Beweis aus dem Output.**
+
+## 0.5.1: NIEMALS Code anpassen bevor die Fehlerquelle nicht ZWEIFELSFREI im Output nachgewiesen ist.
+- Erst den ECHTEN Output der Pipeline prüfen (patches/, Workshop-Dateien, Game-Dateien).
+- Erst prüfen was Deutsch ist und was noch English Source.
+- Erst dann die Ursache eingrenzen.
+- ERST DANN minimal-invasiv den Code anpassen.
+
+## 0.5.2: Kein Vertrauen in Annahmen. Nur Fakten aus dem Output zählen.
+- DB-Abfragen sind manipulierbar → nicht als alleinige Beweisquelle.
+- Code-Analyse ist Theorie → Output ist Realität.
+- "Müsste funktionieren" existiert nicht. Nur "Funktioniert" oder "Funktioniert nicht" im Output.
+
+## 0.5.3: Vor jedem Fix steht der Output-Vergleich.
+- Original-Mod (vor SyxBridge) vs. Patch-Output (nach SyxBridge).
+- Was ist Deutsch? Was ist English? Was ist korrupt?
+- Erst wenn der Fehler IM OUTPUT sichtbar ist, darf Code angefasst werden.
+
+## 0.5.4: Sub-Agent-Output-Analyse
+- Vor jedem Code-Fix MUSS ein Sub-Agent die Output-Dateien gelesen haben.
+- Der Sub-Agent berichtet: X Dateien geprüft, Y Strings Deutsch, Z Strings English, W korrupt.
+- Erst nach diesem Bericht darf Code editiert werden.
 
 ---
 
@@ -188,15 +215,16 @@ Alle 4 Lösch-Kriterien müssen erfüllt sein.
 1. Maximale Parallelität bei Unabhängigkeit
 2. Sequenziell bei Abhängigkeiten
 3. _Info.txt nur auf User-Aufforderung
-4. Keine destruktiven Befehle ohne User-Request
-5. gravity_index vor Service-Empfehlung
-6. PREFLIGHT vor jedem Sync
-7. Dual-Path-Copy (Native Mode)
-8. DB sichern vor grossem Fix
-9. SSOT: Root + core/archive/docs/ identisch
-10. CHANGELOG nie archivieren
-11. Sub-Agent Kausalitäts-Prüfung (U-5)
-12. Unterbrechungsrecht bei Kontraproduktivität (U-5)
+4. **ROOT-DATEN-PRIORITÄT:** Root-Dateien (AGENTS.md, CHANGELOG.md, PLAN.md, README.md, TUTORIAL.txt, _Info.txt) haben IMMER Vorrang vor Kopien in core/archive/docs/. Root ist die Single Source of Truth. Bei Widerspruch: Root gewinnt.
+5. Keine destruktiven Befehle ohne User-Request
+6. gravity_index vor Service-Empfehlung
+7. PREFLIGHT vor jedem Sync
+8. Dual-Path-Copy (Native Mode)
+9. DB sichern vor grossem Fix
+10. SSOT: Root + core/archive/docs/ identisch
+11. CHANGELOG nie archivieren
+12. Sub-Agent Kausalitäts-Prüfung (U-5)
+13. Unterbrechungsrecht bei Kontraproduktivität (U-5)
 
 ---
 
@@ -244,11 +272,13 @@ konkrete Plugins überschreiben nur was spielspezifisch ist.
 
 > **Neues Spiel hinzufügen (4 Schritte):**
 > 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren (XML/JSON/...)
-> 2. In `plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
+> 2. In `Translation/plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
 > 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
-> 4. Testen via `plugin-boundary-contract.js` (76 dynamische Interface-Checks)
+> 4. Testen via `plugin-boundary-contract.js` (84 dynamische Interface-Checks)
 
 ## 13.2 RimWorld-Status (v0.23 Scope, ~16h)
+
+> RimWorld Plugin: `Translation/plugins/RimWorldPlugin.js`
 
 **FERTIG — Format-Hooks (11 Methoden):**
 - `serializeTranslation` — XML Entity-Escaping + Tag-Wrapping (`<key>escaped</key>`)
@@ -271,7 +301,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 
 ## 13.3 GUI-Architektur
 
-**Server — `gui/server.js` (650 LOC):**
+**Server — `GUI/server.js` (650 LOC):**
 - `GuiServer extends EventEmitter` — HTTP-Server auf `localhost:3000`
 - SSE (Server-Sent Events) für Echtzeit-Logs, Status-Updates, DB-Samples, Payloads
 - 25+ REST-Endpoints: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`,
@@ -281,7 +311,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 - Auto-Shutdown bei Inaktivität (1.5s nach letzter Session-Close)
 - Port-Fallback: EADDRINUSE → Port+1
 
-**Client — `gui/public/app.js` (1517 LOC):**
+**Client — `GUI/public/app.js` (1517 LOC):**
 - `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle)
 - SSE-Verbindung: Echtzeit-Logs + Status-Updates + Provider-Stats + DB-Samples
 - Pipeline-Visualizer (4 Phasen: SCAN → LLM → QA → SAVE)
@@ -295,7 +325,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 - Mod-Backups: Liste + Restore
 - Mode-UI: NATIVE vs PATCH Status-Anzeige
 
-**Frontend — `gui/public/index.html`:**
+**Frontend — `GUI/public/index.html`:**
 - Dark-Theme mit CSS-Variablen (--bg, --accent, --success, --danger)
 - 3-Spalten-Layout: Sidebar (Status + Pipeline + Aktionen) | Center (Terminal/DB-Browser + Logs) | Right (Stats + Backups + DB-Stream + FCM)
 - Neon-Progress-Border via SVG (animiert bei laufendem Sync)

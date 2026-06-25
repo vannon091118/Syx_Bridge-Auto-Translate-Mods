@@ -1266,3 +1266,14 @@ Vollständiger Repo-Audit im Squizzle-Modus: Doku-Scan, CHANGELOG-Check, Plan-Pr
 
 **Status:** ✅ Ready for Phase 2 (Core Components Implementation)
 
+
+### c39j20n8a3p4 — Provider-Bereinigung + Domäne-Restrukturierung (2026-06-25)
+**Narrator:** Ghost | **Model:** mimo-v2.5-pro | **Composite:** `c39j20n8a3p4`
+- Player2-Provider entfernt, Ollama Cloud Toggle implementiert
+
+### c39j20n8a3p4 — Provider-Bereinigung + Domäne-Restrukturierung (2026-06-25)
+**Narrator:** Ghost | **Model:** mimo-v2.5-pro | **Composite:** `c39j20n8a3p4`
+- Player2-Provider entfernt, Ollama Cloud Toggle implementiert
+- Verzeichnis-Restrukturierung: core/src aufgeloest zu DB, Translation, GUI, commit-layer
+- 17 Scripts in Domän-Ordner sortiert, 7 Rohdaten bereinigt
+- TREE.md, SYSTEM_ARCHITECTURE.md, AGENTS.md TEIL 13 aktualisiert

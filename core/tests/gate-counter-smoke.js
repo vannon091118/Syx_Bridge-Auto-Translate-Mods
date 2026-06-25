@@ -11,7 +11,7 @@ const mockLogger = {
 
 var gc;
 try {
-  gc = require('../src/gate-counter');
+  gc = require('../Translation/gate-counter');
   console.log('OK: required gate-counter without throwing');
 } catch (e) {
   console.error('FAIL: require gate-counter threw. File is likely SyntaxError-ed. Error: ' + (e && e.message ? e.message : String(e)));

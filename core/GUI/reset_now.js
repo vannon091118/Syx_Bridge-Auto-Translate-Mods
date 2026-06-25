@@ -29,9 +29,9 @@ const fsp = require('fs').promises;
 const path = require('path');
 const os = require('os');
 
-const dbManager = require('../src/db');
-const { restoreBackup } = require('../src/gui-handlers');
-const { parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../src/sos-runtime');
+const dbManager = require('../DB/db');
+const { restoreBackup } = require('./gui-handlers');
+const { parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../Translation/sos-runtime');
 
 // ── Config resolution (mirror core/index.js behavior) ────────────────────
 const envPath = path.join(__dirname, '..', '.env');

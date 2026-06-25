@@ -25,7 +25,7 @@ const axios = require('axios');
 
 const ROOT = path.join(__dirname, '..');
 const ENV_PATH = path.join(ROOT, '.env');
-const { maskSecret } = require('../src/config-keys');
+const { maskSecret } = require('./config/config-keys');
 
 // ── CLI ─────────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -87,7 +87,7 @@ function parseKeys(raw) {
 // ── translateHttpError import ───────────────────────────────────────────────
 let translateHttpError;
 try {
-  translateHttpError = require('../src/router').translateHttpError;
+  translateHttpError = require('./router').translateHttpError;
 } catch (_) {
   // Fallback: inline minimal version
   translateHttpError = (status) => {

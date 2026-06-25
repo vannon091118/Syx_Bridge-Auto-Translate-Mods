@@ -26,7 +26,7 @@ export default [
     }
   },
   {
-    files: ['src/gui/public/**/*.js'],
+    files: ['GUI/public/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.browser

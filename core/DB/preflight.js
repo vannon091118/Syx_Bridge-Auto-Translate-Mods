@@ -15,7 +15,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const dbRepair = require('../scripts/db_repair');
+const dbRepair = require('./db_repair');
 
 function createPreflight(dbManager) {
   // ── Direct Promise wrappers via dbManager (better-sqlite3) ─────────

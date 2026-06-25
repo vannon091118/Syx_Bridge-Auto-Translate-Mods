@@ -24,7 +24,7 @@ const fsp = require('fs').promises;
 const path = require('path');
 const os = require('os');
 
-const { createRuntimeOps } = require('../src/runtime-ops');
+const { createRuntimeOps } = require('../Translation/runtime-ops');
 
 let passed = 0;
 let failed = 0;

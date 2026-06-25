@@ -23,9 +23,9 @@ const {
 const { createConfigPersist } = require('./config-persist');
 
 // ── Router-Imports (kein Zirkular-Import: router.js importiert NICHT von hier) ──
-const { translateHttpError, PROVIDER_REGISTRY } = require('./router');
-const { setOpenRouterFreeModels, setNvidiaFreeModels, setGeminiFreeModels } = require('./router');
-const { DEFAULT_GAME } = require('./plugin-registry');
+const { translateHttpError, PROVIDER_REGISTRY } = require('../router');
+const { setOpenRouterFreeModels, setNvidiaFreeModels, setGeminiFreeModels } = require('../router');
+const { DEFAULT_GAME } = require('../plugin-registry');
 
 // ── S-005: Persistenz-Funktionen mit DEFAULT_GAME injiziert ─────────
 const { persistConfigToEnv, persistSingleEnvVar, readEnvValue } = createConfigPersist(DEFAULT_GAME);

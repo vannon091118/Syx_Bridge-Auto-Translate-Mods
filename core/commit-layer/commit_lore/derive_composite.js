@@ -30,7 +30,7 @@ try {
   console.warn(`WARN: Kein Git-Repo. Fallback: ${repoRoot}`);
 }
 
-const { derive, decodeJ, selectMood } = require('./rng.js');
+const { derive, decodeJ, selectMood } = require('./rng');
 
 const compositeChainPath = path.join(__dirname, 'composite_chain.json');
 const loreArcsPath = path.join(__dirname, 'lore_arcs.json');

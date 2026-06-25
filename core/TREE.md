@@ -1,236 +1,247 @@
-# 🌳 Syx-Bridge v0.20.0 — Projekt-Struktur (TREE)
+# 🌳 SyxBridge v0.23.0 — Projekt-Struktur (TREE)
 
-> **Generiert:** 2026-06-18 | **Branch:** prepare-0.20-wip | **Version:** v0.19.7
+> **Generiert:** 2026-06-25 | **Branch:** restructure/domains | **Version:** v0.23.0
+> **Architektur:** Domän-basierte Modularisierung (DB, Translation, GUI, commit-layer)
 
 ```
-SyxBridge_Live/                     # Root — Deployment-Verzeichnis
-├── .env                            # [gitignore] Runtime-Config (API-Keys, Pfad, Sprache)
+SyxBridge_Live/                          # Root — Deployment-Verzeichnis
+├── .env                                 # [gitignore] Runtime-Config
 ├── .gitignore
-├── README.md                       # Haupt-README (User-facing, deutsch/englisch)
-├── start.bat                       # Launcher — startet core/index.js
-├── log.txt                         # [gitignore] Runtime-Log
-├── runs.jsonl                      # [gitignore] Run-History (JSONL)
-├── debug_payloads.txt              # [gitignore] Debug-Payloads
-├── V70/                            # Mod-Version 70 Assets (init/ + text/)
-│   └── assets/
-│       ├── init/{room,tech}/
-│       └── text/{tech}/
-├── V71/                            # Mod-Version 71 Assets (init/ + text/)
-│   └── assets/
-│       ├── init/{room,tech}/
-│       └── text/{tech}/
+├── AGENTS.md                            # Agenten-Regelwerk (SSOT)
+├── CHANGELOG.md                         # Versionshistorie
+├── PLAN.md                              # Aktueller Plan
+├── README.md                            # User-facing README
+├── TUTORIAL.txt                         # Tutorial
+├── VISION.md                            # Langzeit-Roadmap
+├── start.bat                            # Launcher — startet core/index.js
+├── V70/                                 # Mod-Version 70 Assets
+├── V71/                                 # Mod-Version 71 Assets
 │
-└── core/                           # ═══ Anwendung ═══
+└── core/                                # ═══ Anwendung ═══
     │
-    ├── index.js                    # ⭐ ENTRY POINT — CLI, Startup-Wizard, Orchestrator
-    ├── package.json                # v0.20.0, Dependencies: axios, dotenv, inquirer, sql.js, sqlite3 + optional: @huggingface/transformers
+    ├── index.js                         # ⭐ ENTRY POINT — Orchestrator
+    ├── package.json                     # v0.23.0, Dependencies
     ├── package-lock.json
-    ├── eslint.config.mjs           # ESLint-Konfiguration
-    ├── LICENSE                     # MIT
-    ├── .env                        # [gitignore] Lokale Overrides
-    ├── .env.e2e-live-backup        # [gitignore] E2E-Test Backup
-    ├── translations.db             # [gitignore] SQLite-DB (WAL-Mode)
-    ├── translations.db-shm         # [gitignore] WAL-Shared-Memory
-    ├── translations.db-wal         # [gitignore] WAL-Journal
-    ├── log.txt                     # [gitignore] Core-Log
-    ├── runs.jsonl                  # [gitignore] Run-History
+    ├── eslint.config.mjs                # ESLint-Konfiguration
+    ├── LICENSE                          # MIT
+    ├── TREE.md                          # Diese Datei
     │
+    │   ═══════════════════════════════════════════════════════
+    │   DB/ — Datenbankschicht (10 Dateien)
+    │   ═══════════════════════════════════════════════════════
     │
-    │   ══════════════════════════════════════════════
-    │   src/ — Quellcode (23 Module)
-    │   ══════════════════════════════════════════════
+    ├── DB/
+    │   ├── db.js                        # SQLite (better-sqlite3), WAL-Mode, 12 Tabellen
+    │   ├── preflight.js                 # DB-Health-Check, Auto-Repair, Snapshots
+    │   ├── db_audit.js                  # DB-Qualitätsaudit (Flagged, Score, Konsistenz)
+    │   ├── db_query.js                  # SQLite CLI Query-Runner & Report-Generator
+    │   ├── db_repair.js                 # DB-Repair — 7 Repair-Funktionen
+    │   ├── db_snapshot.js               # One-Click DB Snapshot & Trend-Report
+    │   ├── audit_db.js                  # DB-Audit mit Metriken (CLI)
+    │   ├── analyze_snapshots.js         # Snapshot-Analyse (sql.js)
+    │   ├── sanitize_watermarks.js       # Watermark-Bereinigung in DB
+    │   └── cleanup_argos_stale.js       # Stale Argos-Einträge bereinigen
     │
-    ├── src/
+    │   ═══════════════════════════════════════════════════════
+    │   Translation/ — Übersetzungs-Engine (40 Dateien)
+    │   ═══════════════════════════════════════════════════════
+    │
+    ├── Translation/
     │   │
-    │   │   ─── Adapter-Schicht (DI) ───
+    │   │   ─── Konfiguration ───
+    │   ├── config/
+    │   │   ├── config-keys.js           # Key-Management, Env-Flags, Provider-URLs
+    │   │   ├── config-discovery.js      # Model-Metriken, Ranking, Filtering
+    │   │   ├── config-persist.js        # .env-Persistenz Factory
+    │   │   └── config-runtime.js        # ConfigRuntime-Klasse, Re-Exports
+    │   │
+    │   │   ─── Plugin-System (3 Ebenen) ───
     │   ├── adapters/
-    │   │   ├── GameAdapter.js          # Abstrakte Basisklasse — DI-Vertrag für alle Games
-    │   │   └── SongsOfSyxAdapter.js    # SoS-Adapter — KEY:value Format, _Info.txt, Version-Dirs
-    │   │
-    │   │   ─── Kern-Pipeline ───
-    │   ├── scanner.js                  # Phase 1: Mod-Scanning, Adapter-Delegation mit Fallback
-    │   ├── parser.js                   # Phase 2: Format-Detection (sos/raw/json), String-Extraction mit Index
-    │   ├── extractor.js                # String-Klassifizierung, Hash, Placeholder-Erkennung
-    │   ├── text-core.js                # Placeholder-Shield, Translation-Lookup, Quality-Score
-    │   ├── planner.js                  # Phase 3: Batch-Planung, Adapter-Injection, CLI-Progress
-    │   ├── dispatcher.js               # Phase 4: Risk-Routing, Dynamic-Risk, Stress-Test-Gating
-    │   ├── translation-runtime.js      # Phase 5: LLM-Translation, A/B-Polish, Revision-System
-    │   ├── validator.js                # Phase 6: Übersetzungsvalidierung, Placeholder-Restore
-    │   ├── exporter.js                 # Phase 7: Write-Back ins Mod-Format
+    │   │   └── GameAdapter.js           # Abstrakte Basisklasse (16 Methoden)
+    │   ├── plugins/
+    │   │   ├── GamePlugin.js            # Format-Hooks mit Defaults (11 Methoden)
+    │   │   ├── SongsOfSyxPlugin.js      # SoS-Implementierung (23 Methoden)
+    │   │   └── RimWorldPlugin.js        # RimWorld-Stub (24 Methoden)
+    │   ├── plugin-registry.js           # Factory: createPlugin(gameName)
     │   │
     │   │   ─── Provider/Modell ───
-    │   ├── router.js                   # Route-Plan-Builder, PROVIDER_CAPABILITIES Matrix
-    │   ├── model-registry.js           # Modell-Discovery, Argos-Install, Target-Language-Setup
-    │   ├── polish-arbiter.js           # A/B-Polish: Multi-Provider parallele Polish + Scoring
+    │   ├── providers/
+    │   │   └── client-factory.js        # HTTP-Clients pro Provider
+    │   ├── router.js                    # Route-Plan-Builder, 8 Provider
+    │   ├── model-registry.js            # Modell-Discovery, Argos-Install
+    │   ├── polish-arbiter.js            # Multi-Provider A/B Polish
     │   │
-    │   │   ─── Datenbank ───
-    │   ├── db.js                       # SQLite (sql.js), WAL-Mode, Read-Only-Connection, Revisionen
-    │   ├── glossary.js                 # Begriffsglossar für Konsistenz
-    │   ├── gate-counter.js             # Gate-Counter Metriken
+    │   │   ─── Kern-Pipeline ───
+    │   ├── scanner.js                   # Phase 1: Mod-Scanning
+    │   ├── parser.js                    # Phase 2: Format-Detection (sos/raw/json)
+    │   ├── extractor.js                 # String-Klassifizierung, Hash, Escaping
+    │   ├── text-core.js                 # Placeholder-Shield, Validation, Response-Parsing
+    │   ├── text-prompts.js              # LLM Prompt-Building (Batch + Proofread)
+    │   ├── planner.js                   # Phase 3: Batch-Planung
+    │   ├── dispatcher.js                # Phase 4: Risk-Routing, Dynamic-Risk
+    │   ├── translation-runtime.js       # Phase 5: LLM-Translation, A/B-Polish
+    │   ├── translation-phases.js        # Pipeline-Phasen (Cache→Native→Translate→QA→Polish)
+    │   ├── translation-quality.js       # Quality-Scoring, Native-Decision, Flagging
+    │   ├── translation-dnt.js           # DNT Double-Shielding
+    │   ├── translation-db.js            # DB-Interface: Cache, Glossary, Save
+    │   ├── context-packets.js           # Risk-Scoring, Context-Enrichment
+    │   ├── validator.js                 # Phase 6: Marker-Validation, QA-Score
+    │   ├── exporter.js                  # Phase 7: Write-Back ins Mod-Format
+    │   ├── glossary.js                  # Begriffsglossar
+    │   ├── gate-counter.js              # Gate-Counter Metriken
     │   │
-    │   │   ─── Konfiguration/Logging ───
-    │   ├── config-runtime.js           # .env-Parsing, persistSingleEnvVar(), NMT_LOCAL_ENABLED, CLI/GUI-Modus
-    │   ├── context-packets.js          # Kontext-Pakete für LLM-Prompts
-    │   ├── logger.js                   # Log-System (file + console)
-    │   ├── diagnostics.js              # System-Diagnose (Provider-Check, DB-Check)
+    │   │   ─── Utilities ───
+    │   ├── cli-progress.js              # ANSI-Progress-Box
+    │   ├── logger.js                    # Logging, Run-Tracking
+    │   ├── diagnostics.js               # System-Diagnose
+    │   ├── ui.js                        # Terminal-UI
+    │   ├── runtime-ops.js               # Run-Orchestrator, Native Mode
+    │   ├── sos-runtime.js               # SoS-Config, Launcher-Sync
+    │   ├── watermark-config.js          # Watermark-Konfiguration
     │   │
-    │   │   ─── Runtime/CLI ───
-    │   ├── runtime-ops.js              # Run-Orchestrator — Run-Lifecycle, Abort-Handling, Retry-Logic
-    │   ├── cli-progress.js             # CLI-ASCII-Progressbox (ETA, Provider live, Stats)
-    │   ├── ui.js                       # Terminal-UI (Banner, Farben, Prompts)
-    │   │
-    │   │   ─── Game-spezifisch ───
-    │   ├── sos-runtime.js              # SoS-Mod-Runtime (Room/Tech Overrides)
-    │   │    │
-    │   ─── GUI (Web-Interface) ───
-    │   └── gui/
-    │       ├── server.js               # Express-Server — API-Endpunkte, DB-Browser, Revision-Modal
-    │       └── public/
-    │           ├── index.html           # SPA — Dark-Theme, Pipeline-Viz, DB-Browser
-    │           └── app.js               # Frontend-Logik (SSE, Provider-Stats, Modell-Status)
+    │   │   ─── Dev-Tools (aus scripts/ migriert) ───
+    │   ├── export_stage2.js             # Reiner Export-Run (DB→Dateien)
+    │   ├── reconstruct.js               # E2E-Reconstruction (Dry-Run)
+    │   ├── redteam_baseline.js          # Red-Team Smoke-Tests
+    │   ├── test_providers.js            # Provider Key Health-Check
+    │   ├── runtime_score.js             # Global-Score-Aggregator
+    │   ├── calibrate_runtime.js         # Runtime-Kalibrierung
+    │   ├── live1_dryrun.js              # Live-Dry-Run
+    │   ├── warm-model.js                # NMT Model-Warmup
+    │   ├── verify_integrity.js          # Mod-Integritätsprüfung
+    │   ├── verify_watermark.js          # Watermark-Verifikation
+    │   └── verify_flag_separation.js    # Flag-Separation-Verifikation
     │
+    │   ═══════════════════════════════════════════════════════
+    │   GUI/ — Web-Interface (5 Dateien + public/)
+    │   ═══════════════════════════════════════════════════════
     │
-    │   ══════════════════════════════════════════════
-    │   scripts/ — DevOps & Wartung (12 Scripts)
-    │   ══════════════════════════════════════════════
+    ├── GUI/
+    │   ├── server.js                    # HTTP-Server (localhost:3000), SSE
+    │   ├── gui-handlers.js              # GUI-Event-Handler, Stats-Broadcast
+    │   ├── reset_now.js                 # Hard-Reset (Backups, DB, Launcher)
+    │   ├── workshop_export.js           # Steam-Workshop-Export
+    │   ├── INDEX.md
+    │   └── public/
+    │       ├── index.html               # SPA — Dark-Theme, Pipeline-Viz
+    │       └── app.js                   # Frontend-Logik (SSE, Provider-Stats)
+    │
+    │   ═══════════════════════════════════════════════════════
+    │   commit-layer/ — Commit-Narrative-System (16 Dateien)
+    │   ═══════════════════════════════════════════════════════
+    │
+    ├── commit-layer/
+    │   ├── verify_commit_msg.js         # 7 Checks für Commit-Messages
+    │   ├── .commit_msg.txt              # Aktuelle Commit-Message
+    │   └── commit_lore/
+    │       ├── rng.js                   # XorShift128 + djb2 (deterministisch)
+    │       ├── derive_composite.js      # Composite-Hash + Narrative
+    │       ├── update_plot.js           # Plot-Chain + Cross-References
+    │       ├── get_sidejoke.js          # Sidejoke-Auswahl
+    │       ├── annotate_plot_lore.js    # Plot-Lore-Annotation
+    │       ├── build_pool.js            # Pool-Builder
+    │       ├── plotchain.json           # Plot-Chain-Daten
+    │       ├── character_sheets.json    # 14 Charaktere
+    │       ├── composite_chain.json     # Composite-Chain
+    │       ├── cross_references.json    # Cross-References
+    │       ├── lore_arcs.json           # Lore-Arcs
+    │       ├── narrative_params.json    # Narrative-Parameter
+    │       ├── sidejoke_pool.json       # Sidejoke-Pool
+    │       └── writing_rules.json       # Schreibregeln
+    │
+    │   ═══════════════════════════════════════════════════════
+    │   scripts/ — DevOps & Infrastructure (18 Dateien)
+    │   ═══════════════════════════════════════════════════════
     │
     ├── scripts/
-    │   ├── check_syntax.js             # Syntax-Check aller .js-Dateien (39 Files)
-    │   ├── check_argos.js              # Argos-Translate Installation prüfen
-    │   ├── start_ollama.js             # Ollama starten + Modell pullen
-    │   ├── cleanup_zombies.js          # Zombie-Runs in der DB aufräumen
-    │   ├── audit_db.js                 # DB-Qualitätsaudit (Flagged, Score, Konsistenz)
-    │   ├── reconstruct.js              # E2E-Reconstruction (Dry-Run Pipeline-Test)
-    │   ├── redteam_baseline.js         # Red-Team Sicherheitstests (Placeholder, Injection)
-    │   ├── verify_integrity.js         # Mod-Integritätsprüfung
-    │   ├── workshop_export.js          # Steam-Workshop-Export
-    │   ├── check_consistency.js         # Konsistenz-Checker (Versionen, Pfade, Archive)
-    │   ├── sync-version.js             # Version-Synchronisation (7 Dateien)
-    │   ├── release.js                  # Workshop-Release-Builder (ZIP)
-    │   ├── cleanup_argos_stale.js     # One-Off DB-Cleanup (stale Argos-Einträge)
-    │   ├── package.js                  # Release-Paketierung
-    │   ├── check_workshop_damage.ps1   # [PowerShell] Workshop-Schadensprüfung
-    │   ├── warm-model.js               # NEU: NMT Model-Warmup (Transformers.js, ~1.2GB Download)
-    │   └── start.bat                   # [GELÖSCHT] Logik in Root start.bat konsolidiert (0.19.7-batfix)
+    │   │   ─── Checks & Validation ───
+    │   ├── check_syntax.js              # Syntax-Check aller .js-Dateien
+    │   ├── check_consistency.js         # Konsistenz-Checks (Naming, Env, Versionen)
+    │   ├── check_vendor_drift.js        # Vendor-Drift (Live vs Release)
+    │   ├── check_workshop_damage.ps1    # [PowerShell] Workshop-Schadensprüfung
+    │   │
+    │   │   ─── Infrastructure ───
+    │   ├── check_argos.js               # Argos-Installation prüfen/installieren
+    │   ├── start_ollama.js              # Ollama-Start + Modell-Management
+    │   ├── cleanup_zombies.js           # Zombie-Prozesse bereinigen
+    │   ├── log_sorter.js                # Log-Sortierung
+    │   │
+    │   │   ─── Build & Release ───
+    │   ├── release.js                   # Release-Build (ZIP)
+    │   ├── package.js                   # NPM-Paketierung
+    │   ├── sync-version.js              # Version-Synchronisation
+    │   ├── fresh-readme.js              # README-Generierung
+    │   ├── gen-index.js                 # INDEX.md-Generierung
+    │   ├── build-review-base.js         # Review-Base-Builder
+    │   ├── register_phase2.js           # Phase-2-Registrierung
+    │   │
+    │   │   ─── Vendor ───
+    │   ├── vendor-sync.js               # Bidirektionaler Vendor-Sync
+    │   └── vendor-utils.js              # Vendor-Utilities
     │
+    │   ═══════════════════════════════════════════════════════
+    │   tests/ — Test-Suiten (13 Dateien)
+    │   ═══════════════════════════════════════════════════════
     │
-│   ══════════════════════════════════════════════
-│   tests/ — Test-Suiten (6 Dateien, 135+ Assertions)
-│   ══════════════════════════════════════════════
-│
-├── tests/
-│   ├── parser_smoke.js             # Parser-Tests (sos/raw/json, index/full/hash, \r\n)
-│   ├── gate-counter-smoke.js       # Gate-Counter Unit-Tests
-│   ├── validator-smoke.js          # validateFileMarkers Unit-Tests (49 Checks)
-│   ├── translation-runtime-smoke.js  # Translation-Runtime Smoke-Tests
-│   ├── e2e_p3_risk_scoring.js      # P3 Dynamic Risk Scoring E2E
-│   ├── e2e_p5_sprachauswahl.js     # P5 Multi-Language Wizard E2E (31 Assertions)
-│   └── e2e_bug1_native_mode.js     # Bug#1 Native-Mode E2E
+    ├── tests/
+    │   ├── plugin-boundary-contract.js  # 84 Interface-Checks
+    │   ├── plugin-boundary-smoke.js     # Plugin-Smoke-Tests
+    │   ├── parser_smoke.js              # Parser-Tests
+    │   ├── gate-counter-smoke.js        # Gate-Counter Tests
+    │   ├── validator-smoke.js           # Validator Tests
+    │   ├── translation-runtime-smoke.js # Translation-Runtime Smoke
+    │   ├── runtime_score.test.js        # Runtime-Score Tests
+    │   ├── e2e_bug1_native_mode.js      # Bug#1 Native-Mode E2E (35 Tests)
+    │   ├── e2e_p3_risk_scoring.js       # P3 Dynamic Risk Scoring
+    │   ├── e2e_p5_sprachauswahl.js      # P5 Multi-Language Wizard
+    │   ├── env-protection-smoke.js      # Env-Protection Tests
+    │   └── item0a_auto_freeze_test.js   # Auto-Freeze Tests
     │
+    │   ═══════════════════════════════════════════════════════
+    │   data/ — Runtime-Daten (gitignore)
+    │   ═══════════════════════════════════════════════════════
     │
-    │   ══════════════════════════════════════════════
-    │   docs/ — Dokumentation & Archiv
-    │   ══════════════════════════════════════════════
+    ├── data/
+    │   ├── current_score.json           # Aktueller Runtime-Score
+    │   ├── runs.jsonl                   # Run-History (JSONL)
+    │   ├── debug_payloads.txt           # Debug-Payloads
+    │   └── .native_confirmed            # Native-Mode-Bestätigung
     │
-    ├── docs/
-    │   └── plans/                      # ─── Aktive Pläne ───
-    │       └── HARDENING-DRY-RUN-GATE-COUNTER_2026-06-16.md  # Referenziert von gate-counter.js Z56
-    │
-    │
-    │   ══════════════════════════════════════════════
+    │   ═══════════════════════════════════════════════════════
     │   archive/ — Historische Dokumente & Assets
-    │   ══════════════════════════════════════════════
+    │   ═══════════════════════════════════════════════════════
     │
-    ├── archive/
-    │   ├── .gitkeep
-    │   ├── docs/
-    │   │   ├── MASTER_DOC.md                # Architektur-Master-Doku (AKTUELL)
-    │   │   ├── CHANGELOG.md                # Versionshistorie (v0.20.0)
-    │   │   ├── ANALYSE_2026-06-19.md       # Doku-Validität + DB-Analyse (Referenz)
-    │   │   ├── FULLSCAN_2026-06-19.md      # Vollständiger Code-Scan 215 Funktionen (Referenz)
-    │   │   ├── IMPORT_CHAIN_ISOLATION_2026-06-19.md  # 44 Import-Ketten (Referenz)
-    │   │   ├── LOG_REPORT_2026-06-19.md    # Log-Report + DB-Abgleich (Referenz)
-    │   │   ├── KNOWN_BUGS_REPORT_2026-06-19.md  # 17 Bugs (Referenz)
-    │   │   ├── DOC_CONSOLIDATION_2026-06-19.md  # Konsolidierungs-Protokoll
-    │   │   ├── HARDCODED_VALUES_NMT_2026-06-18.md  # NEU: NMT Hardcode-Bug-Report
-    │   │   └── FREEZE/                    # 18 archivierte Reports (keine gelöscht)
-    │   ├── backups/
-    │   ├── plans/                          # ─── Gefrorene Pläne (archiviert) ───
-    │   │   ├── MULTI_LANGUAGE_MODEL_PLAN_2026-06-16.md
-    │   │   ├── SESSION-RESTART-PROMPT_2026-06-16.md
-    │   │   └── STRESS_TEST_SPEC_2026-06-16.md
-    │   ├── assets/
-    │   │   ├── Banner.png
-    │   │   ├── Provider.png
-    │   │   ├── Statistiken.png
-    │   │   └── Übersicht.png
-    │   └── dbold/                        # ─── DB-Backups (vor P0-Fixes) ───
-    │       ├── translations_2026-06-16.db      # 2.2 MB — 3.047 Einträge, 558 Revisions
-    │       └── translations_2026-06-16.tar.gz  # 653 KB — komprimiert
-    │
-    │
-    │   ══════════════════════════════════════════════
-    │   backups/ — DB-Backups (automatisch)
-    │   ══════════════════════════════════════════════
-    │
-    ├── node_modules/               # [gitignore] npm-Dependencies
-    │
-    ├── backups/
-    │   ├── .backup_3133779397_ORIGINAL/
-    │   ├── .backup_3633565210_ORIGINAL/
-    │   └── .backup_3641940853_ORIGINAL/
-    │
-    │
-    │   ══════════════════════════════════════════════
-    │   .claude/ — KI-Konfiguration
-    │   ══════════════════════════════════════════════
-    │
-    └── .claude/
-        └── settings.local.json         # Claude-Codebuff lokale Settings
+    └── archive/
+        ├── docs/                        # Doku-Archiv + FREEZE-Reports
+        └── backups/                     # DB-Backups (vor P0-Fixes)
 ```
 
 ---
 
 ## 📊 Modul-Übersicht
 
+### Domän-Verteilung
+
+| Domäne | Dateien | Zweck |
+|--------|---------|-------|
+| **DB/** | 10 | Datenbank: Schema, Repair, Audit, Snapshots |
+| **Translation/** | 40 | Übersetzung: Pipeline, Plugins, Providers, Config |
+| **GUI/** | 5 | Web-Interface: Server, Handler, Frontend |
+| **commit-layer/** | 16 | Commit-Narrative: RNG, Charaktere, Plot |
+| **scripts/** | 18 | DevOps: Checks, Build, Release, Vendor |
+| **tests/** | 13 | Test-Suiten: Smoke, E2E, Contract |
+
 ### Pipeline-Phasen (7 Phasen)
 
 | Phase | Modul | Funktion |
 |-------|-------|----------|
-| 1 | `scanner.js` | Mod-Dateien finden, Adapter delegiert |
-| 2 | `parser.js` | Format erkennen (sos/raw/json), Strings extrahieren |
-| 3 | `planner.js` | Batches planen, Progress tracken |
+| 1 | `scanner.js` | Mod-Dateien finden |
+| 2 | `parser.js` | Format erkennen, Strings extrahieren |
+| 3 | `planner.js` | Batches planen |
 | 4 | `dispatcher.js` | Risk-Routing, Provider-Auswahl |
 | 5 | `translation-runtime.js` | LLM-Übersetzung, A/B-Polish |
 | 6 | `validator.js` | Validierung, Placeholder-Restore |
 | 7 | `exporter.js` | Write-Back ins Mod-Format |
-
-### Adapter-Schicht (DI)
-
-| Datei | Rolle |
-|-------|-------|
-| `GameAdapter.js` | Abstrakte Basisklasse — `getParserFormat()`, `classifyFile()`, `isTranslatableFile()`, `scanMod()` |
-| `SongsOfSyxAdapter.js` | Songs of Syx — KEY:value, _Info.txt, Version-Dirs |
-
-### Provider/System
-
-| Datei | Funktion |
-|-------|----------|
-| `router.js` | Route-Plan-Builder + `PROVIDER_CAPABILITIES` Matrix |
-| `model-registry.js` | Modell-Discovery, Argos-Install, Target-Language |
-| `polish-arbiter.js` | Multi-Provider A/B-Polish mit Scoring |
-| `db.js` | SQLite WAL-Mode, Read-Only-Connection, Revisions-Tabelle |
-| `config-runtime.js` | .env-Management, `persistSingleEnvVar()` |
-
-### Test-Coverage
-
-| Suite | Assertions | Status |
-|-------|-----------|--------|
-| `parser_smoke.js` | 26 | ✅ PASS |
-| `gate-counter-smoke.js` | 29 | ✅ PASS |
-| `e2e_p3_risk_scoring.js` | 15 | ✅ PASS |
-| `e2e_p5_sprachauswahl.js` | 31 | ✅ PASS |
-| `e2e_bug1_native_mode.js` | — | ✅ PASS |
 
 ### npm-Skripte
 
@@ -238,7 +249,12 @@ SyxBridge_Live/                     # Root — Deployment-Verzeichnis
 |--------|----------|
 | `npm start` | Bridge starten (CLI-Modus) |
 | `npm run lint` | ESLint |
-| `npm run test:syntax` | Syntax-Check (39 Files) |
-| `npm run test` | Full Pipeline (lint + syntax + redteam + reconstruct) |
-| `npm run package` | Release-Paketierung |
+| `npm test` | Full Pipeline (lint + plugin-boundary + e2e) |
+| `npm run warm-model` | NMT Model-Warmup |
 | `npm run workshop` | Steam-Workshop-Export |
+| `npm run audit:db` | DB-Qualitätsaudit |
+| `npm run release` | Release-Build |
+
+---
+
+*🌳 TREE v0.23.0 — Domän-basierte Struktur nach Phase 1+2 Restructuring*

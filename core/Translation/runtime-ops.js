@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { getGateCounter, createGateCounter, resetGateCounter } = require('./gate-counter');
-const { isDryRun, getGateCounterOpts } = require('./config-runtime');
+const { isDryRun, getGateCounterOpts } = require('./config/config-runtime');
 
 /**
  * BU-004: File-based mutex for the backup-creation critical section.

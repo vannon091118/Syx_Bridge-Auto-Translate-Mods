@@ -35,13 +35,13 @@ const commitMsg = fs.readFileSync(msgFile, 'utf8');
 if (!commitMsg.trim()) { console.error('BLOCKED: Commit-Message ist leer.'); process.exit(1); }
 
 // ─── Abhängigkeiten laden ─────────────────────────────────────────
-const { derive, parseComposite } = require('./commit_lore/rng.js');
+const { derive, parseComposite } = require('./commit_lore/rng');
 
-const compositeChainPath = path.join(repoRoot, 'core/scripts/commit_lore/composite_chain.json');
-const loreArcsPath      = path.join(repoRoot, 'core/scripts/commit_lore/lore_arcs.json');
-const plotchainPath     = path.join(repoRoot, 'core/scripts/commit_lore/plotchain.json');
+const compositeChainPath = path.join(repoRoot, 'core/commit-layer/commit_lore/composite_chain.json');
+const loreArcsPath      = path.join(repoRoot, 'core/commit-layer/commit_lore/lore_arcs.json');
+const plotchainPath     = path.join(repoRoot, 'core/commit-layer/commit_lore/plotchain.json');
 const changelogPath     = path.join(repoRoot, 'CHANGELOG.md');
-const characterSheetsPath = path.join(repoRoot, 'core/scripts/commit_lore/character_sheets.json');
+const characterSheetsPath = path.join(repoRoot, 'core/commit-layer/commit_lore/character_sheets.json');
 
 let characterSheets = null;
 try { if (fs.existsSync(characterSheetsPath)) characterSheets = JSON.parse(fs.readFileSync(characterSheetsPath, 'utf8')); } catch (_) {}

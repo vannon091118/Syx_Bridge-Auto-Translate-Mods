@@ -26,11 +26,11 @@ const {
   extractReplacements,
   protectPlaceholders,
   applyTranslations
-} = require('../core/src/text-core');
+} = require('../core/Translation/text-core');
 
-const { restorePlaceholders, getHash } = require('../core/src/extractor');
+const { restorePlaceholders, getHash } = require('../core/Translation/extractor');
 
-const WATERMARK_CONFIG = require('../core/src/watermark-config');
+const WATERMARK_CONFIG = require('../core/Translation/watermark-config');
 
 const TEST_MODS = [
   {
@@ -204,12 +204,12 @@ async function main() {
     // Initialize DB and runtime
     require('dotenv').config({ path: path.join(__dirname, '..', 'core', '.env'), quiet: true });
     
-    const dbManager = require('../core/src/db');
+    const dbManager = require('../core/DB/db');
     await dbManager.init();
     
-    const Router = require('../core/src/router');
-    const { ConfigRuntime } = require('../core/src/config-runtime');
-    const { createTranslationRuntime } = require('../core/src/translation-runtime');
+    const Router = require('../core/Translation/router');
+    const { ConfigRuntime } = require('../core/Translation/config/config-runtime');
+    const { createTranslationRuntime } = require('../core/Translation/translation-runtime');
     
     const axios = require('axios');
     
@@ -277,9 +277,9 @@ async function main() {
       assessTranslationWarnings,
       stripJsonFence,
       parseBatchResponse
-    } = require('../core/src/text-core');
+    } = require('../core/Translation/text-core');
 
-    const { setupLogging, setDb, logPayload } = require('../core/src/logger');
+    const { setupLogging, setDb, logPayload } = require('../core/Translation/logger');
     setupLogging();
     setDb(dbManager.db());
 

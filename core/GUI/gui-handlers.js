@@ -556,7 +556,7 @@ function registerGuiHandlers(ctx) {
     try {
       let dbRepair;
       try {
-        dbRepair = require('../scripts/db_repair');
+        dbRepair = require('../DB/db_repair');
       } catch (e) {
         console.error('[DB-REPAIR] db_repair.js nicht gefunden — Bitte core/scripts/ aus Git-Historie restaurieren.');
         return callback({ ok: false, error: 'db_repair.js nicht gefunden' });
@@ -616,7 +616,7 @@ function registerGuiHandlers(ctx) {
     else if (type === 'manage-patches') await managePatches();
     else if (type === 'audit-integrity') await runIntegrityAudit();
     else if (type === 'check-db') {
-      const { runDiagnostics } = require('./diagnostics');
+      const { runDiagnostics } = require('../Translation/diagnostics');
       await runDiagnostics();
       const lowQuality = await dbAll('SELECT source_text as source FROM translations WHERE target_lang = ? AND audit_stage < 2 LIMIT 100', [config.TARGET_LANG]);
       if (lowQuality.length > 0) await ensureTranslations(lowQuality, { ...options, forcePolish: true });
@@ -626,7 +626,7 @@ function registerGuiHandlers(ctx) {
       console.log('[GUI] Starte Steam Workshop Export...');
       let exportToWorkshop;
       try {
-        exportToWorkshop = require('../scripts/workshop_export');
+        exportToWorkshop = require('./workshop_export');
       } catch (e) {
         console.error('[WORKSHOP] workshop_export.js nicht gefunden — Bitte core/scripts/ aus Git-Historie restaurieren.');
         return;

@@ -5,9 +5,9 @@
   "description": "AI-powered translation bridge for Songs of Syx mods. Optimized for V71.",
   "main": "index.js",
   "scripts": {
-    "warm-model": "node scripts/warm-model.js",
+    "warm-model": "node Translation/warm-model.js",
     "lint": "eslint . --fix",
-    "test:syntax": "node --check src/**/*.js scripts/**/*.js index.js",
+    "test:syntax": "node scripts/check_syntax.js",
     "test:plugin-boundary": "node tests/plugin-boundary-contract.js",
     "test:e2e": "node tests/e2e_bug1_native_mode.js",
     "testline": "npm run lint && npm run test:plugin-boundary && npm run test:e2e",
@@ -20,9 +20,9 @@
     "fresh-readme:dry": "node scripts/fresh-readme.js --dry-run",
     "consistency": "node scripts/check_consistency.js",
     "package": "node scripts/package.js",
-    "workshop": "node scripts/workshop_export.js",
-    "audit:db": "node scripts/db_audit.js",
-    "verify-watermark": "node scripts/verify_watermark.js"
+    "workshop": "node GUI/workshop_export.js",
+    "audit:db": "node DB/db_audit.js",
+    "verify-watermark": "node Translation/verify_watermark.js"
   },
   "keywords": [
     "songs-of-syx",

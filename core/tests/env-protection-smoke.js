@@ -26,7 +26,7 @@ async function main() {
   // --- TEST 1: readEnvValue exists and is exported ---
   console.log('Test 1: readEnvValue ist exportiert und funktioniert');
 
-  const configRuntime = require('../src/config-runtime');
+  const configRuntime = require('../Translation/config/config-runtime');
   assert(typeof configRuntime.readEnvValue === 'function', 'readEnvValue is exported');
   assert(typeof configRuntime.persistSingleEnvVar === 'function', 'persistSingleEnvVar is exported');
   assert(typeof configRuntime.persistConfigToEnv === 'function', 'persistConfigToEnv is exported');

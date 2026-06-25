@@ -9,22 +9,22 @@ const {
   restoreAndValidateTranslation,
   extractReplacements,
   applyTranslations
-} = require('../src/text-core');
-const { restorePlaceholders } = require('../src/extractor');
-const Router = require('../src/router');
-const { createDispatcher } = require('../src/dispatcher');
-const scanner = require('../src/scanner');
-const validator = require('../src/validator');
+} = require('./text-core');
+const { restorePlaceholders } = require('./extractor');
+const Router = require('./router');
+const { createDispatcher } = require('./dispatcher');
+const scanner = require('./scanner');
+const validator = require('./validator');
 const {
   normalizeTranslationEntry,
   mergeEntryContexts,
   scoreTranslationRisk,
   buildContextPacket
-} = require('../src/context-packets');
+} = require('./context-packets');
 const {
   shouldLearnGlossaryTerm,
   findRelevantGlossaryTerms
-} = require('../src/glossary');
+} = require('./glossary');
 
 function testTextCore() {
   const protectedValue = protectPlaceholders('Hunter %r% <c:FF0000>Ready</c> {0}');

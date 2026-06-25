@@ -21,9 +21,9 @@
  * game plugins (e.g., RimWorldPlugin).
  */
 
-const GameAdapter = require('../src/adapters/GameAdapter');
-const GamePlugin = require('../src/plugins/GamePlugin');
-const SongsOfSyxPlugin = require('../src/plugins/SongsOfSyxPlugin');
+const GameAdapter = require('../Translation/adapters/GameAdapter');
+const GamePlugin = require('../Translation/plugins/GamePlugin');
+const SongsOfSyxPlugin = require('../Translation/plugins/SongsOfSyxPlugin');
 
 let passed = 0, failed = 0;
 const failures = [];

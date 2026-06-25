@@ -272,11 +272,13 @@ konkrete Plugins überschreiben nur was spielspezifisch ist.
 
 > **Neues Spiel hinzufügen (4 Schritte):**
 > 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren (XML/JSON/...)
-> 2. In `plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
+> 2. In `Translation/plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
 > 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
-> 4. Testen via `plugin-boundary-contract.js` (76 dynamische Interface-Checks)
+> 4. Testen via `plugin-boundary-contract.js` (84 dynamische Interface-Checks)
 
 ## 13.2 RimWorld-Status (v0.23 Scope, ~16h)
+
+> RimWorld Plugin: `Translation/plugins/RimWorldPlugin.js`
 
 **FERTIG — Format-Hooks (11 Methoden):**
 - `serializeTranslation` — XML Entity-Escaping + Tag-Wrapping (`<key>escaped</key>`)
@@ -299,7 +301,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 
 ## 13.3 GUI-Architektur
 
-**Server — `gui/server.js` (650 LOC):**
+**Server — `GUI/server.js` (650 LOC):**
 - `GuiServer extends EventEmitter` — HTTP-Server auf `localhost:3000`
 - SSE (Server-Sent Events) für Echtzeit-Logs, Status-Updates, DB-Samples, Payloads
 - 25+ REST-Endpoints: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`,
@@ -309,7 +311,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 - Auto-Shutdown bei Inaktivität (1.5s nach letzter Session-Close)
 - Port-Fallback: EADDRINUSE → Port+1
 
-**Client — `gui/public/app.js` (1517 LOC):**
+**Client — `GUI/public/app.js` (1517 LOC):**
 - `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle)
 - SSE-Verbindung: Echtzeit-Logs + Status-Updates + Provider-Stats + DB-Samples
 - Pipeline-Visualizer (4 Phasen: SCAN → LLM → QA → SAVE)
@@ -323,7 +325,7 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 - Mod-Backups: Liste + Restore
 - Mode-UI: NATIVE vs PATCH Status-Anzeige
 
-**Frontend — `gui/public/index.html`:**
+**Frontend — `GUI/public/index.html`:**
 - Dark-Theme mit CSS-Variablen (--bg, --accent, --success, --danger)
 - 3-Spalten-Layout: Sidebar (Status + Pipeline + Aktionen) | Center (Terminal/DB-Browser + Logs) | Right (Stats + Backups + DB-Stream + FCM)
 - Neon-Progress-Border via SVG (animiert bei laufendem Sync)

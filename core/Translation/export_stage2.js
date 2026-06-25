@@ -37,16 +37,16 @@ const DB_PATH = path.join(__dirname, '..', 'translations.db');
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // ── Imports ──────────────────────────────────────────────────────────────
-const parser = require('../src/parser');
-const exporter = require('../src/exporter');
-const { applyTranslations } = require('../src/text-core');
-const { getHash } = require('../src/extractor');
-const { shouldTranslate } = require('../src/text-core');
-const { validateAndPrepareContent } = require('../src/exporter');
+const parser = require('./parser');
+const exporter = require('./exporter');
+const { applyTranslations } = require('./text-core');
+const { getHash } = require('./extractor');
+const { shouldTranslate } = require('./text-core');
+const { validateAndPrepareContent } = require('./exporter');
 // Dynamic plugin loading via GAME env var (default: songs_of_syx)
-const { createPlugin, DEFAULT_GAME } = require('../src/plugin-registry');
+const { createPlugin, DEFAULT_GAME } = require('./plugin-registry');
 const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
-const { getActiveMods, syncLauncherSettings, parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../src/sos-runtime');
+const { getActiveMods, syncLauncherSettings, parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('./sos-runtime');
 
 let dbRW;  // lazy-init DB-Write-Connection für processed_files (nur bei !DRY_RUN)
 

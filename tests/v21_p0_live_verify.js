@@ -18,9 +18,9 @@ const {
   isProperNoun,
   extractReplacements,
   protectPlaceholders
-} = require('../core/src/text-core');
+} = require('../core/Translation/text-core');
 
-const { restorePlaceholders } = require('../core/src/extractor');
+const { restorePlaceholders } = require('../core/Translation/extractor');
 
 const PASS = '✅';
 const FAIL = '❌';
@@ -194,7 +194,7 @@ try {
 // ── P0-3: Watermark Output-Only verification ───────────────────────
 console.log('\n🔬 P0-3: Watermark Output-Only (code structure check)\n');
 
-const watermarkConfig = require('../core/src/watermark-config');
+const watermarkConfig = require('../core/Translation/watermark-config');
 
 assert('WATERMARK_CONFIG exports ZW_MARKERS',
   Array.isArray(watermarkConfig.ZW_MARKERS) && watermarkConfig.ZW_MARKERS.length > 0);

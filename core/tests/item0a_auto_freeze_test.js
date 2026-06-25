@@ -7,7 +7,7 @@
  * 3. Zweiter Lauf mit geänderter Modell-Verfügbarkeit wählt NEU (nicht gecached)
  * 4. ensureGroqModel() überschreibt PRIMARY_MODEL NICHT mehr permanent
  */
-const { ConfigRuntime, filterLLMs, isUsableTextModel, getDefaultModelForProvider } = require('../src/config-runtime');
+const { ConfigRuntime, filterLLMs, isUsableTextModel, getDefaultModelForProvider } = require('../Translation/config/config-runtime');
 
 // ── Hilfs-Funktion: ConfigRuntime mit gemockten fetch-Methoden ──
 function createMockedRuntime(overrides = {}) {

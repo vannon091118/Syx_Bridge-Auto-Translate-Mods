@@ -7,7 +7,7 @@
  * unexpected marker types, and shield restoration results.
  */
 
-const { validateFileMarkers } = require('../src/validator');
+const { validateFileMarkers } = require('../Translation/validator');
 
 // ── Test Harness ──────────────────────────────────────────────────────────────
 let passed = 0, failed = 0;

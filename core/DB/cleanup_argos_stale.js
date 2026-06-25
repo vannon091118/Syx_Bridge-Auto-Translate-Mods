@@ -16,7 +16,7 @@
  */
 const path = require('path');
 const coreDir = path.join(__dirname, '..');
-const db = require(path.join(coreDir, 'src', 'db'));
+const db = require(path.join(coreDir, 'DB', 'db'));
 
 const QUERY_TIMEOUT_MS = 30000;
 const ARGO_DELETION_SQL = `

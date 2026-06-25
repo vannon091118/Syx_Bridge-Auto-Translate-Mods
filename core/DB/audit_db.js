@@ -1,4 +1,4 @@
-const dbManager = require('../src/db');
+const dbManager = require('./db');
 
 async function audit() {
   try {

@@ -73,7 +73,7 @@ async function main() {
   // ─── Test 1: persistSingleEnvVar ───
   console.log('[TEST 1] persistSingleEnvVar("TARGET_LANG", "French")');
   console.log('─'.repeat(50));
-  const { persistSingleEnvVar } = require('../src/config-runtime');
+  const { persistSingleEnvVar } = require('../Translation/config/config-runtime');
   const writeResult = await persistSingleEnvVar('TARGET_LANG', 'French');
   check('persistSingleEnvVar returns ok', writeResult.written === true);
   check('persistSingleEnvVar echoes key', writeResult.key === 'TARGET_LANG');
@@ -124,7 +124,7 @@ async function main() {
   // ─── Test 2: model-registry LANG_CODES mapping ───
   console.log('[TEST 2] model-registry + LANG_CODES');
   console.log('─'.repeat(50));
-  const { createModelRegistry, SUPPORTED_LANGS, LANG_CODES } = require('../src/model-registry');
+  const { createModelRegistry, SUPPORTED_LANGS, LANG_CODES } = require('../Translation/model-registry');
   // Actual count: German, French, Spanish, Polish, Russian, Italian, Portuguese,
   // Chinese, Japanese, Korean, Ukrainian, Turkish, Dutch, Swedish = 14
   check('(b) SUPPORTED_LANGS has 14 entries', SUPPORTED_LANGS.length === 14,
