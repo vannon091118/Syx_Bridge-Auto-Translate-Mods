@@ -3,9 +3,17 @@
 /**
  * Provider client factory — extracted from translation-runtime.js
  * Contains all 7 LLM/API provider batch functions + executeStageRequest.
+ *
+ * Extrahierte Module (v0.25):
+ *   provider-chat-config.js — PROVIDER_CHAT_CONFIG (7 Provider)
+ *   argos-client.js         — callArgosBatch (Python-Subprozess)
+ *   gemini-utils.js         — buildGeminiSchema + buildGeminiRequest
  */
 
 const { stripWatermarks } = require('../extractor');
+const { getProviderChatConfig } = require('./provider-chat-config');
+const { createArgosClient } = require('./argos-client');
+const { buildGeminiSchema, buildGeminiRequest } = require('./gemini-utils');
 
 function createProviderClients(ctx) {
   const {
@@ -21,75 +29,8 @@ function createProviderClients(ctx) {
 
   // ── Item 4: Provider-Chat-Config ───────────────────────────────────
   // Zentrale Konfiguration für alle OpenAI-kompatiblen Provider.
-  // callChatCompletions() nutzt diese Map für URL, Timeout, Auth, Retry-Verhalten.
-  const PROVIDER_CHAT_CONFIG = {
-    groq: {
-      getUrl: () => 'https://api.groq.com/openai/v1/chat/completions',
-      timeout: 60000,
-      requiresKey: true,
-      authType: 'bearer',
-      handleRateLimits: true,
-      markKeyStatus: true,
-      jsonRetry: true
-    },
-    openrouter: {
-      getUrl: () => 'https://openrouter.ai/api/v1/chat/completions',
-      timeout: 60000,
-      requiresKey: true,
-      authType: 'bearer',
-      extraHeaders: { 'HTTP-Referer': 'https://github.com/vannon/syx-bridge' },
-      handleRateLimits: true,
-      markKeyStatus: true,
-      jsonRetry: true
-    },
-    nvidia: {
-      getUrl: () => 'https://integrate.api.nvidia.com/v1/chat/completions',
-      timeout: 90000,
-      requiresKey: true,
-      authType: 'bearer',
-      handleRateLimits: true,
-      markKeyStatus: true,
-      jsonRetry: true
-    },
-    fcm: {
-      getUrl: () => `${config.FCM_URL || 'http://localhost:19280/v1'}/chat/completions`,
-      timeout: 90000,
-      requiresKey: false,
-      authType: 'none',
-      handleRateLimits: false,
-      markKeyStatus: true,
-      jsonRetry: true,
-      noKeyRotation: true
-    },
-    player2: {
-      getUrl: () => `${config.PLAYER2_URL}/chat/completions`,
-      timeout: 60000,
-      requiresKey: false,
-      authType: 'bearer-optional',
-      handleRateLimits: false,
-      markKeyStatus: false,
-      jsonRetry: false
-    },
-    openai: {
-      getUrl: () => `${config.OPENAI_URL || 'https://api.openai.com/v1'}/chat/completions`,
-      timeout: 60000,
-      requiresKey: true,
-      authType: 'bearer',
-      handleRateLimits: true,
-      markKeyStatus: true,
-      jsonRetry: true
-    },
-    custom_api: {
-      getUrl: () => `${config.CUSTOM_API_URL || 'http://localhost:8080/v1'}/chat/completions`,
-      timeout: 60000,
-      requiresKey: false,
-      authType: 'bearer-optional',
-      handleRateLimits: false,
-      markKeyStatus: true,
-      jsonRetry: true,
-      noKeyRotation: true
-    }
-  };
+  // Extrahiert nach provider-chat-config.js (v0.25).
+  const PROVIDER_CHAT_CONFIG = getProviderChatConfig(config);
 
   // P0-1 DEFENSE-IN-DEPTH: Strip invisible Unicode watermarks (ZWSP/ZWNJ)
   // alongside whitespace normalization. This is the last line of defense —
@@ -116,31 +57,7 @@ function createProviderClients(ctx) {
   // getBatchProfile() nutzt PROVIDER_REGISTRY[provider].limits als Base.
   const { PROVIDER_REGISTRY: _PROVIDER_REGISTRY, isFreeModel: _isFreeModel } = require('../router');
 
-  function buildGeminiSchema(expectedCount, mode = 'text') {
-    const itemType = mode === 'flags' ? 'boolean' : 'string';
-    return {
-      type: 'array',
-      minItems: expectedCount,
-      maxItems: expectedCount,
-      items: { type: itemType }
-    };
-  }
-
-  function buildGeminiRequest(prompt, mode = 'text', expectedCount = 0) {
-    const request = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: mode === 'flags' ? 0 : 0.1
-      }
-    };
-    
-    if (expectedCount > 0) {
-      request.generationConfig.responseMimeType = 'application/json';
-      request.generationConfig.responseSchema = buildGeminiSchema(expectedCount, mode);
-    }
-    
-    return request;
-  }
+  // buildGeminiSchema + buildGeminiRequest importiert von gemini-utils.js (v0.25)
 
   // ── Item 5+8: getBatchProfile — dynamisch via f(quota, success, modelSize) ──
   // Alte hardcodierte if/else-Kette (15 Branches, per-Modell: NVIDIA=3-5, Groq=4-6,
@@ -428,100 +345,8 @@ function createProviderClients(ctx) {
     }
   }
 
-  // Item 4: callGroqBatch + callOpenRouterBatch ENTFERNT — callProvider('groq', ...) / callProvider('openrouter', ...) nutzen.
-
-  async function callArgosBatch(texts) {
-    const tl = langCodes[config.TARGET_LANG] || 'de';
-    console.log(`[INFO] Argos Translate Local (${texts.length} Texte)...`);
-        
-    // BU-020: Refactored from spawnSync to async spawn so AbortController
-    // can kill the Python subprocess on Ctrl+C. spawnSync blocks the Node.js
-    // event loop for 30+ seconds, making SIGINT handling impossible.
-    const { spawn } = require('child_process');
-    const payload = JSON.stringify({ texts, target_lang: tl });
-    const b64Payload = Buffer.from(payload).toString('base64');
-            
-    const pythonScript = `
-import argostranslate.translate, base64, json, sys
-
-try:
-    data = json.loads(base64.b64decode('${b64Payload}').decode('utf-8'))
-    texts = data['texts']
-    tl = data['target_lang']
-    
-    results = []
-    for text in texts:
-        results.append(argostranslate.translate.translate(text, 'en', tl))
-    
-    print(json.dumps(results))
-except Exception as e:
-    print(json.dumps({"error": str(e)}))
-    sys.exit(1)
-`.trim();
-
-    return new Promise((resolve, reject) => {
-      const pythonProcess = spawn('python', ['-'], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
-
-      let stdout = '';
-      let stderr = '';
-
-      pythonProcess.stdout.on('data', (data) => { stdout += data.toString(); });
-      pythonProcess.stderr.on('data', (data) => { stderr += data.toString(); });
-
-      pythonProcess.on('error', (err) => {
-        reject(new Error(`Argos Python spawn failed: ${err.message}`, { cause: err }));
-      });
-
-      pythonProcess.on('close', (code) => {
-        if (code !== 0) {
-          reject(new Error(stderr || `Argos Python exited with code ${code}`));
-          return;
-        }
-        try {
-          const results = JSON.parse(stdout.trim());
-          if (results.error) {
-            reject(new Error(results.error));
-          } else {
-            resolve(results);
-          }
-        } catch (e) {
-          reject(new Error(`Argos Translate fehlgeschlagen: ${e.message}`, { cause: e }));
-        }
-      });
-
-      // BU-020: Kill Python subprocess when AbortController fires.
-      const signal = getAbortSignal();
-      if (signal.aborted) {
-        pythonProcess.kill();
-        reject(new Error('ABORTED'));
-        return;
-      }
-      signal.addEventListener('abort', () => {
-        pythonProcess.kill();
-        reject(new Error('ABORTED'));
-      }, { once: true });
-
-      // Adaptive timeout: 30s base + 2s per text
-      const timeout = setTimeout(() => {
-        pythonProcess.kill();
-        reject(new Error(`Argos Batch timed out after ${30000 + (texts.length * 2000)}ms`));
-      }, 30000 + (texts.length * 2000));
-
-      // Clean up timeout on completion
-      pythonProcess.on('close', () => clearTimeout(timeout));
-
-      pythonProcess.stdin.write(pythonScript);
-      pythonProcess.stdin.end();
-    }).catch((e) => {
-      // BU-020: Don't log ABORTED as a failure — it's expected user behavior.
-      if (e.message !== 'ABORTED') {
-        console.warn(`[!] Argos Translate Batch fehlgeschlagen: ${e.message}`);
-      }
-      throw e;
-    });
-  }
+  // callArgosBatch → core/Translation/providers/argos-client.js (v0.25)
+  const callArgosBatch = createArgosClient({ targetLang: config.TARGET_LANG, langCodes, getAbortSignal });
 
   async function callGoogleTranslateFree(texts) {
     const tl = langCodes[config.TARGET_LANG] || 'de';

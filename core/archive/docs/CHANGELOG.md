@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-26 00:07:28] Provider-Module extrahiert: provider-chat-config, argos-client, gemini-utils. 772 auf 537 LOC.
+**Narrator:** Sage | **Model:** deepseek-v4-pro | **Composite:** `c60j58n14a3p25`
+- 6 Datei(en) geändert.
+
 ### [2026-06-26 00:02:18] buildSubject() mit 14 Erzaehler-Titelstilen. resolvePlaceholders() macht 55 Template-Eintraege nutzbar. Keine 150-Zeichen-Titel mehr, keine toten Sidejokes.
 **Narrator:** Basher | **Model:** deepseek-v4-pro | **Composite:** `c59j40n2a3p49`
 - 2 Datei(en) geändert.

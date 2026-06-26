@@ -1,13 +1,14 @@
-# 📖 INDEX — core/src/providers/ (1 Datei, 754 LOC)
+# 📖 INDEX — core/src/providers/ (4 Dateien, ~690 LOC)
 
-> **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-06-22 | **Version:** v0.21.0-untested
+> **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-06-26 | **Version:** v0.25.0
 > **Zweck:** Referenzbuch für die Provider-Schicht (zentrale callProvider-Dispatch)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
 ---
 
-## client-factory.js (~750 LOC)
+## client-factory.js (~537 LOC)
 *Provider-Client-Factory: Zentraler callProvider-Dispatch + executeStageRequest*
+> **v0.25 Extraktion:** `PROVIDER_CHAT_CONFIG` → provider-chat-config.js, `callArgosBatch` → argos-client.js, `buildGeminiSchema`/`buildGeminiRequest` → gemini-utils.js
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
@@ -17,8 +18,8 @@
 | 159 | `handleRateLimits(provider, headers)` | Rate-Limit-Handling + adaptive Batch-Multiplikator |
 | 188 | `async callChatCompletions(provider, items, modelOverride, attemptCount)` | **Generischer OpenAI-kompatibler Batch-Client** (groq, openrouter, nvidia, fcm, player2) |
 | 302 | `async callProvider(provider, items, modelOverride)` | **Zentraler Dispatcher** — dispatcht zu callChatCompletions, callGeminiBatch oder callOllamaBatch |
-| 308 | `async callGeminiBatch(items, modelOverride, attemptCount)` | **Gemini** Batch-Client (generateContent-API) |
-| 348 | `async callArgosBatch(texts)` | **Argos** Translate-Client (async spawn, BU-020) |
+| 322 | `async callGeminiBatch(items, modelOverride, attemptCount)` | **Gemini** Batch-Client — nutzt `buildGeminiSchema` + `buildGeminiRequest` aus gemini-utils.js |
+| 348 | `async callArgosBatch(texts)` → `createArgosClient()` aus argos-client.js | **Argos** Translate-Client (Factory, async spawn, BU-020) |
 | 428 | `async callGoogleTranslateFree(texts)` | **Google Free** Translate-Client |
 | 460 | `async callOllamaBatch(items, modelOverride, attemptCount)` | **Ollama** Batch-Client (/api/chat-Format) |
 | 514 | `async executeStageRequest(stage, route, prompt, options, attemptCount)` | **Stage-Executor** — dispatcht zu korrektem Provider |
@@ -35,4 +36,32 @@
 
 ---
 
-*📖 Provider-INDEX v0.21.0 — 1 Datei, ~750 LOC, 12 Funktionen, zentraler callProvider-Dispatch*
+## provider-chat-config.js (~80 LOC)
+*Extrahiert aus client-factory.js (v0.25) — 7-Provider-Chat-Config als Factory*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 1 | `getProviderChatConfig(config)` | **Factory** — liefert PROVIDER_CHAT_CONFIG mit live config-Referenzen |
+
+---
+
+## argos-client.js (~61 LOC)
+*Extrahiert aus client-factory.js (v0.25) — Argos Translate Batch-Client*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 1 | `createArgosClient({ targetLang, langCodes, getAbortSignal })` | **Factory** — liefert `callArgosBatch(texts)` |
+
+---
+
+## gemini-utils.js (~19 LOC)
+*Extrahiert aus client-factory.js (v0.25) — Gemini Schema + Request Builder*
+
+| Zeile | Funktion | Beschreibung |
+|-------|----------|--------------|
+| 1 | `buildGeminiSchema(expectedCount, mode)` | Gemini responseSchema bauen (text/flag-Mode) |
+| 12 | `buildGeminiRequest(prompt, mode, expectedCount)` | Gemini API-Request-Body bauen |
+
+---
+
+*📖 Provider-INDEX v0.25.0 — 4 Dateien, ~690 LOC, 15 Funktionen*

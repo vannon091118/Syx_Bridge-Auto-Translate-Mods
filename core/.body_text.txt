@@ -1,3 +1,8 @@
-author_system.js: buildSubject() — Jeder Erzaehler hat jetzt einen eigenen Titelstil. Basher mit Datei-Count, Ghost mit "verzeichnet:", Glitch mit "ermittelt:", Squizzle mit "s Fall:", Echo mit "erinnert:", Spark mit "entdeckt:", Sage mit "lehrt:", etc. Impulse-Text wird auf ~50 Zeichen gekuerzt. Keine 150-Zeichen-Titel mehr.
+3 Quick-Wins aus client-factory.js extrahiert: provider-chat-config.js (80 LOC), argos-client.js (61 LOC), gemini-utils.js (19 LOC). 772 LOC auf 537 LOC reduziert. INDEX.md auf 4 Dateien aktualisiert.
 
-resolvePlaceholders() — FILE, COUNT, HASH, DATE, TIME und 50 weitere Platzhalter-Typen werden VOR der Filterung mit echten Werten befuellt: erster gestagter Dateiname, Commit-Hash, aktuelle Zeit, etc. Die 55 Template-Eintraege im Sidejoke-Pool sind jetzt nutzbar statt totes Gewicht. Syntax OK, alle Tests gruen.
+Details:
+- provider-chat-config.js: getProviderChatConfig(config) — 7-Provider-Chat-Config als Factory mit live config-Referenzen
+- argos-client.js: createArgosClient({ targetLang, langCodes, getAbortSignal }) — Argos Translate Batch-Client via async Python spawn
+- gemini-utils.js: buildGeminiSchema + buildGeminiRequest — reine Funktionen, null Dependencies
+- client-factory.js: 3 neue requires, exportierte Code-Blocks entfernt, nur Factory-Aufrufe verbleiben
+- INDEX.md: von 1 auf 4 Dateien aktualisiert, LOC-Tracking korrigiert
