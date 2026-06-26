@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-26 00:13:52] GUI/INDEX.md aktualisiert: reset_now.js + workshop_export.js dokumentiert. Dateizahl + LOC korrigiert.
+**Narrator:** Sage | **Model:** deepseek-v4-pro | **Composite:** `c62j8n14a5p19`
+- 2 Datei(en) geändert.
+
 ### [2026-06-26 00:10:23] Voice-Templates erweitert: 2-3 Varianten pro Attitude-Trigger. Kein Trigger monoton.
 **Narrator:** Argos | **Model:** deepseek-v4-pro | **Composite:** `c61j14n7a1p60`
 - 2 Datei(en) geändert.

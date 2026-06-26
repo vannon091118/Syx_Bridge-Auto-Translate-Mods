@@ -1,23 +1,25 @@
-# 📖 INDEX — core/GUI/ (10 Dateien, ~2.500 LOC)
+# 📖 INDEX — core/GUI/ (14 Dateien, ~3.970 LOC)
 
-> **Generiert:** 2026-06-26 | **Version:** v0.24.0
+> **Generiert:** 2026-06-26 | **Version:** v0.25.0
 > **Zweck:** Referenzbuch für die GUI-Schicht (HTTP-Server + Client-Dashboard)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
 ---
 
-## Struktur (modularisiert v0.24.0)
+## Struktur (modularisiert v0.25.0)
 
 ```
 core/GUI/
 ├── server.js              # GuiServer-Klasse (Infrastruktur: SSE, Sessions, Log-Watcher)
 ├── server-routes.js       # Alle 17 HTTP-Routen-Handler (extrahiert aus server.js)
-├── gui-handlers.js        # Backend-Event-Handler (~540 LOC, 2 Extraktionen)
+├── gui-handlers.js        # Backend-Event-Handler (~550 LOC, 2 Extraktionen)
 ├── run-evaluation.js      # computeRunEvaluation() + RUN_CATEGORY_DESCRIPTIONS (extrahiert aus gui-handlers.js)
 ├── backup-utils.js        # readDisplayName() + restoreBackup() + collectAllFiles() (extrahiert aus gui-handlers.js)
+├── reset_now.js           # Vollständiger programmatischer Reset (5 Steps: Restore → Clean → DB)
+├── workshop_export.js     # Steam Workshop Uploader Export (BridgeCore → WorkshopContent)
 ├── INDEX.md               # Dieses Dokument
 ├── public/
-│   ├── index.html         # Dashboard-Layout + CSS (lädt Module in Abhängigkeitsreihenfolge)
+│   ├── index.html         # Dashboard-Layout + CSS (885 LOC, lädt Module in Abhängigkeitsreihenfolge)
 │   ├── app.js             # Bootstrap: Lifecycle-Init, Intervals, Window-Exports
 │   └── modules/
 │       ├── state.js       # Geteilter State + DOM-Refs + Konstanten
@@ -47,7 +49,7 @@ core/GUI/
 
 ---
 
-## server-routes.js (~290 LOC) — HTTP-Routen-Handler
+## server-routes.js (~394 LOC) — HTTP-Routen-Handler
 *Funktion: `registerRoutes(server)` — gibt `handleRequest(req, res)` zurück, registriert im `http.createServer`*
 
 | Endpoint | Methode | Emittiertes Event | Beschreibung |
@@ -105,6 +107,36 @@ core/GUI/
 | `collectAllFiles(dir, baseDir)` | Sammelt alle Dateien in einem Verzeichnis (rekursiv) |
 
 **Importiert von:** `gui-handlers.js`, `index.js`, `reset_now.js`
+
+---
+
+## reset_now.js (~207 LOC) — Programmgesteuerter Full-Reset
+*Kein GUI-Call — standalone CLI-Skript. Spiegelt `fullReset()` aus `core/index.js`. Non-interactive — auto-confirms.*
+
+| Schritt | Funktion | Beschreibung |
+|---------|----------|--------------|
+| Init | `main()` | Lädt Config aus `.env`, prüft MOD_ROOT/GAME_MOD_ROOT |
+| Step 1 | `restoreAllBackups()` | Stellt jedes `.backup_*_ORIGINAL` via `restoreBackup()` wieder her |
+| Step 2 | `cleanGameModRoot()` | Entfernt `_TARGET_LANG`-Mods, `BridgeCore`, `.backup_*`-Dirs |
+| Step 3 | `cleanLocalDirs()` | Löscht `core/patches/` + `core/backups/` |
+| Step 4 | `cleanLauncherSettings()` | Bereinigt `LauncherSettings.txt` via `parseSoSConfig()` |
+| Step 5 | `cleanDbProcessedFiles()` | `DELETE FROM processed_files` (translations bleiben erhalten) |
+
+**Importiert:** `backup-utils.js` (restoreBackup), `sos-runtime.js` (parseSoSConfig/stringifySoSConfig), `DB/db.js`
+> **Wichtig:** Non-interactive — auto-confirms. Nur nach expliziter User-Zustimmung ausführen.
+
+---
+
+## workshop_export.js (~55 LOC) — Steam Workshop Uploader Export
+*Kopiert BridgeCore nach `%APPDATA%/songsofsyx/mods-uploader/WorkshopContent/AI_Bridge_Core`.*
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `exportToWorkshop()` | Kopiert BridgeCore rekursiv in Uploader-Verzeichnis, überschreibt alten Export |
+| `ensureDir(dir)` | Erstellt Verzeichnis falls nicht vorhanden |
+| `copyRecursive(src, dest)` | Rekursives Kopieren (Ordner + Dateien) |
+
+**Verwendung:** `node core/GUI/workshop_export.js` oder `require('./workshop_export')()`
 
 ---
 
@@ -203,6 +235,6 @@ core/GUI/
 
 ---
 
-*📖 GUI-INDEX v0.24.0 — 10 Dateien, ~2.500 LOC. Extraktionen: server-routes.js, run-evaluation.js, backup-utils.js. Client: 5 Module + Bootstrap.*
+*📖 GUI-INDEX v0.25.0 — 14 Dateien, ~3.970 LOC. Extraktionen: server-routes.js, run-evaluation.js, backup-utils.js. Client: 5 Module + Bootstrap. Neu: reset_now.js + workshop_export.js dokumentiert.*
 
-> **Letztes Update:** 2026-06-26 — run-evaluation.js + backup-utils.js aus gui-handlers.js extrahiert
+> **Letztes Update:** 2026-06-26 — reset_now.js + workshop_export.js in INDEX aufgenommen, Dateizahl/LOC korrigiert
