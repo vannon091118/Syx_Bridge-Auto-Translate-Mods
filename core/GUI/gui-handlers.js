@@ -479,22 +479,15 @@ function registerGuiHandlers(ctx) {
 
   global.guiServer.on('run-db-repair', async (callback) => {
     try {
-      let dbRepair;
-      try {
-        dbRepair = require('../DB/db_repair');
-      } catch (e) {
-        console.error('[DB-REPAIR] db_repair.js nicht gefunden — Bitte core/scripts/ aus Git-Historie restaurieren.');
-        return callback({ ok: false, error: 'db_repair.js nicht gefunden' });
-      }
+      const { createAdminDb } = require('../DB/admin-db');
+      const adminDb = createAdminDb(dbManager);
 
       let totalFixed = 0;
-      // Run all 5 repair functions (skip orphanedRevisions — rare, separate audit)
-      // dbRun (= dbManager.run) returns { changes } — exactly what repair functions expect
-      const r1 = await dbRepair.repairNativeStale(dbRun);
-      const r2 = await dbRepair.repairUnflaggedStale(dbRun);
-      const r3 = await dbRepair.repairShieldLeaks(dbRun);
-      const r4 = await dbRepair.repairLowScore(dbRun);
-      const r5 = await dbRepair.repairJavaNoise(dbRun);
+      const r1 = await adminDb.repairNativeStale();
+      const r2 = await adminDb.repairUnflaggedStale();
+      const r3 = await adminDb.repairShieldLeaks();
+      const r4 = await adminDb.repairLowScore();
+      const r5 = await adminDb.repairJavaNoise();
       totalFixed = r1 + r2 + r3 + r4 + r5;
 
       console.log(`[DB-REPAIR] GUI-Repair: ${totalFixed} Eintraege repariert (nativeStale=${r1}, unflaggedStale=${r2}, shieldLeaks=${r3}, lowScore=${r4}, javaNoise=${r5})`);

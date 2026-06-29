@@ -2918,5 +2918,60 @@
         "file": "tests/v21_p0_live_verify.js"
       }
     ]
+  },
+  {
+    "p_id": "p73",
+    "id": "plot-2026-06-29T13:56:28",
+    "timestamp": "2026-06-29 13:56:28",
+    "summary": "PREF-IGNORE-FIX: 5 Routing-Bugs (hasAccess Ollama-Auto-Allow, pickBestFromPool +50 Boost, lowRiskPool+Ollama, findBestModel Fuzzy-Match, buildRoutePlan Warnung). DB-PERSISTENZ-VERTEILUNG: 3 Domain-DAOs (mod-tracker-db, run-metrics-db, admin-db) aus 8 Consumern extrahiert + DI-Refactoring.",
+    "narrator": "Sage",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c68j47n14a1p51",
+    "ref_to": "plot-2026-06-26T00:32:36",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "core/DB/admin-db.js"
+      },
+      {
+        "file": "core/DB/db_repair.js"
+      },
+      {
+        "file": "core/DB/mod-tracker-db.js"
+      },
+      {
+        "file": "core/DB/run-metrics-db.js"
+      },
+      {
+        "file": "core/GUI/gui-handlers.js"
+      },
+      {
+        "file": "core/GUI/reset_now.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/Translation/diagnostics.js"
+      },
+      {
+        "file": "core/Translation/dispatcher.js"
+      },
+      {
+        "file": "core/Translation/live1_dryrun.js"
+      },
+      {
+        "file": "core/Translation/planner.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      },
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/index.js"
+      }
+    ]
   }
 ]

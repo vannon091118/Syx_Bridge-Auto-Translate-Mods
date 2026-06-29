@@ -10,6 +10,10 @@ const Planner = require('./Translation/planner');
 const exporter = require('./Translation/exporter');
 const UI = require('./Translation/ui');
 const dbManager = require('./DB/db');
+// DB-Persistenz-Verteilung (v0.24): Domain-DAOs statt direktem db.js-Import
+const { createModTrackerDb } = require('./DB/mod-tracker-db');
+const { createRunMetricsDb } = require('./DB/run-metrics-db');
+const { createAdminDb } = require('./DB/admin-db');
 const { createRuntimeOps } = require('./Translation/runtime-ops');
 // BU-002: SongsOfSyxPlugin extends GameAdapter and exposes the full
 // Songs-of-Syx surface (metadata, version dirs, classifyFile, formatMetadata, ...).
@@ -902,6 +906,20 @@ async function main() {
   });
 
   const planner = createRuntimePlanner();
+
+  // ── DB-Persistenz-Verteilung (v0.24): Domain-DAOs instanziieren ─────
+  const modTrackerDb = createModTrackerDb(dbManager);
+  const runMetricsDb = createRunMetricsDb(dbManager);
+  const adminDb = createAdminDb(dbManager);
+
+  // Inject DAOs into planner (replaces direct db.js dependency)
+  planner.modTrackerDb = modTrackerDb;
+  planner.runMetricsDb = runMetricsDb;
+
+  // Expose DAOs globally for GUI / diagnostics / repair access
+  global._modTrackerDb = modTrackerDb;
+  global._runMetricsDb = runMetricsDb;
+  global._adminDb = adminDb;
 
   // 2. GUI Mode Setup
   let guiIdlePromise = null;

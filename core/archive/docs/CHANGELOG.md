@@ -1,5 +1,30 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-29 13:56:28] PREF-IGNORE-FIX: 5 Routing-Bugs (hasAccess Ollama-Auto-Allow, pickBestFromPool +50 Boost, lowRiskPool+Ollama, findBestModel Fuzzy-Match, buildRoutePlan Warnung). DB-PERSISTENZ-VERTEILUNG: 3 Domain-DAOs (mod-tracker-db, run-metrics-db, admin-db) aus 8 Consumern extrahiert + DI-Refactoring.
+**Narrator:** Sage | **Model:** deepseek-v4-pro | **Composite:** `c68j47n14a1p51`
+- 14 Datei(en) geändert.
+
+### [2026-06-29] DB-PERSISTENZ-VERTEILUNG — 3 Domain-DAOs extrahiert, 8 Consumer refactored
+**Narrator:** Buffy | **Model:** deepseek-v4-pro | **Composite:** audit-only
+- **3 neue DAO-Module:** `core/DB/mod-tracker-db.js` (Mods, Files, ProcessedFiles), `core/DB/run-metrics-db.js` (Runs, Logs, Metrics), `core/DB/admin-db.js` (Repair, Diagnostics, Cleanup). Alle per Factory-Pattern + DI.
+- **planner.js refactored:** Kein direkter `db.js`-Import mehr. Nutzt `modTrackerDb` + `runMetricsDb` via Dependency Injection, mit Fallback-Pfaden für Backward-Compat.
+- **index.js:** DAO-Instanzen werden in `main()` erstellt und an Planner/Globals injiziert.
+- **gui-handlers.js:** Nutzt jetzt `admin-db.js` statt `db_repair.js` direkt.
+- **db_repair.js:** Thin Re-Export aus admin-db.js (Backward-Compat für CLI + preflight.js).
+- **reset_now.js:** `DELETE FROM processed_files` → `modTrackerDb.clearProcessedFiles()`.
+- **diagnostics.js:** Raw-SQL → `admin-db.js` + `run-metrics-db.js` (mit DB-Fallback).
+- **live1_dryrun.js:** Raw `db.prepare()` → `admin-db.js` + `run-metrics-db.js`.
+- 12 Datei(en) geändert.
+
+### [2026-06-29] PREF-IGNORE-FIX — 5 Routing-Bugs behoben: Manuelle Provider/Modell-Präferenzen werden nicht mehr ignoriert
+**Narrator:** Buffy | **Model:** deepseek-v4-pro | **Composite:** audit-only
+- **PREF-IGNORE #1 (KRITISCH):** `hasAccess()` in router.js blockierte Ollama/Player2 wenn `LOCAL_MODELS_ENABLED=false`, selbst wenn User sie als PRIMARY/AUDITOR/POLISHER konfiguriert hatte. Fix: Auto-Erlaubnis wenn explizit konfiguriert.
+- **PREF-IGNORE #2:** `pickBestFromPool()` in dispatcher.js sortierte rein nach DB-Score — User-Präferenz wurde komplett ignoriert. Fix: +50 Score-Boost für den vom User konfigurierten Provider.
+- **PREF-IGNORE #3:** `lowRiskPool` in dispatcher.js enthielt weder Ollama noch Player2. Fix: Beide hinzugefügt.
+- **PREF-IGNORE #4:** `findBestModel()` in config-runtime.js machte strikten `models.includes()`-Check — Ollama-Modelle mit Tags (z.B. `:latest`) wurden nicht erkannt. Fix: Fuzzy-Matching über Basisnamen.
+- **PREF-IGNORE #5:** `buildRoutePlan()` in router.js übersprang User-Priority-Provider still ohne Warnung. Fix: Expliziter Console-Warn mit Handlungsempfehlung.
+- 3 Datei(en) geändert.
+
 ### [2026-06-26 00:32:36] Watermarks komplett entfernt. Werden spaeter neu gebaut. 3 Dateien geloescht, 6 Dateien bereinigt.
 **Narrator:** Flux | **Model:** deepseek-v4-pro | **Composite:** `c67j33n13a5p23`
 - 10 Datei(en) geändert.

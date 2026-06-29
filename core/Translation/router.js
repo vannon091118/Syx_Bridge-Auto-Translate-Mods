@@ -232,9 +232,20 @@ class Router {
     // Custom API: accessible when enabled and URL is configured
     if (id === 'custom_api') return isEnabledFlag(this.config.CUSTOM_API_ENABLED, true) && !!this.config.CUSTOM_API_URL;
     // Lokale LLM-Modelle (Ollama, Player2) nur mit explizitem Opt-in
-    // (Hardware-Schutz: lokale LLMs können GPU/CPU überlasten)
+    // (Hardware-Schutz: lokale LLMs können GPU/CPU überlasten).
+    // BUGFIX (PREF-IGNORE #1): Wenn der User Ollama/Player2 EXPLIZIT als
+    // PRIMARY_PROVIDER, AUDITOR_PROVIDER oder POLISHER_PROVIDER konfiguriert hat,
+    // wird der Zugriff automatisch erlaubt — auch ohne LOCAL_MODELS_ENABLED=true.
+    // Verhindert stillen Fallback auf Cloud-Provider wenn der User bewusst
+    // ein lokales Modell gewählt hat.
     if (id === 'ollama' || id === 'player2') {
-      if (!isEnabledFlag(this.config.LOCAL_MODELS_ENABLED, false)) return false;
+      const isExplicitlyConfigured =
+        this.config.PRIMARY_PROVIDER === id ||
+        this.config.AUDITOR_PROVIDER === id ||
+        this.config.POLISHER_PROVIDER === id;
+      if (!isExplicitlyConfigured && !isEnabledFlag(this.config.LOCAL_MODELS_ENABLED, false)) {
+        return false;
+      }
       if (id === 'player2') return isEnabledFlag(this.config.PLAYER2_ENABLED, false);
       return true;
     }
@@ -502,7 +513,26 @@ class Router {
       const inCooldown = providerStatus.cooldownUntil && providerStatus.cooldownUntil > Date.now();
 
       // Hard-skip only if truly inaccessible (no key / user-disabled)
-      if (!this.hasAccess(providerId) || providerStatus.enabled === false) continue;
+      // BUGFIX (PREF-IGNORE #5): Wenn der User-konfigurierte Provider
+      // übersprungen wird, explizit warnen statt stillen Fallback.
+      if (!this.hasAccess(providerId) || providerStatus.enabled === false) {
+        if (providerId === userProvider) {
+          const noAccess = !this.hasAccess(providerId);
+          let reason, fixHint;
+          if (noAccess && (providerId === 'ollama' || providerId === 'player2')) {
+            reason = 'Lokaler LLM-Provider geblockt';
+            fixHint = 'Setze LOCAL_MODELS_ENABLED=true in .env um lokale LLMs freizuschalten.';
+          } else if (noAccess) {
+            reason = 'Kein API-Key oder Provider deaktiviert';
+            fixHint = `Pruefe ${providerId.toUpperCase()}_KEY in .env oder ${providerId.toUpperCase()}_ENABLED-Flag.`;
+          } else {
+            reason = 'Provider ist deaktiviert (Fehler/Cooldown)';
+            fixHint = 'Provider erholt sich automatisch nach Cooldown-Phase.';
+          }
+          console.warn(`[ROUTER] User-konfigurierter Provider "${providerId}" nicht verfuegbar: ${reason}. ${fixHint}`);
+        }
+        continue;
+      }
 
       // 429-LOOP-FIX v2: Erweiterte Provider-Skip-Logik.
       // 1. flaggedForReview + 429: Wiederholter Rate-Limit — Provider ist noch enabled

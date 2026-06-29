@@ -9,6 +9,9 @@ const path = require('path');
 const fs = require('fs');
 const { createPreflight } = require('../DB/preflight');
 const dbManager = require('../DB/db');
+// DB-Persistenz-Verteilung (v0.24): Domain-DAOs statt direktem db.js-Import
+const { createRunMetricsDb } = require('../DB/run-metrics-db');
+const { createAdminDb } = require('../DB/admin-db');
 
 let pass = 0, fail = 0;
 function check(name, ok, detail) {
@@ -34,8 +37,9 @@ async function run() {
   // ── 2. DB Schema ─────────────────────────────────────
   console.log('\n📊 DB Schema & State\n');
   try {
-    const db = dbManager.db();
-    const cols = db.prepare('PRAGMA table_info(translations)').all();
+    const runMetricsDb = createRunMetricsDb(dbManager);
+    const adminDb = createAdminDb(dbManager);
+    const cols = await runMetricsDb.getTableColumns('translations');
     const colNames = cols.map(c => c.name);
     check('translations table exists', cols.length > 0, `${cols.length} columns`);
     check('Has source_text', colNames.includes('source_text'));
@@ -45,30 +49,30 @@ async function run() {
     check('Has quality_score', colNames.includes('quality_score'));
     check('Has audit_stage', colNames.includes('audit_stage'));
 
-    const total = db.prepare('SELECT COUNT(*) as c FROM translations').get();
-    const flagged = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flagged = 1').get();
-    const stale = db.prepare('SELECT COUNT(*) as c FROM translations WHERE translation = source_text').get();
-    const pendingP = db.prepare('SELECT COUNT(*) as c FROM translations WHERE polish_status = \'pending\'').get();
-    const failedP = db.prepare('SELECT COUNT(*) as c FROM translations WHERE polish_status = \'failed\'').get();
-    const avgQ = db.prepare('SELECT ROUND(AVG(quality_score),1) as a FROM translations').get();
-    const shieldL = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flag_reason = \'shield_leak\'').get();
-    const critR = db.prepare('SELECT COUNT(*) as c FROM translations WHERE flag_reason = \'critical_reject\'').get();
+    const total = await adminDb.getTranslationCount();
+    const flagged = await adminDb.getFlaggedCount();
+    const stale = await adminDb.getStaleCount();
+    const pendingP = await adminDb.getPendingPolishCount();
+    const failedP = await adminDb.getFailedPolishCount();
+    const avgQ = await adminDb.getAverageQualityScore();
+    const shieldL = await adminDb.getShieldLeakCount();
+    const critR = await adminDb.getCriticalRejectCount();
 
     console.log('\n  📈 DB Metrics:');
-    console.log(`    Total entries:     ${total.c}`);
-    console.log(`    Flagged:           ${flagged.c} (${(flagged.c/total.c*100).toFixed(1)}%)`);
-    console.log(`    Stale (src=tgt):   ${stale.c}`);
-    console.log(`    Pending Polish:    ${pendingP.c}`);
-    console.log(`    Failed Polish:     ${failedP.c}`);
-    console.log(`    Avg Quality Score: ${avgQ.a}`);
-    console.log(`    Shield Leaks:      ${shieldL.c}`);
-    console.log(`    Critical Rejects:  ${critR.c}`);
+    console.log(`    Total entries:     ${total}`);
+    console.log(`    Flagged:           ${flagged} (${(flagged/total*100).toFixed(1)}%)`);
+    console.log(`    Stale (src=tgt):   ${stale}`);
+    console.log(`    Pending Polish:    ${pendingP}`);
+    console.log(`    Failed Polish:     ${failedP}`);
+    console.log(`    Avg Quality Score: ${avgQ}`);
+    console.log(`    Shield Leaks:      ${shieldL}`);
+    console.log(`    Critical Rejects:  ${critR}`);
 
     // Quality checks
-    check('DB has entries', total.c > 0, `${total.c} total`);
-    check('Pending Polish < 50%', pendingP.c < total.c * 0.5, `${pendingP.c}/${total.c}`);
-    check('No shield_leaks in DB', shieldL.c === 0, `${shieldL.c} found`);
-    check('No critical_rejects', critR.c === 0, `${critR.c} found`);
+    check('DB has entries', total > 0, `${total} total`);
+    check('Pending Polish < 50%', pendingP < total * 0.5, `${pendingP}/${total}`);
+    check('No shield_leaks in DB', shieldL === 0, `${shieldL} found`);
+    check('No critical_rejects', critR === 0, `${critR} found`);
   } catch (e) {
     check('DB Schema check', false, e.message);
   }

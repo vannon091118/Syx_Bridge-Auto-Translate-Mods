@@ -30,6 +30,7 @@ const path = require('path');
 const os = require('os');
 
 const dbManager = require('../DB/db');
+const { createModTrackerDb } = require('../DB/mod-tracker-db');
 const { restoreBackup } = require('./backup-utils');
 const { parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../Translation/sos-runtime');
 
@@ -166,13 +167,9 @@ async function cleanLauncherSettings() {
 // ── Step 5: DELETE FROM processed_files (translations table preserved) ────
 async function cleanDbProcessedFiles() {
   await dbManager.init();
-  const db = dbManager.db();
-  return new Promise((res, rej) => {
-    db.run('DELETE FROM processed_files', [], function (e) {
-      if (e) return rej(e);
-      res(this.changes || 0);
-    });
-  });
+  const modTrackerDb = createModTrackerDb(dbManager);
+  const result = await modTrackerDb.clearProcessedFiles();
+  return result.changes || 0;
 }
 
 async function main() {

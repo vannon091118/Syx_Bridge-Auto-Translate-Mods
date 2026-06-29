@@ -1,5 +1,4 @@
 const path = require('path');
-const db = require('../DB/db');
 const scanner = require('./scanner');
 const parser = require('./parser');
 const extractor = require('./extractor');
@@ -8,12 +7,18 @@ const cli = require('./cli-progress');
 
 /**
  * Orchestrates the translation production pipeline.
+ *
+ * DB-Persistenz-Verteilung (v0.24): modTrackerDb + runMetricsDb werden via
+ * Dependency Injection übergeben. Kein direkter db.js-Import mehr.
  */
 class Planner {
-  constructor(config, hooks = {}, adapter = null) {
+  constructor(config, hooks = {}, adapter = null, deps = {}) {
     this.config = config;
     this.hooks = hooks;
     this.adapter = adapter;
+    // DB-Persistenz-Verteilung: Domain-DAOs via DI
+    this.modTrackerDb = deps.modTrackerDb || null;
+    this.runMetricsDb = deps.runMetricsDb || null;
     this.stats = {
       modsFound: 0,
       filesScanned: 0,
@@ -86,12 +91,20 @@ class Planner {
   }
 
   async initRun(mode) {
+    if (this.runMetricsDb) return this.runMetricsDb.createRun(mode);
+    // Fallback: wenn kein DAO injected (backward compat)
+    const db = require('../DB/db');
     const result = await db.run('INSERT INTO runs (mode, status) VALUES (?, ?)', [mode, 'running']);
     return result.lastInsertRowid;
   }
 
   async finishRun(id, status, message = '') {
-    await db.run('UPDATE runs SET finished_at = CURRENT_TIMESTAMP, status = ? WHERE id = ?', [status, id]);
+    if (this.runMetricsDb) {
+      await this.runMetricsDb.finishRun(id, status);
+    } else {
+      const db = require('../DB/db');
+      await db.run('UPDATE runs SET finished_at = CURRENT_TIMESTAMP, status = ? WHERE id = ?', [status, id]);
+    }
     logRun({ runId: id, status, message, stats: this.stats });
   }
 
@@ -175,9 +188,12 @@ class Planner {
   }
 
   async syncModToDb(mod) {
-    await db.run(`INSERT INTO mods (mod_id, folder_name, source_path) 
-            VALUES (?, ?, ?) 
-            ON CONFLICT(mod_id) DO UPDATE SET last_seen = CURRENT_TIMESTAMP`, 
+    if (this.modTrackerDb) return this.modTrackerDb.upsertMod(mod.id, mod.path);
+    // Fallback
+    const db = require('../DB/db');
+    await db.run(`INSERT INTO mods (mod_id, folder_name, source_path)
+            VALUES (?, ?, ?)
+            ON CONFLICT(mod_id) DO UPDATE SET last_seen = CURRENT_TIMESTAMP`,
     [mod.id, mod.id, mod.path]);
     return await db.get('SELECT * FROM mods WHERE mod_id = ?', [mod.id]);
   }
@@ -186,13 +202,15 @@ class Planner {
   // erst alle Dateien und macht einen einzigen SELECT, dann processFile()
   // arbeitet mit dem vorab geladenen Map.
   async processFiles(mod, files, mode, _options = {}) {
-    // Single batch query: alle files für diesen Mod auf einmal
-    const dbFiles = await db.all(
-      'SELECT id, relative_path, source_hash FROM files WHERE mod_id = ?',
-      [mod.id]
-    );
+    // DB-Persistenz-Verteilung: Batch-Query via modTrackerDb
+    const rows = this.modTrackerDb
+      ? await this.modTrackerDb.getFilesByModId(mod.id)
+      : await require('../DB/db').all(
+          'SELECT id, relative_path, source_hash FROM files WHERE mod_id = ?',
+          [mod.id]
+        );
     const dbFileMap = new Map();
-    for (const f of dbFiles || []) {
+    for (const f of rows || []) {
       dbFileMap.set(f.relative_path, f);
     }
 
@@ -206,10 +224,14 @@ class Planner {
     const fileHash = extractor.getHash(content);
 
     // Hash-Dedup: Check if file has changed (uses pre-loaded map when available)
-    const dbFile = dbFileMap ? dbFileMap.get(file.relativePath) : await db.get(
-      'SELECT id, source_hash FROM files WHERE mod_id = ? AND relative_path = ?',
-      [mod.id, file.relativePath]
-    );
+    const dbFile = dbFileMap
+      ? dbFileMap.get(file.relativePath)
+      : (this.modTrackerDb
+          ? await this.modTrackerDb.getFileByPath(mod.id, file.relativePath)
+          : await require('../DB/db').get(
+              'SELECT id, source_hash FROM files WHERE mod_id = ? AND relative_path = ?',
+              [mod.id, file.relativePath]
+            ));
 
     if (dbFile && dbFile.source_hash === fileHash && mode !== 'force') {
       this.stats.cacheHits++;
@@ -219,16 +241,19 @@ class Planner {
     const format = this.adapter ? this.adapter.getParserFormat(file.fullPath) : undefined;
     const strings = parser.parse(content, { filePath: file.relativePath, format, adapter: this.adapter });
     this.stats.stringsExtracted += strings.length;
-        
-    // Save/Update file info in DB
-    if (dbFile) {
-      await db.run('UPDATE files SET source_hash = ?, last_scan = CURRENT_TIMESTAMP WHERE id = ?', [fileHash, dbFile.id]);
-    } else {
-      await db.run('INSERT INTO files (mod_id, relative_path, file_type, source_hash) VALUES (?, ?, ?, ?)', 
-        [mod.id, file.relativePath, file.type, fileHash]);
-    }
 
-    // Per-file strings extracted and stored; per-string risk-routing handled in translation-runtime
+    // DB-Persistenz-Verteilung: upsertFile via DAO
+    if (this.modTrackerDb) {
+      await this.modTrackerDb.upsertFile(mod.id, file.relativePath, file.type, fileHash);
+    } else {
+      const db = require('../DB/db');
+      if (dbFile) {
+        await db.run('UPDATE files SET source_hash = ?, last_scan = CURRENT_TIMESTAMP WHERE id = ?', [fileHash, dbFile.id]);
+      } else {
+        await db.run('INSERT INTO files (mod_id, relative_path, file_type, source_hash) VALUES (?, ?, ?, ?)',
+          [mod.id, file.relativePath, file.type, fileHash]);
+      }
+    }
   }
 
   printSummary() {

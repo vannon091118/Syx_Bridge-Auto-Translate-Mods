@@ -518,7 +518,21 @@ class ConfigRuntime {
         return;
       }
       const findBestModel = (preferred, fallbacks) => {
-        if (preferred && preferred !== 'auto' && models.includes(preferred)) return preferred;
+        // BUGFIX (PREF-IGNORE #4): Fuzzy-Matching fuer Ollama-Modelle.
+        // Ollama-Modelle haben oft Tags (z.B. "llama3.2:latest"), aber User
+        // konfigurieren meist nur den Basisnamen ("llama3.2"). Der alte
+        // models.includes(preferred)-Check schlug bei Tag-Diskrepanz fehl
+        // und ueberschrieb die User-Wahl still mit einem Fallback.
+        // Fix: Exakter Match zuerst, dann Tag-lose Fuzzy-Suche ueber Basisnamen.
+        if (preferred && preferred !== 'auto') {
+          if (models.includes(preferred)) return preferred;
+          // Fuzzy: match base name without tag (e.g. "llama3.2" matches "llama3.2:latest")
+          const preferredBase = preferred.split(':')[0];
+          const fuzzyPreferred = models.find(m =>
+            m === preferred || m.startsWith(`${preferred}:`) || m.startsWith(`${preferredBase}:`)
+          );
+          if (fuzzyPreferred) return fuzzyPreferred;
+        }
         for (const f of fallbacks) {
           if (models.includes(f)) return f;
           const fuzzy = models.find(m => m.includes(f));

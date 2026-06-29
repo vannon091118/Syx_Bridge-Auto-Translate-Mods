@@ -46,9 +46,14 @@ function createDispatcher(options) {
   /**
    * Item 0d: Waehle den besten Kandidaten aus einem Provider-Pool via DB-Metriken.
    * Filtert auf verfuegbare Provider, scored via getDynamicScore(), gibt Top-Scorer.
+   * BUGFIX (PREF-IGNORE #2): preferredProvider-Parameter erhaelt einen Score-Boost
+   * (+50), damit explizite User-Praeferenzen nicht durch DB-Metriken ueberschrieben
+   * werden. Vorher sortierte pickBestFromPool rein nach DB-Score — ein Cloud-Provider
+   * mit hoeherem Score konnte den User-konfigurierten Ollama/Primary-Provider
+   * verdraengen, ohne dass der User es merkte.
    * Rueckgabe: { provider, model, score } | null wenn kein Kandidat verfuegbar.
    */
-  function pickBestFromPool(pool, taskType, metrics) {
+  function pickBestFromPool(pool, taskType, metrics, preferredProvider = null) {
     const candidates = pool
       .filter(c => c && c.provider && routingEngine.isAvailable(c.provider))
       .map(c => ({
@@ -58,6 +63,17 @@ function createDispatcher(options) {
       }));
 
     if (candidates.length === 0) return null;
+
+    // Boost preferred provider to respect explicit user configuration.
+    // +50 is a significant boost that overrides cost-class and moderate quality
+    // differences, but won't override extreme quality gaps (e.g. preferred:20
+    // vs fallback:95). This balances user preference with quality safeguards.
+    if (preferredProvider) {
+      candidates.forEach(c => {
+        if (c.provider === preferredProvider) c.score += 50;
+      });
+    }
+
     candidates.sort((a, b) => b.score - a.score);
     return candidates[0];
   }
@@ -94,7 +110,7 @@ function createDispatcher(options) {
         { provider: 'google_free', model: 'google-translate-free' },
         { provider: 'argos', model: 'argos-translate-local' }
       ].filter(Boolean);
-      const best = pickBestFromPool(uiPool, 'translate', metrics);
+      const best = pickBestFromPool(uiPool, 'translate', metrics, preferred.provider);
       if (best) {
         console.log(`[DISPATCH] UI-String Batch (${uiStringCount}/${items.length}) -> ${best.provider} (score: ${best.score.toFixed(0)}) [dynamic]`);
         return { provider: best.provider, model: best.model, reason: 'ui_strings_dynamic', stressTestRequired: false };
@@ -110,15 +126,21 @@ function createDispatcher(options) {
         return { provider: preferred.provider, model: preferred.model, reason: 'low_risk_primary', stressTestRequired: false };
       }
       // Item 0d: Dynamische Pool-Auswahl für Free/Cheap-Fallback
+      // BUGFIX (PREF-IGNORE #3): Ollama + Player2 zum lowRiskPool hinzugefuegt.
+      // Vorher fehlten lokale Provider komplett — wenn Ollama Primary war aber
+      // temporaer nicht erreichbar, konnte es nach Recovery nicht mehr dynamisch
+      // gewaehlt werden. Jetzt sind alle Provider im Pool vertreten.
       const lowRiskPool = [
         { provider: 'nvidia', model: 'auto' },
         { provider: 'openrouter', model: 'openrouter/free' },
         { provider: 'groq', model: 'auto' },
+        { provider: 'ollama', model: 'auto' },
+        { provider: 'player2', model: 'auto' },
         { provider: 'fcm', model: 'auto' },
         { provider: 'argos', model: 'argos-translate-local' },
         { provider: 'google_free', model: 'google-translate-free' }
       ];
-      const best = pickBestFromPool(lowRiskPool, 'translate', metrics);
+      const best = pickBestFromPool(lowRiskPool, 'translate', metrics, preferred.provider);
       if (best) {
         console.log(`[DISPATCH] Low-Risk (avgRisk: ${avgRisk.toFixed(1)}) -> ${best.provider} (score: ${best.score.toFixed(0)}) [dynamic]`);
         return { provider: best.provider, model: best.model, reason: 'low_risk_dynamic', stressTestRequired: false };
