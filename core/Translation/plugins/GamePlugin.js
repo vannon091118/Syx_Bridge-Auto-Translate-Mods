@@ -194,6 +194,27 @@ class GamePlugin extends GameAdapter {
   getFileHeader(filePath, version) {
     return '';
   }
+
+  // ── Proper Noun Denylist ────────────────────────────────────────────
+
+  /**
+   * Game-specific denylist of common English nouns that look like proper
+   * nouns (capitalized single words) but should actually be translated.
+   *
+   * These are words like "Temple", "Calm", "Construct" — capitalized in game
+   * files because they appear as UI labels or standalone terms, but they are
+   * NOT proper nouns (names, factions, unique identifiers).
+   *
+   * The isProperNoun() function in text-core.js checks this list via the
+   * plugin and treats matches as common nouns that go through translation.
+   *
+   * Override in concrete plugins for game-specific denylists.
+   *
+   * @returns {Set<string>} Lowercase words to exclude from proper-noun classification
+   */
+  getProperNounDenylist() {
+    return new Set();
+  }
 }
 
 module.exports = GamePlugin;

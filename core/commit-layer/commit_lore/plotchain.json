@@ -2973,5 +2973,36 @@
         "file": "core/index.js"
       }
     ]
+  },
+  {
+    "p_id": "p74",
+    "id": "plot-2026-06-29T14:29:13",
+    "timestamp": "2026-06-29 14:29:13",
+    "summary": "PROPER-NOUN-Pluginisierung: Denylist (200+ Einträge) aus text-core.js ins Plugin verschoben. getProperNounDenylist() in GamePlugin + SongsOfSyxPlugin. isProperNoun() Plugin-bewusst. GUI 'Songs of Syx' Hardcoding entfernt.",
+    "narrator": "Ghost",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c69j11n8a5p55",
+    "ref_to": "plot-2026-06-29T13:56:28",
+    "prev_narrator": "Sage",
+    "data_changes": [
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/Translation/plugins/GamePlugin.js"
+      },
+      {
+        "file": "core/Translation/plugins/SongsOfSyxPlugin.js"
+      },
+      {
+        "file": "core/Translation/text-core.js"
+      },
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/index.js"
+      }
+    ]
   }
 ]

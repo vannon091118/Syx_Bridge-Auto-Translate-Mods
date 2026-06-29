@@ -1,5 +1,14 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-06-29 14:27:22] PROPER-NOUN-Pluginisierung: Denylist (200+ Einträge) aus text-core.js ins Plugin verschoben. getProperNounDenylist() in GamePlugin + SongsOfSyxPlugin. isProperNoun() Plugin-bewusst. GUI 'Songs of Syx' Hardcoding entfernt.
+**Narrator:** Ghost | **Model:** deepseek-v4-pro | **Composite:** `c69j11n8a5p55`
+- 6 Datei(en) geändert.
+
+### [2026-06-29 14:15] PROPER-NOUN-PLUGINISIERUNG: Denylist aus text-core.js ins Plugin verschoben. GUI-Hardcoding 'Songs of Syx' dynamisiert.
+- **PROPER-NOUN-Pluginisierung (P4):** `PROPER_NOUN_DENY_COMMON_ENGLISH` (200+ Einträge) von text-core.js → SongsOfSyxPlugin.PROPER_NOUN_DENYLIST. `getProperNounDenylist()` in GamePlugin.js (leerer Default) + SongsOfSyxPlugin.js (volle Liste). `isProperNoun(text, plugin)` akzeptiert jetzt optionalen Plugin-Parameter mit `plugin?.getProperNounDenylist?.()`-Lookup. DI-Kette in index.js curried: `isProperNoun: (text) => isProperNoun(text, activePlugin)`. Backward-compat: ohne Plugin leere Denylist.
+- **GUI-Hardcoding entfernt:** 'Songs of Syx' → 'Das Spiel' in ui-settings.js (2 Alert-Meldungen).
+- 5 Datei(en) geändert.
+
 ### [2026-06-29 13:56:28] PREF-IGNORE-FIX: 5 Routing-Bugs (hasAccess Ollama-Auto-Allow, pickBestFromPool +50 Boost, lowRiskPool+Ollama, findBestModel Fuzzy-Match, buildRoutePlan Warnung). DB-PERSISTENZ-VERTEILUNG: 3 Domain-DAOs (mod-tracker-db, run-metrics-db, admin-db) aus 8 Consumern extrahiert + DI-Refactoring.
 **Narrator:** Sage | **Model:** deepseek-v4-pro | **Composite:** `c68j47n14a1p51`
 - 14 Datei(en) geändert.

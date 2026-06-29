@@ -13,6 +13,86 @@ const { escapeTextValue, unescapeTextValue } = require('../extractor');
 const path = require('path');
 const os = require('os');
 
+// ── Proper Noun Denylist (P4: aus text-core.js ins Plugin verschoben) ──
+// Common English words that look like proper nouns (capitalized, single-word)
+// but should actually be translated. Moved from text-core.js
+// PROPER_NOUN_DENY_COMMON_ENGLISH (v0.24 P4 Modularisierung).
+const PROPER_NOUN_DENYLIST = new Set([
+  // ── Religion & Culture ──
+  'religion', 'temple', 'temples', 'priest', 'priests', 'worshippers',
+  'worshipping', 'carpet', 'grandeur', 'space', 'altar', 'torch', 'relief',
+  'pathway', 'shrine', 'shrines', 'decoration', 'decorations', 'capacity',
+  'pathways', 'cluster', 'clusters', 'torches', 'altars',
+  // ── Governance & Society ──
+  'faction', 'factions', 'kingdom', 'kingdoms', 'empire', 'empires',
+  'province', 'provinces', 'region', 'regions', 'territory', 'territories',
+  'occupation', 'profession', 'professions', 'title', 'titles',
+  'population', 'settlement', 'settlements', 'building', 'buildings',
+  'workshop', 'workshops', 'storage', 'warehouse', 'warehouses',
+  'market', 'markets', 'trader', 'traders', 'merchant', 'merchants',
+  'resource', 'resources', 'material', 'materials', 'food', 'water',
+  'wood', 'stone', 'iron', 'steel', 'coal', 'clay', 'tools',
+  'weapon', 'weapons', 'armor', 'armour', 'furniture',
+  'noble', 'nobles', 'commoner', 'commoners', 'citizen', 'citizens',
+  'subject', 'subjects', 'slave', 'slaves', 'worker', 'workers',
+  'soldier', 'soldiers', 'officer', 'officers',
+  // ── Actions ──
+  'construct', 'delete', 'move', 'copy', 'save', 'load', 'trade',
+  'attack', 'defend', 'scout', 'hunt', 'gather', 'mine', 'farm',
+  'fish', 'cook', 'smith', 'weave', 'tan', 'build', 'demolish',
+  'repair', 'upgrade', 'research', 'recruit', 'train', 'assign',
+  'dismiss', 'promote', 'banish', 'execute', 'pardon', 'enslave',
+  'free', 'equip', 'unequip', 'craft', 'smelt', 'forge', 'brew',
+  'plant', 'harvest', 'butcher', 'slaughter', 'tame', 'breed',
+  // ── States & Adjectives ──
+  'calm', 'happy', 'sad', 'angry', 'hungry', 'thirsty', 'tired',
+  'sick', 'healthy', 'busy', 'idle', 'careful', 'brave', 'strong',
+  'weak', 'fast', 'slow', 'smart', 'genius', 'fool', 'loyal',
+  'hostile', 'neutral', 'friendly', 'aggressive', 'passive',
+  'fertile', 'barren', 'frozen', 'scorched', 'flooded', 'arid',
+  'wet', 'dry', 'rich', 'poor', 'safe', 'dangerous', 'ancient',
+  'modern', 'sacred', 'cursed', 'blessed', 'haunted', 'abandoned',
+  // ── Categories & UI Labels ──
+  'fences', 'roads', 'structures', 'fortifications',
+  'jobs', 'planning', 'tasks', 'orders', 'settings', 'options',
+  'menu', 'close', 'open', 'cancel', 'confirm', 'accept', 'reject',
+  'inventory', 'equipment', 'skills', 'stats', 'status', 'overview',
+  'summary', 'details', 'general', 'advanced', 'basic', 'custom',
+  'default', 'enabled', 'disabled', 'active', 'inactive',
+  // ── Nature & Geography ──
+  'forest', 'mountain', 'river', 'lake', 'ocean', 'desert',
+  'plains', 'hills', 'swamp', 'marsh', 'tundra', 'volcano',
+  'cave', 'cavern', 'dungeon', 'fortress', 'castle', 'tower',
+  'bridge', 'gate', 'wall', 'walls', 'moat', 'trench',
+  // ── Animals & Creatures ──
+  'animal', 'beast', 'creature', 'monster', 'dragon', 'wolf',
+  'bear', 'deer', 'boar', 'horse', 'cow', 'sheep', 'pig',
+  'chicken', 'fish', 'bird', 'snake', 'rat', 'spider',
+  // ── Professions & Roles ──
+  'geologist', 'miner', 'farmer', 'hunter', 'fisherman', 'lumberjack',
+  'blacksmith', 'carpenter', 'mason', 'tailor', 'tanner', 'baker',
+  'brewer', 'cook', 'healer', 'scholar', 'scribe', 'merchant',
+  'guard', 'archer', 'knight', 'cavalry', 'infantry', 'siege',
+  // ── Common Adjectives (Traits) ──
+  'aggressive', 'altruistic', 'ambitious', 'arrogant', 'ascetic',
+  'beautiful', 'bitter', 'bold', 'cautious', 'charming', 'clever',
+  'clumsy', 'compassionate', 'competitive', 'confident', 'cowardly',
+  'creative', 'cruel', 'cunning', 'daring', 'deceitful', 'diligent',
+  'diplomatic', 'disciplined', 'elegant', 'energetic', 'envious',
+  'faithful', 'fearless', 'flexible', 'generous', 'gentle',
+  'greedy', 'grumpy', 'honest', 'honorable', 'humble',
+  'imaginative', 'industrious', 'innocent', 'just', 'kind',
+  'lazy', 'logical', 'loyal', 'lustful', 'merciful', 'modest',
+  'naive', 'nervous', 'noble', 'optimistic', 'paranoid',
+  'patient', 'patriotic', 'peaceful', 'pessimistic', 'pious',
+  'polite', 'proud', 'rational', 'reckless', 'reliable',
+  'resentful', 'resourceful', 'romantic', 'rude', 'selfish',
+  'sensible', 'serious', 'shy', 'slothful', 'stoic', 'stubborn',
+  'superstitious', 'suspicious', 'temperate', 'tolerant',
+  'treacherous', 'trusting', 'vengeful', 'versatile', 'vicious',
+  'violent', 'wise', 'zealous'
+]);
+
 class SongsOfSyxPlugin extends GamePlugin {
 
   // ═══ GameAdapter methods (inherited from SongsOfSyxAdapter pattern) ═══
@@ -371,6 +451,20 @@ class SongsOfSyxPlugin extends GamePlugin {
     // ── KEIN __OVERWRITE — Patch-Modus ist korrekt für Übersetzungs-Mods ──
     // __OVERWRITE: true zerstört Vanilla-Texte (siehe BU-OVERWRITE-2026-06-22).
     return '';
+  }
+
+  // ── Proper Noun Denylist (P4: aus text-core.js ins Plugin verschoben) ──
+
+  /**
+   * SoS-specific denylist of common English words that look like proper nouns
+   * but should actually be translated. Capitalized single-word UI labels like
+   * "Temple", "Construct", "Calm" would otherwise be classified as proper nouns
+   * and never translated. This list catches those false positives.
+   *
+   * Moved from text-core.js PROPER_NOUN_DENY_COMMON_ENGLISH (v0.24 P4).
+   */
+  getProperNounDenylist() {
+    return PROPER_NOUN_DENYLIST;
   }
 }
 

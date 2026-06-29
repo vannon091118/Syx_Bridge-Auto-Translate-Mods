@@ -24,103 +24,25 @@ function protectPlaceholders(text) {
 
 /**
  * Common English words that look like proper nouns (capitalized) but are
- * actually common nouns that SHOULD be translated. Words here are excluded
- * from proper-noun classification so they go through translation.
+ * actually common nouns that SHOULD be translated.
  * 
- * This is a denylist — any capitalized word that matches this list is
- * treated as a common noun, not a proper noun.
+ * ⚠️ P4 MODULARISIERUNG (v0.24): Diese Denylist wurde ins Plugin verschoben.
+ * SongsOfSyxPlugin.getProperNounDenylist() liefert die spielspezifische Liste.
+ * Der Modul-Level-Fallback hier ist LEER — alle Einträge sind jetzt im Plugin.
  * 
- * Source: DB-Anomaly-Scan (Phase 1.1) zeigte ~160 native_runtime-Einträge
- * mit q=94, translation=source_text, flagged=0, die englische Gemeinwörter
- * wie "Religion", "Temple", "Priest" enthielten. Diese wurden nie übersetzt.
+ * See: SongsOfSyxPlugin.PROPER_NOUN_DENYLIST für die vollständige Liste.
  */
-// Konstante (UPPER_SNAKE_CASE) — bewusst von camelCase-Funktionen abgesetzt,
-// da dies eine modulweite Konfigurationskonstante ist, die von aussen sichtbar
-// sein soll (exportierbar in v0.20). Siehe Reviewer-Hinweis zur Konvention.
-const PROPER_NOUN_DENY_COMMON_ENGLISH = new Set([
-  // ── Religion & Culture ──
-  'religion', 'temple', 'temples', 'priest', 'priests', 'worshippers',
-  'worshipping', 'carpet', 'grandeur', 'space', 'altar', 'torch', 'relief',
-  'pathway', 'shrine', 'shrines', 'decoration', 'decorations', 'capacity',
-  'pathways', 'cluster', 'clusters', 'torches', 'altars',
-  // ── Governance & Society ──
-  'faction', 'factions', 'kingdom', 'kingdoms', 'empire', 'empires',
-  'province', 'provinces', 'region', 'regions', 'territory', 'territories',
-  'occupation', 'profession', 'professions', 'title', 'titles',
-  'population', 'settlement', 'settlements', 'building', 'buildings',
-  'workshop', 'workshops', 'storage', 'warehouse', 'warehouses',
-  'market', 'markets', 'trader', 'traders', 'merchant', 'merchants',
-  'resource', 'resources', 'material', 'materials', 'food', 'water',
-  'wood', 'stone', 'iron', 'steel', 'coal', 'clay', 'tools',
-  'weapon', 'weapons', 'armor', 'armour', 'furniture',
-  'noble', 'nobles', 'commoner', 'commoners', 'citizen', 'citizens',
-  'subject', 'subjects', 'slave', 'slaves', 'worker', 'workers',
-  'soldier', 'soldiers', 'officer', 'officers',
-  // ── Actions (game UI verbs) ──
-  'construct', 'delete', 'move', 'copy', 'save', 'load', 'trade',
-  'attack', 'defend', 'scout', 'hunt', 'gather', 'mine', 'farm',
-  'fish', 'cook', 'smith', 'weave', 'tan', 'build', 'demolish',
-  'repair', 'upgrade', 'research', 'recruit', 'train', 'assign',
-  'dismiss', 'promote', 'banish', 'execute', 'pardon', 'enslave',
-  'free', 'equip', 'unequip', 'craft', 'smelt', 'forge', 'brew',
-  'plant', 'harvest', 'butcher', 'slaughter', 'tame', 'breed',
-  // ── States & Adjectives ──
-  'calm', 'happy', 'sad', 'angry', 'hungry', 'thirsty', 'tired',
-  'sick', 'healthy', 'busy', 'idle', 'careful', 'brave', 'strong',
-  'weak', 'fast', 'slow', 'smart', 'genius', 'fool', 'loyal',
-  'hostile', 'neutral', 'friendly', 'aggressive', 'passive',
-  'fertile', 'barren', 'frozen', 'scorched', 'flooded', 'arid',
-  'wet', 'dry', 'rich', 'poor', 'safe', 'dangerous', 'ancient',
-  'modern', 'sacred', 'cursed', 'blessed', 'haunted', 'abandoned',
-  // ── Categories & UI Labels ──
-  'construct', 'fences', 'roads', 'structures', 'fortifications',
-  'jobs', 'planning', 'tasks', 'orders', 'settings', 'options',
-  'menu', 'close', 'open', 'cancel', 'confirm', 'accept', 'reject',
-  'inventory', 'equipment', 'skills', 'stats', 'status', 'overview',
-  'summary', 'details', 'general', 'advanced', 'basic', 'custom',
-  'default', 'enabled', 'disabled', 'active', 'inactive',
-  // ── Nature & Geography ──
-  'forest', 'mountain', 'river', 'lake', 'ocean', 'desert',
-  'plains', 'hills', 'swamp', 'marsh', 'tundra', 'volcano',
-  'cave', 'cavern', 'dungeon', 'fortress', 'castle', 'tower',
-  'bridge', 'gate', 'wall', 'walls', 'moat', 'trench',
-  // ── Animals & Creatures ──
-  'animal', 'beast', 'creature', 'monster', 'dragon', 'wolf',
-  'bear', 'deer', 'boar', 'horse', 'cow', 'sheep', 'pig',
-  'chicken', 'fish', 'bird', 'snake', 'rat', 'spider',
-  // ── Professions & Roles ──
-  'geologist', 'miner', 'farmer', 'hunter', 'fisherman', 'lumberjack',
-  'blacksmith', 'carpenter', 'mason', 'tailor', 'tanner', 'baker',
-  'brewer', 'cook', 'healer', 'scholar', 'scribe', 'merchant',
-  'guard', 'archer', 'knight', 'cavalry', 'infantry', 'siege',
-  // ── Common Adjectives (Traits) ──
-  'aggressive', 'altruistic', 'ambitious', 'arrogant', 'ascetic',
-  'beautiful', 'bitter', 'bold', 'cautious', 'charming', 'clever',
-  'clumsy', 'compassionate', 'competitive', 'confident', 'cowardly',
-  'creative', 'cruel', 'cunning', 'daring', 'deceitful', 'diligent',
-  'diplomatic', 'disciplined', 'elegant', 'energetic', 'envious',
-  'faithful', 'fearless', 'flexible', 'generous', 'gentle',
-  'greedy', 'grumpy', 'honest', 'honorable', 'humble',
-  'imaginative', 'industrious', 'innocent', 'just', 'kind',
-  'lazy', 'logical', 'loyal', 'lustful', 'merciful', 'modest',
-  'naive', 'nervous', 'noble', 'optimistic', 'paranoid',
-  'patient', 'patriotic', 'peaceful', 'pessimistic', 'pious',
-  'polite', 'proud', 'rational', 'reckless', 'reliable',
-  'resentful', 'resourceful', 'romantic', 'rude', 'selfish',
-  'sensible', 'serious', 'shy', 'slothful', 'stoic', 'stubborn',
-  'superstitious', 'suspicious', 'temperate', 'tolerant',
-  'treacherous', 'trusting', 'vengeful', 'versatile', 'vicious',
-  'violent', 'wise', 'zealous'
-]);
+const PROPER_NOUN_DENY_COMMON_ENGLISH = new Set();
 
-function isProperNoun(text) {
+function isProperNoun(text, plugin) {
   const value = stripWatermarks(text).trim();  // P0-1: Watermarks strippen vor Check
   if (!value) return false;
   const lower = value.toLowerCase();
-  // QUAL-OFFENSIVE Fix #3: Denylist für englische Gemeinwörter
-  // Wenn das Wort in PROPER_NOUN_DENY_COMMON_ENGLISH steht, wird es
-  // NICHT als ProperNoun behandelt → geht durch den normalen Übersetzungs-Pfad.
-  if (PROPER_NOUN_DENY_COMMON_ENGLISH.has(lower)) return false;
+  // P4 MODULARISIERUNG (v0.24): Denylist aus dem Plugin statt Modul-Level-Konstante.
+  // Jedes Spiel hat eigene False-Positive-Wörter (UI-Labels die wie Eigennamen aussehen).
+  // Fallback: Falls kein Plugin, leere Denylist (alle Wörter werden geprüft).
+  const denylist = plugin?.getProperNounDenylist?.() ?? PROPER_NOUN_DENY_COMMON_ENGLISH;
+  if (denylist.has(lower)) return false;
   
   // Mehrwort-Strings sind KEINE Eigennamen (haben Leerzeichen)
   if (/\s/.test(value)) return false;

@@ -865,6 +865,8 @@ async function main() {
     gameAdapter
   });
 
+  // P4 MODULARISIERUNG (v0.24): isProperNoun wird mit Plugin gebunden,
+  // damit die Denylist aus dem Plugin kommt (nicht mehr aus text-core.js).
   translationRuntime = createTranslationRuntime({
     axios, config: CONFIG, configRuntime, routingEngine, logPayload, withRetry, sleep,
     getApiKey: (p) => configRuntime.getApiKey(p),
@@ -875,7 +877,7 @@ async function main() {
     buildProofreadPrompt, 
     protectPlaceholders, 
     restorePlaceholders, 
-    isProperNoun, 
+    isProperNoun: (text) => isProperNoun(text, activePlugin), 
     classifyPath, 
     restoreAndValidateTranslation, 
     translationLooksSafe,
