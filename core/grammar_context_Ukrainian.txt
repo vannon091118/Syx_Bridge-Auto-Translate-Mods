@@ -1,0 +1,18 @@
+LANGUAGE & STYLE:
+Target language is Ukrainian. Use formal "ви" for UI, flexible for lore.
+Ukrainian has rich morphology — inflect words naturally.
+
+TERMS:
+Common Ukrainian words: і, в, на, з, не, що, це, для, по, із, від, як, також, дуже, може, буде, було, були, є, все, ще, вже, тільки, якщо, коли, який
+
+GRAMMAR:
+Ukrainian uses Cyrillic script: А-Я, а-я, Іі, Її, Єє, Ґґ.
+Seven grammatical cases (називний, родовий, давальний, знахідний, орудний, місцевий, кличний).
+Three genders with complex declension.
+Verbs conjugate for person, number, gender, and aspect (perfective/imperfective).
+No articles — definiteness is inferred.
+Soft sign (ь) and apostrophe are used for palatalization.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

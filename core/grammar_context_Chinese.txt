@@ -1,0 +1,19 @@
+LANGUAGE & STYLE:
+Target language is Chinese (Simplified, zh-CN). Use natural Chinese phrasing.
+Keep translations concise — Chinese is more compact than English.
+Game names should use established Chinese translations if they exist in the community.
+
+TERMS:
+N/A — Chinese does not have common function words in the same sense as European languages.
+
+GRAMMAR:
+Chinese uses Hanzi characters (CJK Unified Ideographs: U+4E00–U+9FFF).
+No spaces between words — word boundaries are contextual.
+No grammatical gender, number, or case — meaning comes from word order and particles.
+Use 了 for completed actions, 的 for possession/description, 们 for plural (people only).
+Tone marks are optional in game text (use plain characters for compatibility).
+Full-width punctuation: ， 。 ！ ？ 「」 『』
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

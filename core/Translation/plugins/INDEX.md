@@ -1,12 +1,12 @@
-# 📖 INDEX — core/src/plugins/ (3 Dateien)
+# 📖 INDEX — core/Translation/plugins/ (3 Dateien, ~911 LOC)
 
-> **Generiert:** 2026-06-23 | **Version:** v0.22.0
+> **Generiert:** 2026-06-23 | **Aktualisiert:** 2026-07-02 | **Version:** v0.25.0-alpha
 > **Zweck:** Referenzbuch für die Plugin-Schicht (GameAdapter → GamePlugin → SongsOfSyxPlugin / RimWorldPlugin)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
 ---
 
-## GamePlugin.js
+## GamePlugin.js (219 LOC)
 *Klasse: `GamePlugin extends GameAdapter` — Basis-Plugin mit Default-Implementierungen*
 
 | Zeile | Funktion | Beschreibung |
@@ -22,15 +22,13 @@
 | 134 | `getGameTerms()` | Default: `[]` |
 | 149 | `getPathRules()` | Default: `{}` |
 | 165 | `getFileHeader(filePath, version)` | Default: `''` |
-
-**CHANGELOG-Ref (3× GamePlugin):**
-- [CL:0.19.9] Erstellt — Interface (getPromptContext, getGameTerms, getLoreTerms, getPathRules, serializeTranslation, validateTranslation)
-- [CL:0.20.0-alpha.1] H2 PATH_RULES, H4 Lore-Terms, H8 Branding Interfaces hinzugefügt
-- [CL:R-VAL-R-SHIELD] validateFileSyntax() + getPlaceholderRegex() für Plugin-Delegation
+| 175 | `getTranslationCredit()` | Default: `'Translation by Vannon with SyxBridge'` |
+| 185 | `getProperNounDenylist()` | Default: `[]` — Plugin-spezifische Denylist |
+| 195 | `getProperNounAllowlist()` | Default: `[]` — Plugin-spezifische Allowlist |
 
 ---
 
-## SongsOfSyxPlugin.js
+## SongsOfSyxPlugin.js (471 LOC, 35 Methoden)
 *Klasse: `SongsOfSyxPlugin extends GamePlugin` — Vollständige SoS-Implementierung*
 
 | Zeile | Funktion | Beschreibung |
@@ -41,11 +39,11 @@
 | 39 | `formatMetadata(infoObj)` | _Info.txt generieren |
 | 59 | `getCoreModFolderName()` | → `'BridgeCore'` |
 | 63 | `getCoreModMetadata(sosMajorVersion)` | BridgeCore-Metadata |
-| 80 | `applyPatchModifications(infoObj, targetLanguage)` | Patch-Name+DESC |
+| 80 | `applyPatchModifications(infoObj, targetLanguage)` | Patch-Name+DESC+Language-Tag |
 | 91 | `getBackupDirectoryName(originalName)` | → `.backup_NAME_ORIGINAL` |
 | 95 | `isBackupDirectory(dirName)` | `.backup_` Check |
 | 99 | `isVersionDirectory(dirName)` | `/^V\d+$/i` Check |
-| 103 | `getOverrideHeader(versionDir)` | V71+ `__OVERWRITE` |
+| 103 | `getOverrideHeader(versionDir)` | V71 → `''` (kein __OVERWRITE!) |
 | 111 | `formatPatchNotice(targetLanguage)` | Patch-Notice Text |
 | 115 | `getParserFormat(filePath)` | → `'sos'`/`'json'`/`'raw'` |
 | 123 | `classifyFile(relativePath)` | INFO_FILE/TEXT_FILE/ASSET/... |
@@ -60,15 +58,18 @@
 | 266 | `getLoreTerms()` | 12 Begriffe (kingdom, empire, ...) |
 | 278 | `getGameTerms()` | 9 Begriffe (battle, room, ...) |
 | 289 | `getPathRules()` | bio/specific→proper_noun, room/→ui_string, ... |
+| 300 | `getTranslationCredit()` | `'Translation by Vannon with SyxBridge'` |
+| 310 | `getProperNounDenylist()` | 200+ englische Common-Nouns |
+| 340 | `getProperNounAllowlist()` | Game-spezifische Eigennamen |
 
 **Boundary-Tests:**
-- `core/tests/plugin-boundary-smoke.js` — 100/100 PASS (23 Methoden, 9 Test-Sektionen)
-- `core/tests/plugin-boundary-contract.js` — 73/73 PASS (Dynamische Interface-Erkennung, BU-023)
+- `core/tests/plugin-boundary-smoke.js` — 100/100 PASS
+- `core/tests/plugin-boundary-contract.js` — 86/86 PASS
 
 ---
 
-## RimWorldPlugin.js
-*Klasse: `RimWorldPlugin extends GamePlugin` — RimWorld-Stub (format-spezifische Hooks implementiert, Adapter-Methoden werfen)*
+## RimWorldPlugin.js (221 LOC, 28 Methoden)
+*Klasse: `RimWorldPlugin extends GamePlugin` — RimWorld-Stub (Format-Hooks implementiert, Adapter-Methoden werfen)*
 
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
@@ -86,8 +87,9 @@
 | 150 | `isTranslatableFile(relativePath, fileType)` | XML_FILE → true |
 | 155-185 | Adapter stubs | Werfen `not yet implemented` |
 
-**Status:** STUB — Format-Hooks implementiert, Adapter-Methoden (LauncherSettings, scanMod, etc.) werfen bis RimWorld-Integration vollständig.
+**Status:** STUB — Format-Hooks (11/11) implementiert, Adapter-Hooks (13/13) werfen "not yet implemented".
+**Detailplan:** `core/archive/docs/plans/PLAN_RIMWORLD.md` — 0/19 Tasks, ~16h Aufwand.
 
 ---
 
-*📖 Plugin-INDEX v0.22.0 — 3 Dateien, 35+ Methoden über 3 Ebenen*
+*📖 Plugin-INDEX v0.25.0-alpha — 3 Dateien, ~911 LOC, 35+ Methoden über 3 Ebenen*

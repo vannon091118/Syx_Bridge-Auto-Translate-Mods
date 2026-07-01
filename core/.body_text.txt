@@ -1,18 +1,8 @@
-P4-Rest: S-010 DB-Access + S-011 gui-backup + S-012 Quick Wins
-
-S-010 (DB-Access): diagnostics.js von global._adminDb/global._runMetricsDb auf DI-Parameter umgestellt. runDiagnostics(deps={runMetricsDb, adminDb}) und clearCache(lang, deps={adminDb}) akzeptieren jetzt explizite DAO-Parameter statt Globals zu lesen. Caller (index.js + gui-handlers.js) aktualisiert.
-
-S-011 (gui-backup): scanModsForBackup(config) und restoreBackupForMod(modId, config, dbRun) aus gui-handlers.js in backup-utils.js extrahiert (91 Zeilen). get-backups Handler von 42 auf 8 Zeilen reduziert, restore-backup Handler von 45 auf 9 Zeilen reduziert.
-
-S-012 (Quick Wins):
-1. parseBatchResponseWithMaps-Thin-Wrapper in translation-runtime.js eliminiert. client-factory.js nutzt jetzt parseBatchResponse direkt mit Options-Objekt {expectedCount, shieldMaps}. 4 Call-Sites aktualisiert. 0 verbleibende Referenzen.
-2. GamePlugin.js: require('../extractor') aus Method-Bodies (serializeTranslation, extractTextValue) auf Top-Level-Import verschoben. Keine dynamic requires mehr in der Basisklasse.
-
-Geänderte Dateien (6):
-- core/Translation/diagnostics.js — DI-Parameter statt globals
-- core/Translation/plugins/GamePlugin.js — Top-Level-Import
-- core/Translation/translation-runtime.js — parseBatchResponseWithMaps entfernt
-- core/Translation/providers/client-factory.js — parseBatchResponse direkt
-- core/GUI/backup-utils.js — scanModsForBackup + restoreBackupForMod (neu)
-- core/GUI/gui-handlers.js — Backup-Handler verschlankt
-- core/index.js — runDiagnostics({runMetricsDb, adminDb})
+Wir haben am heutigen Arbeitstag umfangreiche Überarbeitungen und Härtungsmaßnahmen an der Benutzeroberfläche sowie an der Übersetzungs-Pipeline vorgenommen, um das Gesamtsystem für das anstehende Release von v0.25.0-alpha optimal vorzubereiten.
+Dabei lag der primäre Fokus auf dem großen GUI-Rebuild und der korrekten Integration des i18n-Systems.
+Konkret wurden die Layout-Strukturen im Frontend poliert und die Datenbindungen in app.js, index.html, ui-core.js, ui-settings.js sowie in den Lokalisierungsdateien wie lang-strings.js stabilisiert.
+Auf der Server-Seite haben wir das Routing und das Configuration Mapping in server-routes.js sowie router.js grundlegend optimiert, um eine weitaus robustere Kommunikation zu gewährleisten.
+Zusätzlich wurden die Fehler bei der API-Schlüsselüberprüfung in client-factory.js behoben, um eine unterbrechungsfreie i18n-Anbindung zu garantieren.
+Für die Validierung der Kernfunktionalitäten haben wir neue E2E-Multi-Language-Tests (wie e2e_multi_language.js) implementiert und die Indizes in den Modulordnern aktualisiert.
+Des Weiteren wurden zahlreiche Dokumentationsdateien (darunter CHANGELOG.md, GUI_REWORK.md, HANDSHAKE.md und MASTER_DOC.md) vollständig synchronisiert und auf den aktuellen Stand gebracht, um die Nachvollziehbarkeit aller vorgenommenen Änderungen im Sinne unseres Kausalitäts-Regelwerks lückenlos zu gewährleisten.
+Dies bildet das stabile Fundament für die zukünftige Entwicklung und sichert die Zuverlässigkeit der gesamten SyxBridge-Anwendung.

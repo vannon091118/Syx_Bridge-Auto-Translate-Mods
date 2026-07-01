@@ -266,7 +266,7 @@ function registerRoutes(server) {
 
     // ── 10. Actions ───────────────────────────────────────────────────
     if (url.pathname.startsWith('/api/action/')) {
-      const action = url.pathname.split('/').pop();
+      const action = url.pathname.split('/').pop().replace(/-/g, '_');
       server.emit('action', action);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, action }));

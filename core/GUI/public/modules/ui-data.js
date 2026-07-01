@@ -22,6 +22,7 @@ function renderDbTable() {
   var body = document.getElementById('db-table-body');
   var count = document.getElementById('db-count');
   if (!body) return;
+  var tk = window.t || function(k) { return k; };
     
   body.innerHTML = dbSearchResults.map(function(row, idx) {
     var escapedTrans = row.translation.replace(/"/g, '&quot;');
@@ -30,8 +31,8 @@ function renderDbTable() {
       '<td><textarea class="db-edit-textarea" id="db-edit-' + idx + '" title="' + escapedTrans + '" oninput="this.style.height=\'auto\'; this.style.height=Math.min(this.scrollHeight, 300)+\'px\'" onchange="saveDbEntry(' + idx + ')" rows="1">' + escapedTrans + '</textarea></td>' +
       '<td>' + row.target_lang + '</td>' +
       '<td>' +
-        '<button onclick="saveDbEntry(' + idx + ')" style="padding: 2px 6px; font-size: 0.6rem; width: auto; margin-bottom: 2px;">Save</button>' +
-        '<button onclick="openRevisions(\'' + row.source_text.replace(/'/g, '\\\'').replace(/"/g, '&quot;') + '\', \'' + row.target_lang + '\')" style="padding: 2px 6px; font-size: 0.6rem; width: auto; background: #332d29; border: 1px solid #444; color: var(--muted);">Rev</button>' +
+        '<button onclick="saveDbEntry(' + idx + ')" style="padding: 2px 6px; font-size: 0.6rem; width: auto; margin-bottom: 2px;">' + tk('dbBrowser.saveBtn') + '</button>' +
+        '<button onclick="openRevisions(\'' + row.source_text.replace(/'/g, '\\\'').replace(/"/g, '&quot;') + '\', \'' + row.target_lang + '\')" style="padding: 2px 6px; font-size: 0.6rem; width: auto; background: #332d29; border: 1px solid #444; color: var(--muted);">' + tk('dbBrowser.revBtn') + '</button>' +
       '</td></tr>';
   }).join('');
     
@@ -42,7 +43,7 @@ function renderDbTable() {
     });
   });
     
-  if (count) count.textContent = dbSearchResults.length + ' Einträge';
+  if (count) count.textContent = dbSearchResults.length + ' ' + tk('dbBrowser.entryCount');
 }
 
 function _saveDbEntry(idx) {
@@ -82,7 +83,8 @@ function openRevisions(sourceText, targetLang) {
   currentRevisionsLang = targetLang;
   var modal = document.getElementById('revision-modal');
   var sourceLabel = document.getElementById('revision-source-text');
-  if (sourceLabel) sourceLabel.textContent = 'Original: "' + sourceText.substring(0, 120) + (sourceText.length > 120 ? '...' : '') + '"';
+  var tk = window.t || function(k) { return k; };
+  if (sourceLabel) sourceLabel.textContent = tk('dbBrowser.originalCol') + ': "' + sourceText.substring(0, 120) + (sourceText.length > 120 ? '...' : '') + '"';
   if (modal) modal.style.display = 'flex';
   fetchRevisions();
 }
@@ -97,7 +99,8 @@ window.closeRevisionModal = closeRevisionModal;
 function fetchRevisions() {
   var container = document.getElementById('revision-list');
   if (!container) return;
-  container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 10px;">Lade Revisionen...</div>';
+  var tk = window.t || function(k) { return k; };
+  container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 10px;">' + tk('revisionModal.loading') + '</div>';
   
   fetch('/api/revisions', {
     method: 'POST',
@@ -108,32 +111,33 @@ function fetchRevisions() {
     .then(function(revisions) {
       revisionResults = revisions;
       if (revisions.length === 0) {
-        container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 10px;">Keine Revisionen vorhanden.</div>';
+        container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 10px;">' + tk('revisionModal.noRevisions') + '</div>';
         return;
       }
       container.innerHTML = revisions.map(function(rev) {
-        var isActive = rev.is_active ? ' (AKTIV)' : '';
-        var isRef = rev.is_reference ? ' [Referenz]' : '';
+        var isActive = rev.is_active ? ' (' + tk('revisionModal.activeBadge') + ')' : '';
+        var isRef = rev.is_reference ? ' [' + tk('revisionModal.referenceBadge') + ']' : '';
         var bgColor = rev.is_active ? 'rgba(100, 213, 196, 0.08)' : (rev.is_reference ? 'rgba(216, 151, 60, 0.05)' : 'rgba(255,255,255,0.02)');
         var borderColor = rev.is_active ? 'var(--success)' : (rev.is_reference ? 'var(--accent)' : 'var(--border)');
         var qualityColor = (rev.quality_score || 0) >= 80 ? 'var(--success)' : ((rev.quality_score || 0) >= 50 ? 'var(--accent)' : 'var(--danger)');
         var riskColor = (rev.risk_score || 0) >= 6 ? 'var(--danger)' : (rev.risk_score || 0) >= 2 ? 'var(--accent)' : 'var(--success)';
         var diffChars = rev.source_text ? Math.abs((rev.translation || '').length - (rev.source_text || '').length) : '—';
+        var providerText = rev.provider || tk('misc.unknownProvider');
         return '<div style="background: ' + bgColor + '; border: 1px solid ' + borderColor + '; border-radius: 4px; padding: 8px; margin-bottom: 6px;">' +
           '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">' +
             '<div style="flex: 1;">' +
               '<div style="font-size: 0.8rem; color: var(--text); white-space: pre-wrap; word-break: break-word; margin-bottom: 4px;">' + rev.translation + '</div>' +
               '<div style="font-size: 0.6rem; color: var(--muted);">' +
-                (rev.created_at || '') + ' | ' + (rev.provider || 'unbekannt') + ' | Score: <span style="color: ' + qualityColor + '">' + (rev.quality_score || 0) + '</span> | Risk: <span style="color: ' + riskColor + '">' + (rev.risk_score || 0) + '</span> | Diff: <span style="color: var(--accent)">' + diffChars + 'c</span>' + isRef + isActive +
-                (rev.flagged ? ' | <span style="color: var(--danger);">Geflaggt: ' + (rev.flag_reason || 'ja') + '</span>' : '') +
+                (rev.created_at || '') + ' | ' + providerText + ' | Score: <span style="color: ' + qualityColor + '">' + (rev.quality_score || 0) + '</span> | Risk: <span style="color: ' + riskColor + '">' + (rev.risk_score || 0) + '</span> | Diff: <span style="color: var(--accent)">' + diffChars + 'c</span>' + isRef + isActive +
+                (rev.flagged ? ' | <span style="color: var(--danger);">' + tk('revisionModal.flagged') + ' ' + (rev.flag_reason || 'ja') + '</span>' : '') +
               '</div>' +
             '</div>' +
-            (!rev.is_active ? '<button onclick="restoreRevision(' + rev.revision_id + ')" style="width: auto; padding: 3px 10px; font-size: 0.6rem; background: transparent; border: 1px solid var(--accent); color: var(--accent); flex-shrink: 0; margin-left: 8px;">Restore</button>' : '') +
+            (!rev.is_active ? '<button onclick="restoreRevision(' + rev.revision_id + ')" style="width: auto; padding: 3px 10px; font-size: 0.6rem; background: transparent; border: 1px solid var(--accent); color: var(--accent); flex-shrink: 0; margin-left: 8px;">' + tk('revisionModal.restoreBtn') + '</button>' : '') +
           '</div></div>';
       }).join('');
     })
     .catch(function() {
-      container.innerHTML = '<div style="color: var(--danger); text-align: center; padding: 10px;">Fehler beim Laden der Revisionen.</div>';
+      container.innerHTML = '<div style="color: var(--danger); text-align: center; padding: 10px;">' + tk('revisionModal.loadError') + '</div>';
     });
 }
 

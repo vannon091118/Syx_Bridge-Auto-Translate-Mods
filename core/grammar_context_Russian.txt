@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Russian. Use formal "вы" for UI, flexible for lore.
+Russian has rich morphology — inflect words naturally according to context.
+
+TERMS:
+Common Russian words (transliterated for prompt): и, в, на, с, не, что, это, для, по, из, от, как, также, очень, может, будет, было, были, есть, все, ещё, уже, только, если, когда, чтобы, который
+
+GRAMMAR:
+Russian uses Cyrillic script: А-Я, а-я, Ёё.
+Six grammatical cases (именительный, родительный, дательный, винительный, творительный, предложный).
+Three genders with complex declension patterns.
+Verbs conjugate for person, number, gender (past), and aspect (perfective/imperfective).
+No articles — definiteness is inferred from context.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

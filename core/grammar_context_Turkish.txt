@@ -1,0 +1,18 @@
+LANGUAGE & STYLE:
+Target language is Turkish. Use formal "siz" for UI, "sen" for casual lore.
+Turkish is agglutinative — build long words from suffixes rather than separate words.
+
+TERMS:
+Common Turkish words: ve, bir, bu, da, de, ki, ile, için, değil, çok, daha, gibi, kadar, olarak, sonra, önce, ama, fakat, veya, ya, var, yok, olmak, etmek, yapmak
+
+GRAMMAR:
+Turkish uses Latin alphabet with special characters: ç, ğ, ı, ö, ş, ü. Note: dotless ı vs dotted i.
+Agglutinative: suffixes stack to express tense, person, number, case, possession.
+Vowel harmony: suffixes change vowels to match the root word's last vowel (e/a, ö/o, ü/u, i/ı).
+Word order is SOV (Subject-Object-Verb) — verb at the end.
+No grammatical gender or articles.
+Six cases: nominative, accusative (-i), dative (-e), locative (-de), ablative (-den), genitive (-in).
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

@@ -1,6 +1,6 @@
 ================================================================================
   SyxBridge — Tutorial
-  Edition: v0.23.0  |  Stand: 2026-06-24
+  Edition: v0.25.0-alpha  |  Stand: 2026-07-01
   Sprache: English
   Zweck: Peer-Review-Snapshot, enthaelt Dev-Tools + Doku.
         Ausgeschlossen sind nur node_modules + Secrets.
@@ -189,6 +189,6 @@ See FREEZE_INDEX_2.md §16 for historical bug archive.
 
 
 ================================================================================
-  END — SyxBridge Tutorial v0.23.0
+  END — SyxBridge Tutorial v0.25.0-alpha
   Single Source of Truth: AGENTS.md + README.md + PLAN.md
 ================================================================================

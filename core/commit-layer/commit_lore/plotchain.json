@@ -3171,5 +3171,481 @@
         "file": "core/scripts/update-badges.js"
       }
     ]
+  },
+  {
+    "p_id": "p77",
+    "id": "plot-2026-07-01T22:14:27",
+    "timestamp": "2026-07-01 22:14:27",
+    "summary": "GUI Rebuild, i18n, ML-7 E2E Test, cli-progress Fix, Version Bump v0.25.0-alpha",
+    "narrator": "Echo",
+    "model_id": "Claude Sonnet 4.6 Thinking",
+    "composite": "c72j31n12a3p9",
+    "ref_to": "plot-2026-06-29T22:05:02",
+    "prev_narrator": "Ghost",
+    "data_changes": [
+      {
+        "file": ".gitignore"
+      },
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "TUTORIAL.txt"
+      },
+      {
+        "file": "_Info.txt"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/DB/db_repair.js"
+      },
+      {
+        "file": "core/DB/run-metrics-db.js"
+      },
+      {
+        "file": "core/GUI/INDEX.md"
+      },
+      {
+        "file": "core/GUI/public/app.js"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/GUI/public/modules/lang-strings.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/TREE.md"
+      },
+      {
+        "file": "core/Translation/INDEX.md"
+      },
+      {
+        "file": "core/Translation/providers/INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/AGENTS.md"
+      },
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/SYSTEM_ARCHITECTURE.md"
+      },
+      {
+        "file": "core/commit-layer/author_system.js"
+      },
+      {
+        "file": "core/grammar_context_Chinese.txt"
+      },
+      {
+        "file": "core/grammar_context_Dutch.txt"
+      },
+      {
+        "file": "core/grammar_context_French.txt"
+      },
+      {
+        "file": "core/grammar_context_German.txt"
+      },
+      {
+        "file": "core/grammar_context_Italian.txt"
+      },
+      {
+        "file": "core/grammar_context_Japanese.txt"
+      },
+      {
+        "file": "core/grammar_context_Korean.txt"
+      },
+      {
+        "file": "core/grammar_context_Polish.txt"
+      },
+      {
+        "file": "core/grammar_context_Portuguese.txt"
+      },
+      {
+        "file": "core/grammar_context_Russian.txt"
+      },
+      {
+        "file": "core/grammar_context_Spanish.txt"
+      },
+      {
+        "file": "core/grammar_context_Swedish.txt"
+      },
+      {
+        "file": "core/grammar_context_Turkish.txt"
+      },
+      {
+        "file": "core/grammar_context_Ukrainian.txt"
+      },
+      {
+        "file": "core/package.json"
+      },
+      {
+        "file": "core/tests/e2e_multi_language.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p78",
+    "id": "plot-2026-07-01T22:17:06",
+    "timestamp": "2026-07-01 22:17:06",
+    "summary": "CHANGELOG: Session 2026-07-02 konsolidiert (GUI+i18n+ML-7+Fixes)",
+    "narrator": "Echo",
+    "model_id": "Claude Sonnet 4.6 Thinking",
+    "composite": "c73j74n12a2p57",
+    "ref_to": "plot-2026-07-01T22:14:27",
+    "prev_narrator": "Ghost",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      }
+    ]
+  },
+  {
+    "p_id": "p79",
+    "id": "plot-2026-07-01T22:20:51",
+    "timestamp": "2026-07-01 22:20:51",
+    "summary": "DOKU: LIVE_INDEX + MASTER_DOC + SYSTEM_ARCHITECTURE auf v0.25.0-alpha (2026-07-02)",
+    "narrator": "Devin",
+    "model_id": "Claude Sonnet 4.6 Thinking",
+    "composite": "c74j89n6a5p29",
+    "ref_to": "plot-2026-07-01T22:17:06",
+    "prev_narrator": "Echo",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/SYSTEM_ARCHITECTURE.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p80",
+    "id": "plot-2026-07-01T22:33:18",
+    "timestamp": "2026-07-01 22:33:18",
+    "summary": "GUI_REWORK.md + HANDSHAKE.md: Session-Persistenz fuer nahtlose 429-Wiederaufnahme",
+    "narrator": "Flux",
+    "model_id": "Claude Sonnet 4.6 Thinking",
+    "composite": "c75j46n13a1p31",
+    "ref_to": "plot-2026-07-01T22:20:51",
+    "prev_narrator": "Devin",
+    "data_changes": [
+      {
+        "file": "GUI_REWORK.md"
+      },
+      {
+        "file": "HANDSHAKE.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      }
+    ]
+  },
+  {
+    "p_id": "p81",
+    "id": "plot-2026-07-01T22:35:11",
+    "timestamp": "2026-07-01 22:35:11",
+    "summary": "FIX: SQL Syntax Error (preflight.js)",
+    "narrator": "Vannon",
+    "model_id": "Gemini 3.5 Flash",
+    "composite": "c76j53n4a2p51",
+    "ref_to": "plot-2026-07-01T22:33:18",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/DB/preflight.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p82",
+    "id": "plot-2026-07-01T23:14:10",
+    "timestamp": "2026-07-01 23:14:10",
+    "summary": "GUI_REWORK: Polish & Debug von v0.25.0-alpha auf v0.26.0-alpha",
+    "narrator": "Sage",
+    "model_id": "Gemini 3.5 Flash",
+    "composite": "c77j59n14a1p79",
+    "ref_to": "plot-2026-07-01T22:35:11",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "GUI_REWORK.md"
+      },
+      {
+        "file": "HANDSHAKE.md"
+      },
+      {
+        "file": "core/GUI/public/app.js"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/GUI/public/modules/lang-strings.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-core.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/GUI/server-routes.js"
+      },
+      {
+        "file": "core/Translation/providers/client-factory.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p83",
+    "id": "plot-2026-07-01T23:15:07",
+    "timestamp": "2026-07-01 23:15:07",
+    "summary": "DOKU: Aktualisiere Folder-Indizes nach GUI Rework",
+    "narrator": "Flux",
+    "model_id": "Gemini 3.5 Flash",
+    "composite": "c78j70n13a4p19",
+    "ref_to": "plot-2026-07-01T23:14:10",
+    "prev_narrator": "Sage",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/adapters/INDEX.md"
+      },
+      {
+        "file": "core/Translation/plugins/INDEX.md"
+      },
+      {
+        "file": "core/scripts/INDEX.md"
+      },
+      {
+        "file": "core/tests/INDEX.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p84",
+    "id": "plot-2026-07-01T23:16:53",
+    "timestamp": "2026-07-01 23:16:53",
+    "summary": "GUI Rebuild, i18n-System, E2E-Tests, Polish & Debug (Konsolidierter Tages-Commit)",
+    "narrator": "Buffy",
+    "model_id": "Gemini 3.5 Flash",
+    "composite": "c79j56n1a5p52",
+    "ref_to": "plot-2026-07-01T23:15:07",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": ".gitignore"
+      },
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "GUI_REWORK.md"
+      },
+      {
+        "file": "HANDSHAKE.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "TUTORIAL.txt"
+      },
+      {
+        "file": "_Info.txt"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/DB/db_repair.js"
+      },
+      {
+        "file": "core/DB/preflight.js"
+      },
+      {
+        "file": "core/DB/run-metrics-db.js"
+      },
+      {
+        "file": "core/GUI/INDEX.md"
+      },
+      {
+        "file": "core/GUI/public/app.js"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/GUI/public/modules/lang-strings.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-core.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/GUI/server-routes.js"
+      },
+      {
+        "file": "core/TREE.md"
+      },
+      {
+        "file": "core/Translation/INDEX.md"
+      },
+      {
+        "file": "core/Translation/adapters/INDEX.md"
+      },
+      {
+        "file": "core/Translation/plugins/INDEX.md"
+      },
+      {
+        "file": "core/Translation/providers/INDEX.md"
+      },
+      {
+        "file": "core/Translation/providers/client-factory.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      },
+      {
+        "file": "core/archive/docs/AGENTS.md"
+      },
+      {
+        "file": "core/archive/docs/CHANGELOG.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/SYSTEM_ARCHITECTURE.md"
+      },
+      {
+        "file": "core/commit-layer/author_system.js"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/composite_chain.json"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/plotchain.json"
+      },
+      {
+        "file": "core/grammar_context_Chinese.txt"
+      },
+      {
+        "file": "core/grammar_context_Dutch.txt"
+      },
+      {
+        "file": "core/grammar_context_French.txt"
+      },
+      {
+        "file": "core/grammar_context_German.txt"
+      },
+      {
+        "file": "core/grammar_context_Italian.txt"
+      },
+      {
+        "file": "core/grammar_context_Japanese.txt"
+      },
+      {
+        "file": "core/grammar_context_Korean.txt"
+      },
+      {
+        "file": "core/grammar_context_Polish.txt"
+      },
+      {
+        "file": "core/grammar_context_Portuguese.txt"
+      },
+      {
+        "file": "core/grammar_context_Russian.txt"
+      },
+      {
+        "file": "core/grammar_context_Spanish.txt"
+      },
+      {
+        "file": "core/grammar_context_Swedish.txt"
+      },
+      {
+        "file": "core/grammar_context_Turkish.txt"
+      },
+      {
+        "file": "core/grammar_context_Ukrainian.txt"
+      },
+      {
+        "file": "core/package.json"
+      },
+      {
+        "file": "core/scripts/INDEX.md"
+      },
+      {
+        "file": "core/tests/INDEX.md"
+      },
+      {
+        "file": "core/tests/e2e_multi_language.js"
+      }
+    ]
   }
 ]

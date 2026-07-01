@@ -1,9 +1,9 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
-> **Stand:** 2026-06-29 | **Version:** v0.24.0
+> **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha
 > **Status:** 5 LIVE + 20 FREEZE + 13 PLAN + 7 Root + 8 INDEX
 > **Regel:** Nur Pflicht-Dokus bleiben. Alle Einmal-Audits, HANDSHAKEs und Specs vollarchiviert.
-> **Letzter Doku-Audit:** 2026-06-29 — P4-Rest: S-010 diagnostics.js DI, S-011 backup-utils Extraktion, S-012 Quick Wins.
+> **Letzter Doku-Audit:** 2026-07-02 — GUI-Rebuild, i18n, ML-7 E2E Test (166/166 PASS), cli-progress Fix, grammar_context-Dateien (14 NEU).
 
 ## LIVE-Dokumente (5)
 
@@ -76,35 +76,44 @@
 | 1 | `AGENTS.md` | Agenten-Regelwerk (SSOT) | Pflicht |
 | 2 | `core/archive/docs/CHANGELOG.md` | Aktuelle Versionshistorie ab v0.22.0 | Pflicht (persistent) |
 | 3 | `README.md` | Projektreadme (User-facing) | Pflicht |
-| 5 | `PLAN.md` | Master-Plan v0.23.0 (22 Tasks, P0–P4, 86% done) | Pflicht |
-| 6 | `TUTORIAL.txt` | Peer-Review-Tutorial (DE/EN) | Pflicht |
+| 4 | `CHANGELOG.md` | Root-CHANGELOG (SSOT-Kopie — ab 2026-07-02) | Pflicht |
+| 5 | `PLAN.md` | Master-Plan v0.25.0-alpha (P4 offen, P5 RimWorld geplant) | Pflicht |
+| 6 | `TUTORIAL.txt` | Peer-Review-Tutorial (EN) | Pflicht |
 | 7 | `_Info.txt` | Mod-Metadaten (Laufzeit) | Pflicht |
 
 ## INDEX-Dokumente (8)
 
 | # | Dokument | Zweck |
 |---|----------|-------|
-| 1 | `core/src/INDEX.md` | Funktions-Index core/src/ (30 Dateien, ~180 Funktionen) |
-| 2 | `core/src/adapters/INDEX.md` | Adapter-Schicht (1 Datei, 15 Methoden) |
-| 3 | `core/src/gui/INDEX.md` | GUI-Schicht (2 Dateien, ~45 Funktionen) |
-| 4 | `core/src/plugins/INDEX.md` | Plugin-Schicht (2 Dateien, 23 Methoden) |
-| 5 | `core/src/providers/INDEX.md` | Provider-Schicht (1 Datei, 12 Funktionen) |
-| 6 | `core/scripts/INDEX.md` | Scripts (25 Dateien, ~5000 LOC) |
-| 7 | `core/tests/INDEX.md` | Tests (10 Dateien, 2300+ LOC) |
-| 8 | `core/TREE.md` | Projektstruktur-Übersicht |
+| 1 | `core/GUI/INDEX.md` | GUI-Schicht (server.js, public/) |
+| 2 | `core/Translation/INDEX.md` | Translation-Schicht (Pipeline, Provider, Config) |
+| 3 | `core/Translation/providers/INDEX.md` | Provider-Schicht (11 Provider) |
+| 4 | `core/DB/INDEX.md` | DB-Schicht (db.js, DAOs) |
+| 5 | `core/scripts/INDEX.md` | Scripts (check_syntax, release, sync-version etc.) |
+| 6 | `core/tests/INDEX.md` | Tests — plugin-boundary, e2e_bug1, **e2e_multi_language (ML-7, NEU)** |
+| 7 | `core/TREE.md` | Projektstruktur-Übersicht v0.25.0-alpha |
+| 8 | `core/commit-layer/INDEX.md` | Commit-Layer (author_system, character_sheets, writing_rules) |
 
 ## Projekt-Assets
 
 | # | Verzeichnis | Zweck |
 |---|-----------|-------|
-| 1 | `V70/` | Mod-Version 70 Assets (README.md + .gitkeep Struktur) |
-| 2 | `V71/` | Mod-Version 71 Assets (README.md + .gitkeep Struktur) |
+| 1 | `V70/` | Mod-Version 70 Assets (README.md + .gitkeep) |
+| 2 | `V71/` | Mod-Version 71 Assets (README.md + .gitkeep) |
+
+## Grammar-Context-Dateien (14 NEU — 2026-07-02)
+
+> Sprachspezifische Grammatik-Hints für LLM-Prompts. Abdeckung: alle 14 unterstützten Sprachen.
+
+| # | Datei | Sprache |
+|---|-------|--------|
+| 1–14 | `core/grammar_context_*.txt` | German, English, French, Spanish, Polish, Russian, Chinese, Japanese, Korean, Ukrainian, Turkish, Dutch, Swedish, Italian, Portuguese |
 
 ## DB-Archiv (nach Bereinigung)
 
 | # | Dokument | Zweck |
 |---|----------|-------|
-| 1 | `core/archive/dbold/DB_TREND_REPORT.md` | Kumulierter DB-Trend aller Snapshots (einziger Verbleibender) |
+| 1 | `core/archive/dbold/DB_TREND_REPORT.md` | Kumulierter DB-Trend aller Snapshots |
 
 > **8 DB-Snapshots entfernt** — Daten in DB_TREND_REPORT.md konsolidiert.
 
@@ -151,4 +160,4 @@
 
 ---
 
-*LIVE INDEX aktualisiert 2026-06-29 — P4-Rest: Doku nachgezogen, Version v0.24.0.*
+*LIVE INDEX aktualisiert 2026-07-02 — GUI-Rebuild + i18n + ML-7 E2E + cli-progress Fix + grammar_context-Dateien.*

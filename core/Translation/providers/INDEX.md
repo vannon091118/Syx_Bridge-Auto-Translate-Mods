@@ -1,6 +1,6 @@
 # 📖 INDEX — core/src/providers/ (4 Dateien, ~690 LOC)
 
-> **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-06-26 | **Version:** v0.23.0
+> **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-07-01 | **Version:** v0.25.0-alpha
 > **Zweck:** Referenzbuch für die Provider-Schicht (zentrale callProvider-Dispatch)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
@@ -64,4 +64,4 @@
 
 ---
 
-*📖 Provider-INDEX v0.23.0 — 4 Dateien, ~690 LOC, 15 Funktionen*
+*📖 Provider-INDEX v0.25.0-alpha — 4 Dateien, ~690 LOC, 15 Funktionen*

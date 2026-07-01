@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Japanese. Use です/ます form for UI, flexible for character dialog.
+Game terminology: katakana for foreign loanwords, kanji for native concepts.
+
+TERMS:
+N/A — Japanese does not have common function words in the same sense as European languages.
+
+GRAMMAR:
+Japanese uses a mix of Kanji (CJK), Hiragana (U+3040–U+309F), and Katakana (U+30A0–U+30FF).
+Word order is SOV (Subject-Object-Verb) — verb always at the end.
+Particles mark grammatical function: は (topic), が (subject), を (object), に (direction), で (means), の (possessive).
+No grammatical gender, number, or articles.
+Full-width punctuation: 。 、 「」 『』
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

@@ -1,12 +1,12 @@
 # 📖 INDEX — core/GUI/ (14 Dateien, ~3.970 LOC)
 
-> **Generiert:** 2026-06-26 | **Version:** v0.23.0
+> **Generiert:** 2026-07-01 | **Version:** v0.25.0-alpha
 > **Zweck:** Referenzbuch für die GUI-Schicht (HTTP-Server + Client-Dashboard)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
 ---
 
-## Struktur (modularisiert v0.23.0)
+## Struktur (modularisiert v0.25.0-alpha)
 
 ```
 core/GUI/
@@ -237,6 +237,6 @@ core/GUI/
 
 ---
 
-*📖 GUI-INDEX v0.23.0 — 14 Dateien, ~3.970 LOC. Extraktionen: server-routes.js, run-evaluation.js, backup-utils.js. Client: 5 Module + Bootstrap. Neu: reset_now.js + workshop_export.js dokumentiert.*
+*📖 GUI-INDEX v0.25.0-alpha — 14 Dateien, ~3.970 LOC.*
 
 > **Letztes Update:** 2026-06-29 — backup-utils.js: scanModsForBackup + restoreBackupForMod dokumentiert

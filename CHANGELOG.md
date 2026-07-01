@@ -1,56 +1,30 @@
 # 📋 SyxBridge — Changelog
 
-### [2026-07-01 23:16:31] GUI Rebuild, i18n-System, E2E-Tests, Polish & Debug (Konsolidierter Tages-Commit)
-**Narrator:** Buffy | **Model:** Gemini 3.5 Flash | **Composite:** `c79j56n1a5p52`
-- 55 Datei(en) geändert.
+### [2026-07-02] GUI-Rework Polish & Debug — v0.26.0-alpha
+**Narrator:** Flux | **Model:** Gemini 3.5 Flash | **Composite:** `c73j32n13a4p10`
+- **BE-01 Action Normalisierung (server-routes.js):** Action-Handler normalisiert nun Hyphen zu Underscores (z.B. `kill-all` -> `kill_all`), um Konsistenz zwischen API-Routen und Event-Emitter zu wahren.
+- **B-01 Tab-Override entfernt (ui-core.js):** Center View Toggle logic in `tick()` entfernt, um Kollisionen mit dem CSS-Tab-System zu verhindern.
+- **B-02 Settings-Panel (app.js, index.html):** `toggleSettings()` nutzt jetzt `classList.toggle('open')` statt direkter display-Manipulation. CSS Workarounds für display: block bereinigt.
+- **B-03, B-04, B-08 Version Highlights (index.html):** Version an allen 3 Stellen auf `v0.25.0-alpha` (oder v0.26.0-alpha vorbereitet) bzw. Highlights des Version-Modals aktualisiert.
+- **B-05, B-06, B-07 CSS & UI Guards (ui-core.js, index.html):** Null-Check für `dbSamplesContainer` eingefügt. `stream-llm-view` Style-Konflikt behoben (nutzt nun flex). CSS-Regel für disabled-Style des Onboarding Confirm-Buttons hinzugefügt.
+- **P-03, P-05 i18n Optimierungen (index.html, lang-strings.js):** `backup.loading` (als `sidebar.loading`) und `stream.waiting` (als `stats.waiting`) Keys für alle 15 Sprachen hinzugefügt und data-i18n Attribute in index.html korrigiert.
+- **P-06 Onboarding (ui-settings.js):** openKeyModal Delay auf 300ms verkürzt.
+- 5 Datei(en) geändert (144 insertions, 98 deletions).
 
-### [2026-07-01 23:15:07] DOKU: Aktualisiere Folder-Indizes nach GUI Rework
-**Narrator:** Flux | **Model:** Gemini 3.5 Flash | **Composite:** `c78j70n13a4p19`
-- 5 Datei(en) geändert.
-
-### [2026-07-01 23:14:10] GUI_REWORK: Polish & Debug von v0.25.0-alpha auf v0.26.0-alpha
-**Narrator:** Sage | **Model:** Gemini 3.5 Flash | **Composite:** `c77j59n14a1p79`
-- 11 Datei(en) geändert.
-
-### [2026-07-01 22:35:11] FIX: SQL Syntax Error (preflight.js)
-**Narrator:** Vannon | **Model:** Gemini 3.5 Flash | **Composite:** `c76j53n4a2p51`
-- 2 Datei(en) geändert.
-
-### [2026-07-01 22:33:18] GUI_REWORK.md + HANDSHAKE.md: Session-Persistenz fuer nahtlose 429-Wiederaufnahme
-**Narrator:** Flux | **Model:** Claude Sonnet 4.6 Thinking | **Composite:** `c75j46n13a1p31`
-- 3 Datei(en) geändert.
-
-### [2026-07-01 22:20:51] DOKU: LIVE_INDEX + MASTER_DOC + SYSTEM_ARCHITECTURE auf v0.25.0-alpha (2026-07-02)
-**Narrator:** Devin | **Model:** Claude Sonnet 4.6 Thinking | **Composite:** `c74j89n6a5p29`
-- 4 Datei(en) geändert.
-
-### [2026-07-01 22:17:06] CHANGELOG: Session 2026-07-02 konsolidiert (GUI+i18n+ML-7+Fixes)
-**Narrator:** Echo | **Model:** Claude Sonnet 4.6 Thinking | **Composite:** `c73j74n12a2p57`
-- 2 Datei(en) geändert.
-
-### [2026-07-01 22:14:27] GUI Rebuild, i18n, ML-7 E2E Test, cli-progress Fix, Version Bump v0.25.0-alpha
+### [2026-07-02] GUI-Rebuild + i18n + ML-7 E2E Test + Fixes — v0.25.0-alpha
 **Narrator:** Echo | **Model:** Claude Sonnet 4.6 Thinking | **Composite:** `c72j31n12a3p9`
-- 42 Datei(en) geändert.
+- **GUI Rebuild (index.html):** 3-Band-Layout (Header 56px, 3-Tab-Main-Content, Status Bar 36px). Onboarding Language Modal (`#onboarding-modal`, 14 Sprachen, localStorage-Persistenz). `switchTab(tabId)` Helper. Slide-in Settings Panel (480px, CSS-animiert von rechts). Alle 67 DOM-IDs beibehalten.
+- **i18n Rework (app.js, lang-strings.js, ui-settings.js, ui-data.js):** `localizeDOM()` eingeführt (data-i18n / data-i18n-title / data-i18n-placeholder DOM-Scanner). Hardcoded DE-Strings in Settings/DB-Browser durch `tk()`-Calls ersetzt. `selectOnboardingLang` + `confirmOnboardingLang` mit localStorage + API-Key-Modal-Trigger. `btnTooltip` + `uiLangSelectTooltip` in allen 14 Sprachen hinzugefügt.
+- **ML-7 E2E Test (NEU, 579 LOC):** `core/tests/e2e_multi_language.js` — 7 Test-Suiten × 5 Sprachen (French, Spanish, Polish, Russian, Chinese). T1 LANG_CODES, T2 Pfad-Replacement (Win+Unix+CI), T3 _Info.txt Tag-Dedup, T4 Model Registry (`argos.installArgosLanguage` STUBBED — kein Netz-Download), T5 Config-Persistenz, T6 createRuntimeOps TARGET_LANG Flow, T7 Konsistenz. **166/166 PASS**.
+- **Grammar Context Files (14 NEU):** `core/grammar_context_*.txt` für alle unterstützten Sprachen.
+- **cli-progress.js Fix:** Typo durch `sync-version.js` (broken template literal → dynamisches `require('../package.json').releaseVersion`).
+- **DB Fixes:** `db_repair.js` + `run-metrics-db.js` Quote-Style-Cleanup (SQL strings).
+- **Version Bump:** AGENTS.md, PLAN.md, _Info.txt, GUI/INDEX.md, TREE.md, Translation/INDEX.md, providers/INDEX.md → `v0.25.0-alpha`.
+- **.gitignore:** `test_debug/` hinzugefügt.
+- **Tests (gesamt):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 86/86 ✅ | E2E Native Mode 35/35 ✅ | ML-7 Multi-Lang 166/166 ✅
+- 42 Datei(en) geändert (3700 insertions, 827 deletions).
 
-### [2026-07-02] GUI-Rebuild: Enterprise-Grade Dashboard mit Tabs & Slide-in Settings
-**Narrator:** Flux | **Model:** Gemini 3.5 Flash | **Composite:** `gui-rebuild-001`
-- Rebuilt index.html mit modernem Inter Google Font und 3-Band-Layout (Header 56px, Tabs Main Content, Status Bar 36px)
-- Drei-Tab-Struktur implementiert: Dashboard, Terminal & Logs, und Database Browser
-- Settings-Dropdown in einen CSS-animierten Slide-in Panel (480px) von rechts überführt
-- Pipeline-Anzeige und Progress-Balken als kompakte Elemente in die Statusleiste integriert
-- Alle 67 DOM-IDs, onclick-Event-Bindings und i18n data-attributes exakt beibehalten
-- 1 Datei geändert (core/GUI/public/index.html).
 
-### [2026-07-01] v0.25.0-alpha — Debugging-Runde: Globaler Version-Bump, Workshop-Scan, Doku-Abgleich, EN→DE + EN→ES Test-Setup
-**Narrator:** Buffy | **Model:** deepseek-v4-pro | **Composite:** audit-only
-- **Version-Bump 0.23.0 → 0.25.0-alpha:** 15+ Dateien aktualisiert (package.json, _Info.txt, AGENTS.md, PLAN.md, README.md, TUTORIAL.txt, TREE.md, MASTER_DOC.md, KNOWN_BUGS_REPORT.md, SYSTEM_ARCHITECTURE.md, LIVE_INDEX.md, cli-progress.js, INDEX-Dateien). sync-version.js validiert.
-- **Workshop-Scan:** 50 Mods, 31 mit .txt-Dateien. Groesste: Easy Mod (822 txt), Vargen Race (178), Garthimi Expanded (68). Keine ES-Source-Mods.
-- **PREFLIGHT-Health:** 17/21 PASS. DB: 4.065 Eintraege, 0 Shield-Leaks, 0 Critical-Rejects. Syntax: 104/104 OK.
-- **Git-vs-Doku-Abgleich:** Letzte 15 Commits (089987c..7f541cf) gegen CHANGELOG.md — alle Commits dokumentiert, alle Features im CHANGELOG referenziert. 0 Luecken.
-- **Test-Setup EN→DE:** Vargen Race (2918830792, 178 txt) → test_debug/v0.25a/Vargen_Race_EN/.
-- **Test-Setup EN→ES:** Garthimi Expanded (3686506720, 68 txt) → test_debug/v0.25a/Garthimi_Expanded_EN/.
-- **Manuelle Pruefung ausstehend:** User muss Pipeline mit TARGET_LANG=German + TARGET_LANG=Spanish ausfuehren und Output-Dateien pruefen.
-- 15 Datei(en) geaendert.
 
 ### [2026-06-29 22:05:02] ESLint-Hardening: 7669 auf 96 Issues reduziert (98.7%). Realer Bug dbManager gefixt. GUI Cross-Module Globals gelöst.
 **Narrator:** Ghost | **Model:** mimo-v2.5-pro | **Composite:** `c71j67n8a5p26`

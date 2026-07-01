@@ -1,0 +1,16 @@
+LANGUAGE & STYLE:
+Target language is Italian. Use formal "Lei" for UI, natural for lore.
+Italian prefers melodic flow — avoid harsh consonant clusters.
+
+TERMS:
+Common Italian words: il, la, i, le, un, una, e, non, con, per, che, di, da, in, su, è, sono, ha, hanno, più, come, anche, tutto, molto, bene, fare, essere, avere, potere, volere
+
+GRAMMAR:
+Italian nouns have gender (il/la) and number. Adjectives agree in gender and number.
+Definite articles combine with prepositions: di+il=del, a+il=al, da+il=dal, in+il=nel, su+il=sul.
+Subject pronouns are often omitted (pro-drop).
+Accents are mandatory: à, è, é, ì, ò, ù. Grave accent for most; acute for é only.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

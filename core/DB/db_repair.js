@@ -63,19 +63,19 @@ async function main() {
 
   await runRepair(
     '1. NATIVE_STALE (native_runtime, src=tgt)',
-    "SELECT COUNT(*) as c FROM translations WHERE provider='native_runtime' AND source_text=translation",
+    'SELECT COUNT(*) as c FROM translations WHERE provider=\'native_runtime\' AND source_text=translation',
     () => adminDb.repairNativeStale()
   );
 
   await runRepair(
     '2. UNFLAGGED_STALE (src=tgt, nicht native_runtime)',
-    `SELECT COUNT(*) as c FROM translations WHERE source_text=translation AND flagged=0 AND provider NOT IN ('native_runtime','native_proper_noun','native_non_translatable')`,
+    'SELECT COUNT(*) as c FROM translations WHERE source_text=translation AND flagged=0 AND provider NOT IN (\'native_runtime\',\'native_proper_noun\',\'native_non_translatable\')',
     () => adminDb.repairUnflaggedStale()
   );
 
   await runRepair(
     '3. SHIELD_LEAK (unreplaced tokens)',
-    "SELECT COUNT(*) as c FROM translations WHERE (translation LIKE '%__SHLD_%' OR translation LIKE '%[[%' OR translation LIKE '%]]%') AND flag_reason NOT LIKE '%shield_leak%'",
+    'SELECT COUNT(*) as c FROM translations WHERE (translation LIKE \'%__SHLD_%\' OR translation LIKE \'%[[%\' OR translation LIKE \'%]]%\') AND flag_reason NOT LIKE \'%shield_leak%\'',
     () => adminDb.repairShieldLeaks()
   );
 
@@ -87,12 +87,12 @@ async function main() {
 
   await runRepair(
     '5. JAVA_NOISE (view.sett/world.map)',
-    "SELECT COUNT(*) as c FROM translations WHERE source_text LIKE '%view.sett%' OR source_text LIKE '%world.map%'",
+    'SELECT COUNT(*) as c FROM translations WHERE source_text LIKE \'%view.sett%\' OR source_text LIKE \'%world.map%\'',
     () => adminDb.repairJavaNoise()
   );
 
   const orphanRevs = await q('SELECT COUNT(*) as c FROM translation_revisions WHERE source_text NOT IN (SELECT source_text FROM translations)');
-  console.log(`\n── 6. ORPHANED_REVISIONS ──`);
+  console.log('\n── 6. ORPHANED_REVISIONS ──');
   console.log(`  Gefunden: ${orphanRevs[0].c}`);
   if (!DRY_RUN && orphanRevs[0].c > 0) {
     const changes = await adminDb.repairOrphanedRevisions();
@@ -100,16 +100,16 @@ async function main() {
     totalFixed += changes;
   }
 
-  const staleOrphans = await q("SELECT COUNT(*) as c FROM translations WHERE flag_reason='stale_retranslate' AND source_text!=translation");
-  const staleStill = await q("SELECT COUNT(*) as c FROM translations WHERE flag_reason='stale_retranslate' AND source_text=translation");
-  console.log(`\n── 7. STALE_RETRANSLATE_CLEANUP ──`);
+  const staleOrphans = await q('SELECT COUNT(*) as c FROM translations WHERE flag_reason=\'stale_retranslate\' AND source_text!=translation');
+  const staleStill = await q('SELECT COUNT(*) as c FROM translations WHERE flag_reason=\'stale_retranslate\' AND source_text=translation');
+  console.log('\n── 7. STALE_RETRANSLATE_CLEANUP ──');
   console.log(`  Orphan-Flags: ${staleOrphans[0].c}, Still-Stale: ${staleStill[0].c}`);
   if (!DRY_RUN) {
     const result = await adminDb.repairCleanupStaleRetranslate();
     totalFixed += result.orphanFlagsCleared + result.staleReset;
   }
 
-  console.log(`\n═══════════════════════════════════════════════════════════`);
+  console.log('\n═══════════════════════════════════════════════════════════');
   console.log(`  ${DRY_RUN ? 'DRY RUN' : 'REPARATUR ABGESCHLOSSEN'}`);
   console.log(`  Gesamt repariert: ${totalFixed} Einträge`);
   console.log('═══════════════════════════════════════════════════════════');

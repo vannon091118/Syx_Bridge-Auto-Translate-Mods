@@ -1,6 +1,7 @@
 # SYSTEM_ARCHITECTURE.md — SyxBridge Architektur-Referenz
 
-> **Version:** v0.24.0 | **Stand:** 2026-06-29
+> **Version:** v0.25.0-alpha | **Stand:** 2026-07-02
+> **Letzte Aktualisierung:** 2026-07-02 — GUI-Rebuild (3-Tab-Layout, Onboarding Modal, i18n localizeDOM), ML-7 E2E Test, grammar_context-Dateien.
 > **Zweck:** Vollständige Architekturerklärung mit Dependencies, Entscheidungsbegründungen und Datenflüssen.
 > **Für:** Neue Entwickler, Architektur-Reviews, Plugin-Entwicklung für neue Spiele.
 
@@ -512,30 +513,38 @@ Jeder Charakter hat: `voice_traits`, `verifier_rules` (min_words, max_words, mus
 
 ## 10. SCHICHT 7: GUI
 
-### 10.1 server.js — HTTP-Server (650 LOC)
+### 10.1 server.js — HTTP-Server (~650 LOC)
 
 - `GuiServer extends EventEmitter` auf `localhost:3000`
 - SSE (Server-Sent Events) für Echtzeit-Logs, Status-Updates, DB-Samples
 - 25+ REST-Endpoints: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`
 - Auto-Shutdown bei Inaktivität (1.5s nach letzter Session-Close)
 - Port-Fallback: EADDRINUSE → Port+1
+- Modularisiert via `server-routes.js` (Handler extern)
 
-### 10.2 app.js — Client (1854 LOC)
+### 10.2 app.js + public/modules/ — Client
 
-- `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle)
-- SSE-Verbindung: Echtzeit-Logs + Status-Updates + Provider-Stats
-- Pipeline-Visualizer (4 Phasen: SCAN → LLM → QA → SAVE)
-- DB-Browser: Suche, Edit (Mehrzeilen), Save, Revisionen
-- Settings-Dropdown: Provider/Modell/Language/Batch-Size live konfigurierbar
-- FCM Live Rankings: Modell-Tiers, Ping, Stabilität
-- Runtime Score Floating Panel (standardmäßig minimiert)
+**app.js** (~70 LOC, Bootstrap): Initialisiert UI-Sprache, `localizeDOM()`, Onboarding-Modal-Trigger.
 
-### 10.3 index.html — Frontend
+**public/modules/** (5 Domain-Module):
+- `state.js` — Globaler App-State
+- `ui-core.js` — Kern-UI, requestAnimationFrame Hauptloop (60fps/4fps)
+- `ui-settings.js` — Settings, Mode-Toggle, **Onboarding-Language-Modal** (`selectOnboardingLang`, `confirmOnboardingLang`)
+- `ui-data.js` — DB-Browser, Revisionen, Localization via `tk()`
+- `ui-sse.js` — SSE-Verbindung, Echtzeit-Logs + Status-Updates
+- `lang-strings.js` — i18n: 14 Sprachen, `t(key)`, `tk(key)`, **`localizeDOM()`** (data-i18n Scanner)
 
-- Dark-Theme mit CSS-Variablen
-- 3-Spalten-Layout: Sidebar | Center (Terminal/DB) | Right (Stats/Backups)
-- Neon-Progress-Border via SVG (animiert bei laufendem Sync)
-- State-abhängige Hintergründe (running=Gelb, success=Grün, error=Rot-Blink)
+### 10.3 index.html — Frontend (v0.25.0-alpha Rebuild)
+
+- **3-Band-Layout:** Header (56px, Titel + UI-Sprache + Version-Highlights), Tabs (Main Content), Status Bar (36px, Pipeline-Status + Progress)
+- **3-Tab-Struktur:**
+  - **Dashboard** — Pipeline-Visualizer, FCM Rankings, Provider-Stats
+  - **Terminal & Logs** — CLI-Output, Run-Evaluation
+  - **Database Browser** — Suche, Edit, Revisionen
+- **Slide-in Settings Panel** (480px, CSS-animiert von rechts) — ersetzt Settings-Dropdown
+- **Onboarding Language Modal** (`#onboarding-modal`) — erscheint beim ersten Start, 14 Sprachen, localStorage-Persistenz (`syxbridge-ui-lang-selected`), auto-öffnet API-Key-Modal wenn keine Keys konfiguriert
+- Dark-Theme mit CSS-Variablen (`--bg`, `--accent`, `--success`, `--danger`, `--muted`)
+- Alle 67 DOM-IDs + onclick-Bindings + i18n data-attributes beibehalten
 
 ---
 
@@ -623,7 +632,7 @@ index.js
 
 ---
 
-## 13. Kennzahlen (v0.23.0)
+## 13. Kennzahlen (v0.25.0-alpha)
 
 | Metrik | Wert |
 |--------|------|

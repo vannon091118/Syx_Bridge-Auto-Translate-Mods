@@ -1,6 +1,6 @@
-# 🌳 SyxBridge v0.23.0 — Projekt-Struktur (TREE)
+# 🌳 SyxBridge v0.25.0-alpha — Projekt-Struktur (TREE)
 
-> **Generiert:** 2026-06-25 | **Branch:** restructure/domains | **Version:** v0.23.0
+> **Generiert:** 2026-07-01 | **Branch:** main | **Version:** v0.25.0-alpha
 > **Architektur:** Domän-basierte Modularisierung (DB, Translation, GUI, commit-layer)
 
 ```
@@ -19,7 +19,7 @@ SyxBridge_Live/                          # Root — Deployment-Verzeichnis
 └── core/                                # ═══ Anwendung ═══
     │
     ├── index.js                         # ⭐ ENTRY POINT — Orchestrator
-    ├── package.json                     # v0.22.0, Dependencies
+    ├── package.json                     # v0.25.0-alpha, Dependencies
     ├── package-lock.json
     ├── eslint.config.mjs                # ESLint-Konfiguration
     ├── LICENSE                          # MIT
@@ -253,4 +253,4 @@ SyxBridge_Live/                          # Root — Deployment-Verzeichnis
 
 ---
 
-*🌳 TREE v0.23.0 — Domän-basierte Struktur nach Phase 1+2 Restructuring*
+*🌳 TREE v0.25.0-alpha — Domän-basierte Struktur nach Phase 1+2 Restructuring*

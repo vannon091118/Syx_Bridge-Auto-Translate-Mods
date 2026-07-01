@@ -1,0 +1,18 @@
+LANGUAGE & STYLE:
+Target language is German. Use formal "Sie" for UI, neutral for lore.
+Game terminology should sound natural in German — not literal translations.
+Prefer compound nouns over long descriptive phrases.
+
+TERMS:
+Common German words: der, die, das, und, nicht, mit, für, eine, einer, einen, ihre, seine, den, dem, des, von, ist, sind, wird, werden, zum, zur, bei, nach, ohne, auch, noch, schon, nur, aber, oder, weil, wenn, dass
+
+GRAMMAR:
+German uses grammatical gender (der/die/das) and four cases (Nominativ, Genitiv, Dativ, Akkusativ).
+Adjectives must agree with their noun in gender, case, and number.
+Verbs go to position 2 in main clauses; to the end in subordinate clauses.
+Compound nouns are written as one word or with hyphens.
+Use umlauts (ä, ö, ü) and ß correctly.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

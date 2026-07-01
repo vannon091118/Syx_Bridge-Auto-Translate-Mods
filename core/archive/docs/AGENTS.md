@@ -1,5 +1,5 @@
 # AGENTS.md — SyxBridge Agenten-Regelwerk
-> **Version:** v0.23.0 | **Stand:** 2026-06-26
+> **Version:** v0.25.0-alpha | **Stand:** 2026-07-01
 > **LIES DIE DOKUMENTATION:** core/archive/docs/ — IMMER zuerst lesen.
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können.
 
@@ -243,7 +243,7 @@ Schicht 3: FREEZE_INDEX.md
 
 ---
 
-# TEIL 13 — ARCHITEKTUR & STATUS (v0.23.0)
+# TEIL 13 — ARCHITEKTUR & STATUS (v0.25.0-alpha)
 
 ## 13.1 Plugin-Schicht (3 Ebenen)
 

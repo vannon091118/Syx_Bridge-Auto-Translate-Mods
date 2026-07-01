@@ -2120,8 +2120,24 @@ const STRINGS =
       'Swedish': 'Slumpmässigt skapad. Avsiktligt körd. 🎮',
       'Italian': 'Costruito per caso. Funziona di proposito. 🎮',
       'Portuguese': 'Construído acidentalmente. Funciona intencionalmente. 🎮',
-      'Chinese': '偶然构建。有意运行。🎮',
       'Japanese': '偶然の産物。意図的に稼働中。🎮'
+    },
+    'btnTooltip': {
+      'German': 'Was ist neu — Versions-Highlights anzeigen',
+      'English': 'What\'s new — show version highlights',
+      'French': 'Quoi de neuf — afficher les points forts de la version',
+      'Spanish': 'Novedades — ver novedades de esta versión',
+      'Polish': 'Co nowego — pokaż najważniejsze informacje o wersji',
+      'Russian': 'Что нового — показать особенности версии',
+      'Korean': '새로운 기능 — 버전 주요 내용 보기',
+      'Ukrainian': 'Що нового — показати особливості версії',
+      'Turkish': 'Yenilikler — sürüm özelliklerini göster',
+      'Dutch': 'Wat is er nieuw — toon hoogtepunten van de versie',
+      'Swedish': 'Vad är nytt — visa höjdpunkter för versionen',
+      'Italian': 'Cosa c\'è di nuovo — mostra i punti salienti della versione',
+      'Portuguese': 'O que há de novo — mostrar destaques da versão',
+      'Chinese': '最新动态 — 显示版本亮点',
+      'Japanese': '新機能 — バージョンのハイライトを表示'
     }
   },
   'revisionModal': {
@@ -2673,6 +2689,23 @@ const STRINGS =
       'Chinese': '正在加载 Mod…',
       'Japanese': 'Mod 読み込み中...'
     },
+    'loading': {
+      'German': 'Backups laden...',
+      'English': 'Loading backups...',
+      'French': 'Chargement des sauvegardes...',
+      'Spanish': 'Cargando copias de seguridad...',
+      'Polish': 'Ładowanie kopii zapasowych...',
+      'Russian': 'Загрузка резервных копий...',
+      'Korean': '백업 불러오는 중...',
+      'Ukrainian': 'Завантаження резервних копій...',
+      'Turkish': 'Yedekler yükleniyor...',
+      'Dutch': 'Backups laden...',
+      'Swedish': 'Laddar backuper...',
+      'Italian': 'Caricamento backup...',
+      'Portuguese': 'A carregar backups...',
+      'Chinese': '正在加载备份…',
+      'Japanese': 'バックアップ読み込み中...'
+    },
     'noModsFound': {
       'German': 'Keine Mods gefunden',
       'English': 'No mods found',
@@ -2757,6 +2790,23 @@ const STRINGS =
       'Portuguese': 'Ainda sem novas traduções nesta sessão.',
       'Chinese': '此会话中暂无新翻译。',
       'Japanese': '現在のセッションではまだ新規翻訳はありません。'
+    },
+    'waiting': {
+      'German': 'Warte...',
+      'English': 'Waiting...',
+      'French': 'En attente...',
+      'Spanish': 'Esperando...',
+      'Polish': 'Czekanie...',
+      'Russian': 'Ожидание...',
+      'Korean': '대기 중...',
+      'Ukrainian': 'Очікування...',
+      'Turkish': 'Bekleniyor...',
+      'Dutch': 'Wachten...',
+      'Swedish': 'Väntar...',
+      'Italian': 'In attesa...',
+      'Portuguese': 'A aguardar...',
+      'Chinese': '等待中...',
+      'Japanese': '待機中...'
     },
     'llmBtn': {
       'German': 'LLM →',
@@ -4003,6 +4053,23 @@ const STRINGS =
       'Portuguese': 'Erro desconhecido',
       'Chinese': '未知错误',
       'Japanese': '不明なエラー'
+    },
+    'uiLangSelectTooltip': {
+      'German': 'Dashboard-Sprache wechseln — unabhängig von der Übersetzungs-Zielsprache',
+      'English': 'Switch dashboard language — independent of target translation language',
+      'French': 'Changer la langue du tableau de bord — indépendante de la langue cible de traduction',
+      'Spanish': 'Cambiar el idioma del tablero — independiente del idioma de traducción de destino',
+      'Polish': 'Zmień język pulpitu — niezależnie od docelowego języka tłumaczenia',
+      'Russian': 'Сменить язык панели — независимо от целевого языка перевода',
+      'Korean': '대시보드 언어 변경 — 대상 번역 언어와 독립적',
+      'Ukrainian': 'Змінити мову панелі — незалежно від цільової мови перекладу',
+      'Turkish': 'Kontrol paneli dilini değiştir — hedef çeviri dilinden bağımsız',
+      'Dutch': 'Dashboard-taal wijzigen — onafhankelijk van doeltaal van de vertaling',
+      'Swedish': 'Ändra instrumentspråk — oberoende av målspråk för översättning',
+      'Italian': 'Cambia la lingua del pannello — indipendente dalla lingua di traduzione di destinazione',
+      'Portuguese': 'Alterar idioma do painel — independente do idioma de tradução de destino',
+      'Chinese': '切换仪表板语言 — 独立于翻译目标语言',
+      'Japanese': 'ダッシュボードの言語を切り替える — 翻訳対象言語とは独立'
     }
   }
 };
@@ -4023,12 +4090,45 @@ function setUILanguage(lang) {
   }
 }
 
+function localizeDOM() {
+  if (typeof document === 'undefined') return;
+  const tk = t;
+
+  // Translate all elements with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const translated = tk(key);
+    if (translated && !translated.startsWith('[[')) {
+      el.textContent = translated;
+    }
+  });
+
+  // Translate titles
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    const translated = tk(key);
+    if (translated && !translated.startsWith('[[')) {
+      el.setAttribute('title', translated);
+    }
+  });
+
+  // Translate placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const translated = tk(key);
+    if (translated && !translated.startsWith('[[')) {
+      el.setAttribute('placeholder', translated);
+    }
+  });
+}
+
 // ── Window exports for HTML onclick handlers ─────────────────────────
 if (typeof window !== 'undefined') {
   window.t = t;
   window.setUILanguage = setUILanguage;
   window.getUILanguage = getUILanguage;
   window.SUPPORTED_UI_LANGS = SUPPORTED_UI_LANGS;
+  window.localizeDOM = localizeDOM;
 }
 
-module.exports = { STRINGS, SUPPORTED_UI_LANGS, t, setUILanguage, getUILanguage };
+module.exports = { STRINGS, SUPPORTED_UI_LANGS, t, setUILanguage, getUILanguage, localizeDOM };

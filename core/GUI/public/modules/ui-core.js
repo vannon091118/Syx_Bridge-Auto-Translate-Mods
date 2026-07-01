@@ -133,21 +133,8 @@ function tick(now) {
     }
   }
 
-  // Center View Toggle
-  var termView = document.getElementById('terminal-view-container');
-  var dbView = document.getElementById('db-browser-container');
-  if (termView && dbView) {
-    if (liveStats.isRunning) {
-      termView.style.display = 'flex';
-      dbView.style.display = 'none';
-    } else {
-      termView.style.display = 'none';
-      dbView.style.display = 'flex';
-    }
-  }
-
   // Sequential Sample Rotation
-  if (now - lastSampleRotation > 5000) {
+  if (dbSamplesContainer && now - lastSampleRotation > 5000) {
     var samples = dbSamplesContainer.querySelectorAll('.sample-card');
     if (samples.length > 1) {
       var first = samples[0];
@@ -349,7 +336,7 @@ function toggleStreamView() {
   if (!dbView || !llmView || !btn) return;
   if (_streamViewIsLLM) {
     dbView.style.display = 'none';
-    llmView.style.display = 'block';
+    llmView.style.display = 'flex';
     btn.textContent = '← DB';
     btn.title = 'Zurück zur DB-Livestream-Ansicht';
   } else {

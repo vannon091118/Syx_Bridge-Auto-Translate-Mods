@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Spanish. Use formal "usted" for UI commands, tú for casual lore.
+Game terminology should sound natural — not calques from English.
+
+TERMS:
+Common Spanish words: el, la, los, las, un, una, y, no, con, para, es, son, en, de, que, por, más, pero, como, todo, muy, también, hay, ser, estar, tener, hacer, poder, ir
+
+GRAMMAR:
+Spanish nouns have gender (el/la) and number. Adjectives agree in gender and number.
+Two verbs for "to be": ser (permanent) vs estar (temporary).
+Personal "a" before animate direct objects.
+Inverted question marks (¿) and exclamation marks (¡) are mandatory at sentence start.
+Accents are mandatory: á, é, í, ó, ú, ü, ñ.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

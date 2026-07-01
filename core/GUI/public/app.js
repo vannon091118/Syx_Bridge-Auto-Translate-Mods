@@ -11,6 +11,18 @@
     var sel = document.getElementById('ui-lang-select');
     if (sel) sel.value = window.getUILanguage();
   }
+  if (window.localizeDOM) {
+    window.localizeDOM();
+  }
+  try {
+    var onboardingDone = localStorage.getItem('syxbridge-ui-lang-selected');
+    if (!onboardingDone) {
+      setTimeout(function() {
+        var modal = document.getElementById('onboarding-modal');
+        if (modal) modal.style.display = 'flex';
+      }, 500);
+    }
+  } catch (e) {}
 })();
 
 // ── Lifecycle: Always Active ──────────────────────────────────────────
@@ -65,8 +77,8 @@ window.toggleSettings = function() {
     return;
   }
   var dropdown = document.getElementById('settings-dropdown');
-  var isOpen = dropdown.style.display !== 'none';
-  dropdown.style.display = isOpen ? 'none' : 'block';
+  var isOpen = dropdown.classList.contains('open');
+  dropdown.classList.toggle('open');
   if (!isOpen && window.startSettingsPolling) window.startSettingsPolling();
   if (isOpen && window.stopSettingsPolling) window.stopSettingsPolling();
 };

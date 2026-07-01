@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Polish. Use formal register for UI, natural for lore.
+Polish word order is flexible — use natural-sounding structures.
+
+TERMS:
+Common Polish words: i, w, z, na, do, się, nie, to, że, jest, są, dla, przez, po, przy, za, ale, lub, oraz, także, bardzo, może, będzie, mają, było, były
+
+GRAMMAR:
+Polish has 7 cases (mianownik, dopełniacz, celownik, biernik, narzędnik, miejscownik, wołacz).
+Three grammatical genders (masculine, feminine, neuter) with sub-genders.
+Verbs conjugate for person, number, gender, and aspect.
+Special characters are mandatory: ą, ć, ę, ł, ń, ó, ś, ź, ż.
+Consonant clusters and palatalization are characteristic.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

@@ -1,0 +1,18 @@
+LANGUAGE & STYLE:
+Target language is Swedish. Use formal "ni" for UI, "du" for casual lore.
+Swedish is Germanic with relatively simple conjugation and noun gender.
+
+TERMS:
+Common Swedish words: och, att, det, som, en, ett, i, på, är, för, med, till, av, den, de, inte, har, kan, ska, kommer, blir, vara, från, men, eller, när, då, där, hur
+
+GRAMMAR:
+Swedish uses Latin alphabet with additional letters: å, ä, ö.
+Two grammatical genders: common (en) and neuter (ett).
+Definiteness is marked by suffixes: en bok (a book) → boken (the book).
+Adjectives agree with noun gender and number: en stor bok, ett stort hus, stora böcker.
+Verbs do not conjugate for person — only tense: är (is), var (was), har (has), hade (had).
+Word order: V2 in main clauses (verb always second position).
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Portuguese. Use formal "você" for UI, natural for lore.
+Game terminology should sound natural — avoid translating names literally.
+
+TERMS:
+Common Portuguese words: o, a, os, as, um, uma, e, não, com, para, que, de, da, do, em, no, na, é, são, tem, têm, mais, como, também, tudo, muito, bem, fazer, ser, estar, ter, poder
+
+GRAMMAR:
+Portuguese nouns have gender (o/a) and number. Adjectives agree in gender and number.
+Two verbs for "to be": ser (permanent) vs estar (temporary).
+Articles contract with prepositions: de+o=do, em+o=no, a+o=ao, por+o=pelo.
+European Portuguese (pt-PT) uses ênclise (object pronouns after verb).
+Special characters: ã, õ, á, é, í, ó, ú, â, ê, ô, ç, à.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

@@ -1,8 +1,8 @@
 # SyxBridge – Master-Dokumentation (Destillat)
 
-**Stand:** 29.06.2026 | **Version:** v0.24.0 | **Autor:** Vannon & Sub-Agents
+**Stand:** 02.07.2026 | **Version:** v0.25.0-alpha | **Autor:** Vannon & Sub-Agents
 **Destilliert aus:** MASTER_DOC.md (Basis), FREEZE_INDEX_2.md, CHANGELOG.md, CHANGELOG_1.md
-**Letzte Prüfung:** 2026-06-26 — Doku-Divergenz-Audit (DD-001–DD-007)
+**Letzte Prüfung:** 2026-07-02 — GUI-Rebuild, i18n, ML-7 E2E, cli-progress Fix, grammar_context-Dateien.
 
 ---
 
@@ -72,8 +72,8 @@ Scan → Extract → Translate → Audit → Polish → Export
 |-------|-------|-----|----------|--------|
 | 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 16 | Abstraktes Base-Interface |
 | 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 12 | Format-Hooks mit Defaults |
-| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~290 | 23 | ✅ Voll integriert |
-| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~155 | 24 (11 fertig) | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
+| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~377 | 35 | ✅ Voll integriert |
+| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~221 | 28 (11 fertig) | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
 | — | `plugin-registry.js` | ~30 | 1 Factory | ✅ `createPlugin(gameName)` |
 
 **Ebene 1 — `GameAdapter`:** Plattform-Operationen (Launcher-Pfade, Mod-Scanning, Dateitypen).
@@ -107,15 +107,14 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 ---
 
-## 5. DB-Stand (2026-06-26 — Live)
+## 5. DB-Stand (2026-07-02 — Live)
 
-
-> **Live-DB Stand 2026-06-26:** **3.797 Einträge** — DB wurde am 24.06.2026 hart resettet (Commit `c35j3n1a5p21`),
-> seitdem durch Übersetzungs-Runs wieder auf 3.797 Einträge angewachsen.
-> **Provider:** 10 aktive Provider — siehe §2 Provider Matrix.
+> **Live-DB Stand 2026-07-02:** **4.065 Eintraege** — letzter PREFLIGHT: 17/21 PASS, 0 Shield-Leaks, 1.492 Flagged.
+> **Provider:** 11 aktive Provider — siehe §2 Provider Matrix.
 > **better-sqlite3 aktiv** — 13 Tabellen (12 user + sqlite_sequence).
 > Frühere DB-Resets: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test), Fresh Reset (4.390 → 0).
 > **Runtime Score:** 90.1% (gewichteter Durchschnitt über 8 Personas, Stand v0.22 — seit Reset nicht neu berechnet).
+> **Tests (2026-07-02):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 86/86 ✅ | E2E Native Mode 35/35 ✅ | **ML-7 Multi-Lang 166/166 ✅**
 
 ---
 
@@ -129,6 +128,9 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 | P1 | ~~DB-Sanitization: Watermarks aus alten Einträgen~~ | ✅ Erledigt (DB Fresh Reset 2026-06-24) |
 | P2 | ~~DB-Cleanup `stale_retranslate`~~ | ✅ Erledigt (DB Fresh Reset 2026-06-24) |
 | P2 | Bidirektionaler Vendor-Sync Phase 2 (F.A) | ~3-4h |
+| P4 | S-012 Quick Wins + GUI-HARDCODE + SOS-RUNTIME | 🟡 OFFEN |
+| P5 | RimWorld-Implementierung (PLAN_RIMWORLD, 19 Tasks) | 🟡 PLANUNG (~16h) |
+| ML | Multi-Language Pipeline — `e2e_multi_language.js` in `npm run test` integrieren | 🟡 Schritt 1 DONE (ML-7 E2E 166/166) |
 
 
 ---

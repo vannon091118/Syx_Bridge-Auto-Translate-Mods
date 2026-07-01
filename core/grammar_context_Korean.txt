@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Korean. Use 합쇼체 (formal -습니다) for UI, 해요체 for casual dialog.
+Game terminology: use established Korean translations when available.
+
+TERMS:
+N/A — Korean does not have common function words in the same sense as European languages.
+
+GRAMMAR:
+Korean uses Hangul (U+AC00–U+D7A3) — a featural alphabet combined into syllabic blocks.
+Word order is SOV (Subject-Object-Verb) — verb always at the end.
+Extensive particle system: 은/는 (topic), 이/가 (subject), 을/를 (object), 에 (location), 에서 (at).
+Speech levels indicate formality (합쇼체, 해요체, 해체, etc.).
+No grammatical gender or articles.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

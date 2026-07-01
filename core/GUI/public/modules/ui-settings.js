@@ -41,6 +41,7 @@ function updateModeUI() {
   var status = document.getElementById('mode-status');
   var isNative = !!currentConfig.NATIVE_MODE;
   var overrideActive = document.getElementById('patch-override-active');
+  var tk = window.t || function(k) { return k; };
 
   if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
 
@@ -49,27 +50,27 @@ function updateModeUI() {
     document.body.classList.remove('mode-patch');
     if (btn) {
       if (currentConfig.PATCH_MODE_ENABLED) {
-        btn.textContent = 'Wechsle zu PATCH';
-        btn.title = 'Patch Mode aktiviert (PATCH_MODE_ENABLED=true)';
+        btn.textContent = tk('settings.switchToPatch');
+        btn.title = tk('settings.switchToPatchTooltip') || 'Patch Mode activated (PATCH_MODE_ENABLED=true)';
         btn.disabled = false;
         btn.style.opacity = '1';
       } else {
-        btn.textContent = 'Wechsle zu PATCH';
-        btn.title = 'Patch Mode nicht aktiviert — setze PATCH_MODE_ENABLED=true in .env';
+        btn.textContent = tk('settings.switchToPatch');
+        btn.title = tk('settings.switchToPatchDisabledTooltip') || 'Patch Mode not activated — set PATCH_MODE_ENABLED=true in .env';
         btn.disabled = true;
         btn.style.opacity = '0.4';
       }
     }
     if (status) {
-      status.textContent = 'Aktuell: NATIVE MODE (Inplace)';
+      status.textContent = tk('settings.currentNative');
       status.style.color = 'var(--accent)';
     }
   } else {
     document.body.classList.add('mode-patch');
     document.body.classList.remove('mode-native');
-    if (btn) { btn.textContent = 'Wechsle zu NATIVE'; }
+    if (btn) { btn.textContent = tk('settings.switchToNative'); }
     if (status) {
-      status.textContent = 'Aktuell: PATCH MODE (⚠️ EXPERIMENTELL)';
+      status.textContent = tk('settings.currentPatch');
       status.style.color = 'var(--danger)';
     }
   }
@@ -77,27 +78,34 @@ function updateModeUI() {
   var kfButton = document.getElementById('patch-toggle-kf');
   if (kfButton) {
     if (currentConfig.PATCH_MODE_ENABLED) {
-      kfButton.textContent = patchOverrideEnabled ? 'PATCH MODE DEAKTIVIEREN' : 'PATCH MODE AKTIVIEREN';
+      kfButton.textContent = patchOverrideEnabled ? tk('settings.patchModeDeactivate') : tk('settings.patchModeActivate');
       kfButton.style.borderColor = patchOverrideEnabled ? 'var(--success)' : 'var(--accent)';
       kfButton.style.color = patchOverrideEnabled ? 'var(--success)' : 'var(--accent)';
     } else {
-      kfButton.textContent = 'PATCH MODE AKTIVIEREN';
+      kfButton.textContent = tk('settings.patchModeActivate');
       kfButton.style.borderColor = 'var(--muted)';
       kfButton.style.color = 'var(--muted)';
     }
   }
   if (overrideActive) {
     overrideActive.textContent = currentConfig.PATCH_MODE_ENABLED 
-      ? (patchOverrideEnabled ? '⚠️ AKTIV (Experimentell)' : '⏸ BEREIT (Klicken zum Aktivieren)')
-      : '⛔ DEAKTIVIERT (PATCH_MODE_ENABLED=false)';
+      ? (patchOverrideEnabled ? tk('settings.patchModeActiveWarn') : tk('settings.patchModeReady'))
+      : tk('settings.patchModeBlocked');
     overrideActive.style.color = currentConfig.PATCH_MODE_ENABLED 
       ? (patchOverrideEnabled ? 'var(--danger)' : 'var(--accent)')
       : 'var(--muted)';
   }
   var headerBadge = document.getElementById('patch-badge-header');
   if (headerBadge) {
-    headerBadge.textContent = patchOverrideEnabled ? '⚠️ AKTIV' : '⛔ DEAKTIVIERT (Standard)';
+    headerBadge.textContent = patchOverrideEnabled ? tk('settings.patchModeActiveWarn') : tk('settings.deactivatedStandard');
     headerBadge.style.color = patchOverrideEnabled ? 'var(--danger)' : 'var(--muted)';
+  }
+
+  var modeWarning = document.getElementById('mode-warning');
+  if (modeWarning) {
+    var nativeLabel = tk('header.navNativ') + ' ' + (isNative ? '<span style="color:var(--success)">' + tk('header.navAktiv') + '</span>' : '<span style="color:var(--muted)">' + tk('header.navDeaktiviert') + '</span>');
+    var patchLabel = tk('header.navPatch') + ' ' + (!isNative ? '<span style="color:var(--success)">' + tk('header.navAktiv') + '</span>' : '<span style="color:var(--danger)">' + tk('header.navDeaktiviert') + '</span>');
+    modeWarning.innerHTML = nativeLabel + ' | ' + patchLabel;
   }
 }
 
@@ -259,9 +267,10 @@ function updateLocalModelsUI() {
   var status = document.getElementById('local-models-status');
   var toggle = document.getElementById('cfg-local-models');
   var enabled = !!currentConfig.LOCAL_MODELS_ENABLED;
+  var tk = window.t || function(k) { return k; };
   if (toggle) toggle.checked = enabled;
   if (status) {
-    status.textContent = enabled ? '⚠️ Lokale LLMs freigegeben — Hardware kann heiss werden!' : '⛔ Lokale LLMs gesperrt (Hardware-Schutz)';
+    status.textContent = enabled ? tk('settings.localModelsUnlocked') : tk('settings.localModelsLocked');
     status.style.color = enabled ? 'var(--danger)' : 'var(--muted)';
   }
 }
@@ -281,6 +290,7 @@ function updateOllamaCloudUI() {
   var status = document.getElementById('ollama-cloud-status');
   var enabled = !!currentConfig.OLLAMA_CLOUD_ENABLED;
   var cloudUrl = currentConfig.OLLAMA_CLOUD_URL || '';
+  var tk = window.t || function(k) { return k; };
 
   if (toggle) toggle.checked = enabled;
   if (urlInput) urlInput.value = cloudUrl;
@@ -296,13 +306,13 @@ function updateOllamaCloudUI() {
 
   if (status) {
     if (enabled && cloudUrl) {
-      status.textContent = '☁️ Cloud-Modus: ' + cloudUrl;
+      status.textContent = tk('settings.ollamaCloudActive') + ' ' + cloudUrl;
       status.style.color = '#5a9fd4';
     } else if (enabled && !cloudUrl) {
-      status.textContent = '⚠️ Cloud aktiv aber keine URL gesetzt — nutzt localhost als Fallback';
+      status.textContent = tk('settings.ollamaCloudNoUrl');
       status.style.color = 'var(--accent)';
     } else {
-      status.textContent = '⛔ Lokal (localhost)';
+      status.textContent = tk('settings.ollamaCloudLocal');
       status.style.color = 'var(--muted)';
     }
   }
@@ -312,11 +322,89 @@ function updateOllamaCloudUI() {
 window.onUiLangChange = function(lang) {
   if (!lang || !window.setUILanguage) return;
   window.setUILanguage(lang);
+  
+  // Localize DOM globally
+  if (window.localizeDOM) window.localizeDOM();
+
+  // ── AUTO-SYNC: UI Language → TARGET_LANG ────────────────────────────
+  // When the user selects a UI language (e.g. ES), also set the translation
+  // target language so LLM prompts use the correct language context and
+  // grammar_context_*.txt file. English is excluded (no EN→EN translation).
+  var cfgLangEl = document.getElementById('cfg-lang');
+  if (cfgLangEl && lang !== 'English') {
+    // Only sync if the language exists as a target language option
+    var options = Array.from(cfgLangEl.options).map(function(o) { return o.value; });
+    if (options.indexOf(lang) !== -1) {
+      cfgLangEl.value = lang;
+      currentConfig.TARGET_LANG = lang;
+      saveConfig(true); // silent save — no alert
+    }
+  }
+
   // Refresh visible UI elements that were rendered before language change
   updateModeUI();
   updateLocalModelsUI();
   updateOllamaCloudUI();
   if (window.updateBatchRecommendation) window.updateBatchRecommendation();
+};
+
+// ── Onboarding Modal Handlers ─────────────────────────────────────────
+let selectedOnboardingLang = null;
+
+window.selectOnboardingLang = function(lang) {
+  selectedOnboardingLang = lang;
+  
+  var buttons = document.querySelectorAll('.onboarding-lang-btn');
+  buttons.forEach(btn => {
+    if (btn.getAttribute('data-lang') === lang) {
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.background = 'rgba(216, 151, 60, 0.15)';
+      btn.style.color = 'var(--accent)';
+    } else {
+      btn.style.borderColor = '';
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  });
+  
+  var confirmBtn = document.getElementById('onboarding-confirm-btn');
+  if (confirmBtn) {
+    confirmBtn.disabled = false;
+    var confirmText = (lang === 'German') ? 'Fortfahren' : 'Continue';
+    confirmBtn.textContent = confirmText;
+  }
+};
+
+window.confirmOnboardingLang = function() {
+  if (!selectedOnboardingLang) return;
+  
+  try {
+    localStorage.setItem('syxbridge-ui-lang-selected', 'true');
+  } catch (e) {}
+  
+  if (window.onUiLangChange) {
+    window.onUiLangChange(selectedOnboardingLang);
+  }
+  
+  var sel = document.getElementById('ui-lang-select');
+  if (sel) sel.value = selectedOnboardingLang;
+  
+  var modal = document.getElementById('onboarding-modal');
+  if (modal) modal.style.display = 'none';
+  
+  if (window.currentConfig) {
+    var hasKeys = (currentConfig.GEMINI_KEYS && currentConfig.GEMINI_KEYS.length > 0) || 
+                   (currentConfig.GROQ_KEYS && currentConfig.GROQ_KEYS.length > 0) || 
+                   (currentConfig.OPENROUTER_KEYS && currentConfig.OPENROUTER_KEYS.length > 0) ||
+                   (currentConfig.NVIDIA_KEYS && currentConfig.NVIDIA_KEYS.length > 0) ||
+                   (currentConfig.OPENAI_KEYS && currentConfig.OPENAI_KEYS.length > 0) ||
+                   currentConfig.PRIMARY_PROVIDER === 'ollama' ||
+                   currentConfig.PRIMARY_PROVIDER === 'player2' ||
+                   currentConfig.PRIMARY_PROVIDER === 'custom_api';
+    if (!hasKeys && window.openKeyModal) {
+      setTimeout(window.openKeyModal, 300);
+    }
+  }
 };
 function startSettingsPolling() {
   if (_modelStatusInterval) return;

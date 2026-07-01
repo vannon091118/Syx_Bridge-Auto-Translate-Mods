@@ -15,6 +15,11 @@ const { getProviderChatConfig } = require('./provider-chat-config');
 const { createArgosClient } = require('./argos-client');
 const { buildGeminiSchema, buildGeminiRequest } = require('./gemini-utils');
 
+// 429-RUN-PERMANENT: When a key hits 429, disable it for the entire run.
+// 24h cooldown is effectively permanent since runs are much shorter.
+// Prevents 429-loops where a rate-limited key would be retried after 30s.
+const RUN_PERMANENT_COOLDOWN = 86400000; // 24 hours in ms
+
 function createProviderClients(ctx) {
   const {
     config, configRuntime, axios, langCodes,
@@ -175,7 +180,7 @@ function createProviderClients(ctx) {
       // Mark current key as rate-limited so rotation skips it
       const currentIndex = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
       if (configRuntime && configRuntime.markKeyCooldown) {
-        configRuntime.markKeyCooldown(provider, currentIndex, 60000);
+        configRuntime.markKeyCooldown(provider, currentIndex, RUN_PERMANENT_COOLDOWN);
       }
       rotateApiKey(provider);
     }
@@ -223,7 +228,7 @@ function createProviderClients(ctx) {
         if (pc.handleRateLimits && configRuntime) configRuntime.updateProviderRateLimit(provider, true);
         const ci = (config.KEY_INDICES && config.KEY_INDICES[provider]) || 0;
         if (pc.markKeyStatus && configRuntime && configRuntime.markKeyCooldown) {
-          configRuntime.markKeyCooldown(provider, ci, 30000);
+          configRuntime.markKeyCooldown(provider, ci, RUN_PERMANENT_COOLDOWN);
         }
       }
 
@@ -334,7 +339,7 @@ function createProviderClients(ctx) {
         if (configRuntime) configRuntime.updateProviderRateLimit('gemini', true);
         // Mark this key as cooled so rotateApiKey() skips it
         const ci = (config.KEY_INDICES && config.KEY_INDICES.gemini) || 0;
-        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('gemini', ci, 30000);
+        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('gemini', ci, RUN_PERMANENT_COOLDOWN);
       }
       
       // Only rotate if we haven't tried all keys yet
@@ -560,7 +565,7 @@ function createProviderClients(ctx) {
         batchMultipliers['gemini'] = Math.max(0.25, (batchMultipliers['gemini'] || 1.0) * 0.5);
         if (configRuntime) configRuntime.updateProviderRateLimit('gemini', true);
         const ci = (config.KEY_INDICES && config.KEY_INDICES.gemini) || 0;
-        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('gemini', ci, 30000);
+        if (configRuntime && configRuntime.markKeyCooldown) configRuntime.markKeyCooldown('gemini', ci, RUN_PERMANENT_COOLDOWN);
         if (attemptCount < keys.length && rotateApiKey('gemini')) {
           return executeStageRequest(stage, route, prompt, options, attemptCount + 1);
         }

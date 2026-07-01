@@ -598,6 +598,78 @@
       "narrator": "Ghost",
       "model_id": "mimo-v2.5-pro",
       "date": "2026-06-29 22:05:02"
+    },
+    {
+      "seq": 72,
+      "hash": "089987c",
+      "composite": "c72j31n12a3p9",
+      "mood": "sarkastisch",
+      "narrator": "Echo",
+      "model_id": "Claude Sonnet 4.6 Thinking",
+      "date": "2026-07-01 22:14:27"
+    },
+    {
+      "seq": 73,
+      "hash": "da50a4b",
+      "composite": "c73j74n12a2p57",
+      "mood": "selbstironisch",
+      "narrator": "Echo",
+      "model_id": "Claude Sonnet 4.6 Thinking",
+      "date": "2026-07-01 22:17:06"
+    },
+    {
+      "seq": 74,
+      "hash": "82a7a88",
+      "composite": "c74j89n6a5p29",
+      "mood": "warm",
+      "narrator": "Devin",
+      "model_id": "Claude Sonnet 4.6 Thinking",
+      "date": "2026-07-01 22:20:51"
+    },
+    {
+      "seq": 75,
+      "hash": "0f69fd8",
+      "composite": "c75j46n13a1p31",
+      "mood": "müde-zufrieden",
+      "narrator": "Flux",
+      "model_id": "Claude Sonnet 4.6 Thinking",
+      "date": "2026-07-01 22:33:18"
+    },
+    {
+      "seq": 76,
+      "hash": "74a54b4",
+      "composite": "c76j53n4a2p51",
+      "mood": "triumphierend",
+      "narrator": "Vannon",
+      "model_id": "Gemini 3.5 Flash",
+      "date": "2026-07-01 22:35:11"
+    },
+    {
+      "seq": 77,
+      "hash": "749d33b",
+      "composite": "c77j59n14a1p79",
+      "mood": "warm",
+      "narrator": "Sage",
+      "model_id": "Gemini 3.5 Flash",
+      "date": "2026-07-01 23:14:10"
+    },
+    {
+      "seq": 78,
+      "hash": "7c08120",
+      "composite": "c78j70n13a4p19",
+      "mood": "sachlich",
+      "narrator": "Flux",
+      "model_id": "Gemini 3.5 Flash",
+      "date": "2026-07-01 23:15:07"
+    },
+    {
+      "seq": 79,
+      "hash": "089987c",
+      "composite": "c79j56n1a5p52",
+      "mood": "müde-zufrieden",
+      "narrator": "Buffy",
+      "model_id": "Gemini 3.5 Flash",
+      "date": "2026-07-01 23:16:53"
     }
   ]
 }

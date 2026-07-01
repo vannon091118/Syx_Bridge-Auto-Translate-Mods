@@ -360,7 +360,7 @@ const CAUSALITY_ANCHORS = [
   () => `Der Grund war der Impuls "${impulse}". Die Konsequenz: dieser Commit.`,
   () => `Weil der User "${impulse.substring(0, 40)}${impulse.length > 40 ? '…' : ''}" gesagt hat, wurde hier gehandelt.`,
   () => `Ursache: "${impulse}". Wirkung: dieser Commit.`,
-  () => `Der Impuls war klar — daher folgt die Umsetzung.`,
+  () => 'Der Impuls war klar — daher folgt die Umsetzung.',
   () => `"${impulse.substring(0, 50)}${impulse.length > 50 ? '…' : ''}" — Grund genug für diese Änderung.`,
   () => `Was der User wollte ("${impulse}") — deshalb wurde es dieser Commit.`,
 ];

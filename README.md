@@ -5,7 +5,7 @@
 <br/>
 
 <!-- BADGES — STATUS BOARD -->
-<a href="https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods/releases"><img src="https://img.shields.io/badge/version-v0.23.0-7C3AED?style=for-the-badge&logo=git&logoColor=white" alt="Version"/></a>&nbsp;
+<a href="https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods/releases"><img src="https://img.shields.io/badge/version-v0.25.0--alpha-7C3AED?style=for-the-badge&logo=git&logoColor=white" alt="Version"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/tests-119%20PASS%20%C2%B7%200%20FAIL-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Tests"/></a>&nbsp;
 <a href="#-quality-metrics--qualit%C3%A4tsmetriken"><img src="https://img.shields.io/badge/runtime%20score-90.1%25-F59E0B?style=for-the-badge" alt="Score"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/cache-3%2C288%20strings-8B5CF6?style=for-the-badge" alt="Cache"/></a>&nbsp;

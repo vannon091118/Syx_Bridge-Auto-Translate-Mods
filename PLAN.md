@@ -1,4 +1,4 @@
-# 📋 SyxBridge — Master-Plan (v0.23.0)
+# 📋 SyxBridge — Master-Plan (v0.25.0-alpha)
 
 > **Stand:** 2026-06-25 | **Konsolidiert aus:** MODULARISIERUNGS_PLAN, DEAD_CODE_REPORT, SCOPE_REPORT, 11 Sub-Plänen, RimWorld-Recherche
 > **Letzte Prüfung:** 2026-06-25 — Pläne-Audit: 11 Pläne geprüft (3 DONE, 8 OFFEN)

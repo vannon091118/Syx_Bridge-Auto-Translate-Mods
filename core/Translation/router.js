@@ -287,28 +287,16 @@ class Router {
       provider.flaggedForReview = true;
       console.error(`[ROUTER] ${id}: ${errInfo.meaning} (${status}) → ${errInfo.action}`);
     } else if (status === 429) {
-      // RATE LIMIT: Escalating cooldown instead of permanent disable.
-      // Rationale: 429 means the current key/quotant is exhausted. Key rotation
-      // in config-runtime handles switching keys automatically. Using escalating
-      // cooldown (like 500 errors) allows the provider to recover after cooldown
-      // expires, instead of being permanently disabled for the entire run.
-      // Previous behavior (enabled=false) caused NVIDIA to have 0 entries in DB
-      // despite being configured as PRIMARY_PROVIDER — a single 429 killed it.
-      const baseCooldown429 = 30000; // 30s base for rate limits (longer than server errors)
-      const previousCooldown = provider.lastCooldownMs || baseCooldown429;
-      const escalatedCooldown = Math.min(previousCooldown * 2, 300000); // cap at 5 min
-      provider.cooldownUntil = Date.now() + escalatedCooldown;
-      provider.lastCooldownMs = escalatedCooldown;
-      // 429-LOOP-FIX v2: flaggedForReview IMMER setzen beim ersten 429, nicht erst beim zweiten.
-      // Vorher: flaggedForReview = (previousStatus === 429) — erforderte zwei aufeinanderfolgende
-      // 429-Fehler bevor der Provider aus dem Route-Plan ausgeschlossen wurde. In der Praxis
-      // trat NVIDIA mit zwei verschiedenen Model-Keys auf (userProvider mit spezifischem Modell
-      // und 'auto' als Fallback) → NVIDIA wurde 2× versucht, jeweils 6-12s Retry-Zeit, bevor
-      // der nächste Provider drankam. Jetzt: flaggedForReview=true → buildRoutePlan skipt den
-      // Provider bereits nach dem ERSTEN 429. Die cooldown-basierte Recovery funktioniert
-      // trotzdem — nach Ablauf der Sperrfrist wird der Provider wieder in den Plan aufgenommen.
+      // 429-RUN-PERMANENT: Key/Provider ist für den gesamten Run raus.
+      // Rationale: 429 = Quota erschöpft. Weiteres Versuchen verschwendet
+      // nur API-Calls und Zeit. Key-Rotation in client-factory.js versucht
+      // andere Keys, aber der betroffene Key bekommt 24h Cooldown.
+      // Provider-Level: 24h Cooldown = effektiv Run-permanent.
+      const runPermanentCooldown = 86400000; // 24h — effektiv Run-permanent
+      provider.cooldownUntil = Date.now() + runPermanentCooldown;
+      provider.lastCooldownMs = runPermanentCooldown;
       provider.flaggedForReview = true;
-      console.warn(`[ROUTER] ${id}: ${errInfo.meaning} → ${errInfo.action} (429-Loop-Fix: Provider wird im aktuellen Run geskipped)`);
+      console.warn(`[ROUTER] ${id}: ${errInfo.meaning} → ${errInfo.action} (429: Key/Provider ist für diesen Run deaktiviert)`);
     } else if (status >= 500 || status === 0) {
       // Server/Network errors: double the previous cooldown (escalating backoff)
       // Default cooldown 10s → ×2 on repeat → 20s → 40s → 80s (capped at 5min)
@@ -404,17 +392,23 @@ class Router {
 
   getAllProviderStatuses() {
     const statuses = {};
-    for (const [id, data] of this.providers.entries()) {
+    // Immer ALLE Provider aus PROVIDER_REGISTRY anzeigen — nicht nur die
+    // die bereits in der internen Map sind. GUI soll IMMER Verfügbarkeit zeigen.
+    const allProviderIds = Object.keys(PROVIDER_REGISTRY);
+    for (const id of allProviderIds) {
+      const data = this.providers.get(id) || {};
       statuses[id] = {
-        enabled: data.enabled,
-        failureCount: data.failureCount,
-        cooldownUntil: data.cooldownUntil,
-        inCooldown: data.cooldownUntil > Date.now(),
+        enabled: data.enabled !== false,
+        failureCount: data.failureCount || 0,
+        cooldownUntil: data.cooldownUntil || 0,
+        inCooldown: (data.cooldownUntil || 0) > Date.now(),
         lastErrorStatus: data.lastErrorStatus || 0,
         lastErrorMeaning: data.lastErrorMeaning || '',
         lastErrorAction: data.lastErrorAction || '',
         flaggedForReview: !!data.flaggedForReview,
-        consecutiveGarbageBatches: data.consecutiveGarbageBatches || 0
+        consecutiveGarbageBatches: data.consecutiveGarbageBatches || 0,
+        isAvailable: this.isAvailable(id),
+        hasAccess: this.hasAccess(id)
       };
     }
     return statuses;

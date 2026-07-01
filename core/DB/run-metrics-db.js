@@ -72,7 +72,7 @@ function createRunMetricsDb(dbManager) {
     const db = dbManager.db();
     if (!db) return [];
     try {
-      return db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+      return db.prepare('SELECT name FROM sqlite_master WHERE type=\'table\'').all();
     } catch (e) {
       return [];
     }

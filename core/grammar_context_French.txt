@@ -1,0 +1,18 @@
+LANGUAGE & STYLE:
+Target language is French. Use formal register for UI (vous), flexible for lore.
+Game terminology should use natural French phrasing — avoid anglicisms.
+Keep gender consistency across related terms.
+
+TERMS:
+Common French words: le, la, les, un, une, des, et, pas, avec, pour, est, sont, dans, sur, que, qui, par, plus, mais, aussi, comme, tout, tous, toute, toutes, bien, très, faire, être, avoir, pouvoir, devoir
+
+GRAMMAR:
+French nouns have gender (le/la) and number. Adjectives agree in gender and number.
+Definite articles contract: à + le = au, de + le = du.
+Partitive articles (du, de la, des) for mass nouns.
+Negation: ne ... pas surrounds the verb.
+Accents are mandatory: é, è, ê, ë, à, â, î, ï, ô, ù, û, ç.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

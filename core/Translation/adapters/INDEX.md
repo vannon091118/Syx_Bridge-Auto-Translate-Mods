@@ -1,12 +1,12 @@
-# 📖 INDEX — core/src/adapters/ (1 Datei)
+# 📖 INDEX — core/Translation/adapters/ (1 Datei, 124 LOC)
 
-> **Generiert:** 2026-06-19 | **Version:** v0.20.0-pre-release
+> **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-07-02 | **Version:** v0.25.0-alpha
 > **Zweck:** Referenzbuch für die Adapter-Schicht (abstrakte Interface-Definition)
 > **CL-Refs:** Kanonische Quelle ist `../INDEX.md`. Lokale CL-Refs sind Kurzform. Bei Konflikt gilt `../INDEX.md`.
 
 ---
 
-## GameAdapter.js
+## GameAdapter.js (124 LOC)
 *Klasse: `GameAdapter` — Abstract Base Class für spiel-spezifische Adapter*
 
 | Zeile | Funktion | Beschreibung |
@@ -28,9 +28,8 @@
 | 110 | `isTranslatableFile(relativePath, fileType)` | throws 'Not implemented' |
 | 120 | `async scanMod(modDir)` | throws 'Not implemented' |
 
-**CHANGELOG-Ref:** [CL:0.19.5] Erstellt (Parser-Adapter-Integration), [CL:0.20.0-alpha.2] H7 Scanner Fallback entfernt
-**Implementiert von:** `SongsOfSyxPlugin` (via `GamePlugin`)
+**Implementiert von:** `SongsOfSyxPlugin` (via `GamePlugin`), `RimWorldPlugin` (Stub)
 
 ---
 
-*📖 Adapter-INDEX v0.20.0 — 1 Datei, 15 abstrakte Methoden*
+*📖 Adapter-INDEX v0.25.0-alpha — 1 Datei, 124 LOC, 16 abstrakte Methoden*

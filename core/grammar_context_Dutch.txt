@@ -1,0 +1,17 @@
+LANGUAGE & STYLE:
+Target language is Dutch. Use formal "u" for UI, "je" for casual lore.
+Dutch is closely related to German — compound nouns and separable verbs are common.
+
+TERMS:
+Common Dutch words: de, het, een, en, niet, met, voor, van, in, op, dat, die, zijn, is, wordt, worden, heeft, hebben, kan, kunnen, zal, zullen, maar, ook, nog, al, dan, als, want, omdat
+
+GRAMMAR:
+Dutch nouns have two grammatical genders: common (de) and neuter (het).
+Adjectives generally take -e before nouns (het grote huis, de grote man, een groot huis).
+Separable verbs: prefix detaches in main clause (aankomen → ik kom aan).
+Word order: V2 in main clauses, verb-final in subordinate clauses.
+Use digraphs: ij, ei, ou, au, ui, oe, eu.
+
+PLACEHOLDER PROTECTION:
+Never translate placeholders like {0}, %s, %d, $variable.
+Keep all __SHLD_N__ tokens exactly as-is.

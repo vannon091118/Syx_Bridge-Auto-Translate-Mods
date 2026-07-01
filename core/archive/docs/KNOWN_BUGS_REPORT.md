@@ -1,4 +1,4 @@
-# 🐛 KNOWN BUGS REPORT — SyxBridge v0.23.0
+# 🐛 KNOWN BUGS REPORT — SyxBridge v0.25.0-alpha
 
 > **Typ:** Persistenter Bug-Triage-Report (fortschreiben, nicht überschreiben)
 > **Datum:** 2026-06-19 (erstellt) · 2026-06-24 (letztes Update) | **Methodik:** PHASE 0-4
