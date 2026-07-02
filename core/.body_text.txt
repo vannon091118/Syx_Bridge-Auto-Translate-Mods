@@ -1,25 +1,18 @@
-Global-Clean: 19 redundante Markdown-Dateien geloescht.
+Live-to-FREEZE-Transfer: Veraltete Referenz-Docs aus LIVE in FREEZE ueberfuehrt.
 
-Dieser Commit fuehrt die globale Bereinigung redundanter Dokumentations-Dateien durch. Alle 19 geloeschten Dateien wurden zuvor系统atisch geprueft: Jeder Eintrag wurde einzeln klassifiziert als OBSOLETE oder ACTIVE. Nur Dateien deren gesamter Inhalt bereits in den FREEZE_INDEX Buechern (FREEZE_INDEX.md mit 142 Eintraegen und FREEZE_INDEX_2.md mit 101 Eintraegen) ueberfuehrt war, wurden zur Loeschung freigegeben.
+Es ist wieder soweit — die Doku-Konsolidierung naechste Runde. Diesmal ging es darum die ueberfaelligen Referenz-Docs rauszuholen die nur noch Platz wegnahmen.
 
-16 FREEZE/ Dateien entfernt:
-- 4 DOCU_AUDIT_* Prozess-Dokumente (Tasks erledigt, Ergebnisse in MASTER_DOC ueberfuehrt)
-- 5 abgeschlossene Implementierungs-Plaene (COMMIT_LAYER_REWRITE, PHASE2_MARKER, TRANSLATION_RUNTIME_SPLIT, PRIORISIERUNG, ROUTING_AUDIT)
-- 3 Einmal-Audits (CODE_VS_DOCS, SQUIZZLE_REPORT, TRIPLE_AUDIT) deren Findings in CHANGELOG+FREEZE_INDEX dokumentiert sind
-- MASTER_FREEZE_v0.20.0 (Redundanz zu FREEZE_INDEX, war nur TOC aber hatte noch Content)
-- FREEZE_MASTER_CHECKLIST (42/42 Claims geprueft, Verifikation abgeschlossen)
-- DB_STATISTICS (Daten komplett in DB_TREND_REPORT.md konsolidiert)
-- HANDSHAKE_2026-06-19 (nur noch 4-Zeilen-Stub, Inhalt in FREEZE_INDEX Sektion 14)
+Was wurde ueberfuehrt (8 Dateien):
+SYSTEM_ARCHITECTURE.md (547 LOC) — veraltet, LOC 36K statt 30K dokumentiert, Provider 9 statt 11. SOS_FORMAT_SPEC.md — normative SoS Format-Spec, statisch, keine Runtime-Relevanz. RUNTIME_SCORE_HISTORY.md — nur 1 Eintrag von 2026-06-21, komplett veraltet. GUI_REWORK.md — alle 12/12 Bugs gefixt (B-01 bis B-07, BE-01 bis BE-03, P-01 bis P-06). PLAN_COMMIT_LAYER_RNG.md — DONE, als Archive in FREEZE verschoben. PLAN_GLOBAL_SCORE.md — DONE, als Archive in FREEZE verschoben. frozen_*.js (5 Dateien) — historische Code-Snapshots vom 2026-06-19, komplett geloescht.
 
-2 OLD_DOCS/ Dateien entfernt:
-- CHANGELOG_v0.19-v0.21.md (veraltet, Root CHANGELOG_1.md ist jetzt SSOT)
-- README.md (nur .gitkeep + Platzhalter-Text, kein operativer Wert)
+Architektur-Verifikation gegen Code:
+JS-Dateien core: 108 dokumentiert vs 140 tatsaechlich (+30 Prozent). LOC core: 30000 dokumentiert vs 36154 tatsaechlich (+20 Prozent). Provider: 11 dokumentiert vs 9 im PROVIDER_REGISTRY korrigiert. DB-Tabellen: 12 korrekt bestaetigt. Plugin-Methoden: GameAdapter 16, GamePlugin 12, SoS 35, RW 28 — alle verifiziert.
 
-1 Root-Datei entfernt:
-- FREEZE_INDEX.md (archiviert durch FREEZE_INDEX_2.md abgeloest, 142 historische Eintraege)
+MASTER_DOC Korrekturen:
+Section 2 Provider Matrix Header 11 auf 9. Section 5 DB-Stand Provider 11 auf 9. Section 9 Baum aktualisiert auf 8 LIVE + 12 FREEZE Dateien.
 
-Referenzen aktualisiert:
-- LIVE_INDEX.md: FREEZE-Sektion von 20 auf 6 Dateien reduziert, Gesamt-Status aktualisiert
-- MASTER_DOC.md 9: Baum-Darstellung bereinigt, Archivierungshistorie erweitert
+Nicht verschoben:
+PLOT_LORE.md bleibt in LIVE weil fnf Commit-Layer-Scripts (update_plot.js, derive_composite.js, get_sidejoke.js, annotate_plot_lore.js, build_pool.js) den Pfad hardcoded referenzieren. Verschieben wuerde das Commit-System brechen. LIVE_INDEX.md aktualisiert mit neuer Struktur — Provider 11 auf 9 im INDEX-Dokumente Table.
 
-Verbleibende FREEZE/-Dateien (6): FREEZE_INDEX.md (archiviert, historisch), FREEZE_INDEX_2.md (aktiv), README.md, PRODUCT_PROTECTION_DOCUMENTATION.md, HANDSHAKE_2026-06-26.md, PLAN_MASTER_2026-06-20.md
+FREEZE_INDEX_2:
+Eintrag 32 (Live-FREEZE Transfer) und 33 (Doku-Divergenz-Audit v0.23.0) hinzugefuegt. Gesamtzahl 246 Buch-Eintraege.

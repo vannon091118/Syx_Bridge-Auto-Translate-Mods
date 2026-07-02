@@ -31,7 +31,7 @@
 Scan → Extract → Translate → Audit → Polish → Export
 ```
 
-### Provider Matrix (11 Stück — Stand 2026-06-26)
+### Provider Matrix (9 im PROVIDER_REGISTRY — Stand 2026-07-02, verifiziert)
 
 | Provider | Typ | Nutzung | CostClass |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 ## 5. DB-Stand (2026-07-02 — Live)
 
 > **Live-DB Stand 2026-07-02:** **4.065 Eintraege** — letzter PREFLIGHT: 17/21 PASS, 0 Shield-Leaks, 1.492 Flagged.
-> **Provider:** 11 aktive Provider — siehe §2 Provider Matrix.
+> **Provider:** 9 aktive Provider im PROVIDER_REGISTRY — siehe §2 Provider Matrix.
 > **better-sqlite3 aktiv** — 13 Tabellen (12 user + sqlite_sequence).
 > Frühere DB-Resets: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test), Fresh Reset (4.390 → 0).
 > **Runtime Score:** 90.1% (gewichteter Durchschnitt über 8 Personas, Stand v0.22 — seit Reset nicht neu berechnet).
@@ -166,12 +166,12 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 ---
 
-## 9. Dokumentationsstruktur (Final — Post Global-Clean 2026-07-02)
+## 9. Dokumentationsstruktur (Final — Post Live→FREEZE Transfer 2026-07-02)
 
-> **Stand:** 2026-07-02 — **11 LIVE + 6 FREEZE + 10 PLAN**
-> **32 Doku-Konsolidierungs-Durchläufe + Global-Clean abgeschlossen.**
+> **Stand:** 2026-07-02 — **8 LIVE + 12 FREEZE + 10 PLAN**
+> **33 Doku-Konsolidierungs-Durchläufe + Global-Clean + Live→FREEZE abgeschlossen.**
 > **235 Buch-Einträge** (142 FREEZE_INDEX archiviert + 101 FREEZE_INDEX_2 §1–§31).
-> **121 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
+> **124 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
 > **V70/V71:** Wiederhergestellt (README.md + .gitkeep, .gitignore: nur .txt in assets geblockt).
 > **Archiv-Regeln:** `.ArchiveRules` im Projekt-Root.
 
@@ -180,30 +180,34 @@ core/archive/docs/
 ├── MASTER_DOC.md              # ← DIESER REPORT (SSOT: aktueller Stand)
 ├── CHANGELOG.md               # Versionshistorie (persistent — wird NIE gelöscht)
 ├── PREFLIGHT_LATEST.md        # Aktueller PREFLIGHT-Report (auto-gen)
-├── AGENTS.md                  # SSOT: Agent-Regeln (Root-Sync)
 ├── KNOWN_BUGS_REPORT.md       # Bug-Triage (4 aktive + 29 behobene Bugs)
 ├── LIVE_INDEX.md              # Index aller Dokumente
-├── PLOT_LORE.md               # RULE 2 Lore Layer (commit_lore)
-├── RUNTIME_SCORE_HISTORY.md   # Runtime-Score Tracking
+├── PLOT_LORE.md               # RULE 2 Lore Layer (commit_lore — PFADEXIST)
 ├── preflight_history.log      # PREFLIGHT-Verlauf
 ├── FREEZE/
 │   ├── FREEZE_INDEX.md        # Das Buch [ARCHIVIERT] — 142 Einträge
-│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 101 Einträge (§1–§31)
+│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 104 Einträge (§1–§31)
 │   ├── README.md              # Erklärung des FREEZE-Ordners
 │   ├── PRODUCT_PROTECTION_DOCUMENTATION.md  # Produktschutz (4-Schichten)
 │   ├── HANDSHAKE_2026-06-26.md # Session-Handshake Doku-Divergenz-Audit
-│   └── PLAN_MASTER_2026-06-20.md  # Archivierter Master-Plan
+│   ├── PLAN_MASTER_2026-06-20.md  # Archivierter Master-Plan
+│   ├── PLAN_COMMIT_LAYER_RNG.md   # ✅ DONE — Commit-Layer RNG
+│   ├── PLAN_GLOBAL_SCORE.md       # ✅ DONE — Global Score
+│   ├── GUI_REWORK.md              # ✅ ERLEDIGT — GUI Polish & Debug
+│   ├── SYSTEM_ARCHITECTURE.md     # Architektur-Referenz (2026-07-02 archiviert)
+│   ├── SOS_FORMAT_SPEC.md         # SoS Format-Spec (normativ, 2026-07-02 archiviert)
+│   └── RUNTIME_SCORE_HISTORY.md   # Runtime-Score Tracking (2026-07-02 archiviert)
 └── plans/
-    ├── PLAN_MASTER.md         # Zentrale Roadmap (v0.21, archiviert → FREEZE/PLAN_MASTER_2026-06-20.md)
-    ├── PLAN_BUG_TRIAGE.md     # 🟡 OFFEN (0/6)
-    ├── PLAN_BYPASS_REMOVAL.md # 🟡 OFFEN (0/6)
-    ├── PLAN_DEAD_FLAGS.md     # 🟡 OFFEN (0/5)
-    ├── PLAN_FEATURE_GAPS.md   # 🟡 OFFEN (0/5)
-    ├── PLAN_GLOBAL_SCORE.md   # 🟡 OFFEN (0/6)
-    ├── PLAN_LATENT_RISKS.md   # 🟡 OFFEN (0/5)
-    ├── PLAN_PRIORISIERUNG.md  # 🟡 OFFEN (0/6)
-    ├── PLAN_RUNTIME_PROBABILITY.md # 🟡 OFFEN (0/5)
-    └── PLAN_STABILISIERUNG.md # 🟡 TEILWEISE (2/9)
+    ├── PLAN_RIMWORLD.md           # 🟡 AKTIV (0/19) — Phase 3
+    ├── PLAN_BUG_TRIAGE.md         # 🔵 BACKLOG (BT-1/2 ✅)
+    ├── PLAN_BYPASS_REMOVAL.md     # 🔵 BACKLOG
+    ├── PLAN_DEAD_FLAGS.md         # 🔵 BACKLOG
+    ├── PLAN_FEATURE_GAPS.md       # 🔵 BACKLOG (FG-1 ✅)
+    ├── PLAN_LATENT_RISKS.md       # 🔵 BACKLOG
+    ├── PLAN_PLAN_AUDIT.md         # 🔵 BACKLOG
+    ├── PLAN_PRIORISIERUNG.md      # 🔵 BACKLOG
+    ├── PLAN_RUNTIME_PROBABILITY.md # 🔵 BACKLOG
+    └── PLAN_STABILISIERUNG.md     # 🔵 BACKLOG (5/9 done)
 ```
 
 ### Archivierungshistorie (121 Dokumente)

@@ -1,9 +1,9 @@
 # 📚 FREEZE INDEX 2 — Das Buch (Fortsetzung)
 
-> **Version:** v0.23.0 | **Stand:** 2026-06-26
+> **Version:** v0.23.0 | **Stand:** 2026-07-02
 > **Funktion:** Fortsetzung des FREEZE_INDEX — dokumentiert den Entwicklungsprozess AB der Sinnhaftigkeitsanalyse (15 systemische Fixes).
 > **Vorgänger:** `FREEZE_INDEX.md` (142 Einträge, 16.06.–20.06.2026, archiviert).
-> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (101) = **243 Buch-Einträge**
+> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (104) = **246 Buch-Einträge**
 > **Vorgänger:** `FREEZE_INDEX_v0.20.0_archived.md` — 142 Glossary-Einträge, 33 Sektionen, gesamter Entwicklungsprozess 16.06.–20.06.2026.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
 > **Archivstand:** FREEZE_INDEX_v0.20.0.md wurde am 2026-06-20 als abgeschlossen archiviert. Dieses Dokument (FREEZE_INDEX_2) setzt die Indexierung ab Commit `9a853ef` fort.
@@ -43,9 +43,10 @@
 29. [MASTER_DOC §3 — 3 behobene Bugs archiviert (2026-06-23)](#29-master_doc--3--3-behobene-bugs-archiviert-2026-06-23)
 30. [MASTER_DOC §6 — 2 erledigte ROADMAP-Items archiviert (2026-06-23)](#30-master_doc--6--2-erledigte-roadmap-items-archiviert-2026-06-23)
 
-31. [Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)](#31-doku-divergenz-audit-v0230--7-dd-einträge-2026-06-26)
+32. [Live→FREEZE Transfer — 8 Dateien archiviert (2026-07-02)](#32-livefreeze-transfer--8-dateien-archiviert-2026-07-02)
+33. [Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)](#33-doku-divergenz-audit-v0230--7-dd-einträge-2026-06-26)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **101** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 29 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1 + §29: 3 + §30: 2 + §31: 7)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **104** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 29 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1 + §29: 3 + §30: 2 + §31: 7)
 
 ---
 
@@ -1124,7 +1125,35 @@
 
 ---
 
-## 31. Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)
+## 32. Live→FREEZE Transfer — 8 Dateien archiviert (2026-07-02)
+
+### 🧊 LIVE→FREEZE TRANSFER — Session 2026-07-02
+- **Datum:** 2026-07-02 | **Version:** v0.25.0-alpha
+- **Kategorie:** Doku-Bereinigung — Veraltete Referenz-Docs ins FREEZE überführt
+- **Zusammenfassung:** 8 Dateien aus core/archive/docs/ root ins FREEZE überführt oder gelöscht:
+  - **SYSTEM_ARCHITECTURE.md** — 547 LOC Architektur-Referenz. Veraltet (LOC 36K statt 30K, 140 JS statt 108). Inhalt in MASTER_DOC §2/§4/§13 konsolidiert.
+  - **SOS_FORMAT_SPEC.md** — Normative Format-Spec (SoS .txt). Statisch, keine Runtime-Relevanz.
+  - **RUNTIME_SCORE_HISTORY.md** — Nur 1 Eintrag (2026-06-21, 90.1%). Veraltet.
+  - **GUI_REWORK.md** — 12/12 Bugs gefixt (B-01 bis B-07, BE-01 bis BE-03, P-01 bis P-06). Status: ✅ ERLEDIGT.
+  - **PLAN_COMMIT_LAYER_RNG.md** — ✅ DONE — archiviert.
+  - **PLAN_GLOBAL_SCORE.md** — ✅ DONE — archiviert.
+  - **frozen_*.js (5 Dateien)** — Historische Code-Snapshots (2026-06-19). Redundant zu Live-Code. GELÖSCHT.
+- **Architektur-Verifikation (DD gegen Code):**
+  - JS-Dateien (core/): Doc 108 → Code **140** (+30%)
+  - LOC (core/): Doc ~30K → Code **36.154** (+20%)
+  - Provider: Doc 11 → Code **9** im PROVIDER_REGISTRY
+  - DB-Tabellen: 12 ✅ korrekt
+  - Plugin-Methoden: GameAdapter 16 ✅, GamePlugin 12 ✅, SoS 35 ✅, RW 28 ✅
+- **MASTER_DOC Korrekturen:** §2 Provider 11→9, §5 Provider 11→9, §9 Baum aktualisiert (8 LIVE + 12 FREEZE)
+- **Nicht verschoben:** PLOT_LORE.md (5 Scripts referenzieren hardcoded `core/archive/docs/PLOT_LORE.md`)
+- **Cross-Referenzen:** `LIVE_INDEX.md`, `MASTER_DOC.md §9`, `AGENTS.md TEIL 11`
+- **Status:** ✅ ABGESCHLOSSEN
+
+---
+
+## 33. Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)
+
+### 🧊 DOKU-DIVERGENZ-AUDIT v0.23.0 — Session 2026-06-26
 
 ### 🧊 DOKU-DIVERGENZ-AUDIT v0.23.0 — Session 2026-06-26
 - **Datum:** 2026-06-26 | **Version:** v0.23.0
@@ -1269,7 +1298,7 @@
 
 *📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
 *Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 101 (dieses Dokument) = **243 Buch-Einträge**.*
+*Gesamt: 142 (archiviert) + 104 (dieses Dokument) = **246 Buch-Einträge**.*
 *CODE IST DIE EINZIGE WAHRHEIT.*
 
 ---
