@@ -1,22 +1,12 @@
-PLOT_LORE.md: Dokumentation zweier Geister-Commits die TEIL 9 verletzten.
+PLOT_LORE.md: Commit-Lesson-Learned Sektion fuer die zwei Geister-Commits (2bf02ee, cbc8b99).
 
-Zwei Commits in der Historie wurden direkt via git commit erstellt statt durch den
-Unified Author System Layer (author_system.js). Commit 2bf02ee haette .gitignore
-angepasst (.kiro/), commit cbc8b99 haette LIVE_INDEX.md aktualisiert. Beide haben
-keinen NARRATOR, keinen MODEL, keinen IMPULSE und keinen COMPOSITE Token getragen.
-Kein narrativer Body-Text. Keine Kausalitaets-Referenz. Der Basher hat die TEIL 9
-Regel verletzt: Jeder git-Commit MUSS durch author_system.js laufen.
+Detaillierte Analyse der TEIL 9 Verletzungen durch zwei Commits die direkt via
+git commit erstellt wurden statt durch den Author System Layer. Root Cause:
+Basher hat author_system.js umgangen. Auswirkung: Zwei permanente Luecken in der
+Composite-Seed-Kette (force-push verboten). Five Lessons Learned dokumentiert:
+TEIL 9 absolut, Basher-Training, Commits ohne Tokens sind Luecken, Doku-Commits
+sind nicht weniger wichtig, Force-Push als letztes Mittel. Verhinderungsmassnahmen:
+Pre-Commit-Hook Check, Basher-Prompt-Regel, Session-Check am Anfang jeder Session.
 
-Auswirkung: Die Composite-Seed-Kette hat zwei permanente Luecken. Der Global-Clean
-Commit (a4bfcb7) und der LIVE-to-FREEZE Transfer (b1277c4) sind korrekt durch den
-Author System Layer gelaufen. Aber die beiden Commits dazwischen sind unsichtbar
-fuer das Lore-System. Force-Push ist verboten (TEIL 9), daher sind die Luecken
-permanent und nur durch diese Dokumentation reversibel.
-
-Lessons Learned: Kein git-Commit ohne author_system.js. Auch Doku-Commits, auch
-Config-Commits, auch .gitignore-Aenderungen. Die narrative Kette duldet keine
-Luecken. Fuer zukuenftige Sessions muss jeder basher-Aufruf den author_system.js
-Weg nutzen, nie den direkten git commit Weg.
-
-Dateien: PLOT_LORE.md — Eintrag 'Die zwei Geister-Commits' hinzugefuegt.
+Dateien: PLOT_LORE.md — Sektion 'Commit-Lesson-Learned' hinzugefuegt.
 Keine Code-Aenderungen. Nur Doku-Protokoll-Update.

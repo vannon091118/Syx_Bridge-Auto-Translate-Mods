@@ -566,3 +566,48 @@ CL-RNG Phase 3: verify_commit_msg.js Composite-Enforcement — COMPOSITE-Token P
 **Vannon:** Dokumentier es.
 
 **Buffy:** PLOT_LORE Eintrag erstellt. Zwei Verletzungen protokolliert. lessons_learned: Jeder git-Commit MUSS durch author_system.js laufen — auch Doku-Commits, auch Config-Commits, auch .gitignore. Die narrative Kette duldet keine Luecken. [p19]
+
+---
+
+## 📚 Commit-Lesson-Learned: Die zwei Geister-Commits
+
+### Was passiert ist
+
+Zwei Commits wurden direkt via `git commit` erstellt, ohne den Unified Author System Layer (`author_system.js`). Der Basher hat die TEIL 9 Regel verletzt — zweimal.
+
+| Commit | Datum | Subject | Was fehlte |
+|--------|-------|---------|------------|
+| `2bf02ee` | 2026-07-02 | `.gitignore: .kiro/ hinzugefuegt` | Kein [NARRATOR], [MODEL], [IMPULSE], [COMPOSITE], kein narrativer Body |
+| `cbc8b99` | 2026-07-02 | `LIVE_INDEX.md: GUI-Branch + Doku-Indexierung` | Kein [NARRATOR], [MODEL], [IMPULSE], [COMPOSITE], kein narrativer Body |
+
+### Root Cause
+
+Der Basher hat `git commit` direkt aufgerufen statt `author_system.js --impulse=...`. Die Commits enthielten KEINE narrativen Tokens, KEINE Composite-Hashes, KEINE Cross-References. Sie sind unsichtbar fuer das gesamte Lore-System.
+
+### Auswirkung
+
+- **Composite-Seed-Kette:** Zwei permanente Luecken. `a4bfcb7` (author_system) kann nicht auf `cbc8b99` (direkt) referenzieren — kein Hash vorhanden.
+- **Plotchain:** Kein plotchain-Node fuer diese Commits. Kein User-Impuls dokumentiert.
+- **Cross-References:** Kein Eintrag in cross_references.json.
+- **FORCE-PUSH VERBOTEN:** Die Luecken sind permanent und nicht rueckgaengig zu machen.
+
+### Lessons Learned
+
+| Regel | Formulierung |
+|-------|-------------|
+| **TEIL 9 absolut** | Jeder git-Commit MUSS durch `author_system.js` laufen. Keine Ausnahmen. Auch nicht fuer .gitignore, .md, Config-Dateien. |
+| **Basher-Training** | Der Basser muss wissen: `git commit` ist TABU. Nur `author_system.js` ist erlaubt. Wenn author_system.js fehlschlaegt: FEHLER MELDEN, nicht umgehen. |
+| **Commits ohne Tokens = Luecken** | Ohne [COMPOSITE] kann die Seed-Kette nicht ueberprueft werden. Ohne [NARRATOR] weiss niemand wer gesprochen hat. Ohne [IMPULSE] weiss niemand warum. |
+| **Doku-Commits sind nicht weniger wichtig** | .gitignore und .md Aenderungen sind genauso Teil der narrativen Kette wie Code-Aenderungen. Die Kette duldet keine Ausnahmen. |
+| **Force-Push als letztes Mittel** | Force-Push ist verboten (TEIL 9). Verletzungen koennen nur DOKUMENTIERT, nicht rueckgaengig gemacht werden. Das erhoeht die Kosten von Fehlern. |
+
+### Verhinderung
+
+1. **Pre-Commit-Hook:** Prueft ob `git commit` direkt aufgerufen wurde (nicht ueber author_system.js)
+2. **Basher-Prompt-Regel:** Jeder basher-Aufruf der `git commit` enthaelt, muss durch author_system.js laufen
+3. **Session-Check:** Am Anfang jeder Session: `git log --oneline -10` pruefen auf Commits ohne [COMPOSITE]
+
+### Zusammenfassung
+
+> *"Die narrative Kette ist wie ein Fluss. Jeder Commit ist ein Stein im Bett. Wenn ein Stein fehlt, aendert sich der Lauf des Wassers fuer immer. Force-Push ist kein Dammbau — es ist ein Erdbeben. Und Erdbeben sind verboten."*
+> — Buffy, nach dem dritten Kaffee
