@@ -1,71 +1,66 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
 > **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha | **MAX-EFFORT-Priorisierung**
-> **Status:** 5 LIVE + 20 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX
-> **Regel:** Nur Pflicht-Dokus bleiben. P9+P10 Pläne als Backlog.
-> **Letzter Doku-Audit:** 2026-07-02 — MAX-EFFORT: PLAN.md restrukturiert (P4-P10 → 3 Phasen), 7 Sub-Pläne → Backlog.
+> **Status:** 7 LIVE + 12 FREEZE + 10 PLAN + 7 Root + 8 INDEX
+> **Regel:** Nur Pflicht-Dokus bleiben. Veraltete Referenz-Docs → FREEZE.
+> **Letzter Doku-Audit:** 2026-07-02 — Live→FREEZE Transfer, Architektur-Verifikation.
 
-## LIVE-Dokumente (5)
+## LIVE-Dokumente (7)
 
 | # | Dokument | Zweck | Typ |
 |---|----------|-------|-----|
-| 1 | `core/archive/docs/CHANGELOG.md` | Versionshistorie — Commits, Fixes, Features | Pflicht (persistent) |
+| 1 | `CHANGELOG.md` | Versionshistorie — Commits, Fixes, Features | Pflicht (persistent) |
 | 2 | `MASTER_DOC.md` | SSOT: aktueller Stand, Architektur, Roadmap | Pflicht |
-| 3 | `AGENTS.md` | SSOT: Agent-Regeln (Root-Sync) | Pflicht |
-| 4 | `KNOWN_BUGS_REPORT.md` | Bug-Triage — 5 aktive + 29 behobene Bugs | Pflicht |
-| 5 | `LIVE_INDEX.md` | ← DIESES DOKUMENT | Pflicht |
+| 3 | `KNOWN_BUGS_REPORT.md` | Bug-Triage — 4 aktive + 29 behobene Bugs | Pflicht |
+| 4 | `LIVE_INDEX.md` | ← DIESES DOKUMENT | Pflicht |
+| 5 | `PLOT_LORE.md` | Commit-Lore Narrativ-Layer (PFADEXIST — Scripts referenzieren hardcoded) | Pflicht |
+| 6 | `preflight_history.log` | PREFLIGHT-Verlauf (auto-gen) | Auto-gen |
+| 7 | `PREFLIGHT_LATEST.md` | Aktueller PREFLIGHT-Report (auto-gen) | Auto-gen |
 
-> **Hinweis:** PREFLIGHT_LATEST.md ist auto-generated, nicht im Git-Tracking.
-> PLOT_LORE.md und RUNTIME_SCORE_HISTORY.md werden von Tools beschrieben (Sonderstatus).
-> DOCU_AUDIT_*.md (4 Dateien) → FREEZE/ verschoben (2026-06-24).
+> **Hinweis:** AGENTS.md ist Root-Pflicht-Dokument (SSOT). core/archive/docs/AGENTS.md ist
+> eine Root-Sync-Kopie — bei Widerspruch gewinnt Root (AGENTS.md TEIL 11 Regel 4).
+> SYSTEM_ARCHITECTURE.md, SOS_FORMAT_SPEC.md, RUNTIME_SCORE_HISTORY.md → FREEZE (2026-07-02).
+> frozen_*.js (5 Dateien) → gelöscht (redundante historische Snapshots).
+> GUI_REWORK.md + 2 DONE-Pläne → FREEZE (Task erledigt).
 
-## FREEZE-Dokumente (20)
+## FREEZE-Dokumente (12)
 
-> **32 Doku-Konsolidierungs-Durchläufe abgeschlossen. 235 Buch-Einträge (142 archiviert + 93 FREEZE_INDEX_2).**
-> **122 Dokumente archiviert/gelöscht.** (108 vorher + 10 Audit 7 + 4 DOCU_AUDIT 2026-06-24)
+> **34 Doku-Konsolidierungs-Durchläufe + Live→FREEZE Transfer abgeschlossen.**
+> **246 Buch-Einträge** (142 FREEZE_INDEX + 104 FREEZE_INDEX_2 §1–§33).
+> **131 Dokumente archiviert/gelöscht.**
 
 | # | Dokument | Rolle |
 |---|----------|------|
-| 1 | `FREEZE/FREEZE_INDEX.md` | **Das Buch** (archiviert) — 142 Einträge (16.06.–20.06.2026) |
-| 2 | `FREEZE/FREEZE_INDEX_2.md` | **Das Buch** (aktiv) — 93 Einträge (§1–§30) |
-| 3 | `FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` | **TOC** — Referenziert alle archivierten Einträge |
-| 4 | `FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md` | **Verifikation** — 42 Claims |
-| 5 | `FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md` | Historisch: Plugin-Architektur Plan |
-| 6 | `FREEZE/README.md` | Erklärung des FREEZE-Ordners |
-| 7 | `FREEZE/CODE_VS_DOCS_AUDIT_2026-06-19.md` | **[NEU]** Einmal-Audit. 15 Drift-Einträge behoben. |
-| 8 | `FREEZE/COMMIT_LAYER_REWRITE_PLAN.md` | **[NEU]** ✅ ABGESCHLOSSEN. 7 Schritte, 25 Tasks. |
-| 9 | `FREEZE/PRIORISIERUNG_2026-06-19.md` | **[NEU]** Durch PLAN_MASTER + PLAN.md ersetzt. |
-| 10 | `FREEZE/PRODUCT_PROTECTION_DOCUMENTATION.md` | **[NEU]** Implementiert. 4-Schichten-System steht. |
-| 11 | `FREEZE/ROUTING_AUDIT_2026-06-19.md` | **[NEU]** Komplett veraltet. Durch TRIPLE_AUDIT ersetzt. |
-| 12 | `FREEZE/SQUIZZLE_REPORT.md` | **[NEU]** Einmal-Audit. 7/7 v0.22 Items abgeschlossen. |
-| 13 | `FREEZE/TRIPLE_AUDIT_2026-06-19.md` | **[NEU]** 3-Rollen-Audit. 10 Widersprüche behoben. |
-| 14 | `FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md` | **[NEU]** ✅ ABGESCHLOSSEN + nach PLAN_MASTER migriert. |
-| 15 | `FREEZE/HANDSHAKE_2026-06-19.md` | **[NEU]** Historischer Session-Handshake v0.20.0. |
-| 16 | `FREEZE/DB_STATISTICS.md` | **[NEU]** Konsolidiert. Daten in DB_TREND_REPORT. |
-| 17 | `FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md` | **[NEU]** Doku-Audit Abbau-Ergebnisse. |
-| 18 | `FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md` | **[NEU]** Doku-Audit Freeze-Ergebnisse. |
-| 19 | `FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md` | **[NEU]** Doku-Audit Gesamtindex (73 Dokumente). |
-| 20 | `FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md` | **[NEU]** Doku-Audit Pflichtdokumentenliste. |
+| 1 | `FREEZE_INDEX.md` | **Das Buch** (archiviert) — 142 Einträge (16.06.–20.06.2026) |
+| 2 | `FREEZE_INDEX_2.md` | **Das Buch** (aktiv) — 104 Einträge (§1–§32) |
+| 3 | `README.md` | Erklärung des FREEZE-Ordners |
+| 4 | `PRODUCT_PROTECTION_DOCUMENTATION.md` | Produktschutz-Implementierung (4-Schichten-System) |
+| 5 | `HANDSHAKE_2026-06-26.md` | Session-Handshake Doku-Divergenz-Audit |
+| 6 | `PLAN_MASTER_2026-06-20.md` | Archivierter Master-Plan (durch PLAN.md ersetzt) |
+| 7 | `GUI_REWORK.md` | ✅ ERLEDIGT — GUI Polish & Debug (2026-07-02 archiviert) |
+| 8 | `PLAN_COMMIT_LAYER_RNG.md` | ✅ DONE — Commit-Layer RNG (2026-07-02 archiviert) |
+| 9 | `PLAN_GLOBAL_SCORE.md` | ✅ DONE — Global Score (2026-07-02 archiviert) |
+| 10 | `SYSTEM_ARCHITECTURE.md` | Architektur-Referenz (2026-07-02 archiviert) |
+| 11 | `SOS_FORMAT_SPEC.md` | SoS Format-Spec normativ (2026-07-02 archiviert) |
+| 12 | `RUNTIME_SCORE_HISTORY.md` | Runtime-Score Tracking (2026-07-02 archiviert) |
 
-## Plan-Dokumente (3 AKTIV + 10 Backlog/Archiv)
+## Plan-Dokumente (1 AKTIV + 9 Backlog)
 
-> **MAX-EFFORT (2026-07-02):** P9 Hardening + P10 Runtime → Backlog. Nur DB-Härtung + SOS-Polish + RimWorld aktiv.
+> **MAX-EFFORT (2026-07-02):** Nur RimWorld aktiv. REST als Backlog in plans/.
+> DONE-Pläne → FREEZE (PLAN_COMMIT_LAYER_RNG, PLAN_GLOBAL_SCORE).
 
-| # | Dokument | Status | Quelle |
-|---|----------|--------|--------|
-| 1 | `plans/PLAN_RIMWORLD.md` | 🟡 AKTIV (0/19) | Phase 3 — v0.27–v0.30a |
-| 2 | `plans/PLAN_STABILISIERUNG.md` | 🔵 BACKLOG (5/9 done) | v0.25 abgeschlossen |
-| 3 | `plans/PLAN_FEATURE_GAPS.md` | 🔵 BACKLOG (FG-1 ✅) | Nach RimWorld relevant |
-| 4 | `plans/PLAN_BUG_TRIAGE.md` | 🔵 BACKLOG (BT-1/2 ✅) | Sprint-Basis bleibt |
-| 5 | `plans/PLAN_BYPASS_REMOVAL.md` | 🔵 BACKLOG | Nach DB-Härtung |
-| 6 | `plans/PLAN_DEAD_FLAGS.md` | 🔵 BACKLOG | Nach DB-Härtung |
-| 7 | `plans/PLAN_LATENT_RISKS.md` | 🔵 BACKLOG | Laufende Mitigation |
-| 8 | `plans/PLAN_PLAN_AUDIT.md` | 🔵 BACKLOG | ~250 Funktionen auditiert |
-| 9 | `plans/PLAN_PRIORISIERUNG.md` | 🔵 BACKLOG | Durch MAX-EFFORT ersetzt |
-| 10 | `plans/PLAN_RUNTIME_PROBABILITY.md` | 🔵 BACKLOG | Nach RimWorld |
-| 11 | `plans/PLAN_GLOBAL_SCORE.md` | ✅ DONE (6/6) | Archiv |
-| 12 | `plans/PLAN_COMMIT_LAYER_RNG.md` | ✅ DONE | Archiv |
-| 13 | `plans/PLAN_MASTER.md` | ✅ ARCHIVIERT | FREEZE/ |
+| # | Dokument | Status |
+|---|----------|--------|
+| 1 | `plans/PLAN_RIMWORLD.md` | 🟡 AKTIV (0/19) |
+| 2 | `plans/PLAN_STABILISIERUNG.md` | 🔵 BACKLOG (5/9 done) |
+| 3 | `plans/PLAN_FEATURE_GAPS.md` | 🔵 BACKLOG (FG-1 ✅) |
+| 4 | `plans/PLAN_BUG_TRIAGE.md` | 🔵 BACKLOG (BT-1/2 ✅) |
+| 5 | `plans/PLAN_BYPASS_REMOVAL.md` | 🔵 BACKLOG |
+| 6 | `plans/PLAN_DEAD_FLAGS.md` | 🔵 BACKLOG |
+| 7 | `plans/PLAN_LATENT_RISKS.md` | 🔵 BACKLOG |
+| 8 | `plans/PLAN_PLAN_AUDIT.md` | 🔵 BACKLOG |
+| 9 | `plans/PLAN_PRIORISIERUNG.md` | 🔵 BACKLOG |
+| 10 | `plans/PLAN_RUNTIME_PROBABILITY.md` | 🔵 BACKLOG |
 
 ## Root-Dokumente (7)
 
@@ -85,7 +80,7 @@
 |---|----------|-------|
 | 1 | `core/GUI/INDEX.md` | GUI-Schicht (server.js, public/) |
 | 2 | `core/Translation/INDEX.md` | Translation-Schicht (Pipeline, Provider, Config) |
-| 3 | `core/Translation/providers/INDEX.md` | Provider-Schicht (11 Provider) |
+| 3 | `core/Translation/providers/INDEX.md` | Provider-Schicht (9 Provider im REGISTRY) |
 | 4 | `core/DB/INDEX.md` | DB-Schicht (db.js, DAOs) |
 | 5 | `core/scripts/INDEX.md` | Scripts (check_syntax, release, sync-version etc.) |
 | 6 | `core/tests/INDEX.md` | Tests — plugin-boundary, e2e_bug1, **e2e_multi_language (ML-7, NEU)** |
@@ -121,24 +116,39 @@
 |-------|-------------|--------|
 | Versionshistorie | CHANGELOG.md + CHANGELOG_1.md | — |
 | Architektur & Pipeline | MASTER_DOC §2, §4 | — |
-| Offene Bugs (7) | KNOWN_BUGS_REPORT.md + MASTER_DOC §3 | — |
+| Offene Bugs (4) | KNOWN_BUGS_REPORT.md + MASTER_DOC §3 | — |
 | DB-Zustand | MASTER_DOC §5 + PREFLIGHT_LATEST.md + DB_TREND_REPORT | — |
-| Roadmap & Planung | PLAN.md (Root) + PLAN_MASTER.md + 9 Einzelpläne | — |
-| Agent-Regeln | AGENTS.md (Root + docs/) | — |
+| Roadmap & Planung | PLAN.md (Root) + 10 Einzelpläne | — |
+| Agent-Regeln | AGENTS.md (Root, SSOT) | — |
 | Session-Lifecycle | AGENTS.md (§ SESSION + § WORKFLOW-AUTOMATION) | — |
-| Archivierte Historie | FREEZE_INDEX.md + FREEZE_INDEX_2.md (235 Einträge) | — |
+| Archivierte Historie | FREEZE_INDEX.md + FREEZE_INDEX_2.md (246 Einträge) | — |
 | Lore-System | PLOT_LORE.md + commit_lore/ | — |
-| Runtime-Score | RUNTIME_SCORE_HISTORY.md + core/data/current_score.json | — |
+| Runtime-Score | FREEZE/RUNTIME_SCORE_HISTORY.md + core/data/current_score.json | — |
 | Master-Plan (konsolidiert) | Root: `PLAN.md` (22 Tasks, P0-P4) | — |
-| Doku-Audit | DOCU_AUDIT_*.md (4 Dateien, 2026-06-23) | — |
 
 ## Archivierungshistorie
 
-- **118 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
+- **131 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
+- **Live→FREEZE (2026-07-02):** 8 Dateien (SYSTEM_ARCHITECTURE, SOS_FORMAT_SPEC, RUNTIME_SCORE_HISTORY, GUI_REWORK, 2 DONE-Pläne, 5 frozen_*.js gelöscht)
+- **Global-Clean (2026-07-02):** 19 redundante Dateien gelöscht (16 FREEZE/ + 2 OLD_DOCS + 1 FREEZE_INDEX.md)
 - **Durchlauf 7 (2026-06-23):** Doku-Audit — 10 Dokumente gefreezed + 12 entfernt + 4 Ausgabedokumente erstellt
 - **Durchlauf 6:** Root-Cleanup + PLAN.md-Konsolidierung — 3 Dokumente → Root PLAN.md + 8 Audit-Docs archiviert
 - **Durchlauf 5:** MASTER_DOC §3/§6 — 5 Einträge → FREEZE_INDEX_2 §29–§30
 - **Durchlauf 1–4:** 76 temporäre Dokumente → FREEZE_INDEX §1–§33
+
+## Entfernt im Live→FREEZE Transfer (2026-07-02)
+
+| Datei | Grund |
+|-------|-------|
+| SYSTEM_ARCHITECTURE.md | Architektur-Referenz — veraltet, nicht aktiv |
+| SOS_FORMAT_SPEC.md | Format-Spec — normativ aber statisch |
+| RUNTIME_SCORE_HISTORY.md | Nur 1 Eintrag (2026-06-21), veraltet |
+| GUI_REWORK.md | ✅ ERLEDIGT — alle Bugs gefixt |
+| frozen_*.js (5 Dateien) | Historische Code-Snapshots — redundant |
+| PLAN_COMMIT_LAYER_RNG.md | ✅ DONE — nach FREEZE verschoben |
+| PLAN_GLOBAL_SCORE.md | ✅ DONE — nach FREEZE verschoben |
+
+> **Nicht verschoben:** PLOT_LORE.md (Scripts referenzieren hardcoded `core/archive/docs/PLOT_LORE.md`).
 
 ## Entfernt im Durchlauf 7 (2026-06-23)
 
@@ -158,4 +168,4 @@
 
 ---
 
-*LIVE INDEX aktualisiert 2026-07-02 — GUI-Rebuild + i18n + ML-7 E2E + cli-progress Fix + grammar_context-Dateien.*
+*LIVE INDEX aktualisiert 2026-07-02 — Global-Clean: 19 redundante MD-Dateien gelöscht, Referenzen aktualisiert.*

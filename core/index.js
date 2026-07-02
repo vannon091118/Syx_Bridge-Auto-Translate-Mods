@@ -114,14 +114,13 @@ function envFirst(...names) {
 }
 
 const os = require('os');
-const DEFAULT_GAME_MOD_ROOT = process.platform === 'win32'
-  ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
-  : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
+// Game-specific default: delegated to plugin.getDefaultModRoot()
+// (no hardcoded game paths in engine code — P3 Modularisierung)
+const DEFAULT_GAME_MOD_ROOT = activePlugin.getDefaultModRoot();
 
 // Configuration
 let CONFIG = {
-  GAME: envFirst('GAME') || DEFAULT_GAME,
-  MOD_ROOT: envFirst('MOD_PATH', 'MOD_ROOT') || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750',
+  GAME: envFirst('GAME') || DEFAULT_GAME,    MOD_ROOT: envFirst('MOD_PATH', 'MOD_ROOT') || activePlugin.getWorkshopContentPath(),  // Steam Workshop AppID — platform constant, not game-specific
   GAME_MOD_ROOT: envFirst('OUTPUT_PATH', 'GAME_MOD_ROOT') || DEFAULT_GAME_MOD_ROOT,
   PATCH_ROOT: path.join(__dirname, 'patches'),
   BACKUP_ROOT: path.join(__dirname, 'backups'),
@@ -163,9 +162,7 @@ let CONFIG = {
   OLLAMA_CLOUD_ENABLED: parseEnvFlag(process.env.OLLAMA_CLOUD_ENABLED, false),
   OLLAMA_CLOUD_URL: process.env.OLLAMA_CLOUD_URL || '',
   GOOGLE_FREE_ENABLED: parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, true),
-  PLAYER2_ENABLED: parseEnvFlag(process.env.PLAYER2_ENABLED, false),
-  PLAYER2_URL: process.env.PLAYER2_URL || 'http://localhost:4315/v1',
-  PLAYER2_KEYS: parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS')),
+
     
   KEY_INDICES: { gemini: 0, groq: 0, openrouter: 0, nvidia: 0, ollama: 0 }
 };
@@ -431,9 +428,7 @@ function applyEnvToConfig() {
   CONFIG.GOOGLE_FREE_ENABLED = parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, CONFIG.GOOGLE_FREE_ENABLED);
   CONFIG.OPENAI_ENABLED = parseEnvFlag(process.env.OPENAI_ENABLED, CONFIG.OPENAI_ENABLED !== false);
   CONFIG.CUSTOM_API_ENABLED = parseEnvFlag(process.env.CUSTOM_API_ENABLED, CONFIG.CUSTOM_API_ENABLED !== false);
-  CONFIG.PLAYER2_ENABLED = parseEnvFlag(process.env.PLAYER2_ENABLED, CONFIG.PLAYER2_ENABLED);
-  CONFIG.PLAYER2_URL = envFirst('PLAYER2_URL') || CONFIG.PLAYER2_URL;
-  CONFIG.PLAYER2_KEYS = parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS'));
+
 }
 
 async function persistConfig(config) {
@@ -535,8 +530,8 @@ async function shouldSkipFile(filePath, outPath, options = {}) {
 
   const row = await dbGet('SELECT mtime_ms, hash, processed_at FROM processed_files WHERE source_path = ? AND target_lang = ?', [filePath, CONFIG.TARGET_LANG]);
     
-  if (row && row.hash === currentHash) return true;
-  if (row && Number(row.mtime_ms) === Math.floor(stat.mtimeMs)) return true;
+  if (row && row.hash === currentHash) return true;  // File content unchanged — skip
+  // mtime_ms check removed: hash is sufficient and more reliable (mtime can be reset by copy/mount)
 
   return false; 
 }

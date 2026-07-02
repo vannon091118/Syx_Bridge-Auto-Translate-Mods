@@ -51,7 +51,14 @@
         "HOTFIX": "word_count < 60 AND message_contains(fix|hotfix|bugfix|patch)",
         "TRIVIAL": "word_count < 30 AND staged_files <= 3"
       },
-      "stretching_policy": "Keine kuenstliche Streckung. Wenn kurz, dann kurz. RESTRUCTURE: File-Listen als Bullet-Punkte erlaubt. HOTFIX: Minimal, Fakten reichen."
+      "stretching_policy": "Keine kuenstliche Streckung. Wenn kurz, dann kurz. RESTRUCTURE: File-Listen als Bullet-Punkte erlaubt. HOTFIX: Minimal, Fakten reichen.",
+    "body_text_format": {
+      "description": "Die .body_text.txt Datei (via --bodyfile uebergeben) MUSS als zusammenhaengender Prosa-Text geschrieben sein. Bullet-Listen, Aufzaehlungen mit Bindestrichen oder Sternchen sind VERBOTEN. Grund: writing_rules.json verlangt max 50% Bullet-Policy fuer STANDARD-Commits. Body-Text-Dateien werden vom Author System 1:1 in den Commit-Body uebernommen — Bullet-Listen verletzen die Konsistenz-Regeln und fuehren zu Commit-Blockierung durch verify_commit_msg.js. Schreibe saetzweise, als wuerdest du einem Kollegen erklaeren was passiert ist.",
+      "required": true,
+      "format": "prosa",
+      "enforcement": "Manual — Orchestrator muss beim Erstellen der .body_text.txt Prosa erzwingen. Kein automatischer Check.",
+      "lesson_learned": "2026-07-02: Player2-Removal Commit (16b18bd) hatte Bullet-Points im Body → Soft-Reset + Re-Commit noetig → Force-Push durch pre-push Hook blockiert → Code musste als alter Commit belassen werden."
+    }
     },
     "model_signature": {
       "description": "Commit message muss den ausfuehrenden Agenten ausweisen.",

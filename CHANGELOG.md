@@ -1,5 +1,104 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 08:07:23] Provider-Auto-Detect: ensurePrimaryModel prueft Key vor Auto-Discovery. Ollama-Key-Modal bereinigt. Ollama-Key-Test implementiert.
+**Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c112j69n6a1p56`
+- 5 Datei(en) geändert.
+
+### [2026-07-02 08:30:00] Provider-Auto-Detect, Ollama-Key-Modal bereinigt, Ollama-Key-Test implementiert. 3 Routing/UI-Bugs gefixt.
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- 4 Datei(en) geändert.
+
+### [2026-07-02] Provider-Auto-Detect + Ollama-Key-Modal + Ollama-Key-Test — 3 Bugs gefixt
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- **BUG-1 (KRITISCH): Run ohne OpenRouter spuckte nur Errors.** `ensurePrimaryModel()` in config-runtime.js: Default `PRIMARY_PROVIDER='openrouter'` führte dazu dass fetchOpenRouterModels() über öffentliche API Modelle fand, `EFFECTIVE_PRIMARY_MODEL='openrouter/free'` setzte und early-returned. Zur Laufzeit: `hasAccess('openrouter')` = false (kein Key) → alle 3 Rollen (translate/audit/polish) scheiterten mit kaskadierenden Errors. Fix: Access-Check VOR Auto-Discovery. Kein Key → direkt auf Fallback-Chain umschalten (nvidia→groq→gemini→openai→openrouter→ollama).
+- **BUG-2: Ollama Keys 2x eintragbar.** Ollama war im Key-Modal UND im Settings-Panel (Cloud-URL). Fix: Ollama-Sektion aus Key-Modal entfernt (Cloud-URL bleibt im Settings). TEST-Button zu neu hinzugefügten Key-Zeilen ergänzt (addKeyRow hatte keinen).
+- **BUG-3: Ollama-Key-Test fehlte.** `checkCloudKey()` und `testApiKey()` hatten keinen 'ollama'-Fall → TEST-Button gab "Unbekannter Provider" zurück. Fix: Ollama-Fall in beide Methoden + GUI-Handler (check-api-key → checkLocalProvider für ollama).
+- **config-runtime.js:** ensurePrimaryModel() Access-Guard, checkCloudKey() ollama-Fall, testApiKey() ollama-Fall
+- **ui-data.js:** Ollama aus Key-Modal entfernt, addKeyRow() TEST-Button, OLLAMA_KEYS nicht mehr aus Modal überschrieben
+- **gui-handlers.js:** check-api-key handler routet ollama auf checkLocalProvider()
+- **Verifikation:** Syntax 3/3 OK | Code-Review approved ✅
+- 4 Datei(en) geaendert.
+
+### [2026-07-02 07:01:08] Doku-Audit 9 BROKEN 1 RISK: AGENTS Plugin-Schicht 16 auf 18, GUI-Server 667 auf 187 plus 403, Plugin-Boundary 84 auf 92, MASTER_DOC korrigiert, FCM bereinigt, writing_rules body_text_format Prosa-Regel hinzugefuegt, Root Archive sync. Syntax OK.
+**Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c111j79n4a5p56`
+- 7 Datei(en) geändert.
+
+### [2026-07-02 06:47:46] Nachtraegliche Code-Fixes: translation-db const zu let, db_snapshot CLI-Nesting, eslint Jest Globals, check_consistency SHA256, smoke-test dbGet entfernt. Syntax OK.
+**Narrator:** Null | **Model:** mimo-v2.5-pro | **Composite:** `c110j30n11a4p39`
+- 5 Datei(en) geändert.
+
+### [2026-07-02 06:42:04] DOKU-Sync: Provider-Zahl 10 auf 9, KNOWN_BUGS BU-026 BU-030 behoben, DONE-Index erweitert
+**Narrator:** Basher | **Model:** mimo-v2.5-pro | **Composite:** `c109j25n2a2p13`
+- 6 Datei(en) geändert.
+
+### [2026-07-02 06:33:50] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
+**Narrator:** Sage | **Model:** mimo-v2.5-pro | **Composite:** `c108j10n14a2p15`
+- 5 Datei(en) geändert.
+
+### [2026-07-02 06:30:42] Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert
+**Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c107j12n6a4p92`
+- 4 Datei(en) geändert.
+
+### [2026-07-02] DOKU-Sync: Provider-Zahl 10→9 (Player2+FCM), KNOWN_BUGS BU-026/BU-030 behoben, DONE-Index erweitert, providers/INDEX.md bereinigt
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- ROADMAP.md: Provider-Zahl 10*→9 in allen Versionen v0.25+ nach Player2-Removal
+- PLAN.md: DONE-Index erweitert um PLAYER2-REMOVAL, PREFLIGHT-FIX, INFO-BLOCK-EXTRACT, LIVE1-FIX
+- KNOWN_BUGS_REPORT.md: BU-026 (Jest) und BU-030 (Scripts) als BEHOBEN markiert, aktive Bugs 4→2
+- providers/INDEX.md: FCM/Player2-Referenzen bereinigt, 9 Provider dokumentiert
+- 4 Datei(en) geaendert.
+
+### [2026-07-02] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- translation-db.js: Post-LLM Auto-Flag in saveTranslation() — src=tgt mit QS>=70 wird automatisch als native_proper_noun markiert. Verhindert neue UNFLAGGED_STALE Eintraege.
+- text-core.js: isProperNoun() erkennt kulturelle Eigennamen-Suffixe (iranisch, griechisch: dokht, spia, anes, nases, dane, yuka, rane, sine, atis, aere, aste) vor der englischen Suffix-Heuristik.
+- PREFLIGHT_LATEST.md: Aktualisiert auf 0 kritische Issues nach DB Repair (836 UNFLAGGED_STALE + 896 NATIVE_STALE + 1 LOW_SCORE geflaggt).
+- 3 Datei(en) geaendert.
+
+### [2026-07-02] Selektive INFO-Block-Extraktion: DESC_LONG, PROS, CONS jetzt uebersetzbar + isProperNoun Denylist erweitert
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- extractor.js: INFO-Block-Extraktion von Blanket-Skip auf selektiven Allowlist-Modus umgestellt. DESC_LONG, PROS und CONS werden jetzt extrahiert waehrend NAME, DESC, VERSION und andere Engine-Metadaten geschuetzt bleiben. Prefix-Scanning fuer bare Array-Strings (PROS/CONS). INFO_TRANSLATABLE Set outside loop. key-Variablen-Placement korrigiert.
+- SongsOfSyxPlugin.js: 19 SoS-Trait-Worte zur PROPER_NOUN_DENYLIST hinzugefuegt (hardy, nocturnal, diurnal, agile, docile, comely, fecund, beastly, deft, hale, wily, sly, nimble, robust, stout, hearty, lanky, gaunt). isProperNoun() False-Positive-Fix fuer PROS/CONS/ARMY_NAMES Werte.
+- 2 Datei(en) geaendert.
+
+### [2026-07-02 06:01:01] LIVE-1 Dry Run Fix: dotenv-Laden in live1_dryrun.js, PLAYER2-Bereinigung in .env, 21 von 21 PASS
+**Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c106j35n4a2p24`
+- 4 Datei(en) geändert.
+
+### [2026-07-02 07:55:00] LIVE-1 Dry Run Fix: dotenv-Laden + PLAYER2-Bereinigung, 21/21 PASS
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- live1_dryrun.js: dotenv-Laden hinzugefuegt (API-Key-Check war gebrochen)
+- .env: Stale PLAYER2_KEY, PLAYER2_URL, PLAYER2_ENABLED entfernt
+- PREFLIGHT_LATEST.md: Aktualisiert auf 21/21 PASS
+- 3 Datei(en) geaendert.
+
+### [2026-07-02 05:48:32] Player2-Provider vollstaendig entfernt (16 Dateien)
+**Narrator:** Squizzle | **Model:** mimo-v2.5-pro | **Composite:** `c105j29n5a2p79`
+- 21 Datei(en) geändert.
+
+### [2026-07-02 05:08:23] Modularisierung REQ 1-8: 11 Dateien, 6 Verstoesse behoben
+**Narrator:** Flux | **Model:** mimo-v2.5-pro | **Composite:** `c104j97n13a2p37`
+- 12 Datei(en) geändert.
+
+### [2026-07-02 04:34:55] DOKU-Konsolidierung 34: frozen_*.js geloescht, Provider 11->9, Baum korrigiert, Buch-Eintraege 246
+**Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c103j46n7a4p46`
+- 12 Datei(en) geändert.
+
+### [2026-07-02 04:28:47] PLOT_LORE: Commit-Lesson-Learned fuer TEIL 9 Verletzungen bei 2bf02ee und cbc8b99
+**Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c102j35n7a5p59`
+- 2 Datei(en) geändert.
+
+### [2026-07-02 04:26:19] PLOT_LORE: Dokumentation zweier Geister-Commits die TEIL 9 verletzten
+**Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c101j36n6a3p5`
+- 2 Datei(en) geändert.
+
+### [2026-07-02 04:17:28] LIVE-to-FREEZE Transfer: Veraltete Referenz-Docs archiviert, SSOT verifiziert
+**Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c100j81n7a3p24`
+- 10 Datei(en) geändert.
+
+### [2026-07-02 04:00:06] Loesche redundante MD Daten global clean Repo
+**Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c99j77n4a5p59`
+- 23 Datei(en) geändert.
+
 ### [2026-07-02 03:12:28] P8-2: Foreign Key Cascades. ON DELETE CASCADE fuer alle 5 FKs + BEFORE DELETE Triggers als Polyfill fuer existierende DBs. Schema v7→v8. Zero-daten-migration. PLAN.md P8-2 als DONE markiert.
 **Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c98j54n7a4p64`
 - 4 Datei(en) geändert.

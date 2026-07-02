@@ -125,7 +125,7 @@ function createDispatcher(options) {
         return { provider: preferred.provider, model: preferred.model, reason: 'low_risk_primary', stressTestRequired: false };
       }
       // Item 0d: Dynamische Pool-Auswahl für Free/Cheap-Fallback
-      // BUGFIX (PREF-IGNORE #3): Ollama + Player2 zum lowRiskPool hinzugefuegt.
+      // BUGFIX (PREF-IGNORE #3): Ollama zum lowRiskPool hinzugefuegt.
       // Vorher fehlten lokale Provider komplett — wenn Ollama Primary war aber
       // temporaer nicht erreichbar, konnte es nach Recovery nicht mehr dynamisch
       // gewaehlt werden. Jetzt sind alle Provider im Pool vertreten.
@@ -134,7 +134,6 @@ function createDispatcher(options) {
         { provider: 'openrouter', model: 'openrouter/free' },
         { provider: 'groq', model: 'auto' },
         { provider: 'ollama', model: 'auto' },
-        { provider: 'player2', model: 'auto' },
         { provider: 'argos', model: 'argos-translate-local' },
         { provider: 'google_free', model: 'google-translate-free' }
       ];

@@ -301,16 +301,10 @@ function createProviderClients(ctx) {
 
   // ── Item 4: callProvider — zentraler Dispatcher für ALLE Provider ──
   // Ersetzt callGroqBatch, callOpenRouterBatch, callNvidiaBatch, callFcmBatch,
-  // callPlayer2Batch (entfernt — waren Thin-Wrapper ohne externe Caller).
   // Behält callGeminiBatch/callOllamaBatch als interne Implementierung.
   async function callProvider(provider, items, modelOverride = '') {
     if (provider === 'gemini') return callGeminiBatch(items, modelOverride);
     if (provider === 'ollama') return callOllamaBatch(items, modelOverride);
-    // Item 4: player2-Modell-Fallback (war in callPlayer2Batch)
-    if (provider === 'player2') {
-      const effectiveModel = modelOverride || config.EFFECTIVE_PRIMARY_MODEL || config.PRIMARY_MODEL;
-      return callChatCompletions('player2', items, effectiveModel);
-    }
     return callChatCompletions(provider, items, modelOverride);
   }
 
@@ -424,8 +418,8 @@ function createProviderClients(ctx) {
     }
   }
 
-  // Item 4: callPlayer2Batch + callNvidiaBatch + callFcmBatch ENTFERNT —
-  // callProvider('player2', ...) / callProvider('nvidia', ...) / callProvider('fcm', ...) nutzen.
+  // Item 4: callNvidiaBatch + callFcmBatch ENTFERNT —
+  // callProvider('nvidia', ...) / callProvider('fcm', ...) nutzen.
 
   async function executeStageRequest(stage, route, prompt, options = {}, attemptCount = 0) {
     const {
@@ -528,7 +522,7 @@ function createProviderClients(ctx) {
         const raw = response.data.message.content;
         logPayload(provider, `RESPONSE [${stage}]`, raw);
         return parseRaw(raw);
-      }       // ── P0-1: OpenAI-compatible providers (groq, openrouter, nvidia, player2) ──
+      }       // ── P0-1: OpenAI-compatible providers (groq, openrouter, nvidia) ──
 
       // Nutzen _callProviderApi statt eigener if/else-Kette.
       // handleRateLimits, batchMultipliers, jsonRetry, Key-Rotation sind jetzt

@@ -119,6 +119,23 @@ class GameAdapter {
    * @returns {Promise<object|null>}  Mod info object or null if not a mod
    */
   async scanMod(_modDir) { throw new Error('Not implemented: scanMod'); }
+
+  // ── Game-specific Defaults ──────────────────────────────────────────────
+
+  /**
+   * Returns the platform-specific default mod directory for this game.
+   * Used by index.js, export_stage2.js, live1_dryrun.js to resolve
+   * GAME_MOD_ROOT when no env override is set.
+   * @returns {string} Absolute path to the game's mod directory
+   */
+  getDefaultModRoot() { throw new Error('Not implemented: getDefaultModRoot'); }
+
+  /**
+   * Returns the platform-specific path to the game's Steam Workshop content
+   * directory. Each game has a unique Steam AppID.
+   * @returns {string} Absolute path to the Workshop content directory
+   */
+  getWorkshopContentPath() { throw new Error('Not implemented: getWorkshopContentPath'); }
 }
 
 module.exports = GameAdapter;

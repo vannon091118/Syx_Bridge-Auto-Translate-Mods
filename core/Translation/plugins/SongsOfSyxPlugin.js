@@ -66,6 +66,15 @@ const PROPER_NOUN_DENYLIST = new Set([
   'plains', 'hills', 'swamp', 'marsh', 'tundra', 'volcano',
   'cave', 'cavern', 'dungeon', 'fortress', 'castle', 'tower',
   'bridge', 'gate', 'wall', 'walls', 'moat', 'trench',
+
+  // ── SoS Traits & PROS/CONS Labels (Hebel 3: isProperNoun False-Positive Fix) ──
+  // Single-word traits that appear in PROS/CONS arrays and ARMY_NAMES values.
+  // These pass isProperNoun() because they start uppercase, are single words,
+  // and lack English suffixes. They are NOT proper nouns — they are adjectives
+  // and common nouns that must be translated.
+  'hardy', 'nocturnal', 'diurnal', 'agile', 'docile', 'comely',
+  'fecund', 'beastly', 'deft', 'hale', 'wily', 'sly',
+  'nimble', 'robust', 'stout', 'hearty', 'lanky', 'gaunt',
   // ── Animals & Creatures ──
   'animal', 'beast', 'creature', 'monster', 'dragon', 'wolf',
   'bear', 'deer', 'boar', 'horse', 'cow', 'sheep', 'pig',
@@ -281,6 +290,30 @@ class SongsOfSyxPlugin extends GamePlugin {
       'INIT_LOGIC', 'ROOM_LOGIC', 'TECH_LOGIC'
     ]);
     return translatable.has(fileType);
+  }
+
+  // ── Game-specific Defaults ──────────────────────────────────────────
+
+  /**
+   * Songs of Syx: Mods are stored in %APPDATA%/songsofsyx/mods (Windows)
+   * or ~/.local/share/songsofsyx/mods (Linux/macOS).
+   * Used by index.js, export_stage2.js, live1_dryrun.js as default GAME_MOD_ROOT.
+   */
+  getDefaultModRoot() {
+    return process.platform === 'win32'
+      ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
+      : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
+  }
+
+  /**
+   * Songs of Syx Steam Workshop content directory (AppID 1162750).
+   * Used by reset_now.js, workshop_export.js for Workshop-related operations.
+   */
+  getWorkshopContentPath() {
+    const workshopBase = process.platform === 'win32'
+      ? path.join('C:', 'Program Files (x86)', 'Steam', 'steamapps', 'workshop', 'content', '1162750')
+      : path.join(os.homedir(), '.local', 'share', 'Steam', 'steamapps', 'workshop', 'content', '1162750');
+    return process.env.MOD_PATH || process.env.MOD_ROOT || workshopBase;
   }
 
   async scanMod(modDir) {

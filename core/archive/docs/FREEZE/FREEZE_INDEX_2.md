@@ -1,9 +1,9 @@
 # 📚 FREEZE INDEX 2 — Das Buch (Fortsetzung)
 
-> **Version:** v0.23.0 | **Stand:** 2026-06-26
+> **Version:** v0.23.0 | **Stand:** 2026-07-02
 > **Funktion:** Fortsetzung des FREEZE_INDEX — dokumentiert den Entwicklungsprozess AB der Sinnhaftigkeitsanalyse (15 systemische Fixes).
 > **Vorgänger:** `FREEZE_INDEX.md` (142 Einträge, 16.06.–20.06.2026, archiviert).
-> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (100) = **242 Buch-Einträge**
+> **Gesamt:** FREEZE_INDEX (142) + FREEZE_INDEX_2 (104) = **246 Buch-Einträge**
 > **Vorgänger:** `FREEZE_INDEX_v0.20.0_archived.md` — 142 Glossary-Einträge, 33 Sektionen, gesamter Entwicklungsprozess 16.06.–20.06.2026.
 > **Regel:** FREEZE-Dokumente werden NUR gelöscht NACHDEM ihr Inhalt hier überführt wurde. Siehe AGENTS.md § DOKU-CLEAN WORKFLOW.
 > **Archivstand:** FREEZE_INDEX_v0.20.0.md wurde am 2026-06-20 als abgeschlossen archiviert. Dieses Dokument (FREEZE_INDEX_2) setzt die Indexierung ab Commit `9a853ef` fort.
@@ -43,9 +43,10 @@
 29. [MASTER_DOC §3 — 3 behobene Bugs archiviert (2026-06-23)](#29-master_doc--3--3-behobene-bugs-archiviert-2026-06-23)
 30. [MASTER_DOC §6 — 2 erledigte ROADMAP-Items archiviert (2026-06-23)](#30-master_doc--6--2-erledigte-roadmap-items-archiviert-2026-06-23)
 
-31. [Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)](#31-doku-divergenz-audit-v0230--7-dd-einträge-2026-06-26)
+32. [Live→FREEZE Transfer — 8 Dateien archiviert (2026-07-02)](#32-livefreeze-transfer--8-dateien-archiviert-2026-07-02)
+33. [Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)](#33-doku-divergenz-audit-v0230--7-dd-einträge-2026-06-26)
 
-> **Gesamtzahl Buch-Einträge (dieses Dokument):** **100** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 28 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1 + §29: 3 + §30: 2 + §31: 7)
+> **Gesamtzahl Buch-Einträge (dieses Dokument):** **104** (§1–§13: 26 + §14: 1 + §15: 10 + §16: 29 + §17: 5 + §18: 8 + §19: 1 + §20: 1 + §21: 1 + §22: 1 + §23: 1 + §24: 1 + §25: 1 + §26: 1 + §27: 1 + §28: 1 + §29: 3 + §30: 2 + §31: 7)
 
 ---
 
@@ -664,7 +665,7 @@
 > **Regel:** Behobene Bugs mit CHANGELOG-Verweis gehören nicht in den aktiven Bug-Triage-Report.
 > **Datum der Archivierung:** 2026-06-21
 >
-> **KNOWN_BUGS_REPORT nach Bereinigung:** 7 aktive Bugs verbleiben (BU-004, BU-019, BU-022, BU-024, BU-025, BU-026, BU-030).
+> **KNOWN_BUGS_REPORT nach Bereinigung:** 5 aktive Bugs verbleiben (BU-019, BU-024, BU-025, BU-026, BU-030).
 
 ---
 
@@ -685,13 +686,16 @@
 | — | Argos CostClass 0→10 | [0.19.05b-19.06] | ✅ Archiviert |
 | — | (BU-031 → Cluster E KB-E1, dedupliziert) | — | — |
 
-### 📋 KB-003 — Cluster C: Code-Qualität (2/5 behoben, 3 offen → im Report verbleibend)
+### 📋 KB-003 — Cluster C: Code-Qualität (4/5 behoben, 1 offen → im Report verbleibend)
 | ID | Bug | CHANGELOG-Ref | Status |
 |----|-----|---------------|--------|
 | KB-C1 | BU-018 GOD-001 Monolith (354 Zeilen) | [GOD-001] | ✅ Archiviert |
 | KB-C2 | BU-028 Allowlist dupliziert | [STUFE2-QUICKBUGFIXES] | ✅ Archiviert |
+| KB-C3 | BU-004 Backup-Race-Condition | v0.20, verifiziert 2026-07-02 | ✅ Archiviert |
+| KB-C4 | BU-022 _dbGet Alias-Verwirrung | 2026-07-02 | ✅ Archiviert |
 
 ### 📋 KB-004 — Cluster D: Infrastruktur (1/3 behoben, 2 offen → im Report verbleibend)
+> **Note:** BU-004 moved to Cluster C (Code-Qualität) per Sprint 2026-07-02 reclassification.
 | ID | Bug | CHANGELOG-Ref | Status |
 |----|-----|---------------|--------|
 | KB-D1 | BU-020 Keine AbortController | [BU-020] | ✅ Archiviert (Code seit CL:0.20.0-bu020) |
@@ -737,7 +741,8 @@
 | KB-S14 | BU-038 logger.js stiller mkdir-Fehler | [BU-038] | ✅ Archiviert |
 | KB-S15 | BU-039 NUL Windows-Gerätename | [BU-039] | ✅ Archiviert |
 | KB-S16 | BU-041 gitignore Pattern Re-Include | Session 4 2026-06-21 | ✅ Archiviert |
-| KB-S17 | BU-004 Backup-Race-Condition | [0.19.05b-19.06] | 🟡 Teilweise → im Report verbleibend |
+| KB-S17 | BU-004 Backup-Race-Condition — File-Mutex vollständig | v0.20, verifiziert 2026-07-02 | ✅ Archiviert |
+| KB-S18 | BU-022 _dbGet Alias-Verwirrung — dbGet-Rename | 2026-07-02 | ✅ Archiviert |
 
 ---
 
@@ -1120,7 +1125,35 @@
 
 ---
 
-## 31. Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)
+## 32. Live→FREEZE Transfer — 8 Dateien archiviert (2026-07-02)
+
+### 🧊 LIVE→FREEZE TRANSFER — Session 2026-07-02
+- **Datum:** 2026-07-02 | **Version:** v0.25.0-alpha
+- **Kategorie:** Doku-Bereinigung — Veraltete Referenz-Docs ins FREEZE überführt
+- **Zusammenfassung:** 8 Dateien aus core/archive/docs/ root ins FREEZE überführt oder gelöscht:
+  - **SYSTEM_ARCHITECTURE.md** — 547 LOC Architektur-Referenz. Veraltet (LOC 36K statt 30K, 140 JS statt 108). Inhalt in MASTER_DOC §2/§4/§13 konsolidiert.
+  - **SOS_FORMAT_SPEC.md** — Normative Format-Spec (SoS .txt). Statisch, keine Runtime-Relevanz.
+  - **RUNTIME_SCORE_HISTORY.md** — Nur 1 Eintrag (2026-06-21, 90.1%). Veraltet.
+  - **GUI_REWORK.md** — 12/12 Bugs gefixt (B-01 bis B-07, BE-01 bis BE-03, P-01 bis P-06). Status: ✅ ERLEDIGT.
+  - **PLAN_COMMIT_LAYER_RNG.md** — ✅ DONE — archiviert.
+  - **PLAN_GLOBAL_SCORE.md** — ✅ DONE — archiviert.
+  - **frozen_*.js (5 Dateien)** — Historische Code-Snapshots (2026-06-19). Redundant zu Live-Code. GELÖSCHT.
+- **Architektur-Verifikation (DD gegen Code):**
+  - JS-Dateien (core/): Doc 108 → Code **140** (+30%)
+  - LOC (core/): Doc ~30K → Code **36.154** (+20%)
+  - Provider: Doc 11 → Code **9** im PROVIDER_REGISTRY
+  - DB-Tabellen: 12 ✅ korrekt
+  - Plugin-Methoden: GameAdapter 16 ✅, GamePlugin 12 ✅, SoS 35 ✅, RW 28 ✅
+- **MASTER_DOC Korrekturen:** §2 Provider 11→9, §5 Provider 11→9, §9 Baum aktualisiert (8 LIVE + 12 FREEZE)
+- **Nicht verschoben:** PLOT_LORE.md (5 Scripts referenzieren hardcoded `core/archive/docs/PLOT_LORE.md`)
+- **Cross-Referenzen:** `LIVE_INDEX.md`, `MASTER_DOC.md §9`, `AGENTS.md TEIL 11`
+- **Status:** ✅ ABGESCHLOSSEN
+
+---
+
+## 33. Doku-Divergenz-Audit v0.23.0 — 7 DD-Einträge (2026-06-26)
+
+### 🧊 DOKU-DIVERGENZ-AUDIT v0.23.0 — Session 2026-06-26
 
 ### 🧊 DOKU-DIVERGENZ-AUDIT v0.23.0 — Session 2026-06-26
 - **Datum:** 2026-06-26 | **Version:** v0.23.0
@@ -1265,7 +1298,7 @@
 
 *📚 FREEZE INDEX 2 — Fortsetzung ab 2026-06-20*
 *Vorgänger: FREEZE_INDEX_v0.20.0_archived.md (142 Einträge, 16.06.–20.06.2026)*
-*Gesamt: 142 (archiviert) + 100 (dieses Dokument) = **242 Buch-Einträge**.*
+*Gesamt: 142 (archiviert) + 104 (dieses Dokument) = **246 Buch-Einträge**.*
 *CODE IST DIE EINZIGE WAHRHEIT.*
 
 ---

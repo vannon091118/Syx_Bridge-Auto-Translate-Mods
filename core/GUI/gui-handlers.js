@@ -120,12 +120,13 @@ function registerGuiHandlers(ctx) {
   console.log('[INIT] Starte Dashboard-Komponenten...');
   global.guiServer = new GuiServer({ port: 3000, config });
 
-  // ── Initial DB statistics ──
+  // ── Initial DB statistics (via adminDb DAO — no raw SQL in GUI layer) ──
+  const adminDb = global._adminDb || require('../DB/admin-db').createAdminDb(dbManager);
   setTimeout(async () => {
     try {
-      const totalTrans = await dbGet('SELECT COUNT(*) as c FROM translations').then(r => r ? r.c : 0).catch(() => 0);
-      const flagged = await dbGet('SELECT COUNT(*) as c FROM translations WHERE flagged = 1').then(r => r ? r.c : 0).catch(() => 0);
-      const scanned = await dbGet('SELECT COUNT(*) as c FROM processed_files').then(r => r ? r.c : 0).catch(() => 0);
+      const totalTrans = await adminDb.getTranslationCount().catch(() => 0);
+      const flagged = await adminDb.getFlaggedCount().catch(() => 0);
+      const scanned = await adminDb.getProcessedFilesCount().catch(() => 0);
       
       if (global.guiServer && !global.guiServer.lastStats) {
         global.guiServer.updateStatus({
@@ -151,13 +152,13 @@ function registerGuiHandlers(ctx) {
     try {
       const argosOk = isArgosInstalled();
       const ollama = await checkOllama();
-      const dbStats = await dbGet('SELECT COUNT(*) as total FROM translations');
+      const dbTotal = await adminDb.getTranslationCount();
       
       if (!argosOk && !ctx.getIsAborting()) {
         console.log('[HINWEIS] Argos Translate nicht gefunden. Lokale Uebersetzung deaktiviert.');
       }
 
-      callback({ argos: argosOk, ollama, dbTotal: dbStats.total });
+      callback({ argos: argosOk, ollama, dbTotal });
     } catch (e) {
       callback({ argos: false, ollama: false, dbTotal: 0 });
     }
@@ -189,11 +190,7 @@ function registerGuiHandlers(ctx) {
 
   global.guiServer.on('db-search', async (query, callback) => {
     try {
-      const sql = query 
-        ? 'SELECT * FROM translations WHERE source_text LIKE ? OR translation LIKE ? LIMIT 200'
-        : 'SELECT * FROM translations ORDER BY updated_at DESC LIMIT 200';
-      const params = query ? [`%${query}%`, `%${query}%`] : [];
-      const results = await dbAllReadOnly(sql, params).catch(() => dbAll(sql, params));
+      const results = await adminDb.searchTranslations(query);
       callback(results);
     } catch (e) {
       callback([]);
@@ -204,14 +201,8 @@ function registerGuiHandlers(ctx) {
     try {
       const { source_text, target_lang } = data || {};
       if (!source_text || !target_lang) return callback([]);
-      const current = await dbGet(
-        'SELECT translation, provider, quality_score, risk_score, flagged, flag_reason, updated_at FROM translations WHERE source_text = ? AND target_lang = ?',
-        [source_text, target_lang]
-      );
-      const history = await dbAll(
-        'SELECT revision_id, translation, source_text, provider, quality_score, risk_score, flagged, flag_reason, is_active, is_reference, created_at FROM translation_revisions WHERE source_text = ? AND target_lang = ? ORDER BY revision_id DESC',
-        [source_text, target_lang]
-      );
+      const current = await adminDb.getTranslationBySourceLang(source_text, target_lang);
+      const history = await adminDb.getRevisionsForEntry(source_text, target_lang);
       const revisions = [];
       if (current) {
         revisions.push({
@@ -244,36 +235,19 @@ function registerGuiHandlers(ctx) {
       if (revision_id === -1) {
         return callback({ success: true, message: 'Bereits die aktuelle Version.' });
       }
-      const revision = await dbGet(
-        'SELECT translation, provider, quality_score, flagged, flag_reason FROM translation_revisions WHERE revision_id = ? AND source_text = ? AND target_lang = ?',
-        [revision_id, source_text, target_lang]
-      );
+      const revision = await adminDb.getRevisionById(revision_id, source_text, target_lang);
       if (!revision) {
         return callback({ success: false, message: 'Revision nicht gefunden.' });
       }
-      const current = await dbGet(
-        'SELECT translation, provider, quality_score, flagged, flag_reason FROM translations WHERE source_text = ? AND target_lang = ?',
-        [source_text, target_lang]
-      );
+      const current = await adminDb.getTranslationBySourceLang(source_text, target_lang);
       if (current && current.translation) {
-        await dbRun(
-          'UPDATE translation_revisions SET is_active = 0 WHERE source_text = ? AND target_lang = ?',
-          [source_text, target_lang]
-        );
-        await dbRun(
-          `INSERT INTO translation_revisions (source_text, target_lang, translation, provider, quality_score, risk_score, flagged, flag_reason, is_active, is_reference)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
-          [source_text, target_lang, current.translation, current.provider || '', current.quality_score || 0, current.risk_score || 0, current.flagged || 0, current.flag_reason || '']
+        await adminDb.archiveCurrentTranslation(
+          source_text, target_lang, current.translation,
+          current.provider, current.quality_score, current.risk_score,
+          current.flagged, current.flag_reason
         );
       }
-      await dbRun(
-        'UPDATE translations SET translation = ?, updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
-        [revision.translation, source_text, target_lang]
-      );
-      await dbRun(
-        'UPDATE translation_revisions SET is_active = 1 WHERE revision_id = ?',
-        [revision_id]
-      );
+      await adminDb.restoreRevision(revision_id, source_text, target_lang, revision.translation);
       callback({ success: true, message: 'Revision wiederhergestellt.' });
     } catch (e) {
       callback({ success: false, message: e.message });
@@ -283,10 +257,7 @@ function registerGuiHandlers(ctx) {
   global.guiServer.on('db-update', async (data, callback) => {
     try {
       const { source_text, target_lang, translation } = data;
-      await dbRun(
-        'UPDATE translations SET translation = ?, updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
-        [translation, source_text, target_lang]
-      );
+      await adminDb.updateTranslation(source_text, target_lang, translation);
       callback(true);
     } catch (e) {
       callback(false);
@@ -305,8 +276,14 @@ function registerGuiHandlers(ctx) {
     try {
       const { provider, key, index = 0 } = data || {};
       if (!provider || !key) return callback({ ok: false, detail: 'Fehlende Parameter' });
-      const result = await configRuntime.checkCloudKey(provider, key, index);
-      callback(result);
+      // BUGFIX: Ollama ist ein lokaler Provider — checkLocalProvider statt checkCloudKey
+      if (provider === 'ollama') {
+        const result = await configRuntime.checkLocalProvider('ollama');
+        callback(result);
+      } else {
+        const result = await configRuntime.checkCloudKey(provider, key, index);
+        callback(result);
+      }
     } catch (e) {
       callback({ ok: false, detail: e.message });
     }
@@ -367,7 +344,7 @@ function registerGuiHandlers(ctx) {
       
   global.guiServer.on('get-guarded-terms', async (callback) => {
     try {
-      const terms = await dbAll('SELECT * FROM glossary_terms WHERE target_lang = ? AND is_guarded = 1 ORDER BY source_term ASC', [config.TARGET_LANG]);
+      const terms = await adminDb.getGuardedTerms(config.TARGET_LANG);
       callback(terms);
     } catch (e) { callback([]); }
   });
@@ -376,11 +353,7 @@ function registerGuiHandlers(ctx) {
     try {
       const { source, target, guarded_by = 'user' } = data;
       if (!source || !target) return;
-      await dbRun(`INSERT INTO glossary_terms (target_lang, source_term, target_term, is_guarded, guarded_by, updated_at)
-                  VALUES (?, ?, ?, 1, ?, CURRENT_TIMESTAMP)
-                  ON CONFLICT(target_lang, source_term, scope, mod_scope)
-                  DO UPDATE SET target_term = excluded.target_term, is_guarded = 1, guarded_by = excluded.guarded_by, updated_at = CURRENT_TIMESTAMP`,
-      [config.TARGET_LANG, source, target, guarded_by]);
+      await adminDb.upsertGuardedTerm(config.TARGET_LANG, source, target, guarded_by);
       console.log(`[GUARD] Begriff geschuetzt: "${source}" -> "${target}"`);
     } catch (e) {
       console.error(`[!] Fehler beim Schuetzen des Begriffs: ${e.message}`);

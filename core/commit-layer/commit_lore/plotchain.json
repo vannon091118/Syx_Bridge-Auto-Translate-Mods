@@ -4404,5 +4404,550 @@
         "file": "core/DB/db.js"
       }
     ]
+  },
+  {
+    "p_id": "p104",
+    "id": "plot-2026-07-02T04:00:52",
+    "timestamp": "2026-07-02 04:00:52",
+    "summary": "Loesche redundante MD Daten global clean Repo",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c99j77n4a5p59",
+    "ref_to": "plot-2026-07-02T03:12:28",
+    "prev_narrator": "Argos",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/CODE_VS_DOCS_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/COMMIT_LAYER_REWRITE_PLAN.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DB_STATISTICS.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/FREEZE_INDEX_2.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/HANDSHAKE_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PRIORISIERUNG_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/ROUTING_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/SQUIZZLE_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/TRIPLE_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/OLD_DOCS/CHANGELOG_v0.19-v0.21.md"
+      },
+      {
+        "file": "core/archive/docs/OLD_DOCS/README.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p105",
+    "id": "plot-2026-07-02T04:18:32",
+    "timestamp": "2026-07-02 04:18:32",
+    "summary": "LIVE-to-FREEZE Transfer: Veraltete Referenz-Docs archiviert, SSOT verifiziert",
+    "narrator": "Argos",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c100j81n7a3p24",
+    "ref_to": "plot-2026-07-02T04:00:52",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/FREEZE_INDEX_2.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/GUI_REWORK.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PLAN_COMMIT_LAYER_RNG.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PLAN_GLOBAL_SCORE.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/RUNTIME_SCORE_HISTORY.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/SOS_FORMAT_SPEC.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/SYSTEM_ARCHITECTURE.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p106",
+    "id": "plot-2026-07-02T04:26:19",
+    "timestamp": "2026-07-02 04:26:19",
+    "summary": "PLOT_LORE: Dokumentation zweier Geister-Commits die TEIL 9 verletzten",
+    "narrator": "Devin",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c101j36n6a3p5",
+    "ref_to": "plot-2026-07-02T04:18:32",
+    "prev_narrator": "Argos",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/PLOT_LORE.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p107",
+    "id": "plot-2026-07-02T04:28:47",
+    "timestamp": "2026-07-02 04:28:47",
+    "summary": "PLOT_LORE: Commit-Lesson-Learned fuer TEIL 9 Verletzungen bei 2bf02ee und cbc8b99",
+    "narrator": "Argos",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c102j35n7a5p59",
+    "ref_to": "plot-2026-07-02T04:26:19",
+    "prev_narrator": "Devin",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/PLOT_LORE.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p108",
+    "id": "plot-2026-07-02T04:36:34",
+    "timestamp": "2026-07-02 04:36:34",
+    "summary": "DOKU-Konsolidierung 34: frozen_*.js geloescht, Provider 11->9, Baum korrigiert, Buch-Eintraege 246",
+    "narrator": "Argos",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c103j46n7a4p46",
+    "ref_to": "plot-2026-07-02T04:28:47",
+    "prev_narrator": "Devin",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/GUI_REWORK.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/frozen_SongsOfSyxPlugin.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_exporter.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_text-core.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_verify_watermark.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_watermark-config.js"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_BYPASS_REMOVAL.md"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_COMMIT_LAYER_RNG.md"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_GLOBAL_SCORE.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p109",
+    "id": "plot-2026-07-02T05:12:32",
+    "timestamp": "2026-07-02 05:12:32",
+    "summary": "Modularisierung REQ 1-8: 6 Verstoesse behoben, 11 Dateien",
+    "narrator": "Flux",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c104j97n13a2p37",
+    "ref_to": "plot-2026-07-02T04:36:34",
+    "prev_narrator": "Argos",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/DB/admin-db.js"
+      },
+      {
+        "file": "core/GUI/gui-handlers.js"
+      },
+      {
+        "file": "core/GUI/reset_now.js"
+      },
+      {
+        "file": "core/GUI/workshop_export.js"
+      },
+      {
+        "file": "core/Translation/adapters/GameAdapter.js"
+      },
+      {
+        "file": "core/Translation/export_stage2.js"
+      },
+      {
+        "file": "core/Translation/live1_dryrun.js"
+      },
+      {
+        "file": "core/Translation/plugins/RimWorldPlugin.js"
+      },
+      {
+        "file": "core/Translation/plugins/SongsOfSyxPlugin.js"
+      },
+      {
+        "file": "core/Translation/runtime-ops.js"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/scripts/register_phase2.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p110",
+    "id": "plot-2026-07-02T05:48:32",
+    "timestamp": "2026-07-02 05:48:32",
+    "summary": "Player2-Provider vollstaendig entfernt (16 Dateien)",
+    "narrator": "Squizzle",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c105j29n5a2p79",
+    "ref_to": "plot-2026-07-02T05:12:32",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-core.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/Translation/cli-progress.js"
+      },
+      {
+        "file": "core/Translation/config/config-keys.js"
+      },
+      {
+        "file": "core/Translation/config/config-persist.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/Translation/config/config-wizard.js"
+      },
+      {
+        "file": "core/Translation/dispatcher.js"
+      },
+      {
+        "file": "core/Translation/polish-arbiter.js"
+      },
+      {
+        "file": "core/Translation/providers/client-factory.js"
+      },
+      {
+        "file": "core/Translation/providers/provider-chat-config.js"
+      },
+      {
+        "file": "core/Translation/reconstruct.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      },
+      {
+        "file": "core/Translation/test_providers.js"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/tests/item0a_auto_freeze_test.js"
+      },
+      {
+        "file": "core/tests/ollama_cloud_e2e.js"
+      },
+      {
+        "file": "core/tests/translation-runtime-smoke.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p111",
+    "id": "plot-2026-07-02T06:01:01",
+    "timestamp": "2026-07-02 06:01:01",
+    "summary": "LIVE-1 Dry Run Fix: dotenv-Laden in live1_dryrun.js, PLAYER2-Bereinigung in .env, 21 von 21 PASS",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c106j35n4a2p24",
+    "ref_to": "plot-2026-07-02T05:48:32",
+    "prev_narrator": "Squizzle",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/live1_dryrun.js"
+      },
+      {
+        "file": "core/archive/docs/PREFLIGHT_LATEST.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p112",
+    "id": "plot-2026-07-02T06:30:42",
+    "timestamp": "2026-07-02 06:30:42",
+    "summary": "Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert",
+    "narrator": "Devin",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c107j12n6a4p92",
+    "ref_to": "plot-2026-07-02T06:01:01",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/extractor.js"
+      },
+      {
+        "file": "core/Translation/plugins/SongsOfSyxPlugin.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p113",
+    "id": "plot-2026-07-02T06:34:32",
+    "timestamp": "2026-07-02 06:34:32",
+    "summary": "PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert",
+    "narrator": "Sage",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c108j10n14a2p15",
+    "ref_to": "plot-2026-07-02T06:30:42",
+    "prev_narrator": "Devin",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/text-core.js"
+      },
+      {
+        "file": "core/Translation/translation-db.js"
+      },
+      {
+        "file": "core/archive/docs/PREFLIGHT_LATEST.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p114",
+    "id": "plot-2026-07-02T06:44:12",
+    "timestamp": "2026-07-02 06:44:12",
+    "summary": "DOKU-Sync: Provider-Zahl 10 auf 9 korrigiert, KNOWN_BUGS BU-026 und BU-030 als behoben markiert, DONE-Index erweitert, providers INDEX bereinigt. Syntax OK.",
+    "narrator": "Basher",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c109j25n2a2p13",
+    "ref_to": "plot-2026-07-02T06:34:32",
+    "prev_narrator": "Sage",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "ROADMAP.md"
+      },
+      {
+        "file": "core/Translation/providers/INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      }
+    ]
+  },
+  {
+    "p_id": "p115",
+    "id": "plot-2026-07-02T06:47:46",
+    "timestamp": "2026-07-02 06:47:46",
+    "summary": "Nachtraegliche Code-Fixes: translation-db const zu let, db_snapshot CLI-Nesting, eslint Jest Globals, check_consistency SHA256, smoke-test dbGet entfernt. Syntax OK.",
+    "narrator": "Null",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c110j30n11a4p39",
+    "ref_to": "plot-2026-07-02T06:44:12",
+    "prev_narrator": "Basher",
+    "data_changes": [
+      {
+        "file": "core/DB/db_snapshot.js"
+      },
+      {
+        "file": "core/Translation/translation-db.js"
+      },
+      {
+        "file": "core/eslint.config.mjs"
+      },
+      {
+        "file": "core/scripts/check_consistency.js"
+      },
+      {
+        "file": "core/tests/translation-runtime-smoke.js"
+      }
+    ]
+  },
+  {
+    "p_id": "p116",
+    "id": "plot-2026-07-02T07:01:08",
+    "timestamp": "2026-07-02 07:01:08",
+    "summary": "Doku-Audit 9 BROKEN 1 RISK: AGENTS Plugin-Schicht 16 auf 18, GUI-Server 667 auf 187 plus 403, Plugin-Boundary 84 auf 92, MASTER_DOC korrigiert, FCM bereinigt, writing_rules body_text_format Prosa-Regel hinzugefuegt, Root Archive sync. Syntax OK.",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c111j79n4a5p56",
+    "ref_to": "plot-2026-07-02T06:47:46",
+    "prev_narrator": "Null",
+    "data_changes": [
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/GUI/INDEX.md"
+      },
+      {
+        "file": "core/Translation/INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/AGENTS.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/writing_rules.json"
+      }
+    ]
+  },
+  {
+    "p_id": "p117",
+    "id": "plot-2026-07-02T08:08:46",
+    "timestamp": "2026-07-02 08:08:46",
+    "summary": "Provider-Auto-Detect: ensurePrimaryModel prueft Key vor Auto-Discovery. Ollama-Key-Modal bereinigt. Ollama-Key-Test implementiert.",
+    "narrator": "Devin",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c112j69n6a1p56",
+    "ref_to": "plot-2026-07-02T07:01:08",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/GUI/gui-handlers.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/archive/docs/PREFLIGHT_LATEST.md"
+      }
+    ]
   }
 ]

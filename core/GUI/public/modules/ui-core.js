@@ -226,14 +226,14 @@ function renderProviderStats() {
     gemini: 'Google Gemini — Texterkennung & Übersetzung. Rate-Limit bei 429.',
     groq: 'Groq Cloud — schnelle Inferenz mit Llama-Modellen. Kostenlos mit Account.',
     ollama: 'Ollama — Lokale KI-Modelle. Kein Cloud-Key nötig.',
-    player2: 'Player2 — Lokaler KI-Client auf dem Desktop (optional).',
+
     openai: 'OpenAI — GPT-4o, GPT-4o-mini, etc. API-Key von platform.openai.com.',
     custom_api: 'Custom API — Beliebiger OpenAI-kompatibler Endpoint (LM Studio, vLLM, Oobabooga, etc.).',
     nvidia: 'NVIDIA NIM — NeMo & Nemotron Modelle. nvapi-Key von build.nvidia.com.'
   };
 
   providers.forEach(function(provider) {
-    if (provider === 'player2' && !currentConfig.PLAYER2_ENABLED) return;
+
     if (provider === 'google_free' && !currentConfig.GOOGLE_FREE_ENABLED) return;
 
     var reqs = providerStats[provider] || { pass: 0, fail: 0 };

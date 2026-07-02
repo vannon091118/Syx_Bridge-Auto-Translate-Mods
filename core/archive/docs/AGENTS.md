@@ -1,6 +1,7 @@
 # AGENTS.md — SyxBridge Agenten-Regelwerk
-> **Version:** v0.25.0-alpha | **Stand:** 2026-07-01
+> **Version:** v0.25.0-alpha | **Stand:** 2026-07-02
 > **LIES DIE DOKUMENTATION:** core/archive/docs/ — IMMER zuerst lesen.
+> **Roadmap:** ROADMAP.md — Zentrale Projekt-Roadmap (SSOT)
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können.
 
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT
@@ -39,9 +40,12 @@ SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT
 
 > Diese Regeln kommen vom User. Sie haben IMMER Vorrang vor Agent-Entscheidungen.
 
-## U-1: COMMIT-PFLICHT
+## U-1: COMMIT-PFLICHT (Doku immer im Code-Commit)
 Nach JEDER Code-Anpassung: Commit + Push auf den aktiven Branch (main).
 Kein Code bleibt uncommitted. Kein Push ohne Review.
+Dokumentation (CHANGELOG, AGENTS, PLAN, INDEX, HANDSHAKE, README) wird IMMER
+zusammen mit den Code-Änderungen committed — nie als eigener Commit.
+Reine Doku-Commits sind verboten. Fokus liegt auf Code-Anpassungen.
 
 ## U-2: CHANGELOG-PERSISTENZ
 Nach jedem Task MUSS das CHANGELOG.md weitergeführt werden.
@@ -111,6 +115,8 @@ NEXT offene Punkte (max 3)
 | SESSION | Start/Ende |
 
 Alle Tasks unterliegen TEIL 1 + TEIL 2 + GLOBALE REGELN.
+Fokus: Code-Anpassungen. Doku immer im selben Commit (U-1).
+Versions-Roadmap: ROADMAP.md
 
 ---
 
@@ -247,24 +253,24 @@ Schicht 3: FREEZE_INDEX.md
 
 ## 13.1 Plugin-Schicht (3 Ebenen)
 
-**Ebene 1 — `GameAdapter.js`:** Abstraktes Base-Interface. 16 Methoden für Datei-/Verzeichnisoperationen:
+**Ebene 1 — `GameAdapter.js`:** Abstraktes Base-Interface. 18 Methoden für Datei-/Verzeichnisoperationen:
 `getLauncherSettingsPath`, `parseMetadata`, `formatMetadata`, `getCoreModFolderName`,
 `getCoreModMetadata`, `applyPatchModifications`, `getBackupDirectoryName`, `isBackupDirectory`,
 `isVersionDirectory`, `getOverrideHeader`, `formatPatchNotice`, `getParserFormat`,
-`classifyFile`, `isTranslatableFile`, `scanMod`.
+`classifyFile`, `isTranslatableFile`, `scanMod`, `getDefaultModRoot`, `getWorkshopContentPath`.
 
 **Ebene 2 — `GamePlugin.js extends GameAdapter`:** Erweitert Adapter um Format-spezifische Hooks.
-12 Methoden: `serializeTranslation`, `extractTextValue`, `validateTranslation`,
+13 Methoden: `serializeTranslation`, `extractTextValue`, `validateTranslation`,
 `validateFileSyntax` (R-VAL Plugin-Delegation), `getPlaceholderRegex` (R-SHIELD Plugin-Delegation),
 `getPromptContext`, `getLoreTerms`, `getGameTerms`, `getPathRules`,
-`getTranslationMetadataPattern`, `getFileHeader`. Jede Methode hat sinnvolle Defaults —
-konkrete Plugins überschreiben nur was spielspezifisch ist.
+`getTranslationMetadataPattern`, `getFileHeader`, `getProperNounDenylist`, `getTranslationCredit`.
+Jede Methode hat sinnvolle Defaults — konkrete Plugins überschreiben nur was spielspezifisch ist.
 
 **Ebene 3 — Konkrete Implementierungen:**
-- `SongsOfSyxPlugin.js` (~377 LOC, 35 Methoden) — Vollständig. SoS-Format (KEY:"value"),
-  Backslash-Escaping, V71-Dateien, _Info.txt-Metadaten, BridgeCore-Generierung.
-- `RimWorldPlugin.js` (~221 LOC, 28 Methoden) — **STUB.** Format-Hooks vollständig (11/11),
-  Adapter-Hooks werfen "not yet implemented" (13/13).
+- `SongsOfSyxPlugin.js` (~573 LOC, 36 Contract-Methoden) — Vollständig. SoS-Format (KEY:"value"),
+  Backslash-Escaping, V71-Dateien, _Info.txt-Metadaten, BridgeCore-Generierung, Proper-Noun-Denylist.
+- `RimWorldPlugin.js` (~229 LOC, 15 Stub-Methoden) — **STUB.** Format-Hooks vollständig (11/11),
+  Adapter-Hooks werfen "not yet implemented" (15/15, inkl. getDefaultModRoot/getWorkshopContentPath).
 
 **Factory — `plugin-registry.js`:** `createPlugin(gameName)` → instanziiert das richtige Plugin.
 `DEFAULT_GAME = 'songs_of_syx'`. Neues Spiel? → Plugin-Klasse registrieren, fertig.
@@ -273,7 +279,7 @@ konkrete Plugins überschreiben nur was spielspezifisch ist.
 > 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren (XML/JSON/...)
 > 2. In `Translation/plugin-registry.js` registrieren: `PLUGIN_REGISTRY['dein_spiel'] = DeinPlugin`
 > 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
-> 4. Testen via `plugin-boundary-contract.js` (84 dynamische Interface-Checks)
+> 4. Testen via `plugin-boundary-contract.js` (92 dynamische Interface-Checks)
 
 ## 13.2 RimWorld-Status (v0.23 Scope, ~16h)
 
@@ -300,33 +306,31 @@ Launcher-Settings-Pfad (Steam-Installation), _Info.txt-Äquivalent (About.xml?).
 
 ## 13.3 GUI-Architektur
 
-**Server — `GUI/server.js` (667 LOC):**
-- `GuiServer extends EventEmitter` — HTTP-Server auf `localhost:3000`
+**Server — `GUI/server.js` (187 LOC) + `GUI/server-routes.js` (403 LOC):**
+- `GuiServer extends EventEmitter` — HTTP-Server auf `localhost:3000` (server.js)
 - SSE (Server-Sent Events) für Echtzeit-Logs, Status-Updates, DB-Samples, Payloads
-- 25+ REST-Endpoints: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`,
+- REST-Endpoints in server-routes.js: `/api/config`, `/api/system-health`, `/api/models/*`, `/api/db/*`,
   `/api/action/*`, `/api/backups/*`, `/api/preflight-status`, `/api/db-repair`,
-  `/api/fcm-rankings`, `/api/key-check`, `/api/revisions/*`, `/api/runtime-score`,
+  `/api/key-check`, `/api/revisions/*`, `/api/runtime-score`,
   `/api/run-evaluation`, `/api/provider-status`, `/api/session`
 - Auto-Shutdown bei Inaktivität (1.5s nach letzter Session-Close)
 - Port-Fallback: EADDRINUSE → Port+1
 
-**Client — `GUI/public/app.js` (1854 LOC):**
-- `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle)
-- SSE-Verbindung: Echtzeit-Logs + Status-Updates + Provider-Stats + DB-Samples
-- Pipeline-Visualizer (4 Phasen: SCAN → LLM → QA → SAVE)
-- DB-Browser: Suche, Edit (Mehrzeilen), Save, Revisionen
-- Settings-Dropdown: Provider/Modell/Language/Batch-Size live konfigurierbar
-- API-Key-Modal: Keys verwalten + testen pro Provider
-- FCM Live Rankings: Modell-Tiers, Ping, Stabilität, USE-Button
+**Client — `GUI/public/app.js` (96 LOC) + 6 Module:**
+- app.js: Bootstrap, Session-Keepalive, Event-Bindings
+- `modules/state.js`: Zentraler State + apiClient-Wrapper + tickDomCache
+- `modules/ui-core.js`: `tick()` — requestAnimationFrame Hauptloop (60fps im Run, 4fps im Idle), Pipeline-Visualizer
+- `modules/ui-data.js`: DB-Browser, API-Key-Check, Model-Status, Backups, Runtime-Score, Run-Evaluation
+- `modules/ui-settings.js`: Settings-Dropdown, Provider/Modell/Language/Batch-Size, Config-Persist
+- `modules/ui-sse.js`: SSE-Verbindung für Echtzeit-Logs + Status-Updates + Provider-Stats + DB-Samples
+- `modules/i18n.js`: Internationalisierung (14 Sprachen, localizeDOM)
 - Runtime Score Floating Panel (standardmäßig minimiert)
-- Run Self-Evaluation (Echtzeit-Qualitätsmetriken nach jedem Sync)
 - DB-Repair-Button: 4 Blink-Tiers je nach kritischem DB-Zustand
-- Mod-Backups: Liste + Restore
 - Mode-UI: NATIVE vs PATCH Status-Anzeige
 
 **Frontend — `GUI/public/index.html`:**
 - Dark-Theme mit CSS-Variablen (--bg, --accent, --success, --danger)
-- 3-Spalten-Layout: Sidebar (Status + Pipeline + Aktionen) | Center (Terminal/DB-Browser + Logs) | Right (Stats + Backups + DB-Stream + FCM)
+- 3-Spalten-Layout: Sidebar (Status + Pipeline + Aktionen) | Center (Terminal/DB-Browser + Logs) | Right (Stats + Backups + DB-Stream)
 - Neon-Progress-Border via SVG (animiert bei laufendem Sync)
 - State-abhängige Hintergründe (running=Gelb, success=Grün, error=Rot-Blink)
 - Version-Highlights-Modal (v0.25.0-alpha, 10 Einträge)

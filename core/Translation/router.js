@@ -13,7 +13,6 @@ const PROVIDER_REGISTRY = {
   nvidia:       { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchNvidiaModels',     costClass: 4,  limits: { items: 15, chars: 3000, pItems: 10, pChars: 2200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   custom_api:   { type: 'cloud', defaultModel: 'auto',                  fetchMethod: 'fetchCustomApiModels',  costClass: 3,  limits: { items: 10, chars: 1800, pItems: 6, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   ollama:       { type: 'local', defaultModel: 'llama3.2',              fetchMethod: 'fetchOllamaModels',     costClass: 1,  limits: { items: 12, chars: 1800, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
-  player2:      { type: 'local', defaultModel: 'auto',                  fetchMethod: 'fetchPlayer2Models',    costClass: 1,  limits: { items: 6,  chars: 900,  pItems: 4, pChars: 700 },  caps: { translate: true, audit: true, polish: true, compare: true, review: true } },
   google_free:  { type: 'local', defaultModel: 'google-translate-free', fetchMethod: null,                    costClass: 9,  limits: { items: 8,  chars: 1200, pItems: 8, pChars: 1200 }, caps: { translate: true, audit: false, polish: false, compare: false, review: false } },
   argos:        { type: 'local', defaultModel: 'argos-translate-local', fetchMethod: null,                    costClass: 10, limits: { items: 10, chars: 1500, pItems: 10, pChars: 1500 }, caps: { translate: true, audit: false, polish: false, compare: false, review: false } }
 };
@@ -228,14 +227,14 @@ class Router {
     if (id === 'openai') return isEnabledFlag(this.config.OPENAI_ENABLED, true) && !!this.helpers.getApiKey(id);
     // Custom API: accessible when enabled and URL is configured
     if (id === 'custom_api') return isEnabledFlag(this.config.CUSTOM_API_ENABLED, true) && !!this.config.CUSTOM_API_URL;
-    // Lokale LLM-Modelle (Ollama, Player2) nur mit explizitem Opt-in
+    // Lokale LLM-Modelle (Ollama) nur mit explizitem Opt-in
     // (Hardware-Schutz: lokale LLMs können GPU/CPU überlasten).
-    // BUGFIX (PREF-IGNORE #1): Wenn der User Ollama/Player2 EXPLIZIT als
+    // BUGFIX (PREF-IGNORE #1): Wenn der User Ollama EXPLIZIT als
     // PRIMARY_PROVIDER, AUDITOR_PROVIDER oder POLISHER_PROVIDER konfiguriert hat,
     // wird der Zugriff automatisch erlaubt — auch ohne LOCAL_MODELS_ENABLED=true.
     // Verhindert stillen Fallback auf Cloud-Provider wenn der User bewusst
     // ein lokales Modell gewählt hat.
-    if (id === 'ollama' || id === 'player2') {
+    if (id === 'ollama') {
       const isExplicitlyConfigured =
         this.config.PRIMARY_PROVIDER === id ||
         this.config.AUDITOR_PROVIDER === id ||
@@ -243,7 +242,6 @@ class Router {
       if (!isExplicitlyConfigured && !isEnabledFlag(this.config.LOCAL_MODELS_ENABLED, false)) {
         return false;
       }
-      if (id === 'player2') return isEnabledFlag(this.config.PLAYER2_ENABLED, false);
       return true;
     }
     return !!this.helpers.getApiKey(id);
@@ -461,7 +459,6 @@ class Router {
         { provider: 'gemini',     model: 'auto' },
         { provider: 'openrouter', model: 'auto' },
         { provider: 'ollama',     model: 'auto' },
-        { provider: 'player2',    model: 'auto' },
         { provider: 'google_free', model: 'google-translate-free' },
         { provider: 'argos',      model: 'argos-translate-local' }  // ← ABSOLUTE BOTTOM
       ],
@@ -507,7 +504,7 @@ class Router {
         if (providerId === userProvider) {
           const noAccess = !this.hasAccess(providerId);
           let reason, fixHint;
-          if (noAccess && (providerId === 'ollama' || providerId === 'player2')) {
+          if (noAccess && providerId === 'ollama') {
             reason = 'Lokaler LLM-Provider geblockt';
             fixHint = 'Setze LOCAL_MODELS_ENABLED=true in .env um lokale LLMs freizuschalten.';
           } else if (noAccess) {

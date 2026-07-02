@@ -2,10 +2,15 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
 const os = require('os');
+const { createPlugin, DEFAULT_GAME } = require('../Translation/plugin-registry');
+
+const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
 
 const UPLOADER_ROOT = process.platform === 'win32'
   ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods-uploader', 'WorkshopContent')
   : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods-uploader', 'WorkshopContent');
+// NOTE: UPLOADER_ROOT is SoS-specific (Steam Workshop Uploader tool path).
+// No plugin method exists for this — acceptable as a tool-specific path.
 
 async function ensureDir(dir) {
   if (!fs.existsSync(dir)) await fsp.mkdir(dir, { recursive: true });
@@ -29,7 +34,7 @@ async function exportToWorkshop() {
   console.log('   WORKSHOP UPLOADER EXPORT');
   console.log('========================================');
 
-  const corePath = path.join(process.env.APPDATA || '', 'songsofsyx', 'mods', 'BridgeCore');
+  const corePath = path.join(plugin.getDefaultModRoot(), plugin.getCoreModFolderName());
   const _patchesPath = path.join(__dirname, '..', 'patches');
   
   if (!fs.existsSync(corePath)) {

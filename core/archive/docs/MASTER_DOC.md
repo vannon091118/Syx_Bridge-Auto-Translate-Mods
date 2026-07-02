@@ -31,7 +31,7 @@
 Scan → Extract → Translate → Audit → Polish → Export
 ```
 
-### Provider Matrix (11 Stück — Stand 2026-06-26)
+### Provider Matrix (9 im PROVIDER_REGISTRY — Stand 2026-07-02, verifiziert)
 
 | Provider | Typ | Nutzung | CostClass |
 |---|---|---|---|
@@ -40,10 +40,8 @@ Scan → Extract → Translate → Audit → Polish → Export
 | OpenAI | Cloud (GPT) | Polish/Audit (neu v0.23) | 5 |
 | Gemini | Cloud (Google) | Übersetzung | 5 |
 | NVIDIA NIM | Cloud (NVIDIA) | Unlimitiert | 4 |
-| FCM | Lokal Proxy | Kostenloser Router | 1.5 |
 | Custom API | Cloud (Generic) | OpenAI-kompatibel (neu v0.23) | 3 |
 | Ollama | Lokal (LLM) | Fallback/Offline | 1 |
-| Player2 | Lokal (Desktop) | Optional (Opt-in) | 1 |
 | Argos Translate | Lokal (Offline) | UI-Strings | 10 |
 | Google Free | Cloud | UI-Strings (abschaltbar) | 9 |
 
@@ -70,10 +68,10 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 | Ebene | Datei | LOC | Methoden | Status |
 |-------|-------|-----|----------|--------|
-| 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 16 | Abstraktes Base-Interface |
-| 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 12 | Format-Hooks mit Defaults |
-| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~377 | 35 | ✅ Voll integriert |
-| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~221 | 28 (11 fertig) | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
+| 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 18 | Abstraktes Base-Interface |
+| 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 13 | Format-Hooks mit Defaults |
+| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~573 | 36 | ✅ Voll integriert |
+| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~229 | 15 Stubs | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
 | — | `plugin-registry.js` | ~30 | 1 Factory | ✅ `createPlugin(gameName)` |
 
 **Ebene 1 — `GameAdapter`:** Plattform-Operationen (Launcher-Pfade, Mod-Scanning, Dateitypen).
@@ -103,18 +101,18 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren
 2. In `plugin-registry.js` registrieren
 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
-4. Testen via `plugin-boundary-contract.js` (76+ dynamische Interface-Checks)
+4. Testen via `plugin-boundary-contract.js` (92 dynamische Interface-Checks)
 
 ---
 
 ## 5. DB-Stand (2026-07-02 — Live)
 
 > **Live-DB Stand 2026-07-02:** **4.065 Eintraege** — letzter PREFLIGHT: 17/21 PASS, 0 Shield-Leaks, 1.492 Flagged.
-> **Provider:** 11 aktive Provider — siehe §2 Provider Matrix.
-> **better-sqlite3 aktiv** — 13 Tabellen (12 user + sqlite_sequence).
+> **Provider:** 9 aktive Provider im PROVIDER_REGISTRY — siehe §2 Provider Matrix.
+> **better-sqlite3 aktiv** — 12 Tabellen (user-Daten).
 > Frühere DB-Resets: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test), Fresh Reset (4.390 → 0).
 > **Runtime Score:** 90.1% (gewichteter Durchschnitt über 8 Personas, Stand v0.22 — seit Reset nicht neu berechnet).
-> **Tests (2026-07-02):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 86/86 ✅ | E2E Native Mode 35/35 ✅ | **ML-7 Multi-Lang 166/166 ✅**
+> **Tests (2026-07-02):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 92/92 ✅ | E2E Native Mode 35/35 ✅ | **ML-7 Multi-Lang 166/166 ✅**
 
 ---
 
@@ -142,8 +140,8 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 **Verfügbare Agents:**
 - `code-searcher` / `file-picker`: Ripgrep & Fuzzy-Suche
 - `basher`: Terminal (Keine destruktiven Tasks ohne User-Erlaubnis!)
-- `code-reviewer-deepseek`: Zwingender PR-Reviewer für Changes >10 Zeilen
-- `thinker-with-files-gemini`: Deep-Thinking mit Context, Architektur-Design
+- `code-reviewer-mimo`: Zwingender PR-Reviewer für Changes >10 Zeilen
+- `thinker-gpt`: Deep-Thinking mit Context, Architektur-Design
 - `researcher-web` / `docs`: Externe Informationsrecherche
 
 **Wichtige Workflows & Regeln:**
@@ -166,12 +164,12 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 ---
 
-## 9. Dokumentationsstruktur (Final — Post Konsolidierung 2026-06-21)
+## 9. Dokumentationsstruktur (Final — Post Live→FREEZE Transfer 2026-07-02)
 
-> **Stand:** 2026-06-23 — **10 LIVE + 5 FREEZE + 10 PLAN**
-> **30 Doku-Konsolidierungs-Durchläufe abgeschlossen.**
-> **235 Buch-Einträge** (142 FREEZE_INDEX archiviert + 93 FREEZE_INDEX_2 §1–§30).
-> **105 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
+> **Stand:** 2026-07-02 — **7 LIVE + 12 FREEZE + 10 PLAN**
+> **34 Doku-Konsolidierungs-Durchläufe + Global-Clean + Live→FREEZE abgeschlossen.**
+> **246 Buch-Einträge** (142 FREEZE_INDEX archiviert + 104 FREEZE_INDEX_2 §1–§33).
+> **131 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
 > **V70/V71:** Wiederhergestellt (README.md + .gitkeep, .gitignore: nur .txt in assets geblockt).
 > **Archiv-Regeln:** `.ArchiveRules` im Projekt-Root.
 
@@ -180,32 +178,39 @@ core/archive/docs/
 ├── MASTER_DOC.md              # ← DIESER REPORT (SSOT: aktueller Stand)
 ├── CHANGELOG.md               # Versionshistorie (persistent — wird NIE gelöscht)
 ├── PREFLIGHT_LATEST.md        # Aktueller PREFLIGHT-Report (auto-gen)
-├── AGENTS.md                  # SSOT: Agent-Regeln (Root-Sync)
-├── KNOWN_BUGS_REPORT.md       # Bug-Triage (7 aktive Bugs)
+├── KNOWN_BUGS_REPORT.md       # Bug-Triage (4 aktive + 29 behobene Bugs)
 ├── LIVE_INDEX.md              # Index aller Dokumente
-├── PLOT_LORE.md               # RULE 2 Lore Layer (commit_lore)
-├── RUNTIME_SCORE_HISTORY.md   # Runtime-Score Tracking
+├── PLOT_LORE.md               # RULE 2 Lore Layer (commit_lore — PFADEXIST)
+├── AGENTS.md                  # Root-Sync-Kopie (SSOT = Root AGENTS.md)
 ├── preflight_history.log      # PREFLIGHT-Verlauf
-├── FREEZE/
+├── FREEZE/                    # 12 Dateien
 │   ├── FREEZE_INDEX.md        # Das Buch [ARCHIVIERT] — 142 Einträge
-│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 93 Einträge (§1–§30)
-│   ├── FREEZE_INDEX_v0.20.0_archived.md  # Archivkopie
-│   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # TOC
-│   └── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikation
-└── plans/
-    ├── PLAN_MASTER.md         # Zentrale Roadmap (v0.21, archiviert → FREEZE/PLAN_MASTER_2026-06-20.md)
-    ├── PLAN_BUG_TRIAGE.md     # 🟡 OFFEN (0/6)
-    ├── PLAN_BYPASS_REMOVAL.md # 🟡 OFFEN (0/6)
-    ├── PLAN_DEAD_FLAGS.md     # 🟡 OFFEN (0/5)
-    ├── PLAN_FEATURE_GAPS.md   # 🟡 OFFEN (0/5)
-    ├── PLAN_GLOBAL_SCORE.md   # 🟡 OFFEN (0/6)
-    ├── PLAN_LATENT_RISKS.md   # 🟡 OFFEN (0/5)
-    ├── PLAN_PRIORISIERUNG.md  # 🟡 OFFEN (0/6)
-    ├── PLAN_RUNTIME_PROBABILITY.md # 🟡 OFFEN (0/5)
-    └── PLAN_STABILISIERUNG.md # 🟡 TEILWEISE (2/9)
+│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 104 Einträge (§1–§33)
+│   ├── README.md              # Erklärung des FREEZE-Ordners
+│   ├── PRODUCT_PROTECTION_DOCUMENTATION.md  # Produktschutz (4-Schichten)
+│   ├── HANDSHAKE_2026-06-26.md # Session-Handshake Doku-Divergenz-Audit
+│   ├── PLAN_MASTER_2026-06-20.md  # Archivierter Master-Plan
+│   ├── PLAN_COMMIT_LAYER_RNG.md   # ✅ DONE — Commit-Layer RNG
+│   ├── PLAN_GLOBAL_SCORE.md       # ✅ DONE — Global Score
+│   ├── GUI_REWORK.md              # ✅ ERLEDIGT — GUI Polish & Debug
+│   ├── SYSTEM_ARCHITECTURE.md     # Architektur-Referenz (archiviert)
+│   ├── SOS_FORMAT_SPEC.md         # SoS Format-Spec (normativ, archiviert)
+│   └── RUNTIME_SCORE_HISTORY.md   # Runtime-Score Tracking (archiviert)
+├── plans/                     # 10 Dateien
+│   ├── PLAN_RIMWORLD.md           # 🟡 AKTIV (0/19) — Phase 3
+│   ├── PLAN_BUG_TRIAGE.md         # 🔵 BACKLOG (BT-1/2 ✅)
+│   ├── PLAN_BYPASS_REMOVAL.md     # 🔵 BACKLOG
+│   ├── PLAN_DEAD_FLAGS.md         # 🔵 BACKLOG
+│   ├── PLAN_FEATURE_GAPS.md       # 🔵 BACKLOG (FG-1 ✅)
+│   ├── PLAN_LATENT_RISKS.md       # 🔵 BACKLOG
+│   ├── PLAN_PLAN_AUDIT.md         # 🔵 BACKLOG
+│   ├── PLAN_PRIORISIERUNG.md      # 🔵 BACKLOG
+│   ├── PLAN_RUNTIME_PROBABILITY.md # 🔵 BACKLOG
+│   └── PLAN_STABILISIERUNG.md     # 🔵 BACKLOG (5/9 done)
+└── OLD_DOCS/                  # 1 Datei (FREEZE_INDEX_v0.19-v0.20.md)
 ```
 
-### Archivierungshistorie (105 Dokumente)
+### Archivierungshistorie (131 Dokumente)
 
 | Durchlauf | Quelle | Archiviert | Ziel |
 |-----------|--------|-----------|------|
@@ -215,6 +220,7 @@ core/archive/docs/
 | 4 | 8 HANDSHAKEs | 8 Einträge | FREEZE_INDEX_2 §18 |
 | 5 | MASTER_DOC §3/§6 + 15 Orphan-Files | 5 Einträge + 15 gelöscht | FREEZE_INDEX_2 §29–§30 |
 | Früher | 62+14 Doku-Clean | 142 Einträge | FREEZE_INDEX §1–§33 |
+| **Global-Clean** | **16 FREEZE + 2 OLD_DOCS + 1 FREEZE_INDEX** | **19 Dateien gelöscht** | **Inhalt in Buch-Einträgen** |
 
-> **Rekonstruierbarkeit:** Aus FREEZE_INDEX + FREEZE_INDEX_2 (235 Einträge) kann der gesamte
-> Entwicklungsprozess (16.06. – 23.06.2026) lückenlos nachvollzogen werden.
+> **Rekonstruierbarkeit:** Aus FREEZE_INDEX + FREEZE_INDEX_2 (246 Einträge) kann der gesamte
+> Entwicklungsprozess (16.06. – 02.07.2026) lückenlos nachvollzogen werden.

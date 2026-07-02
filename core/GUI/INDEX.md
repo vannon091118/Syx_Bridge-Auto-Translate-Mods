@@ -42,7 +42,7 @@ core/GUI/
 │       │   └── sv.js      # 🇸🇪 Svenska
 │       ├── ui-core.js     # Render-Loop, Pipeline, Provider-Stats, Health, Actions
 │       ├── ui-settings.js # Config, Mode, Batch, Provider, Lokale Modelle, Ollama Cloud
-│       ├── ui-data.js     # DB-Browser, Revisionen, Repair, Keys, Models, FCM, Scores, Backups
+│       ├── ui-data.js     # DB-Browser, Revisionen, Repair, Keys, Models, Scores, Backups
 │       └── ui-sse.js      # SSE-Verbindung + Log-Handling
 ```
 
@@ -92,7 +92,6 @@ core/GUI/
 | `/api/action/:action` | beliebig | `action` | Aktion auslösen |
 | `/api/preflight-status` | GET | `get-preflight-status` | DB-Warnung |
 | `/api/db-repair` | POST | `run-db-repair` | DB-Reparatur |
-| `/api/fcm-rankings` | GET | `get-fcm-rankings` | FCM Live-Rankings |
 | `/api/runtime-score` | GET | — | Runtime-Score (JSON-Datei) |
 | `/api/run-evaluation` | GET | — | Letzter Durchlauf (global) |
 | `/api/key-check` | POST | `check-api-key` | Key testen |
@@ -223,7 +222,7 @@ core/GUI/
 | `updatePipeline(phase)` | Pipeline-Visualisierung (SCAN→LLM→QA→SAVE) |
 | `renderProviderStats()` | Provider-Statistiken + API-Health rendern |
 | `fetchProviderStatus()` | Provider-Status via API laden |
-| `fetchHealth()` | System-Health + Status-Dots (Argos, Ollama, FCM, NVIDIA, DB) |
+| `fetchHealth()` | System-Health + Status-Dots (Argos, Ollama, NVIDIA, DB) |
 | `triggerAction(action)` | Backend-Aktion auslösen |
 | `_toggleBridge()` | Bridge starten/stoppen |
 | `toggleStreamView()` | DB↔LLM Stream-View umschalten |
@@ -261,7 +260,6 @@ core/GUI/
 | API Keys | `openKeyModal()`, `closeKeyModal()`, `renderKeySections()`, `_addKeyRow()`, `_saveKeysFromModal()`, `checkSingleKey()`, `checkAllKeys()` | Key-Management-Modal |
 | Modell-Status | `fetchModelStatus()`, `renderModelStatus()` | Argos + Ollama Status-Panel |
 | Modelle installieren | `_installArgosFromUI()`, `_installArgosLanguageFromUI()`, `_pullOllamaModel()` | Install-Buttons |
-| FCM Rankings | `refreshFcmRankings()`, `renderFcmRankings()`, `useModelFromFcm()` | FCM Live-Rankings |
 | Runtime Score | `fetchRuntimeScore()`, `renderRuntimeScore()`, `toggleRuntimeScoreMin()` | 8-Persona-Score |
 | Run Evaluation | `fetchRunEvaluation()`, `renderRunEvaluation()` | Letzter Durchlauf |
 | Backups | `loadBackups()`, `restoreBackup()` | Mod-Backup-Liste |
@@ -285,7 +283,6 @@ core/GUI/
 | Lifecycle-Init | `setInterval(fetchHealth, 5s)`, `setInterval(fetchPreflightStatus, 30s)`, `requestAnimationFrame(tick)` |
 | Daten-Init | `loadInitialConfig()`, `searchDb('')`, `setTimeout(loadBackups, 2s)` |
 | SSE-Init | `connectLogs()` |
-| FCM | `setTimeout(refreshFcmRankings, 4s)`, `setInterval(refreshFcmRankings, 60s)` |
 | Scores | `setTimeout(fetchRuntimeScore, 2s)`, `setInterval(fetchRuntimeScore, 120s)` |
 | Session-Keepalive | `setInterval(POST /api/session, 30s)` |
 | Window-Exports | `toggleSettings`, `triggerAction`, `searchDb`, `updateBatchRecommendation`, `openVersionHighlights`, `closeVersionHighlights` |

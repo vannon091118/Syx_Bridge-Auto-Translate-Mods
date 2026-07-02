@@ -34,7 +34,16 @@ export default [
       }
     },
     rules: {
-      'no-unused-vars': 'off'
+      'no-unused-vars': 'off',
+      'no-undef': 'off'
+    }
+  },
+  {
+    files: ['tests/**/*.test.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest
+      }
     }
   }
 ];

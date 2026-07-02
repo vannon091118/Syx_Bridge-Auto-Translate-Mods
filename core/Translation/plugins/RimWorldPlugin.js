@@ -216,6 +216,14 @@ class RimWorldPlugin extends GamePlugin {
   async scanMod(modDir) {
     throw new Error('RimWorldPlugin: scanMod not yet implemented');
   }
+
+  getDefaultModRoot() {
+    throw new Error('RimWorldPlugin: getDefaultModRoot not yet implemented');
+  }
+
+  getWorkshopContentPath() {
+    throw new Error('RimWorldPlugin: getWorkshopContentPath not yet implemented');
+  }
 }
 
 module.exports = RimWorldPlugin;

@@ -37,6 +37,10 @@ function readFileSafe(filePath) {
   try { return fs.readFileSync(filePath, 'utf-8'); } catch { return null; }
 }
 
+function computeSha256(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
 /**
  * checkNaming(opts) — Prueft ob "X-Bridge" in oeffentlichen Dateien vorkommt.
  * BU-030: Gibt Issues-Array zurueck statt in globale Variable zu schreiben.

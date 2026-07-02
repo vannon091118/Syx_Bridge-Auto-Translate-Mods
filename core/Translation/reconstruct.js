@@ -130,7 +130,6 @@ async function testRouter() {
     AUDITOR_PROVIDER: 'ollama',
     AUDITOR_MODEL: 'auto',
     LOCAL_MODELS_ENABLED: true,
-    PLAYER2_ENABLED: false
   };
   const router = new Router(config, {
     getApiKey: (provider) => (['openrouter', 'groq', 'gemini'].includes(provider) ? 'key' : null),
@@ -146,8 +145,6 @@ async function testRouter() {
 
   const polishPlan = router.buildRoutePlan('polish');
   assert(polishPlan.length > 0);
-  assert.strictEqual(translatePlan.some(route => route.provider === 'player2'), false);
-
   const dispatcher = createDispatcher({
     config,
     routingEngine: router,

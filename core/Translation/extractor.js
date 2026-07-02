@@ -114,13 +114,36 @@ function extractStrings(content) {
   const strings = [];
   let match;
     
-  while ((match = regex.exec(content)) !== null) {
-    // ── Skip strings inside the INFO metadata block ──────────────────
-    // These are game-engine metadata (display names, descriptions) that
-    // must remain in English. Translating them corrupts the file.
-    if (infoBlockStart >= 0 && match.index >= infoBlockStart && match.index <= infoBlockEnd) continue;
+  // Selective INFO-block allowlist — DESC_LONG, PROS, CONS are translatable
+  // player-facing content. All other INFO fields (NAME, DESC, VERSION, etc.)
+  // are engine metadata that must stay English.
+  const INFO_TRANSLATABLE = new Set(['DESC_LONG', 'PROS', 'CONS']);
 
-    const key = match[1] || '';
+  while ((match = regex.exec(content)) !== null) {
+    let key = match[1] || '';
+
+    // ── Selective extraction inside the INFO metadata block ──────────
+    if (infoBlockStart >= 0 && match.index >= infoBlockStart && match.index <= infoBlockEnd) {
+      let activeKey = key; // Use regex-extracted key if available
+
+      // Bare string (e.g. inside PROS/CONS array): find the last KEY: before this match
+      if (!activeKey) {
+        let prefix = content.substring(infoBlockStart, match.index);
+        // Strip previously parsed quoted strings to prevent false key matches
+        prefix = prefix.replace(/"(?:\\.|[^"\\])*"/g, '');
+        const keyMatches = prefix.match(/\b([a-zA-Z0-9_]+)\s*:/g);
+        if (keyMatches) {
+          activeKey = keyMatches[keyMatches.length - 1].replace(/:$/, '').trim();
+        }
+      }
+
+      const upperKey = activeKey.toUpperCase();
+      if (!INFO_TRANSLATABLE.has(upperKey)) continue;
+
+      // Assign key for downstream classifyString()
+      key = activeKey;
+    }
+
     const rawValue = match[2];
     let unescapedValue = unescapeTextValue(rawValue);
     // Strip leading structural noise from extracted values.

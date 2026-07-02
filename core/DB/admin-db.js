@@ -192,12 +192,97 @@ function createAdminDb(dbManager) {
     return row ? row.c : 0;
   }
 
+  async function getProcessedFilesCount() {
+    const row = await dbManager.get('SELECT COUNT(*) as c FROM processed_files');
+    return row ? row.c : 0;
+  }
+
   async function clearTranslationCache(lang = 'German') {
     const result = await dbManager.run(
       'DELETE FROM translations WHERE target_lang = ?',
       [lang]
     );
     return result.changes;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // REVISION & GLOSSARY DAO (from gui-handlers.js — REQ 8 decoupling)
+  // ══════════════════════════════════════════════════════════════════════
+
+  async function getTranslationBySourceLang(sourceText, targetLang) {
+    return dbManager.get(
+      'SELECT translation, provider, quality_score, risk_score, flagged, flag_reason, updated_at FROM translations WHERE source_text = ? AND target_lang = ?',
+      [sourceText, targetLang]
+    );
+  }
+
+  async function getRevisionsForEntry(sourceText, targetLang) {
+    return dbManager.all(
+      'SELECT revision_id, translation, source_text, provider, quality_score, risk_score, flagged, flag_reason, is_active, is_reference, created_at FROM translation_revisions WHERE source_text = ? AND target_lang = ? ORDER BY revision_id DESC',
+      [sourceText, targetLang]
+    );
+  }
+
+  async function getRevisionById(revisionId, sourceText, targetLang) {
+    return dbManager.get(
+      'SELECT translation, provider, quality_score, flagged, flag_reason FROM translation_revisions WHERE revision_id = ? AND source_text = ? AND target_lang = ?',
+      [revisionId, sourceText, targetLang]
+    );
+  }
+
+  async function archiveCurrentTranslation(sourceText, targetLang, translation, provider, qualityScore, riskScore, flagged, flagReason) {
+    await dbManager.run(
+      'UPDATE translation_revisions SET is_active = 0 WHERE source_text = ? AND target_lang = ?',
+      [sourceText, targetLang]
+    );
+    await dbManager.run(
+      `INSERT INTO translation_revisions (source_text, target_lang, translation, provider, quality_score, risk_score, flagged, flag_reason, is_active, is_reference)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
+      [sourceText, targetLang, translation, provider || '', qualityScore || 0, riskScore || 0, flagged || 0, flagReason || '']
+    );
+  }
+
+  async function restoreRevision(revisionId, sourceText, targetLang, translation) {
+    await dbManager.run(
+      'UPDATE translations SET translation = ?, updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
+      [translation, sourceText, targetLang]
+    );
+    await dbManager.run(
+      'UPDATE translation_revisions SET is_active = 1 WHERE revision_id = ?',
+      [revisionId]
+    );
+  }
+
+  async function updateTranslation(sourceText, targetLang, translation) {
+    await dbManager.run(
+      'UPDATE translations SET translation = ?, updated_at = CURRENT_TIMESTAMP WHERE source_text = ? AND target_lang = ?',
+      [translation, sourceText, targetLang]
+    );
+  }
+
+  async function searchTranslations(query) {
+    const sql = query
+      ? 'SELECT * FROM translations WHERE source_text LIKE ? OR translation LIKE ? LIMIT 200'
+      : 'SELECT * FROM translations ORDER BY updated_at DESC LIMIT 200';
+    const params = query ? [`%${query}%`, `%${query}%`] : [];
+    return dbManager.all(sql, params);
+  }
+
+  async function getGuardedTerms(targetLang) {
+    return dbManager.all(
+      'SELECT * FROM glossary_terms WHERE target_lang = ? AND is_guarded = 1 ORDER BY source_term ASC',
+      [targetLang]
+    );
+  }
+
+  async function upsertGuardedTerm(targetLang, sourceTerm, targetTerm, guardedBy = 'user') {
+    await dbManager.run(
+      `INSERT INTO glossary_terms (target_lang, source_term, target_term, is_guarded, guarded_by, updated_at)
+       VALUES (?, ?, ?, 1, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(target_lang, source_term, scope, mod_scope)
+       DO UPDATE SET target_term = excluded.target_term, is_guarded = 1, guarded_by = excluded.guarded_by, updated_at = CURRENT_TIMESTAMP`,
+      [targetLang, sourceTerm, targetTerm, guardedBy]
+    );
   }
 
   return {
@@ -219,7 +304,18 @@ function createAdminDb(dbManager) {
     getAverageQualityScore,
     getShieldLeakCount,
     getCriticalRejectCount,
-    clearTranslationCache
+    getProcessedFilesCount,
+    clearTranslationCache,
+    // Revision & Glossary DAO
+    getTranslationBySourceLang,
+    getRevisionsForEntry,
+    getRevisionById,
+    archiveCurrentTranslation,
+    restoreRevision,
+    updateTranslation,
+    searchTranslations,
+    getGuardedTerms,
+    upsertGuardedTerm
   };
 }
 

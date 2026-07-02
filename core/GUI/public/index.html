@@ -1454,7 +1454,6 @@
             <option value="openai">OpenAI (GPT)</option>
             <option value="custom_api">Custom API (OpenAI-kompatibel)</option>
             <option value="ollama">Ollama (Lokal)</option>
-            <option value="player2">Player2 (Desktop)</option>
         </select>
 
         <label class="field-label" data-i18n="settings.activeModel">Aktives Modell</label>
@@ -1495,7 +1494,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
             <div>
                 <label class="field-label" style="color:var(--danger);" data-i18n="settings.localModelsWarning">⚠️ Lokale Modelle</label>
-                <div class="txt-xs txt-muted" data-i18n="settings.localModelsHint">Ollama/Player2 können das System belasten</div>
+                <div class="txt-xs txt-muted" data-i18n="settings.localModelsHint">Ollama kann das System belasten</div>
             </div>
             <label class="toggle-switch">
                 <input type="checkbox" id="cfg-local-models" onchange="toggleLocalModels()">

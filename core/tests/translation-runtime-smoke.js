@@ -161,9 +161,6 @@ async function step2(dbRun, dbGet, dbAll) {
     OLLAMA_KEYS: [],
 
     OLLAMA_URL: 'http://localhost:11434',
-    PLAYER2_ENABLED: false,
-    PLAYER2_URL: 'http://localhost:4315/v1',
-    PLAYER2_KEYS: [],
 
     KEY_INDICES: { gemini: 0, groq: 0, openrouter: 0, nvidia: 0, ollama: 0 }
   };
@@ -240,7 +237,6 @@ async function step2(dbRun, dbGet, dbAll) {
     getGrammarContext,
     getModelForProvider,
     getGeminiModelName,
-    dbGet,
     dbGet,
     dbAll,
     dbRun,
