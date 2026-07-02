@@ -1,8 +1,19 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 06:33:50] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
+**Narrator:** Sage | **Model:** mimo-v2.5-pro | **Composite:** `c108j10n14a2p15`
+- 5 Datei(en) geändert.
+
 ### [2026-07-02 06:30:42] Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert
 **Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c107j12n6a4p92`
 - 4 Datei(en) geändert.
+
+### [2026-07-02] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- translation-db.js: Post-LLM Auto-Flag in saveTranslation() — src=tgt mit QS>=70 wird automatisch als native_proper_noun markiert. Verhindert neue UNFLAGGED_STALE Eintraege.
+- text-core.js: isProperNoun() erkennt kulturelle Eigennamen-Suffixe (iranisch, griechisch: dokht, spia, anes, nases, dane, yuka, rane, sine, atis, aere, aste) vor der englischen Suffix-Heuristik.
+- PREFLIGHT_LATEST.md: Aktualisiert auf 0 kritische Issues nach DB Repair (836 UNFLAGGED_STALE + 896 NATIVE_STALE + 1 LOW_SCORE geflaggt).
+- 3 Datei(en) geaendert.
 
 ### [2026-07-02] Selektive INFO-Block-Extraktion: DESC_LONG, PROS, CONS jetzt uebersetzbar + isProperNoun Denylist erweitert
 **Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending

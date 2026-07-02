@@ -274,9 +274,22 @@ function createTranslationDb(options) {
     // Siehe DB-Anomalie A4: 191 native_runtime Einträge hatten fälschlich q=25.
     const isNativeRuntime = provider === 'native_runtime';
     const isNativeGlossary = provider === 'native_glossary';
-    const qualityScore = isNativeRuntime ? NATIVE_RUNTIME_DEFAULT_QUALITY
+    let qualityScore = isNativeRuntime ? NATIVE_RUNTIME_DEFAULT_QUALITY
       : isNativeGlossary ? NATIVE_GLOSSARY_DEFAULT_QUALITY
         : Number(meta.qualityScore || scoreTranslationQuality(sourceText, translation));
+
+    // HEBEL 1 — Post-LLM Auto-Flag: Wenn der LLM den Originaltext unverändert
+    // zurückgibt (src=tgt) und der Quality-Score >= 70 ist, ist es sehr
+    // wahrscheinlich ein Eigenname/Proper Noun das isProperNoun() nicht erkannt
+    // hat. Statt es als UNFLAGGED_STALE in der DB zu belassen, markieren wir
+    // es automatisch als native_proper_noun. Das verschiebt den Eintrag in die
+    // PREFLIGHT-Kategorie NATIVE_STALE (ausgeschlossen von kritischen Issues).
+    if (!isNativeRuntime && typeof translation === 'string' && translation === sourceText && qualityScore >= 70 && !flagReason) {
+      provider = 'native_proper_noun';
+      flagged = 1;
+      flagReason = 'native_reuse';
+      qualityScore = NATIVE_RUNTIME_DEFAULT_QUALITY;
+    }
     // QUAL-OFFENSIVE Fix #5: MAX_REVIEW_COUNT Guard gegen Re-Translation-Loops.
     // Wenn ein Eintrag mehr als MAX_REVIEW_COUNT mal gespeichert wurde, ist das
     // ein Indikator für einen Endlos-Loop (z.B. "Food To Fetch" mit 18 Revisionen,

@@ -62,6 +62,13 @@ function isProperNoun(text, plugin) {
   // Enthält Satzzeichen? → kein Eigenname
   if (/[.,!?;:()[\]{}]/.test(value)) return false;
   
+  // HEBEL 2 — Kulturelle Eigennamen: Spezifische Suffixe die auf nicht-englische
+  // Eigennamen hinweisen (iranisch, griechisch, kulturell). Diese werden VOR der
+  // englischen Suffix-Heuristik geprüft um False-Negatives zu vermeiden.
+  // Beispiele: Abandokht, Damaspia, Adarnases, Cassandane, Dahyuka, Lysistrate
+  // Spezifische kulturelle Suffixe (iranisch, griechisch) — VOR englischer Heuristik
+  if (/(?:dokht|spia|anes|nases|dane|yuka|rane|sine|atis|aere|aste)$/i.test(lower)) return true;
+
   // Suffix-Heuristik: Englische Wort-Endungen → KEIN Eigenname
   // Echte Eigennamen enden selten auf diese Suffixe
   if (/(?:tion|ment|ness|able|ful|less|ous|ive|ical|ally|ize|ise|ity|ence|ance|ent|ant|ish|ory|ery|ary|ing|ble|ted|ded|sed|red|led)$/i.test(lower)) return false;
