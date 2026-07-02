@@ -1,7 +1,7 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
 > **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha | **MAX-EFFORT-Priorisierung**
-> **Status:** 5 LIVE + 20 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX + 1 GUI-Branch
+> **Status:** 5 LIVE + 6 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX + 1 GUI-Branch
 > **Regel:** Nur Pflicht-Dokus bleiben. P9+P10 Pläne als Backlog.
 > **Letzter Doku-Audit:** 2026-07-02 — GUI-Branch erstellt (gui-work), Kiro-Daten ausgeschlossen.
 
@@ -17,35 +17,21 @@
 
 > **Hinweis:** PREFLIGHT_LATEST.md ist auto-generated, nicht im Git-Tracking.
 > PLOT_LORE.md und RUNTIME_SCORE_HISTORY.md werden von Tools beschrieben (Sonderstatus).
-> DOCU_AUDIT_*.md (4 Dateien) → FREEZE/ verschoben (2026-06-24).
+> 19 redundante Dateien gelöscht (Global-Clean 2026-07-02).
 
-## FREEZE-Dokumente (20)
+## FREEZE-Dokumente (6)
 
 > **32 Doku-Konsolidierungs-Durchläufe abgeschlossen. 235 Buch-Einträge (142 archiviert + 93 FREEZE_INDEX_2).**
-> **122 Dokumente archiviert/gelöscht.** (108 vorher + 10 Audit 7 + 4 DOCU_AUDIT 2026-06-24)
+> **138 Dokumente archiviert/gelöscht.** (122 vorher + 16 redundanteste gelöscht 2026-07-02)
 
 | # | Dokument | Rolle |
 |---|----------|------|
 | 1 | `FREEZE/FREEZE_INDEX.md` | **Das Buch** (archiviert) — 142 Einträge (16.06.–20.06.2026) |
-| 2 | `FREEZE/FREEZE_INDEX_2.md` | **Das Buch** (aktiv) — 93 Einträge (§1–§30) |
-| 3 | `FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md` | **TOC** — Referenziert alle archivierten Einträge |
-| 4 | `FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md` | **Verifikation** — 42 Claims |
-| 5 | `FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md` | Historisch: Plugin-Architektur Plan |
-| 6 | `FREEZE/README.md` | Erklärung des FREEZE-Ordners |
-| 7 | `FREEZE/CODE_VS_DOCS_AUDIT_2026-06-19.md` | **[NEU]** Einmal-Audit. 15 Drift-Einträge behoben. |
-| 8 | `FREEZE/COMMIT_LAYER_REWRITE_PLAN.md` | **[NEU]** ✅ ABGESCHLOSSEN. 7 Schritte, 25 Tasks. |
-| 9 | `FREEZE/PRIORISIERUNG_2026-06-19.md` | **[NEU]** Durch PLAN_MASTER + PLAN.md ersetzt. |
-| 10 | `FREEZE/PRODUCT_PROTECTION_DOCUMENTATION.md` | **[NEU]** Implementiert. 4-Schichten-System steht. |
-| 11 | `FREEZE/ROUTING_AUDIT_2026-06-19.md` | **[NEU]** Komplett veraltet. Durch TRIPLE_AUDIT ersetzt. |
-| 12 | `FREEZE/SQUIZZLE_REPORT.md` | **[NEU]** Einmal-Audit. 7/7 v0.22 Items abgeschlossen. |
-| 13 | `FREEZE/TRIPLE_AUDIT_2026-06-19.md` | **[NEU]** 3-Rollen-Audit. 10 Widersprüche behoben. |
-| 14 | `FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md` | **[NEU]** ✅ ABGESCHLOSSEN + nach PLAN_MASTER migriert. |
-| 15 | `FREEZE/HANDSHAKE_2026-06-19.md` | **[NEU]** Historischer Session-Handshake v0.20.0. |
-| 16 | `FREEZE/DB_STATISTICS.md` | **[NEU]** Konsolidiert. Daten in DB_TREND_REPORT. |
-| 17 | `FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md` | **[NEU]** Doku-Audit Abbau-Ergebnisse. |
-| 18 | `FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md` | **[NEU]** Doku-Audit Freeze-Ergebnisse. |
-| 19 | `FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md` | **[NEU]** Doku-Audit Gesamtindex (73 Dokumente). |
-| 20 | `FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md` | **[NEU]** Doku-Audit Pflichtdokumentenliste. |
+| 2 | `FREEZE/FREEZE_INDEX_2.md` | **Das Buch** (aktiv) — 101 Einträge (§1–§31) |
+| 3 | `FREEZE/README.md` | Erklärung des FREEZE-Ordners |
+| 4 | `FREEZE/PRODUCT_PROTECTION_DOCUMENTATION.md` | Produktschutz-Implementierung (4-Schichten-System) |
+| 5 | `FREEZE/HANDSHAKE_2026-06-26.md` | Session-Handshake Doku-Divergenz-Audit |
+| 6 | `FREEZE/PLAN_MASTER_2026-06-20.md` | Archivierter Master-Plan (durch PLAN.md ersetzt) |
 
 ## Plan-Dokumente (3 AKTIV + 10 Backlog/Archiv)
 
@@ -121,24 +107,48 @@
 |-------|-------------|--------|
 | Versionshistorie | CHANGELOG.md + CHANGELOG_1.md | — |
 | Architektur & Pipeline | MASTER_DOC §2, §4 | — |
-| Offene Bugs (7) | KNOWN_BUGS_REPORT.md + MASTER_DOC §3 | — |
+| Offene Bugs (4) | KNOWN_BUGS_REPORT.md + MASTER_DOC §3 | — |
 | DB-Zustand | MASTER_DOC §5 + PREFLIGHT_LATEST.md + DB_TREND_REPORT | — |
-| Roadmap & Planung | PLAN.md (Root) + PLAN_MASTER.md + 9 Einzelpläne | — |
+| Roadmap & Planung | PLAN.md (Root) + 9 Einzelpläne | — |
 | Agent-Regeln | AGENTS.md (Root + docs/) | — |
 | Session-Lifecycle | AGENTS.md (§ SESSION + § WORKFLOW-AUTOMATION) | — |
-| Archivierte Historie | FREEZE_INDEX.md + FREEZE_INDEX_2.md (235 Einträge) | — |
+| Archivierte Historie | FREEZE_INDEX.md + FREEZE_INDEX_2.md (243 Einträge) | — |
 | Lore-System | PLOT_LORE.md + commit_lore/ | — |
 | Runtime-Score | RUNTIME_SCORE_HISTORY.md + core/data/current_score.json | — |
 | Master-Plan (konsolidiert) | Root: `PLAN.md` (22 Tasks, P0-P4) | — |
-| Doku-Audit | DOCU_AUDIT_*.md (4 Dateien, 2026-06-23) | — |
 
 ## Archivierungshistorie
 
-- **118 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
+- **137 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
+- **Global-Clean (2026-07-02):** 19 redundante Dateien gelöscht (16 FREEZE/ + 2 OLD_DOCS + 1 FREEZE_INDEX.md)
 - **Durchlauf 7 (2026-06-23):** Doku-Audit — 10 Dokumente gefreezed + 12 entfernt + 4 Ausgabedokumente erstellt
 - **Durchlauf 6:** Root-Cleanup + PLAN.md-Konsolidierung — 3 Dokumente → Root PLAN.md + 8 Audit-Docs archiviert
 - **Durchlauf 5:** MASTER_DOC §3/§6 — 5 Einträge → FREEZE_INDEX_2 §29–§30
 - **Durchlauf 1–4:** 76 temporäre Dokumente → FREEZE_INDEX §1–§33
+
+## Entfernt im Global-Clean (2026-07-02)
+
+| Datei | Grund |
+|-------|-------|
+| FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md | Prozess-Doku — Task erledigt |
+| FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md | Prozess-Doku — Task erledigt |
+| FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md | Prozess-Doku — Task erledigt |
+| FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md | Prozess-Doku — Task erledigt |
+| FREEZE/HANDSHAKE_2026-06-19.md | Stub — Inhalt in FREEZE_INDEX §14 |
+| FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md | Verifikation — 42/42 Claims geprüft |
+| FREEZE/CODE_VS_DOCS_AUDIT_2026-06-19.md | Einmal-Audit — Inhalt in FREEZE_INDEX §13 |
+| FREEZE/COMMIT_LAYER_REWRITE_PLAN.md | Abgeschlossener Plan — Inhalt in FREEZE_INDEX_2 §24 |
+| FREEZE/PRIORISIERUNG_2026-06-19.md | Durch PLAN.md ersetzt |
+| FREEZE/ROUTING_AUDIT_2026-06-19.md | Komplett veraltet — Inhalt in FREEZE_INDEX §25 |
+| FREEZE/SQUIZZLE_REPORT.md | Einmal-Audit — Inhalt in FREEZE_INDEX §13 |
+| FREEZE/TRIPLE_AUDIT_2026-06-19.md | 3-Rollen-Audit — Inhalt in FREEZE_INDEX §26 |
+| FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md | Abgeschlossener Plan — Inhalt in FREEZE_INDEX §31 |
+| FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md | Abgeschlossener Plan — Implementierung done |
+| FREEZE/DB_STATISTICS.md | Konsolidiert in DB_TREND_REPORT |
+| FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md | Sollte nur TOC sein — redundant zu FREEZE_INDEX |
+| FREEZE_INDEX.md | Archiviert durch FREEZE_INDEX_2.md abgelöst |
+| OLD_DOCS/CHANGELOG_v0.19-v0.21.md | Veraltet — Root CHANGELOG_1.md ist SSOT |
+| OLD_DOCS/README.md | Nur .gitkeep + Platzhalter-Text |
 
 ## Entfernt im Durchlauf 7 (2026-06-23)
 
@@ -158,4 +168,4 @@
 
 ---
 
-*LIVE INDEX aktualisiert 2026-07-02 — GUI-Rebuild + i18n + ML-7 E2E + cli-progress Fix + grammar_context-Dateien.*
+*LIVE INDEX aktualisiert 2026-07-02 — Global-Clean: 19 redundante MD-Dateien gelöscht, Referenzen aktualisiert.*

@@ -1,1 +1,25 @@
-P8-2: Foreign Key Cascades für alle 5 FKs implementiert. Approach B+C: ON DELETE CASCADE in CREATE TABLE (neue DBs) + 5 BEFORE DELETE Triggers als Polyfill (existierende DBs). Schema v7→v8. Zero-daten-migration, Tabellen-Neuerstellung nicht nötig. Triggers löschen Kindzeilen vor FK-Check.
+Global-Clean: 19 redundante Markdown-Dateien geloescht.
+
+Dieser Commit fuehrt die globale Bereinigung redundanter Dokumentations-Dateien durch. Alle 19 geloeschten Dateien wurden zuvor系统atisch geprueft: Jeder Eintrag wurde einzeln klassifiziert als OBSOLETE oder ACTIVE. Nur Dateien deren gesamter Inhalt bereits in den FREEZE_INDEX Buechern (FREEZE_INDEX.md mit 142 Eintraegen und FREEZE_INDEX_2.md mit 101 Eintraegen) ueberfuehrt war, wurden zur Loeschung freigegeben.
+
+16 FREEZE/ Dateien entfernt:
+- 4 DOCU_AUDIT_* Prozess-Dokumente (Tasks erledigt, Ergebnisse in MASTER_DOC ueberfuehrt)
+- 5 abgeschlossene Implementierungs-Plaene (COMMIT_LAYER_REWRITE, PHASE2_MARKER, TRANSLATION_RUNTIME_SPLIT, PRIORISIERUNG, ROUTING_AUDIT)
+- 3 Einmal-Audits (CODE_VS_DOCS, SQUIZZLE_REPORT, TRIPLE_AUDIT) deren Findings in CHANGELOG+FREEZE_INDEX dokumentiert sind
+- MASTER_FREEZE_v0.20.0 (Redundanz zu FREEZE_INDEX, war nur TOC aber hatte noch Content)
+- FREEZE_MASTER_CHECKLIST (42/42 Claims geprueft, Verifikation abgeschlossen)
+- DB_STATISTICS (Daten komplett in DB_TREND_REPORT.md konsolidiert)
+- HANDSHAKE_2026-06-19 (nur noch 4-Zeilen-Stub, Inhalt in FREEZE_INDEX Sektion 14)
+
+2 OLD_DOCS/ Dateien entfernt:
+- CHANGELOG_v0.19-v0.21.md (veraltet, Root CHANGELOG_1.md ist jetzt SSOT)
+- README.md (nur .gitkeep + Platzhalter-Text, kein operativer Wert)
+
+1 Root-Datei entfernt:
+- FREEZE_INDEX.md (archiviert durch FREEZE_INDEX_2.md abgeloest, 142 historische Eintraege)
+
+Referenzen aktualisiert:
+- LIVE_INDEX.md: FREEZE-Sektion von 20 auf 6 Dateien reduziert, Gesamt-Status aktualisiert
+- MASTER_DOC.md 9: Baum-Darstellung bereinigt, Archivierungshistorie erweitert
+
+Verbleibende FREEZE/-Dateien (6): FREEZE_INDEX.md (archiviert, historisch), FREEZE_INDEX_2.md (aktiv), README.md, PRODUCT_PROTECTION_DOCUMENTATION.md, HANDSHAKE_2026-06-26.md, PLAN_MASTER_2026-06-20.md

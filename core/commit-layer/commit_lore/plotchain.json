@@ -4404,5 +4404,90 @@
         "file": "core/DB/db.js"
       }
     ]
+  },
+  {
+    "p_id": "p104",
+    "id": "plot-2026-07-02T04:00:52",
+    "timestamp": "2026-07-02 04:00:52",
+    "summary": "Loesche redundante MD Daten global clean Repo",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c99j77n4a5p59",
+    "ref_to": "plot-2026-07-02T03:12:28",
+    "prev_narrator": "Argos",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/CODE_VS_DOCS_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/COMMIT_LAYER_REWRITE_PLAN.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DB_STATISTICS.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_ABBAU_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_FREEZE_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/FREEZE_INDEX_2.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/FREEZE_MASTER_CHECKLIST_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/HANDSHAKE_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/MASTER_FREEZE_v0.20.0_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PHASE2_MARKER_INTEGRATION_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/PRIORISIERUNG_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/ROUTING_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/SQUIZZLE_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/TRANSLATION_RUNTIME_SPLIT_2026-06-18.md"
+      },
+      {
+        "file": "core/archive/docs/FREEZE/TRIPLE_AUDIT_2026-06-19.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/OLD_DOCS/CHANGELOG_v0.19-v0.21.md"
+      },
+      {
+        "file": "core/archive/docs/OLD_DOCS/README.md"
+      }
+    ]
   }
 ]

@@ -166,12 +166,12 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 
 ---
 
-## 9. Dokumentationsstruktur (Final — Post Konsolidierung 2026-06-21)
+## 9. Dokumentationsstruktur (Final — Post Global-Clean 2026-07-02)
 
-> **Stand:** 2026-06-23 — **10 LIVE + 5 FREEZE + 10 PLAN**
-> **30 Doku-Konsolidierungs-Durchläufe abgeschlossen.**
-> **235 Buch-Einträge** (142 FREEZE_INDEX archiviert + 93 FREEZE_INDEX_2 §1–§30).
-> **105 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
+> **Stand:** 2026-07-02 — **11 LIVE + 6 FREEZE + 10 PLAN**
+> **32 Doku-Konsolidierungs-Durchläufe + Global-Clean abgeschlossen.**
+> **235 Buch-Einträge** (142 FREEZE_INDEX archiviert + 101 FREEZE_INDEX_2 §1–§31).
+> **121 Dokumente archiviert/gelöscht.** Alle Inhalte rekonstruierbar.
 > **V70/V71:** Wiederhergestellt (README.md + .gitkeep, .gitignore: nur .txt in assets geblockt).
 > **Archiv-Regeln:** `.ArchiveRules` im Projekt-Root.
 
@@ -181,17 +181,18 @@ core/archive/docs/
 ├── CHANGELOG.md               # Versionshistorie (persistent — wird NIE gelöscht)
 ├── PREFLIGHT_LATEST.md        # Aktueller PREFLIGHT-Report (auto-gen)
 ├── AGENTS.md                  # SSOT: Agent-Regeln (Root-Sync)
-├── KNOWN_BUGS_REPORT.md       # Bug-Triage (7 aktive Bugs)
+├── KNOWN_BUGS_REPORT.md       # Bug-Triage (4 aktive + 29 behobene Bugs)
 ├── LIVE_INDEX.md              # Index aller Dokumente
 ├── PLOT_LORE.md               # RULE 2 Lore Layer (commit_lore)
 ├── RUNTIME_SCORE_HISTORY.md   # Runtime-Score Tracking
 ├── preflight_history.log      # PREFLIGHT-Verlauf
 ├── FREEZE/
 │   ├── FREEZE_INDEX.md        # Das Buch [ARCHIVIERT] — 142 Einträge
-│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 93 Einträge (§1–§30)
-│   ├── FREEZE_INDEX_v0.20.0_archived.md  # Archivkopie
-│   ├── MASTER_FREEZE_v0.20.0_2026-06-19.md  # TOC
-│   └── FREEZE_MASTER_CHECKLIST_2026-06-19.md # Verifikation
+│   ├── FREEZE_INDEX_2.md      # Das Buch [AKTIV] — 101 Einträge (§1–§31)
+│   ├── README.md              # Erklärung des FREEZE-Ordners
+│   ├── PRODUCT_PROTECTION_DOCUMENTATION.md  # Produktschutz (4-Schichten)
+│   ├── HANDSHAKE_2026-06-26.md # Session-Handshake Doku-Divergenz-Audit
+│   └── PLAN_MASTER_2026-06-20.md  # Archivierter Master-Plan
 └── plans/
     ├── PLAN_MASTER.md         # Zentrale Roadmap (v0.21, archiviert → FREEZE/PLAN_MASTER_2026-06-20.md)
     ├── PLAN_BUG_TRIAGE.md     # 🟡 OFFEN (0/6)
@@ -205,7 +206,7 @@ core/archive/docs/
     └── PLAN_STABILISIERUNG.md # 🟡 TEILWEISE (2/9)
 ```
 
-### Archivierungshistorie (105 Dokumente)
+### Archivierungshistorie (121 Dokumente)
 
 | Durchlauf | Quelle | Archiviert | Ziel |
 |-----------|--------|-----------|------|
@@ -215,6 +216,7 @@ core/archive/docs/
 | 4 | 8 HANDSHAKEs | 8 Einträge | FREEZE_INDEX_2 §18 |
 | 5 | MASTER_DOC §3/§6 + 15 Orphan-Files | 5 Einträge + 15 gelöscht | FREEZE_INDEX_2 §29–§30 |
 | Früher | 62+14 Doku-Clean | 142 Einträge | FREEZE_INDEX §1–§33 |
+| **Global-Clean** | **16 FREEZE + 2 OLD_DOCS + 1 FREEZE_INDEX** | **19 Dateien gelöscht** | **Inhalt in Buch-Einträgen** |
 
 > **Rekonstruierbarkeit:** Aus FREEZE_INDEX + FREEZE_INDEX_2 (235 Einträge) kann der gesamte
 > Entwicklungsprozess (16.06. – 23.06.2026) lückenlos nachvollzogen werden.

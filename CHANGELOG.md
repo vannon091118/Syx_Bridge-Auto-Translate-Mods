@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 04:00:06] Loesche redundante MD Daten global clean Repo
+**Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c99j77n4a5p59`
+- 23 Datei(en) geändert.
+
 ### [2026-07-02 03:12:28] P8-2: Foreign Key Cascades. ON DELETE CASCADE fuer alle 5 FKs + BEFORE DELETE Triggers als Polyfill fuer existierende DBs. Schema v7→v8. Zero-daten-migration. PLAN.md P8-2 als DONE markiert.
 **Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c98j54n7a4p64`
 - 4 Datei(en) geändert.
