@@ -94,8 +94,10 @@ function buildLines() {
   lines.push(`\u2554${'\u2550'.repeat(WIDTH - 2)}\u2557`);
 
   // Title
-  const title = ' SYX BRIDGE CLI — v0.25.0-alpha\'../package.json\').releaseVersion || require(\'../package.json\').version}';
-  const titlePad = WIDTH - 2 - title.length;
+  let titleVersion = 'v0.25.0-alpha';
+  try { titleVersion = require('../package.json').releaseVersion || require('../package.json').version; } catch (_) {}
+  const title = ` SYX BRIDGE CLI — ${titleVersion} `;
+  const titlePad = Math.max(0, WIDTH - 2 - title.length);
   const titleLeft = Math.floor(titlePad / 2);
   const titleRight = titlePad - titleLeft;
   lines.push(`\u2551${' '.repeat(titleLeft)}${title}${' '.repeat(titleRight)}\u2551`);

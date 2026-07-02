@@ -4677,5 +4677,81 @@
         "file": "core/scripts/register_phase2.js"
       }
     ]
+  },
+  {
+    "p_id": "p110",
+    "id": "plot-2026-07-02T05:48:32",
+    "timestamp": "2026-07-02 05:48:32",
+    "summary": "Player2-Provider vollstaendig entfernt (16 Dateien)",
+    "narrator": "Squizzle",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c105j29n5a2p79",
+    "ref_to": "plot-2026-07-02T05:12:32",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/GUI/public/index.html"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-core.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-settings.js"
+      },
+      {
+        "file": "core/Translation/cli-progress.js"
+      },
+      {
+        "file": "core/Translation/config/config-keys.js"
+      },
+      {
+        "file": "core/Translation/config/config-persist.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/Translation/config/config-wizard.js"
+      },
+      {
+        "file": "core/Translation/dispatcher.js"
+      },
+      {
+        "file": "core/Translation/polish-arbiter.js"
+      },
+      {
+        "file": "core/Translation/providers/client-factory.js"
+      },
+      {
+        "file": "core/Translation/providers/provider-chat-config.js"
+      },
+      {
+        "file": "core/Translation/reconstruct.js"
+      },
+      {
+        "file": "core/Translation/router.js"
+      },
+      {
+        "file": "core/Translation/test_providers.js"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/tests/item0a_auto_freeze_test.js"
+      },
+      {
+        "file": "core/tests/ollama_cloud_e2e.js"
+      },
+      {
+        "file": "core/tests/translation-runtime-smoke.js"
+      }
+    ]
   }
 ]

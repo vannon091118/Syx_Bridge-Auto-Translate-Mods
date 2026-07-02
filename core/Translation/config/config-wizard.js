@@ -29,13 +29,12 @@ async function configureWizard(cr, persistConfigToEnv) {
       type: 'select',
       name: 'primary_provider',
       message: 'Haupt-Anbieter für Übersetzungen:',
-      initial: ['ollama','openrouter','player2','groq','gemini','openai','custom_api'].indexOf(cr.config.PRIMARY_PROVIDER),
+      initial: ['ollama','openrouter','groq','gemini','openai','custom_api'].indexOf(cr.config.PRIMARY_PROVIDER),
       choices: [
         { title: 'Ollama (Lokal)', value: 'ollama' },
         { title: 'OpenRouter (Free zuerst)', value: 'openrouter' },
         { title: 'OpenAI (GPT)', value: 'openai' },
         { title: 'Custom API (OpenAI-kompatibel)', value: 'custom_api' },
-        { title: 'Player2 (Desktop)', value: 'player2' },
         { title: 'Groq (Llama 3.3)', value: 'groq' },
         { title: 'Gemini (Google)', value: 'gemini' }
       ]

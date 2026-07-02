@@ -6,7 +6,7 @@ const { exec, execSync } = require('child_process');
 // ── S-006: Key-Management & Utilities aus config-keys.js ────────────
 const {
   firstDefined, parseEnvFlag, parseDryRunFlag, isDryRun, resetDryRunCache,
-  getGateCounterOpts, parseKeys, maskSecret,
+  getGateCounterOpts, parseKeys, maskSecret, ENV_PATH, OLLAMA_DEFAULT_URL, OPENAI_DEFAULT_URL, CUSTOM_API_DEFAULT_URL,
 } = require('./config-keys');
 
 // ── S-004: Model-Metriken & Filtering aus config-discovery.js ───────
@@ -57,7 +57,7 @@ class ConfigRuntime {
 
   getProviderStatus() {
     const routerStats = this.router ? this.router.getAllProviderStatuses() : {};
-    const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'player2', 'nvidia', 'openai', 'custom_api'];
+    const knownProviders = ['gemini', 'groq', 'openrouter', 'ollama', 'nvidia', 'openai', 'custom_api'];
     const configProviders = Object.keys(this.config)
       .filter(k => k.endsWith('_KEYS') && Array.isArray(this.config[k]) && this.config[k].length > 0)
       .map(k => k.replace('_KEYS', '').toLowerCase());
@@ -214,12 +214,6 @@ class ConfigRuntime {
     });
   }
 
-  async fetchPlayer2Models() {
-    return this._fetchModels({
-      url: `${this.config.PLAYER2_URL}/models`, timeout: 5000
-    });
-  }
-
   async fetchOpenAIModels() {
     return this._fetchModels({
       provider: 'openai', url: `${this.config.OPENAI_URL || OPENAI_DEFAULT_URL}/models`,
@@ -354,9 +348,6 @@ class ConfigRuntime {
 
   async checkLocalProvider(provider) {
     const startedAt = Date.now();
-    if (provider === 'player2' && !this.config.PLAYER2_ENABLED) {
-      return { provider, ok: false, detail: 'deaktiviert', ms: `${Date.now() - startedAt}ms` };
-    }
     if (provider === 'custom_api') {
       const enabled = this.config.CUSTOM_API_ENABLED !== false;
       if (!enabled) return { provider, ok: false, detail: 'deaktiviert', ms: `${Date.now() - startedAt}ms` };
@@ -372,13 +363,11 @@ class ConfigRuntime {
       }
     }
     try {
-      const url = provider === 'ollama' ? `${this.config.OLLAMA_URL}/api/tags` : `${this.config.PLAYER2_URL}/models`;
+      const url = `${this.config.OLLAMA_URL}/api/tags`;
       const key = provider === 'ollama' ? this.getApiKey('ollama') : null;
       const headers = key ? { Authorization: `Bearer ${key}` } : {};
       const response = await axios.get(url, { headers, timeout: 3000 });
-      const models = provider === 'ollama'
-        ? (response.data.models || []).map(m => m.name)
-        : (response.data.data || []).map(m => m.id);
+      const models = (response.data.models || []).map(m => m.name);
       const usable = filterLLMs(models, false);
       const selected = provider === this.config.PRIMARY_PROVIDER ? (this.config.EFFECTIVE_PRIMARY_MODEL || this.config.PRIMARY_MODEL) : getDefaultModelForProvider(provider);
       const selectedOk = !selected || usable.includes(selected) || provider !== this.config.PRIMARY_PROVIDER;
@@ -557,7 +546,7 @@ class ConfigRuntime {
   }
 
   async checkConfig() {
-    if (this.config.GEMINI_KEYS.length === 0 && this.config.GROQ_KEYS.length === 0 && this.config.OPENROUTER_KEYS.length === 0 && this.config.NVIDIA_KEYS.length === 0 && this.config.OPENAI_KEYS.length === 0 && !['ollama', 'player2', 'custom_api'].includes(this.config.PRIMARY_PROVIDER)) {
+    if (this.config.GEMINI_KEYS.length === 0 && this.config.GROQ_KEYS.length === 0 && this.config.OPENROUTER_KEYS.length === 0 && this.config.NVIDIA_KEYS.length === 0 && this.config.OPENAI_KEYS.length === 0 && !['ollama', 'custom_api'].includes(this.config.PRIMARY_PROVIDER)) {
       await this.configure();
     } else {
       await this.ensureGroqModel();
@@ -587,7 +576,6 @@ class ConfigRuntime {
         });
       }
     }
-    checks.push(this.checkLocalProvider('player2'));
     if (this.config.OPENAI_KEYS.length > 0) {
       this.config.OPENAI_KEYS.forEach((key, index) => {
         checks.push(this.checkCloudKey('openai', key, index + 1));
@@ -605,7 +593,6 @@ class ConfigRuntime {
     }
     const usable = results.filter(result => result.ok).map(result => result.provider);
     console.log(`[ROUTING] Aktiv: ${this.config.PRIMARY_PROVIDER} (${this.config.EFFECTIVE_PRIMARY_MODEL || this.config.PRIMARY_MODEL})`);
-    if (!this.config.PLAYER2_ENABLED) console.log('[ROUTING] Player2 Support: deaktiviert');
     console.log(`[ROUTING] Erreichbar: ${usable.length > 0 ? [...new Set(usable)].join(', ') : 'keine Provider erreichbar'}`);
     return results;
   }
@@ -638,6 +625,5 @@ module.exports = {
   MODEL_BLACKLIST,
   ENV_PATH,
   OLLAMA_DEFAULT_URL,
-  PLAYER2_DEFAULT_URL,
   firstDefined,
 };

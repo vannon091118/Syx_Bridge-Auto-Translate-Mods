@@ -235,7 +235,6 @@ function renderKeySections() {
     { id: 'gemini',     label: 'Google Gemini', hint: 'Gemini API Key',          keys: currentConfig.GEMINI_KEYS || [] },
     { id: 'nvidia',     label: 'NVIDIA NIM', hint: 'nvapi-... Key von build.nvidia.com', keys: currentConfig.NVIDIA_KEYS || [] },
     { id: 'ollama',     label: 'Ollama (optional Key)', hint: 'Nur wenn Ollama Auth aktiviert', keys: currentConfig.OLLAMA_KEYS || [] },
-    { id: 'player2',    label: 'Player2 (optional Key)', hint: 'Lokaler KI-Client', keys: currentConfig.PLAYER2_KEYS || [] },
     { id: 'openai',     label: 'OpenAI (GPT)', hint: 'platform.openai.com — GPT-4o, GPT-4o-mini, etc.', keys: currentConfig.OPENAI_KEYS || [] },
     { id: 'custom_api', label: 'Custom API (OpenAI-kompatibel)', hint: 'Eigener Endpoint — LM Studio, vLLM, text-generation-webui, etc.', keys: currentConfig.CUSTOM_API_KEYS || [] }
   ];
@@ -293,7 +292,6 @@ function _saveKeysFromModal() {
   currentConfig.OPENROUTER_KEYS = getKeys('openrouter');
   currentConfig.NVIDIA_KEYS     = getKeys('nvidia');
   currentConfig.OLLAMA_KEYS     = getKeys('ollama');
-  currentConfig.PLAYER2_KEYS    = getKeys('player2');
   currentConfig.OPENAI_KEYS     = getKeys('openai');
   currentConfig.CUSTOM_API_KEYS = getKeys('custom_api');
   saveConfig(true);

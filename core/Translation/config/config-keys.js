@@ -11,7 +11,6 @@ const path = require('path');
 
 // ── Provider-URL-Konstanten ─────────────────────────────────────────
 const OLLAMA_DEFAULT_URL      = 'http://localhost:11434';
-const PLAYER2_DEFAULT_URL     = 'http://localhost:4315/v1';
 const OPENAI_DEFAULT_URL      = 'https://api.openai.com/v1';
 const CUSTOM_API_DEFAULT_URL  = 'http://localhost:8080/v1';
 

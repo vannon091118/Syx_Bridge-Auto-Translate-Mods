@@ -113,13 +113,13 @@ function updateBatchRecommendation() {
   var recEl = document.getElementById('batch-rec');
   if (!recEl) return;
 
-  var isFree  = (provider === 'ollama' || provider === 'player2' || provider === 'argos' || provider === 'google_free' || provider === 'groq' || provider === 'custom_api')
+  var isFree  = (provider === 'ollama' || provider === 'argos' || provider === 'google_free' || provider === 'groq' || provider === 'custom_api')
     || modelVal.includes('/free') || modelVal.endsWith(':free') || modelVal === 'openrouter/free';
   var isLarge = modelVal.includes('70b') || modelVal.includes('pro') || modelVal.includes('sonnet') || modelVal.includes('opus') || modelVal.includes('405b') || modelVal.includes('nemotron');
 
   var rec;
   if (provider === 'google_free') rec = 8;
-  else if (provider === 'ollama' || provider === 'player2') rec = 12;
+  else if (provider === 'ollama') rec = 12;
   else if (provider === 'openai') rec = 16;
   else if (provider === 'custom_api') rec = 14;
   else if (provider === 'openrouter' && isFree) rec = 10;
@@ -219,7 +219,6 @@ function loadInitialConfig() {
                      (currentConfig.NVIDIA_KEYS && currentConfig.NVIDIA_KEYS.length > 0) ||
                      (currentConfig.OPENAI_KEYS && currentConfig.OPENAI_KEYS.length > 0) ||
                      currentConfig.PRIMARY_PROVIDER === 'ollama' ||
-                     currentConfig.PRIMARY_PROVIDER === 'player2' ||
                      currentConfig.PRIMARY_PROVIDER === 'custom_api';
       
       if (!hasKeys) {
@@ -376,9 +375,7 @@ window.confirmOnboardingLang = function() {
                    (currentConfig.OPENROUTER_KEYS && currentConfig.OPENROUTER_KEYS.length > 0) ||
                    (currentConfig.NVIDIA_KEYS && currentConfig.NVIDIA_KEYS.length > 0) ||
                    (currentConfig.OPENAI_KEYS && currentConfig.OPENAI_KEYS.length > 0) ||
-                   currentConfig.PRIMARY_PROVIDER === 'ollama' ||
-                   currentConfig.PRIMARY_PROVIDER === 'player2' ||
-                   currentConfig.PRIMARY_PROVIDER === 'custom_api';
+                   currentConfig.PRIMARY_PROVIDER === 'ollama' ||                   currentConfig.PRIMARY_PROVIDER === 'custom_api';
     if (!hasKeys && window.openKeyModal) {
       setTimeout(window.openKeyModal, 300);
     }

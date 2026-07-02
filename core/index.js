@@ -162,9 +162,7 @@ let CONFIG = {
   OLLAMA_CLOUD_ENABLED: parseEnvFlag(process.env.OLLAMA_CLOUD_ENABLED, false),
   OLLAMA_CLOUD_URL: process.env.OLLAMA_CLOUD_URL || '',
   GOOGLE_FREE_ENABLED: parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, true),
-  PLAYER2_ENABLED: parseEnvFlag(process.env.PLAYER2_ENABLED, false),
-  PLAYER2_URL: process.env.PLAYER2_URL || 'http://localhost:4315/v1',
-  PLAYER2_KEYS: parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS')),
+
     
   KEY_INDICES: { gemini: 0, groq: 0, openrouter: 0, nvidia: 0, ollama: 0 }
 };
@@ -430,9 +428,7 @@ function applyEnvToConfig() {
   CONFIG.GOOGLE_FREE_ENABLED = parseEnvFlag(process.env.GOOGLE_FREE_ENABLED, CONFIG.GOOGLE_FREE_ENABLED);
   CONFIG.OPENAI_ENABLED = parseEnvFlag(process.env.OPENAI_ENABLED, CONFIG.OPENAI_ENABLED !== false);
   CONFIG.CUSTOM_API_ENABLED = parseEnvFlag(process.env.CUSTOM_API_ENABLED, CONFIG.CUSTOM_API_ENABLED !== false);
-  CONFIG.PLAYER2_ENABLED = parseEnvFlag(process.env.PLAYER2_ENABLED, CONFIG.PLAYER2_ENABLED);
-  CONFIG.PLAYER2_URL = envFirst('PLAYER2_URL') || CONFIG.PLAYER2_URL;
-  CONFIG.PLAYER2_KEYS = parseKeys(envFirst('PLAYER2_KEY', 'PLAYER2_KEYS'));
+
 }
 
 async function persistConfig(config) {

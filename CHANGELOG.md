@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 05:48:32] Player2-Provider vollstaendig entfernt (16 Dateien)
+**Narrator:** Squizzle | **Model:** mimo-v2.5-pro | **Composite:** `c105j29n5a2p79`
+- 21 Datei(en) geändert.
+
 ### [2026-07-02 05:08:23] Modularisierung REQ 1-8: 11 Dateien, 6 Verstoesse behoben
 **Narrator:** Flux | **Model:** mimo-v2.5-pro | **Composite:** `c104j97n13a2p37`
 - 12 Datei(en) geändert.
