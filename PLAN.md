@@ -110,6 +110,10 @@ RW-17..RW-19 — Plugin-Boundary, E2E-Test, Dokumentation
 | PERF-1 | cleanupLegacyFolders parallelisiert (Promise.allSettled) | 2026-07-02 |
 | PERF-2 | saveStressTestResult Batching (kein Fire-and-Forget mehr) | 2026-07-02 |
 | PERF-3 | Argos Warm-Server Pattern (Persistenter Python-Worker) | 2026-07-02 |
+| PLAYER2-REMOVAL | Player2-Provider vollstaendig entfernt (16 Dateien, ~130 Refs) | 2026-07-02 |
+| PREFLIGHT-FIX | PREFLIGHT kritische Issues 440→0 (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair) | 2026-07-02 |
+| INFO-BLOCK-EXTRACT | Selektive INFO-Block-Extraktion: DESC_LONG, PROS, CONS jetzt uebersetzbar | 2026-07-02 |
+| LIVE1-FIX | LIVE-1 Dry Run Fix: dotenv-Laden + PLAYER2-Bereinigung, 21/21 PASS | 2026-07-02 |
 
 ---
 

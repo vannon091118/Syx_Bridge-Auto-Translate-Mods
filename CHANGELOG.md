@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 06:42:04] DOKU-Sync: Provider-Zahl 10 auf 9, KNOWN_BUGS BU-026 BU-030 behoben, DONE-Index erweitert
+**Narrator:** Basher | **Model:** mimo-v2.5-pro | **Composite:** `c109j25n2a2p13`
+- 6 Datei(en) geändert.
+
 ### [2026-07-02 06:33:50] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
 **Narrator:** Sage | **Model:** mimo-v2.5-pro | **Composite:** `c108j10n14a2p15`
 - 5 Datei(en) geändert.
@@ -7,6 +11,14 @@
 ### [2026-07-02 06:30:42] Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert
 **Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c107j12n6a4p92`
 - 4 Datei(en) geändert.
+
+### [2026-07-02] DOKU-Sync: Provider-Zahl 10→9 (Player2+FCM), KNOWN_BUGS BU-026/BU-030 behoben, DONE-Index erweitert, providers/INDEX.md bereinigt
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- ROADMAP.md: Provider-Zahl 10*→9 in allen Versionen v0.25+ nach Player2-Removal
+- PLAN.md: DONE-Index erweitert um PLAYER2-REMOVAL, PREFLIGHT-FIX, INFO-BLOCK-EXTRACT, LIVE1-FIX
+- KNOWN_BUGS_REPORT.md: BU-026 (Jest) und BU-030 (Scripts) als BEHOBEN markiert, aktive Bugs 4→2
+- providers/INDEX.md: FCM/Player2-Referenzen bereinigt, 9 Provider dokumentiert
+- 4 Datei(en) geaendert.
 
 ### [2026-07-02] PREFLIGHT-Fixes: 440 kritische Issues auf 0 reduziert (Post-LLM Auto-Flag, kulturelle Suffixe, DB Repair)
 **Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending

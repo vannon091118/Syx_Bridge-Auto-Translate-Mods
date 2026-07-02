@@ -97,15 +97,15 @@ timeline
 | **v0.22** | Crunch Time | Crash-Fixes, 11 Provider | 11 | 119 | 🟢 DONE |
 | **v0.23** | Polish Pass | Refactoring, RimWorld-Basis | 11 | 111 | 🟢 DONE |
 | **v0.24** | Hardening | ESLint, DAOs, PREF-IGNORE | 10* | 119 | 🟢 DONE |
-| **v0.25** | **GUI & i18n** | **3-Tab-Layout, 14 Sprachen** | **10*** | **287** | 🟣 **AKTIV** |
-| **v0.26** | Last SoS Polish | DB-Härtung (Transaktionen, FK, Retry), Vendor-Sync | 10* | 287+ | 🟡 GEPLANT |
-| **v0.27** | RW Adapter | 13 Adapter-Hooks | 10* | 287+ | 🟡 GEPLANT |
-| **v0.28** | RW Scanner | XML-Parser, Exporter | 10* | 287+ | 🟡 GEPLANT |
-| **v0.29** | RW Integration | E2E-Test, Workshop | 10* | 300+ | 🟡 GEPLANT |
-| **v0.30a** | **RW Alpha** | **Erster RimWorld-Sync** | **10*** | **300+** | 🔮 ZUKUNFT |
+| **v0.25** | **GUI & i18n** | **3-Tab-Layout, 14 Sprachen, Player2+PREFLIGHT** | **9*** | **287** | 🟣 **AKTIV** |
+| **v0.26** | Last SoS Polish | DB-Härtung (Transaktionen, FK, Retry), Vendor-Sync | 9* | 287+ | 🟡 GEPLANT |
+| **v0.27** | RW Adapter | 13 Adapter-Hooks | 9* | 287+ | 🟡 GEPLANT |
+| **v0.28** | RW Scanner | XML-Parser, Exporter | 9* | 287+ | 🟡 GEPLANT |
+| **v0.29** | RW Integration | E2E-Test, Workshop | 9* | 300+ | 🟡 GEPLANT |
+| **v0.30a** | **RW Alpha** | **Erster RimWorld-Sync** | **9*** | **300+** | 🔮 ZUKUNFT |
 | **v1.0** | Multi-Game | Kenshi, Stardew Valley | TBD | TBD | 🔮 VISION |
 
-> \* FCM in v0.24 entfernt (v0.25.0-alpha). 11→10 Provider.
+> \* FCM in v0.24 entfernt, Player2 in v0.25 entfernt. 11→10→9 Provider.
 
 ---
 

@@ -4831,5 +4831,33 @@
         "file": "core/archive/docs/PREFLIGHT_LATEST.md"
       }
     ]
+  },
+  {
+    "p_id": "p114",
+    "id": "plot-2026-07-02T06:44:12",
+    "timestamp": "2026-07-02 06:44:12",
+    "summary": "DOKU-Sync: Provider-Zahl 10 auf 9 korrigiert, KNOWN_BUGS BU-026 und BU-030 als behoben markiert, DONE-Index erweitert, providers INDEX bereinigt. Syntax OK.",
+    "narrator": "Basher",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c109j25n2a2p13",
+    "ref_to": "plot-2026-07-02T06:34:32",
+    "prev_narrator": "Sage",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "ROADMAP.md"
+      },
+      {
+        "file": "core/Translation/providers/INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      }
+    ]
   }
 ]

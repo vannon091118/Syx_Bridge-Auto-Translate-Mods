@@ -9,7 +9,7 @@
 ---
 
 ## ══════════════════════════════════════════
-## 1. AKTIVE BUGS (4 — nach Sprint 2026-07-02)
+## 1. AKTIVE BUGS (2 — nach PREFLIGHT-Fixes 2026-07-02)
 ## ══════════════════════════════════════════
 
 ### 🟡 BU-019 — consecutiveGrammarFailures als instance-scoped Mutable (STATE-001)
@@ -46,12 +46,10 @@
 ## 3. ROOT-CAUSE-CLUSTER (Sprint 2026-07-02)
 ## ══════════════════════════════════════════
 
-### Cluster C: CODE-QUALITÄT & MAINTAINABILITY (3 aktiv)
+### Cluster C: CODE-QUALITÄT & MAINTAINABILITY (1 aktiv)
 | Bug | Status | Prio |
 |-----|--------|------|
 | BU-019 | STATE-001 mutable | 🟡 TEILWEISE (P3) |
-| BU-026 | Kein Test-Framework | 🟢 OFFEN (P3) |
-| BU-030 | Nicht-modulare Scripts | 🟢 OFFEN (P3) |
 
 ### Cluster D: INFRASTRUKTUR (1 aktiv)
 | Bug | Status | Prio |
@@ -70,10 +68,10 @@
 |---|-----|------|--------|---------|------------|
 | 1 | **BU-025** | 🟡 P2 | 3h | D | Vendor-Sync Drift bidirektional (Release-Blocker) |
 | 2 | **BU-019** | 🟢 P3 | 0.5h | C | Modul-scoped mutable — Ref-Fix done, per-Call-Scoping fehlt |
-| 3 | **BU-030** | 🟢 P3 | 2h | C | Nicht-modulare Scripts (17 von 22) |
-| 4 | **BU-026** | 🟢 P3 | 2h | C | Kein Test-Framework |
 
-**Erledigt im Sprint:** BU-004 (✅ File-Mutex) · BU-022 (✅ _dbGet→dbGet Rename)
+**Erledigt im Sprint:** BU-004 ✅ File-Mutex · BU-022 ✅ _dbGet-Rename · BU-026 ✅ Jest 30.4.2 · BU-030 ✅ Scripts modularisiert
+
+**Erledigt im Sprint:** BU-004 ✅ File-Mutex · BU-022 ✅ _dbGet-Rename · BU-026 ✅ Jest 30.4.2 · BU-030 ✅ Scripts modularisiert
 
 ---
 
@@ -92,6 +90,6 @@
 ---
 
 *Persistenter KNOWN_BUGS_REPORT — fortschreiben bei jedem Triage-Lauf, nicht überschreiben.*
-*Sprint 2026-07-02: 2 von 5 aktiven behoben (BU-004 ✅ File-Mutex, BU-022 ✅ _dbGet-Rename). 4 verbleibend (BU-019 TEILWEISE P3, BU-025 OFFEN P2, BU-026 P3, BU-030 P3).*
-*29 behobene Bugs archiviert in FREEZE_INDEX_2.md §16 (2026-06-21 + 2026-07-02).*
-*Nächster Triage-Lauf: nach nächstem Commit / vor v0.26 Release.*
+*Sprint 2026-07-02: 4 von 6 behoben (BU-004 ✅, BU-022 ✅, BU-026 ✅ Jest, BU-030 ✅ Scripts). 2 verbleibend (BU-019 TEILWEISE P3, BU-025 OFFEN P2).*
+*29+ behobene Bugs archiviert in FREEZE_INDEX_2.md §16 (2026-06-21 + 2026-07-02).*
+*Nächster Triage-Lauf: vor v0.26 Release.*

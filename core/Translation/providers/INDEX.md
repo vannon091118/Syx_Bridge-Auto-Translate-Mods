@@ -1,4 +1,4 @@
-# 📖 INDEX — core/src/providers/ (4 Dateien, ~690 LOC)
+# 📖 INDEX — core/Translation/providers/ (4 Dateien, ~690 LOC)
 
 > **Generiert:** 2026-06-19 | **Aktualisiert:** 2026-07-01 | **Version:** v0.25.0-alpha
 > **Zweck:** Referenzbuch für die Provider-Schicht (zentrale callProvider-Dispatch)
@@ -16,7 +16,7 @@
 | 24 | `normalizeWhitespace(text)` | Whitespace normalisieren |
 | 89 | `getBatchProfile(provider, model, mode)` | **Batch-Profil** (Items/Chars pro Provider + adaptive Multiplikatoren) |
 | 159 | `handleRateLimits(provider, headers)` | Rate-Limit-Handling + adaptive Batch-Multiplikator |
-| 188 | `async callChatCompletions(provider, items, modelOverride, attemptCount)` | **Generischer OpenAI-kompatibler Batch-Client** (groq, openrouter, nvidia, fcm, player2) |
+| 188 | `async callChatCompletions(provider, items, modelOverride, attemptCount)` | **Generischer OpenAI-kompatibler Batch-Client** (groq, openrouter, nvidia, openai, custom_api) |
 | 302 | `async callProvider(provider, items, modelOverride)` | **Zentraler Dispatcher** — dispatcht zu callChatCompletions, callGeminiBatch oder callOllamaBatch |
 | 322 | `async callGeminiBatch(items, modelOverride, attemptCount)` | **Gemini** Batch-Client — nutzt `buildGeminiSchema` + `buildGeminiRequest` aus gemini-utils.js |
 | 348 | `async callArgosBatch(texts)` → `createArgosClient()` aus argos-client.js | **Argos** Translate-Client (Factory, async spawn, BU-020) |
@@ -27,12 +27,13 @@
 **CHANGELOG-Ref (7× client-factory):**
 - [CL:0.15.0-alpha] createProviderClients erstellt (Gemini, Groq, OpenRouter, Argos, Google Free)
 - [CL:0.19.05b] BUG-001 Google Free Flagging (scoreTranslationQuality vor inferFlagReason)
-- [CL:0.19.6-fcm] FCM Proxy-Integration (callFcmBatch)
-- [CL:0.19.7] callNvidiaBatch+callFcmBatch erstellt, NVIDIA/FCM in getBatchProfile
+- [CL:0.19.6-fcm] FCM Proxy-Integration (callFcmBatch) — ENTFERNT v0.25.0-alpha
+- [CL:0.19.7] callNvidiaBatch+callFcmBatch erstellt — FCM ENTFERNT v0.25.0-alpha
 - [CL:0.19.7-chain] NVIDIA Batch-Reduktion (8-12→3-6)
 - [CL:0.20.0-wip] Phase 2b shieldResults in executeStageRequest extrahiert und propagiert
 - [CL:0.20.0-bu020] BU-020 AbortController an allen 20+ axios-Aufrufen + callArgosBatch async spawn
-- [CL:0.21.0-item4] Item 4: 5 Thin-Wrapper (callGroqBatch, callOpenRouterBatch, callNvidiaBatch, callFcmBatch, callPlayer2Batch) entfernt — alle via callProvider(provider, ...) + callPlayer2Batch-Modell-Fallback in callProvider integriert
+- [CL:0.21.0-item4] Item 4: 5 Thin-Wrapper entfernt — alle via callProvider(provider, ...) integriert
+- [CL:0.25.0] FCM komplett entfernt (22 Dateien). Player2-Provider entfernt (16 Dateien, ~130 Refs). 9 Provider verbleibend.
 
 ---
 
