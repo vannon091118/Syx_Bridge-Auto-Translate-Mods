@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 01:14:29] ROADMAP.md: Zentrale Mermaid-Roadmap v0.10→v1.0 + README/AGENTS/PLAN global nachgezogen + FCM-Referenzen bereinigt
+**Narrator:** Glitch | **Model:** deepseek-v4-pro | **Composite:** `c88j15n10a5p77`
+- 5 Datei(en) geändert.
+
 ### [2026-07-02 01:09:48] Commit-Layer Fix: Geschweifte Klammern in Sidejokes werden jetzt vollstaendig aufgeloest + Doku-im-Code-Commit Regel
 **Narrator:** Flux | **Model:** deepseek-v4-pro | **Composite:** `c87j48n13a3p35`
 - 4 Datei(en) geändert.

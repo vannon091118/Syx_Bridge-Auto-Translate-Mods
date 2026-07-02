@@ -81,7 +81,7 @@ Das System hat eine interne Capability-Matrix. Du gibst Strings rein, es wählt 
 
 | Tier | Provider | Was du brauchst |
 |:---:|:---|:---|
-| 🟢 **Free** | Google Translate *(Built-in)*, FCM Daemon | Nix — läuft sofort |
+| 🟢 **Free** | Google Translate *(Built-in)* | Nix — läuft sofort |
 | 🟡 **Offline** | Argos Translate | Nix — lokale Modelle, kein Internet |
 | 🔵 **API** | Groq, OpenRouter, Gemini, NVIDIA NIM, OpenAI, Custom API | API-Key in `.env` |
 | ⚡ **Local AI** | Ollama, Player2 | Lokale KI + GPU |
@@ -100,7 +100,7 @@ Das System hat eine interne Capability-Matrix. Du gibst Strings rein, es wählt 
 | 📊 Dashboard — State-of-the-Art Tabs | 🖥 Terminal & Logs — Live LLM Stream | 🗄 Database Browser — Inline Edit & Revisions |
 |:---:|:---:|:---:|
 | <img src="screenshots/gui-dashboard-idle.jpg" alt="SyxBridge Dashboard — Idle" width="300"/> | <img src="screenshots/gui-terminal-running.jpg" alt="SyxBridge Dashboard — Live Run" width="300"/> | <img src="screenshots/gui-database-browser.jpg" alt="SyxBridge Database Browser" width="300"/> |
-| **Das neue 3-Tab Layout:** Dashboard mit Live-Aktivität, Backup-Verwaltung und FCM-Modell-Rankings | **Echtzeit-Log-Terminal:** Zeigt farbcodierte Pipeline-Schritte, Fehler und direkten LLM-Request/Response Stream | **Integrierter SQLite-Browser:** Durchsuche und editiere Übersetzungen direkt im UI, inklusive vollständiger Revisionshistorie |
+| **Das neue 3-Tab Layout:** Dashboard mit Live-Aktivität und Backup-Verwaltung | **Echtzeit-Log-Terminal:** Zeigt farbcodierte Pipeline-Schritte, Fehler und direkten LLM-Request/Response Stream | **Integrierter SQLite-Browser:** Durchsuche und editiere Übersetzungen direkt im UI, inklusive vollständiger Revisionshistorie |
 
 </div>
 
@@ -111,7 +111,7 @@ Das System hat eine interne Capability-Matrix. Du gibst Strings rein, es wählt 
 - **Pipeline-Visualizer** — 4 Phasen live sichtbar: `SCAN → LLM → QA → SAVE`
 - **DB-Browser** — SQLite-Cache direkt durchsuchen und manuell editieren
 - **Revisionshistorie** — jeder String hat eine vollständige Änderungshistorie
-- **FCM Live Rankings** — Modell-Tiers, Ping, Stabilität, One-Click Switch
+- **FCM Live Rankings** — Modell-Tiers, Ping, Stabilität, One-Click Switch (ENTFERNT v0.25)
 - **API-Key-Manager** — Keys verwalten und live testen direkt aus dem UI
 - **Runtime Score Panel** — Echtzeit-Qualitätsmetriken nach jedem Sync
 - **DB-Repair** — automatische Integritätsprüfung mit visuellen Warnstufen
@@ -197,52 +197,14 @@ start.bat
 
 ## 🗺 Roadmap
 
-```mermaid
-timeline
-    title SyxBridge — Entwicklungs-Roadmap
-    section 🧪 Historie · Origins
-        v0.10 : Proof of Concept
-        v0.15 : Erster Release
-              : (Alles davor war ein reiner Prototyp)
-    section ✅ Phase 1 · Songs of Syx
-        v0.19 : Plugin-Architektur (GameAdapter → GamePlugin)
-              : SQLite-Cache + Revisionshistorie
-              : Erster vollständiger Übersetzungslauf
-        v0.20 : Commit-Layer RNG (deterministisch)
-              : 9 Provider integriert
-              : Web-Dashboard MVP
-        v0.21 : Placeholder-Shield-System
-              : FCM Live-Rankings
-              : isProperNoun() + Glossar-System
-        v0.22 : P0 __OVERWRITE-Crash-Fix
-              : Groq Garbage-Detection
-              : 11 Provider · OpenAI + Custom API
-        v0.23 : Bilinguales README · GitHub-Features
-              : Code-Refactoring M-1..M-4
-              : RimWorld Plugin-Foundation (Format-Hooks)
-    section 🔄 Phase 2 · RimWorld
-        v0.24 : Adapter-Hooks (13 Methoden)
-              : Def-Parser · XML-Exporter
-              : Mod-Folder-Scanner
-    section 🔮 Phase 3 · Mod-Loader
-        v0.25 : DAG Load-Order · Conflict-Detection
-              : SteamCMD Integration
-    section 🌍 Phase 4 · Community
-        v1.0  : Kenshi · Stardew Valley
-              : Geteilte Glossar-Caches
-```
+> **Vollständige Roadmap:** [ROADMAP.md](ROADMAP.md) — Mermaid-Timeline, Gantt-Chart, Versionstabelle, Checkpoints.
 
-<div align="center">
-
-| Checkpoint | Version | Status | Was passiert ist |
-|:---:|:---:|:---:|:---|
-| 🏁 **CP-1** | v0.20 | ✅ Done | "Laeuft" -- Plugin-Architektur, SQLite-Cache, erster Sync ohne Crash |
-| 🏁 **CP-2** | v0.22 | ✅ Done | "Laeuft meistens" -- 11 Provider, Vanilla-DE-Texte nicht mehr zerstoert |
-| 🏁 **CP-3** | v0.23 | ✅ Done | "Sieht gut aus" -- Code aufgeraeumt, RimWorld Foundation, README nicht mehr peinlich |
-| 🔄 **CP-4** | v0.24 | 🚧 In Progress | RimWorld existiert auf dem Papier. ~16h Arbeit, Rust macht Spass. |
-| 🔮 **CP-5** | v0.25+ | 📋 Vielleicht | Kenshi, Stardew, Community-Glossare. Oder ich schlafe erst mal. |
-
-</div>
+| Version | Schwerpunkt | Status |
+|:---:|:---|:---:|
+| **v0.25** 🟣 | GUI-Rebuild, i18n, 287 Tests | ✅ AKTIV |
+| **v0.26** 🟡 | Last SoS Polish · DB-Härtung | 🟡 NÄCHSTE |
+| **v0.27–v0.30a** 🎯 | RimWorld Implementierung | 🟡 GEPLANT |
+| **v1.0** 🔮 | Kenshi · Stardew Valley | 🔮 VISION |
 
 ---
 
@@ -431,7 +393,7 @@ The system has an internal capability matrix. Feed it strings, it automatically 
 
 | Tier | Provider | What you need |
 |:---:|:---|:---|
-| 🟢 **Free** | Google Translate *(Built-in)*, FCM Daemon | Nothing — works immediately |
+| 🟢 **Free** | Google Translate *(Built-in)* | Nothing — works immediately |
 | 🟡 **Offline** | Argos Translate | Nothing — local models, no internet |
 | 🔵 **API** | Groq, OpenRouter, Gemini, NVIDIA NIM, OpenAI, Custom API | API key in `.env` |
 | ⚡ **Local AI** | Ollama, Player2 | Local AI + GPU |
@@ -504,52 +466,14 @@ start.bat
 
 ## 🗺 Roadmap
 
-```mermaid
-timeline
-    title SyxBridge — Development Roadmap
-    section 🧪 History · Origins
-        v0.10 : Proof of Concept
-        v0.15 : First Release
-              : (Everything before was pure prototype)
-    section ✅ Phase 1 · Songs of Syx
-        v0.19 : Plugin Architecture (GameAdapter → GamePlugin)
-              : SQLite Cache + Revision History
-              : First complete translation run
-        v0.20 : Commit Layer RNG (deterministic)
-              : 9 Providers integrated
-              : Web Dashboard MVP
-        v0.21 : Placeholder Shield System
-              : FCM Live Rankings
-              : isProperNoun() + Glossary System
-        v0.22 : P0 __OVERWRITE Crash Fix
-              : Groq Garbage Detection
-              : 11 Providers · OpenAI + Custom API
-        v0.23 : Bilingual README · GitHub Features
-              : Code Refactoring M-1..M-4
-              : RimWorld Plugin Foundation
-    section 🔄 Phase 2 · RimWorld
-        v0.24 : Adapter Hooks (13 methods)
-              : Def Parser · XML Exporter
-              : Mod Folder Scanner
-    section 🔮 Phase 3 · Mod Loader
-        v0.25 : DAG Load Order · Conflict Detection
-              : SteamCMD Integration
-    section 🌍 Phase 4 · Community
-        v1.0  : Kenshi · Stardew Valley
-              : Shared Glossary Caches
-```
+> **Full Roadmap:** [ROADMAP.md](ROADMAP.md) — Mermaid timeline, Gantt chart, version table, checkpoints.
 
-<div align="center">
-
-| Checkpoint | Version | Status | What actually happened |
-|:---:|:---:|:---:|:---|
-| 🏁 **CP-1** | v0.20 | ✅ Done | "It works" -- Plugin architecture, SQLite cache, first sync that didn't crash |
-| 🏁 **CP-2** | v0.22 | ✅ Done | "It mostly works" -- 11 providers, vanilla files are no longer destroyed by mistake |
-| 🏁 **CP-3** | v0.23 | ✅ Done | "Looking decent" -- Code cleanup, RimWorld foundation, README is finally readable |
-| 🔄 **CP-4** | v0.24 | 🚧 In Progress | RimWorld exists on paper. ~16h of work, Rust is looking tempting. |
-| 🔮 **CP-5** | v0.25+ | 📋 Maybe | Kenshi, Stardew, community glossaries. Or I might just sleep. |
-
-</div>
+| Version | Focus | Status |
+|:---:|:---|:---:|
+| **v0.25** 🟣 | GUI Rebuild, i18n, 287 Tests | ✅ ACTIVE |
+| **v0.26** 🟡 | Last SoS Polish · DB Hardening | 🟡 NEXT |
+| **v0.27–v0.30a** 🎯 | RimWorld Implementation | 🟡 PLANNED |
+| **v1.0** 🔮 | Kenshi · Stardew Valley | 🔮 VISION |
 
 ---
 

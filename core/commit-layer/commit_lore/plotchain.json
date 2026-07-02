@@ -4093,5 +4093,36 @@
         "file": "core/commit-layer/commit_lore/writing_rules.json"
       }
     ]
+  },
+  {
+    "p_id": "p93",
+    "id": "plot-2026-07-02T01:15:10",
+    "timestamp": "2026-07-02 01:15:10",
+    "summary": "ROADMAP.md: Zentrale Mermaid-Roadmap v0.10→v1.0 + README/AGENTS/PLAN global nachgezogen + FCM-Referenzen bereinigt",
+    "narrator": "Glitch",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c88j15n10a5p77",
+    "ref_to": "plot-2026-07-02T01:09:48",
+    "prev_narrator": "Flux",
+    "data_changes": [
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "ROADMAP.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      }
+    ]
   }
 ]

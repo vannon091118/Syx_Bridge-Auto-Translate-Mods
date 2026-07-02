@@ -1,11 +1,13 @@
-Commit-Layer Fix: Geschweifte Klammern in Sidejokes werden jetzt vollstaendig aufgeloest.
+ROADMAP.md als zentrale Single Source of Truth erstellt. Vollständige Mermaid-Timeline von v0.10 bis v1.0, Gantt-Chart für v0.26→v1.0, Versionstabelle mit Features/Provider/Tests/Status, 7 Checkpoints.
 
-Root Cause: resolvePlaceholders() Regex /{[A-Z][A-Z0-9_]+}/ erforderte mindestens 2 Grossbuchstaben. Einzelbuchstaben-Platzhalter wie {N}, {M}, {H} aus sidejoke_pool.json wurden NICHT erfasst → sichtbare Klammern im Commit-Text.
+Roadmap-Struktur (User-Vorgabe):
+- v0.25: GUI-Rebuild, i18n (14 Sprachen), 287 Tests (AKTIV)
+- v0.26: Last Polish Songs of Syx — DB-Härtung, Dead-Flag-Cleanup, Code-Pattern-Check
+- v0.27–v0.30a: RimWorld Implementierung in 4 Phasen
+- v1.0: Multi-Game (Kenshi, Stardew Valley)
 
-Fix (author_system.js):
-- Neue Regex-Stufe /{([A-Z])}/ VOR dem generischen Fallback — matched {N}→File-Count, {M}→0, {H}→?
-- HAS_PLACEHOLDER von [A-Z][A-Z0-9_]+ auf [A-Z][A-Z0-9_]* geaendert (Einzelbuchstaben jetzt erkannt)
-
-Regel-Updates:
-- writing_rules.json: docu_in_code_commit Regel — Doku immer Teil des Code-Commits, nie eigener Commit
-- AGENTS.md U-1 um Doku-Regel erweitert, FCM-Referenzen aus §13.3 entfernt
+Global nachgezogen:
+- README.md: Roadmap-Sektionen (DE+EN) auf ROADMAP.md-Referenz kondensiert, FCM aus Provider-Tabellen entfernt, Screenshot-Caption aktualisiert
+- AGENTS.md: ROADMAP.md-Referenz in Header + TEIL 3, Version-Datum 2026-07-02
+- PLAN.md: ROADMAP.md-Link, Fortschritts-Tracker aktualisiert (P4 ✅, P7 2→3, P8 0→3, 36%→41%)
+- core/.body_text.txt: Commit-Body für diesen Commit

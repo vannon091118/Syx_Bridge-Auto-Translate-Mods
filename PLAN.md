@@ -1,6 +1,7 @@
 # 📋 SyxBridge — Master-Plan (v0.25.0-alpha)
 
 > **Stand:** 2026-07-02 | **Konsolidiert aus:** 10 Sub-Plänen, PLAN_DB_PERSISTENCE, GUI_REWORK, PLAN_GLOBAL_SCORE
+> **Roadmap:** [ROADMAP.md](../ROADMAP.md) — Zentrale Versionierungs-Übersicht (SSOT)
 > **Architektur:** 5 Persistenz-Schichten (SQLite/WAL, .env, localStorage, FS-Snapshots, Preflight-Reports)
 > **Smoke-Test-Suite:** `node core/scripts/check_syntax.js` + `npm run test`
 
@@ -270,14 +271,14 @@ node -e "require('./core/DB/preflight').runPreflight().then(r => console.log(JSO
 | Phase | Aufgaben | Erledigt | Aufwand | Status |
 |-------|----------|----------|---------|--------|
 | P0–P3 Quick Wins | 15 | 15 | — | ✅ |
-| P4 SOS-Runtime | 1 | 0 | ~2h | 🟡 |
-| P5 RimWorld | 19 | 0 | ~16h | 🟡 PLANUNG |
-| P6 GUI Polish | 13 | 13 | — | ✅ |
-| P7 Doku-Cleanup | 5 | 2 | ~3h | 🟡 |
-| P8 DB Persistenz | 8 | 0 | ~11.5h | 🟡 AUDIT FERTIG |
-| P9 Hardening | ~25 | 2 | ~25h | 🟡 |
-| P10 Runtime-Härtung | 5 | 0 | ~15h | 🟡 |
-| **TOTAL** | **~91** | **~33** | **~72.5h** | **~36% erledigt** |
+| P4 SOS-Runtime | 1 | 1 | ~2h | ✅ v0.25 |
+| P5 RimWorld | 19 | 0 | ~16h | 🟡 PLANUNG (v0.27–v0.30a) |
+| P6 GUI Polish | 13 | 13 | — | ✅ v0.25 |
+| P7 Doku-Cleanup | 5 | 3 | ~3h | 🟡 (D-03+D-05 offen → v0.26) |
+| P8 DB Persistenz | 8 | 3 | ~11.5h | 🟡 (P8-3/4/5 ✅, Rest → v0.26) |
+| P9 Hardening | ~25 | 2 | ~25h | 🟡 (nach v0.26) |
+| P10 Runtime-Härtung | 5 | 0 | ~15h | 🟡 (nach v0.26) |
+| **TOTAL** | **~91** | **~37** | **~72.5h** | **~41% erledigt** |
 
 ---
 

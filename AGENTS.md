@@ -1,6 +1,7 @@
 # AGENTS.md — SyxBridge Agenten-Regelwerk
-> **Version:** v0.25.0-alpha | **Stand:** 2026-07-01
+> **Version:** v0.25.0-alpha | **Stand:** 2026-07-02
 > **LIES DIE DOKUMENTATION:** core/archive/docs/ — IMMER zuerst lesen.
+> **Roadmap:** ROADMAP.md — Zentrale Projekt-Roadmap (SSOT)
 > **Regel:** Keine Dependencies die wir selbst mit Code lösen können.
 
 SOBALD DU DIE REGEL GELESEN HAST BIST DU VERPFLICHTET MIT
@@ -114,6 +115,8 @@ NEXT offene Punkte (max 3)
 | SESSION | Start/Ende |
 
 Alle Tasks unterliegen TEIL 1 + TEIL 2 + GLOBALE REGELN.
+Fokus: Code-Anpassungen. Doku immer im selben Commit (U-1).
+Versions-Roadmap: ROADMAP.md
 
 ---
 
