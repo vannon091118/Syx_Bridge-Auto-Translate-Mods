@@ -4573,5 +4573,57 @@
         "file": "core/archive/docs/PLOT_LORE.md"
       }
     ]
+  },
+  {
+    "p_id": "p108",
+    "id": "plot-2026-07-02T04:36:34",
+    "timestamp": "2026-07-02 04:36:34",
+    "summary": "DOKU-Konsolidierung 34: frozen_*.js geloescht, Provider 11->9, Baum korrigiert, Buch-Eintraege 246",
+    "narrator": "Argos",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c103j46n7a4p46",
+    "ref_to": "plot-2026-07-02T04:28:47",
+    "prev_narrator": "Devin",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/archive/docs/GUI_REWORK.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/archive/docs/frozen_SongsOfSyxPlugin.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_exporter.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_text-core.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_verify_watermark.js"
+      },
+      {
+        "file": "core/archive/docs/frozen_watermark-config.js"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_BYPASS_REMOVAL.md"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_COMMIT_LAYER_RNG.md"
+      },
+      {
+        "file": "core/archive/docs/plans/PLAN_GLOBAL_SCORE.md"
+      }
+    ]
   }
 ]

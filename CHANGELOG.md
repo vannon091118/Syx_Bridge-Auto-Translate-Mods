@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 04:34:55] DOKU-Konsolidierung 34: frozen_*.js geloescht, Provider 11->9, Baum korrigiert, Buch-Eintraege 246
+**Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c103j46n7a4p46`
+- 12 Datei(en) geändert.
+
 ### [2026-07-02 04:28:47] PLOT_LORE: Commit-Lesson-Learned fuer TEIL 9 Verletzungen bei 2bf02ee und cbc8b99
 **Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c102j35n7a5p59`
 - 2 Datei(en) geändert.

@@ -1,9 +1,10 @@
 ---
 type: plan
 topic: bypäss-beseitigung
-status: active
-origin: docs/BYPASS_AUDIT_2026-06-21.md
+status: archived
+origin: FREEZE_INDEX_2 §10/§11 (Stabilisierungs-Scope + P0-1/P0-3/P1-1)
 created: 2026-06-21
+archived: 2026-07-02
 ---
 
 # PLAN: Bypäss-Beseitigung (36 Funde → 0 Funde)

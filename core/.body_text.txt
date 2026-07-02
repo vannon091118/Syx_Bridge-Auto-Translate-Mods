@@ -1,12 +1,5 @@
-PLOT_LORE.md: Commit-Lesson-Learned Sektion fuer die zwei Geister-Commits (2bf02ee, cbc8b99).
+DOKU-Konsolidierungs-Durchlauf 34: MASTER_DOC.md als SSOT verifiziert und korrigiert. Physische Bereinigung: 5 frozen_*.js aus docs/ geloescht (frozen_SongsOfSyxPlugin.js, frozen_exporter.js, frozen_text-core.js, frozen_verify_watermark.js, frozen_watermark-config.js). GUI_REWORK.md aus docs/ Root entfernt. 2 DONE-Plaene (PLAN_COMMIT_LAYER_RNG.md, PLAN_GLOBAL_SCORE.md) aus plans/ nach FREEZE/ verschoben. Stand: 7 Root-MDs + 1 Log, 12 FREEZE, 10 Plaene, 1 OLD_DOCS-Eintrag.
 
-Detaillierte Analyse der TEIL 9 Verletzungen durch zwei Commits die direkt via
-git commit erstellt wurden statt durch den Author System Layer. Root Cause:
-Basher hat author_system.js umgangen. Auswirkung: Zwei permanente Luecken in der
-Composite-Seed-Kette (force-push verboten). Five Lessons Learned dokumentiert:
-TEIL 9 absolut, Basher-Training, Commits ohne Tokens sind Luecken, Doku-Commits
-sind nicht weniger wichtig, Force-Push als letztes Mittel. Verhinderungsmassnahmen:
-Pre-Commit-Hook Check, Basher-Prompt-Regel, Session-Check am Anfang jeder Session.
+MASTER_DOC.md SSOT-Korrekturen: Provider Matrix 11 auf 9 Zeilen (FCM und Player2 entfernt — nicht im PROVIDER_REGISTRY). DB-Tabellen 13 auf 12 (kein sqlite_sequence). Agent-Referenz: code-reviewer-deepseek zu code-reviewer-mimo, thinker-with-files-gemini zu thinker-gpt. Baum-Diagramm komplett aktualisiert mit tatsaechlichem Datei-Status. Buch-Eintraege 235 auf 246 (142+104). Archivierungshistorie 121 auf 131.
 
-Dateien: PLOT_LORE.md — Sektion 'Commit-Lesson-Learned' hinzugefuegt.
-Keine Code-Aenderungen. Nur Doku-Protokoll-Update.
+LIVE_INDEX.md: Durchlauf-Count 33 auf 34. FREEZE_INDEX_2 Referenz §32 auf §33. Archiviert/Geloescht 146 auf 131 korrigiert. PLAN_BYPASS_REMOVAL.md Cross-References aktualisiert nach frozen_*.js Bereinigung. Keine Code-Aenderungen. Nur Doku-SSOT-Bereinigung gegen tatsaechlichen Datei-Status verifiziert. Alle Aenderungen sind 14:26 UTC dokumentiert.

@@ -25,9 +25,9 @@
 
 ## FREEZE-Dokumente (12)
 
-> **33 Doku-Konsolidierungs-Durchläufe + Live→FREEZE Transfer abgeschlossen.**
-> **246 Buch-Einträge** (142 FREEZE_INDEX + 104 FREEZE_INDEX_2 §1–§32).
-> **146 Dokumente archiviert/gelöscht.** (124 vorher + 8 novo 2026-07-02)
+> **34 Doku-Konsolidierungs-Durchläufe + Live→FREEZE Transfer abgeschlossen.**
+> **246 Buch-Einträge** (142 FREEZE_INDEX + 104 FREEZE_INDEX_2 §1–§33).
+> **131 Dokumente archiviert/gelöscht.**
 
 | # | Dokument | Rolle |
 |---|----------|------|
@@ -128,7 +128,7 @@
 
 ## Archivierungshistorie
 
-- **146 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
+- **131 Dokumente archiviert/gelöscht** — alle Inhalte im FREEZE_INDEX rekonstruierbar
 - **Live→FREEZE (2026-07-02):** 8 Dateien (SYSTEM_ARCHITECTURE, SOS_FORMAT_SPEC, RUNTIME_SCORE_HISTORY, GUI_REWORK, 2 DONE-Pläne, 5 frozen_*.js gelöscht)
 - **Global-Clean (2026-07-02):** 19 redundante Dateien gelöscht (16 FREEZE/ + 2 OLD_DOCS + 1 FREEZE_INDEX.md)
 - **Durchlauf 7 (2026-06-23):** Doku-Audit — 10 Dokumente gefreezed + 12 entfernt + 4 Ausgabedokumente erstellt
