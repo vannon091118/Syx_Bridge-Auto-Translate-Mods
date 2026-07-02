@@ -1,9 +1,9 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
 > **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha | **MAX-EFFORT-Priorisierung**
-> **Status:** 5 LIVE + 20 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX
+> **Status:** 5 LIVE + 20 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX + 1 GUI-Branch
 > **Regel:** Nur Pflicht-Dokus bleiben. P9+P10 Pläne als Backlog.
-> **Letzter Doku-Audit:** 2026-07-02 — MAX-EFFORT: PLAN.md restrukturiert (P4-P10 → 3 Phasen), 7 Sub-Pläne → Backlog.
+> **Letzter Doku-Audit:** 2026-07-02 — GUI-Branch erstellt (gui-work), Kiro-Daten ausgeschlossen.
 
 ## LIVE-Dokumente (5)
 
