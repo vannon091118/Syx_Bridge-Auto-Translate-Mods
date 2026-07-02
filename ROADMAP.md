@@ -56,12 +56,10 @@ timeline
               : FCM-Entfernung · Commit-Layer-Fix
         v0.25.0-alpha : Aktueller Stand · 2026-07-02
     section ✨ Final Polish · Songs of Syx Abschluss
-        v0.26 : DB-Persistenz-Härtung (P8-1..P8-8)
-              : Transaktionsgrenzen + FK-Cascades
-              : Code-Pattern-Check + Dead-Flag-Cleanup
-              : Feature-Gap-Closure (→95%)
-              : Bug-Triage-Report Automatisierung
-              : Dokumenten-Archivierung
+        v0.26 : DB-Härtung (P8-1 Transaktionen, P8-2 FK-Cascades)
+              : Vendor-Sync-Drift (BU-025 Release-Blocker)
+              : SQLITE_BUSY Retry + WAL-Checkpointing
+              : DB-Stats-GUI + SOS-RUNTIME Plugin
               : Letzter SoS-Polish vor RimWorld
     section 🎯 RimWorld · Implementierung
         v0.27 : RimWorld Adapter-Hooks (13 Methoden)
@@ -100,7 +98,7 @@ timeline
 | **v0.23** | Polish Pass | Refactoring, RimWorld-Basis | 11 | 111 | 🟢 DONE |
 | **v0.24** | Hardening | ESLint, DAOs, PREF-IGNORE | 10* | 119 | 🟢 DONE |
 | **v0.25** | **GUI & i18n** | **3-Tab-Layout, 14 Sprachen** | **10*** | **287** | 🟣 **AKTIV** |
-| **v0.26** | Last SoS Polish | DB-Härtung, Cleanup | 10* | 287+ | 🟡 GEPLANT |
+| **v0.26** | Last SoS Polish | DB-Härtung (Transaktionen, FK, Retry), Vendor-Sync | 10* | 287+ | 🟡 GEPLANT |
 | **v0.27** | RW Adapter | 13 Adapter-Hooks | 10* | 287+ | 🟡 GEPLANT |
 | **v0.28** | RW Scanner | XML-Parser, Exporter | 10* | 287+ | 🟡 GEPLANT |
 | **v0.29** | RW Integration | E2E-Test, Workshop | 10* | 300+ | 🟡 GEPLANT |
@@ -143,10 +141,10 @@ gantt
     section 🟡 v0.26 · Last SoS Polish
         DB-Transaktionsgrenzen (P8-1)   :p8a, 2026-07-03, 1d
         FK-Cascades (P8-2)              :p8b, 2026-07-04, 2d
-        Code-Pattern-Check (D-03)       :d03, 2026-07-05, 1d
-        Dead-Flag-Cleanup (P9-9C)       :df, 2026-07-06, 2d
-        Feature-Gap-Closure (P9-9D)     :fg, 2026-07-07, 1d
-        Doku-Archivierung (D-05)        :d05, 2026-07-08, 1d
+        Vendor-Sync-Drift (BU-025)      :bu025, 2026-07-05, 1d
+        SQLITE_BUSY Retry (P8-4)        :p8c, 2026-07-06, 1d
+        SOS-RUNTIME Plugin (P4)         :p4, 2026-07-06, 1d
+        DB-Stats GUI + Rest (P8-7)      :p8d, 2026-07-07, 1d
     
     section 🎯 v0.27–v0.30a · RimWorld
         Adapter-Hooks (13 Methoden)     :rw1, 2026-07-09, 4d

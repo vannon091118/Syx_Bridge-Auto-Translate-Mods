@@ -4167,5 +4167,33 @@
         "file": "core/tests/runtime_score.test.js"
       }
     ]
+  },
+  {
+    "p_id": "p95",
+    "id": "plot-2026-07-02T01:43:54",
+    "timestamp": "2026-07-02 01:43:54",
+    "summary": "MAX-EFFORT: PLAN.md von 7 auf 3 Phasen restrukturiert, P9+P10 ins Backlog, Doku konsolidiert (ROADMAP LIVE_INDEX HANDSHAKE CHANGELOG)",
+    "narrator": "Echo",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c90j34n12a2p92",
+    "ref_to": "plot-2026-07-02T01:36:16",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "HANDSHAKE.md"
+      },
+      {
+        "file": "PLAN.md"
+      },
+      {
+        "file": "ROADMAP.md"
+      },
+      {
+        "file": "core/archive/docs/LIVE_INDEX.md"
+      }
+    ]
   }
 ]

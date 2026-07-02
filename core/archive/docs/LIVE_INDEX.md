@@ -1,9 +1,9 @@
 # 📖 LIVE INDEX — SyxBridge Dokumentation
 
-> **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha
-> **Status:** 5 LIVE + 20 FREEZE + 13 PLAN + 7 Root + 8 INDEX
-> **Regel:** Nur Pflicht-Dokus bleiben. Alle Einmal-Audits, HANDSHAKEs und Specs vollarchiviert.
-> **Letzter Doku-Audit:** 2026-07-02 — GUI-Rebuild, i18n, ML-7 E2E Test (166/166 PASS), cli-progress Fix, grammar_context-Dateien (14 NEU).
+> **Stand:** 2026-07-02 | **Version:** v0.25.0-alpha | **MAX-EFFORT-Priorisierung**
+> **Status:** 5 LIVE + 20 FREEZE + 3 AKTIVE Pläne + 7 Root + 8 INDEX
+> **Regel:** Nur Pflicht-Dokus bleiben. P9+P10 Pläne als Backlog.
+> **Letzter Doku-Audit:** 2026-07-02 — MAX-EFFORT: PLAN.md restrukturiert (P4-P10 → 3 Phasen), 7 Sub-Pläne → Backlog.
 
 ## LIVE-Dokumente (5)
 
@@ -47,27 +47,25 @@
 | 19 | `FREEZE/DOCU_AUDIT_INDEX_2026-06-23.md` | **[NEU]** Doku-Audit Gesamtindex (73 Dokumente). |
 | 20 | `FREEZE/DOCU_AUDIT_PFLICHT_2026-06-23.md` | **[NEU]** Doku-Audit Pflichtdokumentenliste. |
 
-## Plan-Dokumente (13)
+## Plan-Dokumente (3 AKTIV + 10 Backlog/Archiv)
 
-> **Pläne zählen als Einzeldokumente. Fertig → Freeze → Index. Offen/Teilweise → LIVE behalten.**
+> **MAX-EFFORT (2026-07-02):** P9 Hardening + P10 Runtime → Backlog. Nur DB-Härtung + SOS-Polish + RimWorld aktiv.
 
 | # | Dokument | Status | Quelle |
 |---|----------|--------|--------|
-| 1 | `plans/PLAN_MASTER.md` | ✅ ARCHIVIERT → `FREEZE/PLAN_MASTER_2026-06-20.md` | v0.21 Roadmap (historisch). Durch PLAN.md v0.23.0 ersetzt. |
-| 2 | `plans/PLAN_BUG_TRIAGE.md` | 🟡 OFFEN (0/6) | KNOWN_BUGS_REPORT.md |
-| 3 | `plans/PLAN_BYPASS_REMOVAL.md` | 🟡 OFFEN (0/6) | BYPASS_AUDIT_2026-06-21.md (archiviert) |
-| 4 | `plans/PLAN_DEAD_FLAGS.md` | 🟡 OFFEN (0/5) | DEAD_FLAG_REPORT_2026-06-19.md (archiviert) |
-| 5 | `plans/PLAN_FEATURE_GAPS.md` | 🟡 OFFEN (0/5) | FEATURE_VERIFICATION_2026-06-21.md (archiviert) |
-| 6 | `plans/PLAN_GLOBAL_SCORE.md` | ✅ DONE (6/6) | CALCULATION_AND_INTEGRATION_2026-06-21.md (archiviert) |
-| 7 | `plans/PLAN_LATENT_RISKS.md` | 🟡 OFFEN (0/5) | CONTROL_TOWER_AUDIT_2026-06-19.md |
-| 8 | `plans/PLAN_PLAN_AUDIT.md` | ⚠️ TEILWEISE (~250 Funktionen) | PLAN_PLAN_AUDIT.md |
-| 9 | `plans/PLAN_PRIORISIERUNG.md` | 🟡 OFFEN (0/6) | PRIORISIERUNG_2026-06-19.md |
-| 10 | `plans/PLAN_RUNTIME_PROBABILITY.md` | 🟡 OFFEN (0/5) | FOREIGN_MACHINE_PROBABILITY_2026-06-21.md (archiviert) |
-| 11 | `plans/PLAN_STABILISIERUNG.md` | 🟡 TEILWEISE (5/9) | STABILISIERUNGS_SCOPE_2026-06-21.md (archiviert) |
-| 12 | `plans/PLAN_COMMIT_LAYER_RNG.md` | ✅ ABGESCHLOSSEN | Commit-Layer RNG System (5 Phasen) |
-| 13 | `plans/PLAN_RIMWORLD.md` | 🟡 PLANUNG (0/19) | **[NEU]** researcher-web + researcher-docs (2026-06-25) |
-
-**Legende:** Fertig → Freeze → Index → löschen. Offen/Teilweise → LIVE behalten.
+| 1 | `plans/PLAN_RIMWORLD.md` | 🟡 AKTIV (0/19) | Phase 3 — v0.27–v0.30a |
+| 2 | `plans/PLAN_STABILISIERUNG.md` | 🔵 BACKLOG (5/9 done) | v0.25 abgeschlossen |
+| 3 | `plans/PLAN_FEATURE_GAPS.md` | 🔵 BACKLOG (FG-1 ✅) | Nach RimWorld relevant |
+| 4 | `plans/PLAN_BUG_TRIAGE.md` | 🔵 BACKLOG (BT-1/2 ✅) | Sprint-Basis bleibt |
+| 5 | `plans/PLAN_BYPASS_REMOVAL.md` | 🔵 BACKLOG | Nach DB-Härtung |
+| 6 | `plans/PLAN_DEAD_FLAGS.md` | 🔵 BACKLOG | Nach DB-Härtung |
+| 7 | `plans/PLAN_LATENT_RISKS.md` | 🔵 BACKLOG | Laufende Mitigation |
+| 8 | `plans/PLAN_PLAN_AUDIT.md` | 🔵 BACKLOG | ~250 Funktionen auditiert |
+| 9 | `plans/PLAN_PRIORISIERUNG.md` | 🔵 BACKLOG | Durch MAX-EFFORT ersetzt |
+| 10 | `plans/PLAN_RUNTIME_PROBABILITY.md` | 🔵 BACKLOG | Nach RimWorld |
+| 11 | `plans/PLAN_GLOBAL_SCORE.md` | ✅ DONE (6/6) | Archiv |
+| 12 | `plans/PLAN_COMMIT_LAYER_RNG.md` | ✅ DONE | Archiv |
+| 13 | `plans/PLAN_MASTER.md` | ✅ ARCHIVIERT | FREEZE/ |
 
 ## Root-Dokumente (7)
 
