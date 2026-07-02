@@ -1,3 +1,3 @@
-GUI-Refactoring: 24 fetch()-Calls durch zentralen apiClient in state.js ersetzt. Zwei POST-Method-Bugs gefixt (installArgos, runDbRepair sendeten GET statt POST). 10 tote .catch()-Blöcke entfernt. apiClient gibt null bei Fehler zurück, raw-Modus für res.ok-Checks.
+DOM-Cache: tickDomCache in state.js — 8 getElementById + 1 querySelectorAll aus tick() eliminiert. Bei 60fps im Run-Modus ~540 unnötige DOM-Lookups/Sekunde eingespart. settingsInputs lazy-gecached (erster Tick initialisiert, danach Cache-Hit). fetchHealth/toggleStreamView nicht geändert (nicht im Tick-Loop).
 
-Dateien: state.js (apiClient Utility), ui-core.js (3 Calls), ui-data.js (16 Calls), ui-settings.js (5 Calls), app.js (1 Call). Code-Review bestätigt: keine toten Ketten, Null-Checks ausreichend.
+Code-Review bestätigt: Null-Safety bewahrt, settingsInputs static NodeList (kein stale-Ref-Risiko), Style konsistent.

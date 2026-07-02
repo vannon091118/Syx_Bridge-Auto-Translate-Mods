@@ -4,7 +4,7 @@
 // =============================================================================
  
  
-/* exported logContainer, uiPhase, uiModName, uiProgress, statScanned, statCached, statTranslated, statFailed, termReq, termRes, reqProvider, resTime, dbSamplesContainer, dotArgos, dotOllama, stages, connectors, currentConfig, providerStats, apiProviderStatus, dbSearchResults, currentRevisionsSource, currentRevisionsLang, revisionResults, liveStats, lastRunningState, statusTimeout, patchOverrideEnabled, _fps, lastFrameTime, frameCount, lastSampleRotation, displayPercent, lastTickTarget, sessionId, evtSource, _modelStatusInterval, _providerStatusInterval, _preflightWarning, _runtimeScoreData, _runEvalData, _rsMinimized, _streamViewIsLLM, RS_CATEGORY_DESCRIPTIONS, RUN_EVAL_DESCRIPTIONS */
+/* exported logContainer, uiPhase, uiModName, uiProgress, statScanned, statCached, statTranslated, statFailed, termReq, termRes, reqProvider, resTime, dbSamplesContainer, dotArgos, dotOllama, stages, connectors, currentConfig, providerStats, apiProviderStatus, dbSearchResults, currentRevisionsSource, currentRevisionsLang, revisionResults, liveStats, lastRunningState, statusTimeout, patchOverrideEnabled, _fps, lastFrameTime, frameCount, lastSampleRotation, displayPercent, lastTickTarget, sessionId, evtSource, _modelStatusInterval, _providerStatusInterval, _preflightWarning, _runtimeScoreData, _runEvalData, _rsMinimized, _streamViewIsLLM, RS_CATEGORY_DESCRIPTIONS, RUN_EVAL_DESCRIPTIONS, tickDomCache */
 
 // DOM Elements
 var logContainer = document.getElementById('log');
@@ -25,6 +25,20 @@ var resTime = document.getElementById('res-time');
 var dbSamplesContainer = document.getElementById('db-samples');
 var dotArgos = document.getElementById('dot-argos');
 var dotOllama = document.getElementById('dot-ollama');
+
+// ── Tick-loop DOM Cache ───────────────────────────────────────────────
+// Cached once at load to avoid getElementById on every frame (60fps).
+var tickDomCache = {
+  threads:     document.getElementById('ui-threads'),
+  sysLoad:     document.getElementById('sys-load'),
+  badge:       document.getElementById('bridge-status-badge'),
+  runBtn:      document.getElementById('main-run-btn'),
+  subPhase:    document.getElementById('ui-sub-phase'),
+  progressText: document.getElementById('ui-progress-text'),
+  neonRect:    document.getElementById('neon-rect'),
+  providerContainer: document.getElementById('provider-stats-container'),
+  settingsInputs: null  // Lazy — querySelectorAll is live, cache the node list once
+};
 
 // Pipeline Stages
 var stages = {

@@ -3,7 +3,7 @@
 // Depends on: state.js
 // =============================================================================
  
-/* global frameCount:writable, lastFrameTime:writable, _fps:writable, uiPhase:writable, liveStats:writable, uiModName:writable, statScanned:writable, statCached:writable, statTranslated:writable, statFailed:writable, uiProgress:writable, displayPercent:writable, lastTickTarget:writable, dbSamplesContainer:writable, lastSampleRotation:writable, lastRunningState:writable, statusTimeout:writable, providerStats:writable, apiProviderStatus:writable, currentConfig:writable, stages:writable, connectors:writable, dotArgos:writable, dotOllama:writable, logContainer:writable, _streamViewIsLLM:writable */
+/* global frameCount:writable, lastFrameTime:writable, _fps:writable, uiPhase:writable, liveStats:writable, uiModName:writable, statScanned:writable, statCached:writable, statTranslated:writable, statFailed:writable, uiProgress:writable, displayPercent:writable, lastTickTarget:writable, dbSamplesContainer:writable, lastSampleRotation:writable, lastRunningState:writable, statusTimeout:writable, providerStats:writable, apiProviderStatus:writable, currentConfig:writable, stages:writable, connectors:writable, dotArgos:writable, dotOllama:writable, logContainer:writable, _streamViewIsLLM:writable, tickDomCache:writable */
 /* exported tick, setBackgroundState, updatePipeline, renderProviderStats, fetchProviderStatus, triggerAction, fetchHealth, toggleStreamView */
 
 function tick(now) {
@@ -23,17 +23,15 @@ function tick(now) {
   if (statTranslated) statTranslated.textContent = liveStats.newTranslations || 0;
   if (statFailed) statFailed.textContent = liveStats.qaFailures || 0;
     
-  var threadEl = document.getElementById('ui-threads');
-  if (threadEl) threadEl.textContent = liveStats.activeThreads || 0;
+  if (tickDomCache.threads) tickDomCache.threads.textContent = liveStats.activeThreads || 0;
 
-  if (liveStats.sysLoad) {
-    var loadEl = document.getElementById('sys-load');
-    if (loadEl) loadEl.textContent = 'CPU: ' + liveStats.sysLoad.cpu + '% | RAM: ' + liveStats.sysLoad.ram + '%';
+  if (liveStats.sysLoad && tickDomCache.sysLoad) {
+    tickDomCache.sysLoad.textContent = 'CPU: ' + liveStats.sysLoad.cpu + '% | RAM: ' + liveStats.sysLoad.ram + '%';
   }
 
   // Status Badge & Button Sync
-  var badge = document.getElementById('bridge-status-badge');
-  var runBtn = document.getElementById('main-run-btn');
+  var badge = tickDomCache.badge;
+  var runBtn = tickDomCache.runBtn;
   var tk = (window.t || function(k){return k;});
   if (badge) {
     badge.textContent = liveStats.isRunning ? tk('health.running') : tk('health.idle');
@@ -45,7 +43,7 @@ function tick(now) {
   }
 
   // SubPhase indicator
-  var subPhaseEl = document.getElementById('ui-sub-phase');
+  var subPhaseEl = tickDomCache.subPhase;
   if (subPhaseEl) {
     if (liveStats.isRunning && liveStats.subPhase) {
       tk = (window.t || function(k){return k;});
@@ -67,8 +65,10 @@ function tick(now) {
   }
 
   // Input lock
-  var settingsInputs = document.querySelectorAll('#settings-dropdown input, #settings-dropdown select, #settings-dropdown button');
-  settingsInputs.forEach(function(el) {
+  if (!tickDomCache.settingsInputs) {
+    tickDomCache.settingsInputs = document.querySelectorAll('#settings-dropdown input, #settings-dropdown select, #settings-dropdown button');
+  }
+  tickDomCache.settingsInputs.forEach(function(el) {
     if (el.id === 'main-run-btn') return;
     el.disabled = liveStats.isRunning;
     el.style.opacity = liveStats.isRunning ? '0.4' : '1';
@@ -104,7 +104,7 @@ function tick(now) {
     
     uiProgress.style.width = displayPercent + '%';
         
-    var progressText = document.getElementById('ui-progress-text');
+    var progressText = tickDomCache.progressText;
     if (progressText) {
       if (!liveStats.isRunning && current === 0) {
         progressText.textContent = (window.t || function(k){return k;})('health.ready');
@@ -123,7 +123,7 @@ function tick(now) {
       uiProgress.style.background = 'linear-gradient(90deg, var(--accent), #ffb961)';
     }
 
-    var neonRect = document.getElementById('neon-rect');
+    var neonRect = tickDomCache.neonRect;
     if (neonRect) {
       if (liveStats.isRunning) {
         neonRect.style.opacity = Math.max(0.2, displayPercent / 100);
@@ -213,7 +213,7 @@ function updatePipeline(phase) {
 
 // ── Provider Stats ────────────────────────────────────────────────────
 function renderProviderStats() {
-  var container = document.getElementById('provider-stats-container');
+  var container = tickDomCache.providerContainer;
   if (!container) return;
     
   var html = '';

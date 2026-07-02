@@ -1,5 +1,16 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 02:54:36] DOM-Cache: tickDomCache in state.js — 8 getElementById + 1 querySelector aus tick() eliminiert. ~540 DOM-Lookups/Sekunde eingespart. Code-Review approved.
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** `c95j81n1a3p42`
+- 4 Datei(en) geändert.
+
+### [2026-07-02] DOM-Cache: tickDomCache in state.js — 8 getElementById + 1 querySelector aus tick() eliminiert (~540 DOM-Lookups/Sekunde eingespart)
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** `tbd`
+- tickDomCache-Objekt in state.js mit 8 gecachten DOM-Referenzen (threads, sysLoad, badge, runBtn, subPhase, progressText, neonRect, providerContainer). settingsInputs lazy-gecached.
+- tick() + renderProviderStats() nutzen jetzt Cache statt getElementById pro Frame.
+- Verifikation: Syntax 120/120 ✅ | Code-Review approved ✅
+- 2 Datei(en) geändert (state.js, ui-core.js).
+
 ### [2026-07-02 02:50:03] GUI-Refactoring: Zentraler apiClient in state.js. 24 fetch→apiClient, 10 tote .catch entfernt, 2 POST-Method-Bugs gefixt (installArgos/runDbRepair). Code-Review approved.
 **Narrator:** Spark | **Model:** mimo-v2.5-pro | **Composite:** `c94j25n9a5p27`
 - 7 Datei(en) geändert.
