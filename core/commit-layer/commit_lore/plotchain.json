@@ -4124,5 +4124,48 @@
         "file": "core/.body_text.txt"
       }
     ]
+  },
+  {
+    "p_id": "p94",
+    "id": "plot-2026-07-02T01:36:16",
+    "timestamp": "2026-07-02 01:36:16",
+    "summary": "BT-2: BU-019 fixGrammarBatch (translation-runtime + translation-phases), BU-026 Jest (jest.config + package.json + package-lock.json + runtime_score.test), BU-030 Modularisierung (check_syntax + check_consistency), CHANGELOG",
+    "narrator": "Vannon",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c89j55n4a2p52",
+    "ref_to": "plot-2026-07-02T01:15:10",
+    "prev_narrator": "Glitch",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/translation-phases.js"
+      },
+      {
+        "file": "core/Translation/translation-runtime.js"
+      },
+      {
+        "file": "core/jest.config.js"
+      },
+      {
+        "file": "core/package-lock.json"
+      },
+      {
+        "file": "core/package.json"
+      },
+      {
+        "file": "core/scripts/check_consistency.js"
+      },
+      {
+        "file": "core/scripts/check_syntax.js"
+      },
+      {
+        "file": "core/tests/runtime_score.test.js"
+      }
+    ]
   }
 ]

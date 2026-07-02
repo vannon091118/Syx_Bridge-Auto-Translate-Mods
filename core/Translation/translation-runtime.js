@@ -61,7 +61,8 @@ function createTranslationRuntime(options) {
   // translation-runtime.js und translation-phases.js.
   // JavaScript-Primitivwerte (number, boolean) können nicht per Referenz
   // geteilt werden — daher als { current: value } Objekt.
-  const consecutiveGrammarFailuresRef = { current: 0 };
+  // BU-019: consecutiveGrammarFailuresRef entfernt — Counter ist jetzt
+  // ein Parameter von fixGrammarBatch() und wird pro Aufrufkette isoliert.
   const _recoveryDoneRef = { current: false };
 
   // ── Dispatcher ───────────────────────────────────────────────────────
@@ -459,7 +460,11 @@ function createTranslationRuntime(options) {
     }, items, resolvedRouteOverride);
   }
 
-  async function fixGrammarBatch(items, stage = 'audit', attemptCount = 0) {
+  // BU-019 Fix: consecutiveFailures ist jetzt ein Wert-Parameter statt eines
+  // Shared-Ref-Objekts. Jeder fixGrammarBatch()-Aufruf bekommt seinen eigenen
+  // Zähler. Parallele ensureTranslations()-Calls können sich nicht mehr
+  // gegenseitig die Fehlerzähler kaputtmachen.
+  async function fixGrammarBatch(items, stage = 'audit', attemptCount = 0, consecutiveFailures = 0) {
     if (items.length === 0) return items.map(item => typeof item === 'string' ? item : item.source);
     if (attemptCount >= 2) return items.map(item => typeof item === 'string' ? item : item.source);
 
@@ -522,7 +527,9 @@ function createTranslationRuntime(options) {
         }
       }
 
-      consecutiveGrammarFailuresRef.current = 0;
+      // BU-019: consecutiveGrammarFailuresRef Reset entfernt —
+      // Erfolgreicher Batch braucht keinen expliziten Reset mehr,
+      // da der Zähler pro Aufrufkette isoliert ist.
 
       // FIX: Validate parsed results for shield_leak before returning.
       for (let i = 0; i < parsed.length; i++) {
@@ -543,17 +550,19 @@ function createTranslationRuntime(options) {
     } catch (e) {
       // BU-020: AbortController — CanceledError must break immediately, not count as failure.
       if (axios.isCancel(e) || e.code === 'ERR_CANCELED' || e.name === 'CanceledError') throw e;
-      consecutiveGrammarFailuresRef.current++;
-      console.warn(`[!] Grammatik-Korrektur fehlgeschlagen (${consecutiveGrammarFailuresRef.current}/3): ${extractErrorMessage(e)}`);
+      // BU-019: consecutiveFailures ist jetzt ein Value-Parameter —
+      // kein Shared-Ref mehr. Der Zähler wird pro Aufrufkette inkrementiert.
+      const nextFailures = consecutiveFailures + 1;
+      console.warn(`[!] Grammatik-Korrektur fehlgeschlagen (${nextFailures}/3): ${extractErrorMessage(e)}`);
       if ((e.response ? e.response.status : 0) === 429) {
         console.log('[INFO] Rate-Limit erreicht. Warte 10 Sekunden...');
         await sleep(10000);
       }
-      if (consecutiveGrammarFailuresRef.current >= 3) {
+      if (nextFailures >= 3) {
         console.error('[!] Zu viele Fehler bei der Grammatik-Korrektur. Ueberspringe diesen Batch.');
         return entries.map(entry => entry.source);
       }
-      return fixGrammarBatch(items, stage, attemptCount + 1);
+      return fixGrammarBatch(items, stage, attemptCount + 1, nextFailures);
     }
   }
 
@@ -642,7 +651,8 @@ function createTranslationRuntime(options) {
     dbRun,
     dbGet,
     getBatchProfile,
-    consecutiveGrammarFailuresRef,
+    // BU-019: consecutiveGrammarFailuresRef aus DI entfernt —
+    // Counter wird jetzt als Parameter an fixGrammarBatch() übergeben.
     _recoveryDoneRef
   });
 

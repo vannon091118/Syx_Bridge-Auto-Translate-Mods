@@ -11,8 +11,10 @@
     "test:plugin-boundary": "node tests/plugin-boundary-contract.js",
     "test:e2e": "node tests/e2e_bug1_native_mode.js",
     "test:e2e-ml": "node tests/e2e_multi_language.js",
+    "test:jest": "jest",
+    "test:jest:watch": "jest --watch",
     "testline": "npm run lint && npm run consistency && npm run test:plugin-boundary && npm run test:e2e && npm run test:e2e-ml",
-    "test": "npm run testline",
+    "test": "npm run testline && npm run test:jest",
     "reconstruct": "echo 'reconstruct.js removed in cleanup commit 35ec46c'",
     "release": "node scripts/release.js",
     "sync": "node scripts/sync-version.js",
@@ -44,6 +46,7 @@
     "@eslint/js": "10.0.1",
     "eslint": "10.4.1",
     "globals": "17.6.0",
+    "jest": "^30.4.2",
     "sql.js": "1.14.1"
   }
 }

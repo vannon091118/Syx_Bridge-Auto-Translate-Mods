@@ -1,13 +1,5 @@
-ROADMAP.md als zentrale Single Source of Truth erstellt. Vollständige Mermaid-Timeline von v0.10 bis v1.0, Gantt-Chart für v0.26→v1.0, Versionstabelle mit Features/Provider/Tests/Status, 7 Checkpoints.
+BU-019: Shared-State-Mutation in fixGrammarBatch() eliminiert. Der consecutiveGrammarFailuresRef wurde als {current:0}-Objekt per DI zwischen translation-runtime.js und translation-phases.js geteilt. Parallele ensureTranslations()-Calls konnten sich gegenseitig die Fehlerzähler überschreiben. Jetzt ist der Zähler ein Wert-Parameter von fixGrammarBatch(), der durch rekursive Calls durchgereicht wird — jede Aufrufkette hat ihren eigenen isolierten Counter.
 
-Roadmap-Struktur (User-Vorgabe):
-- v0.25: GUI-Rebuild, i18n (14 Sprachen), 287 Tests (AKTIV)
-- v0.26: Last Polish Songs of Syx — DB-Härtung, Dead-Flag-Cleanup, Code-Pattern-Check
-- v0.27–v0.30a: RimWorld Implementierung in 4 Phasen
-- v1.0: Multi-Game (Kenshi, Stardew Valley)
+BU-026: Jest 30.4.2 als Test-Framework eingerichtet. runtime_score.test.js von manuellen pass/fail-Zählern auf describe/it/expect migriert. 13/13 Tests bestanden. Langfristige Basis für alle weiteren Tests.
 
-Global nachgezogen:
-- README.md: Roadmap-Sektionen (DE+EN) auf ROADMAP.md-Referenz kondensiert, FCM aus Provider-Tabellen entfernt, Screenshot-Caption aktualisiert
-- AGENTS.md: ROADMAP.md-Referenz in Header + TEIL 3, Version-Datum 2026-07-02
-- PLAN.md: ROADMAP.md-Link, Fortschritts-Tracker aktualisiert (P4 ✅, P7 2→3, P8 0→3, 36%→41%)
-- core/.body_text.txt: Commit-Body für diesen Commit
+BU-030: check_syntax.js und check_consistency.js modularisiert. Globale Variablen durch reine Funktions-Rückgabewerte ersetzt. require.main === module Guards + module.exports für programmatische Wiederverwendung.

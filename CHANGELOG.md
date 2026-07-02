@@ -1,5 +1,17 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 01:35:40] Bug-Triage BT-2: BU-019 fixGrammarBatch Shared-State eliminiert + BU-026 Jest 30.4.2 Test-Framework + BU-030 Scripts modularisiert
+**Narrator:** Vannon | **Model:** deepseek-v4-pro | **Composite:** `c89j55n4a2p52`
+- 10 Datei(en) geändert.
+
+### [2026-07-02] Bug-Triage Sprint BT-2: BU-019 (fixGrammarBatch Shared-State), BU-026 (Jest 30.4.2), BU-030 (Scripts modularisiert)
+**Narrator:** TBD | **Model:** deepseek-v4-pro | **Composite:** `tbd`
+- **BU-019 — Shared-State-Eliminierung:** `consecutiveGrammarFailuresRef` aus DI-Kette entfernt. `fixGrammarBatch()` akzeptiert `consecutiveFailures` jetzt als Wert-Parameter (default 0), durchgereicht durch rekursive Calls. Jeder Aufruf bekommt eigenen isolierten Fehlerzähler. Parallele `ensureTranslations()`-Calls können sich nicht mehr gegenseitig die Zähler kaputtmachen. Resets in `ensureTranslations` + `deepPolishPhase` entfernt. translation-runtime.js + translation-phases.js.
+- **BU-026 — Test-Framework:** Jest 30.4.2 installiert + `jest.config.js` (CommonJS, node env, 30s timeout). `test:jest` + `test:jest:watch` Scripts in package.json. `runtime_score.test.js` von manuellen pass/fail-Zählern auf describe/it/expect migriert (13 Tests, 3 describe-Blocks). `npm test` inkludiert jetzt jest.
+- **BU-030 — Script-Modularisierung:** `check_syntax.js`: Body in `checkSyntax(dir)` gewrappt → `{ pass, fileCount, failures, failedFiles }`. `require.main === module` Guard + `module.exports`. `check_consistency.js`: Globale Variablen (issueCount, issues) durch pure Functions ersetzt. `makeIssue()` Factory. Alle 6 Check-Funktionen geben Issues-Arrays zurück. `runConsistencyCheck(opts)` Orchestrator. `require.main === module` Guard + `module.exports` (8 Funktionen).
+- **Verifikation:** Syntax 120/120 ✅ | Jest 13/13 ✅ | Consistency 0E/4W ✅
+- 6 Datei(en) geändert.
+
 ### [2026-07-02 01:14:29] ROADMAP.md: Zentrale Mermaid-Roadmap v0.10→v1.0 + README/AGENTS/PLAN global nachgezogen + FCM-Referenzen bereinigt
 **Narrator:** Glitch | **Model:** deepseek-v4-pro | **Composite:** `c88j15n10a5p77`
 - 5 Datei(en) geändert.

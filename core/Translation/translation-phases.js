@@ -51,7 +51,8 @@ function createTranslationPhases(deps) {
     dbRun,
     dbGet,
     getBatchProfile,
-    consecutiveGrammarFailuresRef,
+    // BU-019: consecutiveGrammarFailuresRef aus DI entfernt —
+    // Counter wird jetzt als Parameter an fixGrammarBatch() übergeben.
     _recoveryDoneRef
   } = deps;
 
@@ -545,9 +546,8 @@ function createTranslationPhases(deps) {
       );
       if (deepPolishCount && deepPolishCount.cnt > 0) {
         console.log(`[DEEP-POLISH] ${deepPolishCount.cnt} Eintraege warten auf Deep Polish. Starte automatisch...`);
-        // BUG-FS-004: Reset vor Deep Polish, damit Failures aus der Polish-Queue
-        // nicht den Deep-Polish-Lauf blockieren.
-        consecutiveGrammarFailuresRef.current = 0;
+        // BU-019: consecutiveGrammarFailuresRef Reset entfernt —
+        // fixGrammarBatch() managed seinen eigenen Zähler jetzt pro Aufrufkette.
         await runDeepPolishBatch(config.TARGET_LANG);
       }
     } catch (e) {
@@ -558,7 +558,8 @@ function createTranslationPhases(deps) {
   // ── ensureTranslations (orchestrator) ───────────────────────────────
 
   async function ensureTranslations(texts, options = {}) {
-    consecutiveGrammarFailuresRef.current = 0;
+    // BU-019: consecutiveGrammarFailuresRef Reset entfernt —
+    // fixGrammarBatch() managed seinen eigenen Zähler pro Aufrufkette.
     const skipPolish = options.skipPolish === true;
 
     // P1 Fix: Recovery einmalig pro Session
