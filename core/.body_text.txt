@@ -1,3 +1,11 @@
-- Kosteneinsparung in translation-phases.js: Frisch übersetzte Texte werden in der qaPhase (polishQueue) nur noch dann poliert, wenn sie auch wirklich als flagged markiert sind, um redundante und teure LLM-Audits im selben Durchgang zu vermeiden.
-- Entkopplung der deepPolishPhase: Die datenbankweite Reparatur-Phase wird nur noch bei expliziter Anforderung (ctx.options.runDeepPolish === true oder ctx.options.forcePolish === true) ausgeführt. Dies verhindert unbeabsichtigte Kosten durch Altlasten bei einfachen Mod-Translation-Runs.
-- Dokumentation im CHANGELOG.md.
+- **P0-1 check_consistency.js:** Alle core/src/* Pfade (6 in checkNaming, 6 in checkVersions, srcDir in checkForgottenMarkers) auf echte Pfade korrigiert (core/GUI/, core/Translation/, core/DB/). Scannt jetzt 5 reale Verzeichnisse statt nicht-existierendem core/src/. Zuvor 0 Issues gemeldet weil alle Checks gegen leere Verzeichnisse liefen.
+- **P0-1 testline:** consistency + test:e2e-ml in npm testline aufgenommen. Pipeline jetzt: lint → consistency → plugin-boundary → e2e → e2e-ml.
+- **P0-2 CHANGELOG Split-Brain:** core/archive/docs/CHANGELOG.md → Redirect-Stub (SSOT ist Root CHANGELOG.md per AGENTS.md Regel 4). sync-version.js synct jetzt Root CHANGELOG.md statt Archiv-Kopie. Beide Dateien hatten identische Composite-Chains, keine manuelle Reconciliation nötig.
+- **P0-3 pre-push Claim:** "(gesperrt via pre-push Hook)" aus AGENTS.md Z.186, PLAN.md DONE-INDEX, index.html Z.1604, und archive AGENTS.md entfernt — Hook existiert nicht.
+- **P0-4 release.js:** Vendor-Drift-Check von WARN auf BLOCK (process.exit(1) statt console.warn). Release bricht jetzt ab bei Drift.
+- **P1 tests/INDEX.md:** Auto-Spalte (testline/manuell) für alle 14 Testdateien.
+- **P2 text-core.js:102:** shouldTranslate() Regex /[a-zA-Z]/ → /\p{L}/u (Unicode-Letter-Property). Deckt jetzt Kyrillisch, CJK, Griechisch etc. ab statt stillschweigend zu verwerfen.
+- **P3 sync-version.js:** Nach P0-P2 ausgeführt, cli-progress.js gefixt.
+- **DB-Workflow:** Metriken ausgewertet (4.256 Einträge, 2.440 flagged, avg 74.3), Pre-Reset-Snapshot erstellt, 6 alte dbold-Snapshots → tar.gz archiviert, reset_now.js ausgeführt (443 processed_files gecleared, 4 Mods restored).
+- **Validation:** Consistency 0 Errors | Syntax 120/120 | Plugin-Boundary 86/86 | E2E 35/35 PASS.
+- 62 Datei(en) geändert.

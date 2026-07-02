@@ -1,13 +1,13 @@
 
-> syx-bridge@0.22.0 test
+> syx-bridge@0.25.0-alpha test
 > npm run testline
 
 
-> syx-bridge@0.22.0 testline
-> npm run lint && npm run test:plugin-boundary && npm run test:e2e
+> syx-bridge@0.25.0-alpha testline
+> npm run lint && npm run consistency && npm run test:plugin-boundary && npm run test:e2e && npm run test:e2e-ml
 
 
-> syx-bridge@0.22.0 lint
+> syx-bridge@0.25.0-alpha lint
 > eslint . --fix
 
 
@@ -18,37 +18,23 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\DB\db_query.js
   26:7  warning  'isJson' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\DB\db_repair.js
-  236:9  warning  'q1' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+  46:9  warning  'q1' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+
+C:\Users\Vannon\Desktop\SyxBridge_Live\core\DB\run-metrics-db.js
+  22:40  warning  'message' is assigned a value but never used. Allowed unused args must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\GUI\gui-handlers.js
-  179:5   warning  'parseSoSConfig' is assigned a value but never used. Allowed unused vars must match /^_/u      no-unused-vars
-  179:21  warning  'stringifySoSConfig' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
-  179:41  warning  'SETTINGS_PATH' is assigned a value but never used. Allowed unused vars must match /^_/u       no-unused-vars
-
-C:\Users\Vannon\Desktop\SyxBridge_Live\core\GUI\public\app.js
-  906:53  warning  'idx' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
+  103:5   warning  'parseSoSConfig' is assigned a value but never used. Allowed unused vars must match /^_/u      no-unused-vars
+  103:21  warning  'stringifySoSConfig' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+  103:41  warning  'SETTINGS_PATH' is assigned a value but never used. Allowed unused vars must match /^_/u       no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\adapters\GameAdapter.js
-   22:17  warning  'content' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   29:18  warning  'infoObj' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   41:22  warning  'bridgeVersion' is defined but never used. Allowed unused args must match /^_/u   no-unused-vars
-   49:27  warning  'infoObj' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   49:36  warning  'targetLanguage' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
-   65:26  warning  'originalName' is defined but never used. Allowed unused args must match /^_/u    no-unused-vars
-   68:21  warning  'dirName' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   71:22  warning  'dirName' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   80:21  warning  'versionDir' is defined but never used. Allowed unused args must match /^_/u      no-unused-vars
-   87:21  warning  'targetLanguage' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
-   97:19  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
-  105:16  warning  'relativePath' is defined but never used. Allowed unused args must match /^_/u    no-unused-vars
-  113:22  warning  'relativePath' is defined but never used. Allowed unused args must match /^_/u    no-unused-vars
-  113:36  warning  'fileType' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
-  121:17  warning  'modDir' is defined but never used. Allowed unused args must match /^_/u          no-unused-vars
+  97:19  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\config\config-runtime.js
    1:7   warning  'fs' is assigned a value but never used. Allowed unused vars must match /^_/u                   no-unused-vars
    2:7   warning  'path' is assigned a value but never used. Allowed unused vars must match /^_/u                 no-unused-vars
-  27:55  warning  'setGeminiFreeModels' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+  29:55  warning  'setGeminiFreeModels' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\export_stage2.js
    41:7   warning  'exporter' is assigned a value but never used. Allowed unused vars must match /^_/u            no-unused-vars
@@ -62,13 +48,7 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\model-registry.js
   13:7  warning  'path' is assigned a value but never used. Allowed unused vars must match /^_/u      no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\plugins\GamePlugin.js
-   34:36  warning  'entry' is defined but never used. Allowed unused args must match /^_/u          no-unused-vars
-   68:23  warning  'source' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-   68:31  warning  'target' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars
-  162:22  warning  'sourceContent' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
-  162:37  warning  'targetContent' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
-  194:17  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u       no-unused-vars
-  194:27  warning  'version' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
+  35:36  warning  'entry' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\plugins\RimWorldPlugin.js
   143:17  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
@@ -87,13 +67,16 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\plugins\RimWorldPlugin.j
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\plugins\SongsOfSyxPlugin.js
    14:7   warning  'os' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
-  117:21  warning  'versionDir' is defined but never used. Allowed unused args must match /^_/u   no-unused-vars
-  233:36  warning  'entry' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
-  370:17  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u     no-unused-vars
-  370:27  warning  'version' is defined but never used. Allowed unused args must match /^_/u      no-unused-vars
+  197:21  warning  'versionDir' is defined but never used. Allowed unused args must match /^_/u   no-unused-vars
+  313:36  warning  'entry' is defined but never used. Allowed unused args must match /^_/u        no-unused-vars
+  450:17  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u     no-unused-vars
+  450:27  warning  'version' is defined but never used. Allowed unused args must match /^_/u      no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\polish-arbiter.js
   22:5  warning  'config' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+
+C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\providers\client-factory.js
+  16:9  warning  'buildGeminiSchema' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\router.js
   46:7  warning  'GROQ_FREE_MODELS' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
@@ -123,12 +106,13 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\translation-runtime.js
   8:35  warning  'NATIVE_RUNTIME_DEFAULT_QUALITY' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\commit-layer\author_system.js
-  28:17  warning  'decodeJ' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+   28:17  warning  'decodeJ' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+  149:54  warning  'impulse' is defined but never used. Allowed unused args must match /^_/u           no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\commit-layer\commit_lore\derive_composite.js
    33:26  warning  'selectMood' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
    56:7   warning  'prevSeq' is assigned a value but never used. Allowed unused vars must match /^_/u     no-unused-vars
-  288:23  warning  'key' is assigned a value but never used. Allowed unused vars must match /^_/u         no-unused-vars
+  316:23  warning  'key' is assigned a value but never used. Allowed unused vars must match /^_/u         no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\commit-layer\commit_lore\update_plot.js
   228:5   warning  'narratorTag' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
@@ -142,8 +126,8 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\commit-layer\pre-commit.js
   196:23  warning  'key' is assigned a value but never used. Allowed unused vars must match /^_/u            no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\index.js
-   63:30  warning  'readDisplayName' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
-  811:30  warning  'planner' is defined but never used. Allowed unused args must match /^_/u                   no-unused-vars
+   68:9   warning  'readDisplayName' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+  816:30  warning  'planner' is defined but never used. Allowed unused args must match /^_/u                   no-unused-vars
 
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\scripts\check_argos.js
   73:10  warning  'clearPythonCache' is defined but never used. Allowed unused vars must match /^_/u  no-unused-vars
@@ -175,6 +159,9 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\scripts\vendor-sync.js
   202:9   warning  'hasManifest' is assigned a value but never used. Allowed unused vars must match /^_/u         no-unused-vars
   343:9   warning  'totalActions' is assigned a value but never used. Allowed unused vars must match /^_/u        no-unused-vars
 
+C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\e2e_multi_language.js
+  303:41  warning  'code' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
+
 C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\env-protection-smoke.js
   7:7  warning  'os' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
 
@@ -200,10 +187,34 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
    80:7   warning  'contextPackets' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
   428:11  warning  'testPrefixes' is assigned a value but never used. Allowed unused vars must match /^_/u    no-unused-vars
 
-✖ 111 problems (0 errors, 111 warnings)
+✖ 94 problems (0 errors, 94 warnings)
 
 
-> syx-bridge@0.22.0 test:plugin-boundary
+> syx-bridge@0.25.0-alpha consistency
+> node scripts/check_consistency.js
+
+
+==================================================
+  KONSISTENZ-CHECKER — SyxBridge v0.25.0-alpha
+==================================================
+
+
+🟡 WARNINGS (4):
+  [STALE_VERSION] core\DB\db.js:176
+    Alte Version "v0.19.8" (aktuell: 0.25.0-alpha): // --- v0.19.8 Deep Polish / Preserve-Content-First Flags ---
+  [STALE_VERSION] core\DB\db.js:326
+    Alte Version "v0.19.9" (aktuell: 0.25.0-alpha): // --- v0.19.9 Shield-Leak Cleanup ---
+  [ARCHIVE] core\archive
+    Archive-Ordner ist 18.6 MB — pruefen ob alles noch gebraucht wird.
+  [VENDOR_DRIFT] core\release\SyxBridge_v0.25.0-alpha
+    Vendored-Snapshot fehlt: core\release\SyxBridge_v0.25.0-alpha — bitte 'npm run release' ausfuehren.
+
+──────────────────────────────────────────────────
+  0 Errors, 4 Warnings, 0 Info
+──────────────────────────────────────────────────
+
+
+> syx-bridge@0.25.0-alpha test:plugin-boundary
 > node tests/plugin-boundary-contract.js
 
 ╔══════════════════════════════════════════════════════════════╗
@@ -212,11 +223,11 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
 ╚══════════════════════════════════════════════════════════════╝
 
 === Contract Test: SongsOfSyxPlugin ===
-  Interface: 28 methods (16 GameAdapter + 12 GamePlugin)
+  Interface: 29 methods (16 GameAdapter + 13 GamePlugin)
   Abstract: 16 methods MUST be overridden
-  Implemented on SongsOfSyxPlugin: 29 own methods
+  Implemented on SongsOfSyxPlugin: 30 own methods
 
-  --- L1: Existence (28 checks) ---
+  --- L1: Existence (29 checks) ---
   [PASS] SongsOfSyxPlugin.applyPatchModifications() exists
   [PASS] SongsOfSyxPlugin.classifyFile() exists
   [PASS] SongsOfSyxPlugin.extractTextValue() exists
@@ -235,6 +246,7 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
   [PASS] SongsOfSyxPlugin.getPathRules() exists
   [PASS] SongsOfSyxPlugin.getPlaceholderRegex() exists
   [PASS] SongsOfSyxPlugin.getPromptContext() exists
+  [PASS] SongsOfSyxPlugin.getProperNounDenylist() exists
   [PASS] SongsOfSyxPlugin.getTranslationCredit() exists
   [PASS] SongsOfSyxPlugin.getTranslationMetadataPattern() exists
   [PASS] SongsOfSyxPlugin.isBackupDirectory() exists
@@ -264,8 +276,8 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
   [PASS] SongsOfSyxPlugin.isTranslatableFile() overrides abstract
   [PASS] SongsOfSyxPlugin.scanMod() overrides abstract
 
-  --- L2b: Concrete Override (12 GamePlugin methods) ---
-  [PASS] SongsOfSyxPlugin overrides all 12 concrete GamePlugin methods
+  --- L2b: Concrete Override (13 GamePlugin methods) ---
+  [PASS] SongsOfSyxPlugin overrides all 13 concrete GamePlugin methods
 
   --- L3: Signature (parameter count for ALL overridden methods) ---
   [PASS] SongsOfSyxPlugin.extractTextValue() param count: 1 (expected 1)
@@ -275,6 +287,7 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
   [PASS] SongsOfSyxPlugin.getPathRules() param count: 0 (expected 0)
   [PASS] SongsOfSyxPlugin.getPlaceholderRegex() param count: 0 (expected 0)
   [PASS] SongsOfSyxPlugin.getPromptContext() param count: 0 (expected 0)
+  [PASS] SongsOfSyxPlugin.getProperNounDenylist() param count: 0 (expected 0)
   [PASS] SongsOfSyxPlugin.getTranslationCredit() param count: 0 (expected 0)
   [PASS] SongsOfSyxPlugin.getTranslationMetadataPattern() param count: 0 (expected 0)
   [PASS] SongsOfSyxPlugin.serializeTranslation() param count: 2 (expected 2)
@@ -316,13 +329,13 @@ C:\Users\Vannon\Desktop\SyxBridge_Live\core\tests\translation-runtime-smoke.js
 ========================================
   CONTRACT TEST RESULTS
 ========================================
-  PASS: 84 | FAIL: 0
+  PASS: 86 | FAIL: 0
 
-[CONTRACT-TEST] PASS — All 84 contract checks passed.
+[CONTRACT-TEST] PASS — All 86 contract checks passed.
 SongsOfSyxPlugin fully implements the GamePlugin + GameAdapter interface.
-Interface: 28 methods verified dynamically.
+Interface: 29 methods verified dynamically.
 
-> syx-bridge@0.22.0 test:e2e
+> syx-bridge@0.25.0-alpha test:e2e
 > node tests/e2e_bug1_native_mode.js
 
 ========================================
@@ -388,3 +401,208 @@ Interface: 28 methods verified dynamically.
 ========================================
   Ergebnis: 35 PASS, 0 FAIL
 ========================================
+
+> syx-bridge@0.25.0-alpha test:e2e-ml
+> node tests/e2e_multi_language.js
+
+========================================
+  ML-7 E2E: Multi-Language Pipeline
+  Sprachen: French, Spanish, Polish, Russian, Chinese
+========================================
+
+[T1] LANG_CODES — alle 5 Kernsprachen + Edge Cases
+──────────────────────────────────────────────────
+  [PASS] T1 — French → "fr" — got: fr
+  [PASS] T1 — Spanish → "es" — got: es
+  [PASS] T1 — Polish → "pl" — got: pl
+  [PASS] T1 — Russian → "ru" — got: ru
+  [PASS] T1 — Chinese → "zh-CN" — got: zh-CN
+  [PASS] T1 — French in SUPPORTED_LANGS
+  [PASS] T1 — Spanish in SUPPORTED_LANGS
+  [PASS] T1 — Polish in SUPPORTED_LANGS
+  [PASS] T1 — Russian in SUPPORTED_LANGS
+  [PASS] T1 — Chinese in SUPPORTED_LANGS
+  [PASS] T1 — SUPPORTED_LANGS count = 14 — actual: 14 (German, French, Spanish, Polish, Russian, Italian, Portuguese, Chinese, Japanese, Korean, Ukrainian, Turkish, Dutch, Swedish)
+  [PASS] T1 — unknown lang "Klingon" → undefined
+  [PASS] T1 — French code is non-empty
+  [PASS] T1 — Spanish code is non-empty
+  [PASS] T1 — Polish code is non-empty
+  [PASS] T1 — Russian code is non-empty
+  [PASS] T1 — Chinese code is non-empty
+
+[T2] File path English/ → <TARGET_LANG>/ replacement
+──────────────────────────────────────────────────
+  [PASS] T2 — French Windows path replaced — expected "V71\assets\text\French\room\hall.txt", got "V71\assets\text\French\room\hall.txt"
+  [PASS] T2 — French Unix path replaced — expected "V71/assets/text/French/ui/main.txt", got "V71/assets/text/French/ui/main.txt"
+  [PASS] T2 — French case-insensitive "english" — expected "V71/assets/text/French/room/hall.txt", got "V71/assets/text/French/room/hall.txt"
+  [PASS] T2 — French no English/ → unchanged
+  [PASS] T2 — Spanish Windows path replaced — expected "V71\assets\text\Spanish\room\hall.txt", got "V71\assets\text\Spanish\room\hall.txt"
+  [PASS] T2 — Spanish Unix path replaced — expected "V71/assets/text/Spanish/ui/main.txt", got "V71/assets/text/Spanish/ui/main.txt"
+  [PASS] T2 — Spanish case-insensitive "english" — expected "V71/assets/text/Spanish/room/hall.txt", got "V71/assets/text/Spanish/room/hall.txt"
+  [PASS] T2 — Spanish no English/ → unchanged
+  [PASS] T2 — Polish Windows path replaced — expected "V71\assets\text\Polish\room\hall.txt", got "V71\assets\text\Polish\room\hall.txt"
+  [PASS] T2 — Polish Unix path replaced — expected "V71/assets/text/Polish/ui/main.txt", got "V71/assets/text/Polish/ui/main.txt"
+  [PASS] T2 — Polish case-insensitive "english" — expected "V71/assets/text/Polish/room/hall.txt", got "V71/assets/text/Polish/room/hall.txt"
+  [PASS] T2 — Polish no English/ → unchanged
+  [PASS] T2 — Russian Windows path replaced — expected "V71\assets\text\Russian\room\hall.txt", got "V71\assets\text\Russian\room\hall.txt"
+  [PASS] T2 — Russian Unix path replaced — expected "V71/assets/text/Russian/ui/main.txt", got "V71/assets/text/Russian/ui/main.txt"
+  [PASS] T2 — Russian case-insensitive "english" — expected "V71/assets/text/Russian/room/hall.txt", got "V71/assets/text/Russian/room/hall.txt"
+  [PASS] T2 — Russian no English/ → unchanged
+  [PASS] T2 — Chinese Windows path replaced — expected "V71\assets\text\Chinese\room\hall.txt", got "V71\assets\text\Chinese\room\hall.txt"
+  [PASS] T2 — Chinese Unix path replaced — expected "V71/assets/text/Chinese/ui/main.txt", got "V71/assets/text/Chinese/ui/main.txt"
+  [PASS] T2 — Chinese case-insensitive "english" — expected "V71/assets/text/Chinese/room/hall.txt", got "V71/assets/text/Chinese/room/hall.txt"
+  [PASS] T2 — Chinese no English/ → unchanged
+  [PASS] T2 — French "English" in filename → unchanged — got: "V71/assets/text/ui/English_description.txt"
+  [PASS] T2 — Spanish "English" in filename → unchanged — got: "V71/assets/text/ui/English_description.txt"
+  [PASS] T2 — Polish "English" in filename → unchanged — got: "V71/assets/text/ui/English_description.txt"
+  [PASS] T2 — Russian "English" in filename → unchanged — got: "V71/assets/text/ui/English_description.txt"
+  [PASS] T2 — Chinese "English" in filename → unchanged — got: "V71/assets/text/ui/English_description.txt"
+
+[T3] _Info.txt NAME → NAME <TAG> per language
+──────────────────────────────────────────────────
+  [PASS] T3 — French tag = "FRENCH"
+  [PASS] T3 — French dedup detects existing tag
+  [PASS] T3 — French untagged name detected
+  [PASS] T3 — Spanish tag = "SPANISH"
+  [PASS] T3 — Spanish dedup detects existing tag
+  [PASS] T3 — Spanish untagged name detected
+  [PASS] T3 — Polish tag = "POLISH"
+  [PASS] T3 — Polish dedup detects existing tag
+  [PASS] T3 — Polish untagged name detected
+  [PASS] T3 — Russian tag = "RUSSIAN"
+  [PASS] T3 — Russian dedup detects existing tag
+  [PASS] T3 — Russian untagged name detected
+  [PASS] T3 — Chinese tag = "CHINESE"
+  [PASS] T3 — Chinese dedup detects existing tag
+  [PASS] T3 — Chinese untagged name detected
+  [PASS] T3 — Chinese tag = "CHINESE"
+  [PASS] T3 — Chinese tag is ASCII-safe
+
+[T4] Model Registry — getModelStatus per language
+──────────────────────────────────────────────────
+  [PASS] T4 — French registry created
+  [PASS] T4 — French targetLang = "French" — actual: French
+  [PASS] T4 — French targetLangCode = "fr" — actual: fr
+  [PASS] T4 — French argos.targetLangInstalled = true — actual: true
+  [PASS] T4 — French needsLanguageInstall = false — actual: false
+  [PASS] T4 — French installTargetLanguage ok — message: Argos-Sprachmodell "French" (fr) installiert.
+  [PASS] T4 — French installTargetLanguage code = "fr" — actual: fr
+  [PASS] T4 — Spanish registry created
+  [PASS] T4 — Spanish targetLang = "Spanish" — actual: Spanish
+  [PASS] T4 — Spanish targetLangCode = "es" — actual: es
+  [PASS] T4 — Spanish argos.targetLangInstalled = true — actual: true
+  [PASS] T4 — Spanish needsLanguageInstall = false — actual: false
+  [PASS] T4 — Spanish installTargetLanguage ok — message: Argos-Sprachmodell "Spanish" (es) installiert.
+  [PASS] T4 — Spanish installTargetLanguage code = "es" — actual: es
+  [PASS] T4 — Polish registry created
+  [PASS] T4 — Polish targetLang = "Polish" — actual: Polish
+  [PASS] T4 — Polish targetLangCode = "pl" — actual: pl
+  [PASS] T4 — Polish argos.targetLangInstalled = true — actual: true
+  [PASS] T4 — Polish needsLanguageInstall = false — actual: false
+  [PASS] T4 — Polish installTargetLanguage ok — message: Argos-Sprachmodell "Polish" (pl) installiert.
+  [PASS] T4 — Polish installTargetLanguage code = "pl" — actual: pl
+  [PASS] T4 — Russian registry created
+  [PASS] T4 — Russian targetLang = "Russian" — actual: Russian
+  [PASS] T4 — Russian targetLangCode = "ru" — actual: ru
+  [PASS] T4 — Russian argos.targetLangInstalled = true — actual: true
+  [PASS] T4 — Russian needsLanguageInstall = false — actual: false
+  [PASS] T4 — Russian installTargetLanguage ok — message: Argos-Sprachmodell "Russian" (ru) installiert.
+  [PASS] T4 — Russian installTargetLanguage code = "ru" — actual: ru
+  [PASS] T4 — Chinese registry created
+  [PASS] T4 — Chinese targetLang = "Chinese" — actual: Chinese
+  [PASS] T4 — Chinese targetLangCode = "zh-CN" — actual: zh-CN
+  [PASS] T4 — Chinese argos.targetLangInstalled = true — actual: true
+  [PASS] T4 — Chinese needsLanguageInstall = false — actual: false
+  [PASS] T4 — Chinese installTargetLanguage ok — message: Argos-Sprachmodell "Chinese" (zh-CN) installiert.
+  [PASS] T4 — Chinese installTargetLanguage code = "zh-CN" — actual: zh-CN
+  [PASS] T4 — unknown lang install → ok=false
+  [PASS] T4 — unknown lang install → code=null
+  [PASS] T4 — static targetLang → Polish
+  [PASS] T4 — static targetLang → pl
+
+[T5] persistSingleEnvVar — all 5 languages
+──────────────────────────────────────────────────
+  [PASS] T5 — French persist returns ok — actual: {"written":true,"key":"TARGET_LANG","value":"French"}
+  [PASS] T5 — French persist echoes key
+  [PASS] T5 — French persist echoes value
+  [PASS] T5 — French TARGET_LANG persisted in .env — expected TARGET_LANG="French" in C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\.env
+  [PASS] T5 — French BATCH_SIZE preserved
+  [PASS] T5 — French PRIMARY_PROVIDER preserved
+  [PASS] T5 — Spanish persist returns ok — actual: {"written":true,"key":"TARGET_LANG","value":"Spanish"}
+  [PASS] T5 — Spanish persist echoes key
+  [PASS] T5 — Spanish persist echoes value
+  [PASS] T5 — Spanish TARGET_LANG persisted in .env — expected TARGET_LANG="Spanish" in C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\.env
+  [PASS] T5 — Spanish BATCH_SIZE preserved
+  [PASS] T5 — Spanish PRIMARY_PROVIDER preserved
+  [PASS] T5 — Polish persist returns ok — actual: {"written":true,"key":"TARGET_LANG","value":"Polish"}
+  [PASS] T5 — Polish persist echoes key
+  [PASS] T5 — Polish persist echoes value
+  [PASS] T5 — Polish TARGET_LANG persisted in .env — expected TARGET_LANG="Polish" in C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\.env
+  [PASS] T5 — Polish BATCH_SIZE preserved
+  [PASS] T5 — Polish PRIMARY_PROVIDER preserved
+  [PASS] T5 — Russian persist returns ok — actual: {"written":true,"key":"TARGET_LANG","value":"Russian"}
+  [PASS] T5 — Russian persist echoes key
+  [PASS] T5 — Russian persist echoes value
+  [PASS] T5 — Russian TARGET_LANG persisted in .env — expected TARGET_LANG="Russian" in C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\.env
+  [PASS] T5 — Russian BATCH_SIZE preserved
+  [PASS] T5 — Russian PRIMARY_PROVIDER preserved
+  [PASS] T5 — Chinese persist returns ok — actual: {"written":true,"key":"TARGET_LANG","value":"Chinese"}
+  [PASS] T5 — Chinese persist echoes key
+  [PASS] T5 — Chinese persist echoes value
+  [PASS] T5 — Chinese TARGET_LANG persisted in .env — expected TARGET_LANG="Chinese" in C:\Users\Vannon\Desktop\SyxBridge_Live\core\Translation\.env
+  [PASS] T5 — Chinese BATCH_SIZE preserved
+  [PASS] T5 — Chinese PRIMARY_PROVIDER preserved
+
+[T6] createRuntimeOps — TARGET_LANG across all 5 languages
+──────────────────────────────────────────────────
+  [PASS] T6 — French translateMod ran — result: non-null
+  [PASS] T6 — French no prompts fired — calls: 0
+  [PASS] T6 — Spanish translateMod ran — result: non-null
+  [PASS] T6 — Spanish no prompts fired — calls: 0
+  [PASS] T6 — Polish translateMod ran — result: non-null
+  [PASS] T6 — Polish no prompts fired — calls: 0
+  [PASS] T6 — Russian translateMod ran — result: non-null
+  [PASS] T6 — Russian no prompts fired — calls: 0
+  [PASS] T6 — Chinese translateMod ran — result: non-null
+  [PASS] T6 — Chinese no prompts fired — calls: 0
+  [PASS] T6 — French modFolderName contains language — folderName: "Test_Mod_With_Spaces__French"
+  [PASS] T6 — French modFolderName sanitized — folderName: "Test_Mod_With_Spaces__French"
+  [PASS] T6 — Spanish modFolderName contains language — folderName: "Test_Mod_With_Spaces__Spanish"
+  [PASS] T6 — Spanish modFolderName sanitized — folderName: "Test_Mod_With_Spaces__Spanish"
+  [PASS] T6 — Polish modFolderName contains language — folderName: "Test_Mod_With_Spaces__Polish"
+  [PASS] T6 — Polish modFolderName sanitized — folderName: "Test_Mod_With_Spaces__Polish"
+  [PASS] T6 — Russian modFolderName contains language — folderName: "Test_Mod_With_Spaces__Russian"
+  [PASS] T6 — Russian modFolderName sanitized — folderName: "Test_Mod_With_Spaces__Russian"
+  [PASS] T6 — Chinese modFolderName contains language — folderName: "Test_Mod_With_Spaces__Chinese"
+  [PASS] T6 — Chinese modFolderName sanitized — folderName: "Test_Mod_With_Spaces__Chinese"
+  [PASS] T6 — NATIVE_MODE=false → no "Native Mode aktiv"
+  [PASS] T6 — TARGET_LANG=English → translateMod runs
+
+[T7] Cross-language consistency checks
+──────────────────────────────────────────────────
+  [PASS] T7 — all 5 codes are unique — codes: fr, es, pl, ru, zh-CN
+  [PASS] T7 — French code "fr" matches ISO pattern — code: "fr"
+  [PASS] T7 — Spanish code "es" matches ISO pattern — code: "es"
+  [PASS] T7 — Polish code "pl" matches ISO pattern — code: "pl"
+  [PASS] T7 — Russian code "ru" matches ISO pattern — code: "ru"
+  [PASS] T7 — Chinese code "zh-CN" matches ISO pattern — code: "zh-CN"
+  [PASS] T7 — French code is truthy — code: fr
+  [PASS] T7 — Spanish code is truthy — code: es
+  [PASS] T7 — Polish code is truthy — code: pl
+  [PASS] T7 — Russian code is truthy — code: ru
+  [PASS] T7 — Chinese code is truthy — code: zh-CN
+  [PASS] T7 — French tag is uppercase
+  [PASS] T7 — Spanish tag is uppercase
+  [PASS] T7 — Polish tag is uppercase
+  [PASS] T7 — Russian tag is uppercase
+  [PASS] T7 — Chinese tag is uppercase
+
+========================================
+  ML-7 Multi-Language E2E Ergebnis:
+  166 PASS / 0 FAIL (100%)
+========================================
+  French       fr     Tag=FRENCH
+  Spanish      es     Tag=SPANISH
+  Polish       pl     Tag=POLISH
+  Russian      ru     Tag=RUSSIAN
+  Chinese      zh-CN  Tag=CHINESE

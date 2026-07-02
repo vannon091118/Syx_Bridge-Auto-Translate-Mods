@@ -3865,5 +3865,42 @@
         "file": "core/tests/INDEX.md"
       }
     ]
+  },
+  {
+    "p_id": "p87",
+    "id": "plot-2026-07-02T00:29:50",
+    "timestamp": "2026-07-02 00:29:50",
+    "summary": "Post-Commit Cleanup: Amend leftovers unstaged, README update, cli-progress sync-version Nachlauf, 3 GUI screenshots",
+    "narrator": "Thinker",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c82j3n3a1p73",
+    "ref_to": "plot-2026-07-02T00:24:41",
+    "prev_narrator": "Squizzle",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "README.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/.last_test_output.txt"
+      },
+      {
+        "file": "core/Translation/cli-progress.js"
+      },
+      {
+        "file": "screenshots/gui-dashboard-idle.jpg"
+      },
+      {
+        "file": "screenshots/gui-database-browser.jpg"
+      },
+      {
+        "file": "screenshots/gui-terminal-running.jpg"
+      }
+    ]
   }
 ]

@@ -1,5 +1,15 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 00:27:09] Update HANDSHAKE.md for session transition
+**Narrator:** Thinker | **Model:** Gemini 3.5 Flash | **Composite:** `c82j3n3a1p73`
+- 1 Datei(en) geändert.
+
+### [2026-07-02] README Rework & Neue UI-Screenshots — v0.25.0-alpha
+**Narrator:** Vannon | **Model:** Gemini 3.5 Flash | **Composite:** `readme-rework-01`
+- **README.md:** Aktualisierung der Badges (287 PASS), vollständige Überarbeitung des Dashboard-Abschnitts mit dem neuen 3-Tab Layout und Einbindung der neuen Screenshots, Ergänzung der Release Notes für v0.25.0-alpha im deutschen und englischen Teil.
+- **Screenshots:** Generierung und Einbindung von 3 hochauflösenden UI-Screenshots (`gui-dashboard-idle.jpg`, `gui-terminal-running.jpg`, `gui-database-browser.jpg`) passend zum neuen Interface-Design.
+- 4 Datei(en) geändert (README.md, screenshots/gui-dashboard-idle.jpg, screenshots/gui-terminal-running.jpg, screenshots/gui-database-browser.jpg).
+
 ### [2026-07-02 00:24:41] P0-P3 v0.25 Release-Hardening: check_consistency repair (core/src paths), CHANGELOG split-brain (archive stub + sync-version), pre-push claim removal (AGENTS/PLAN/index), release.js drift WARN to BLOCK, testline expansion (consistency + e2e-ml), shouldTranslate Unicode fix, DB snapshot + archive old dbold + reset_now
 **Narrator:** Squizzle | **Model:** deepseek-v4-pro | **Composite:** `c81j65n5a1p20`
 - 62 Datei(en) geändert.

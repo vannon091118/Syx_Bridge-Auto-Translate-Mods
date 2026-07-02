@@ -6,7 +6,7 @@
 
 <!-- BADGES — STATUS BOARD -->
 <a href="https://github.com/vannon091118/Syx_Bridge-Auto-Translate-Mods/releases"><img src="https://img.shields.io/badge/version-v0.25.0--alpha-7C3AED?style=for-the-badge&logo=git&logoColor=white" alt="Version"/></a>&nbsp;
-<a href="#"><img src="https://img.shields.io/badge/tests-119%20PASS%20%C2%B7%200%20FAIL-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Tests"/></a>&nbsp;
+<a href="#"><img src="https://img.shields.io/badge/tests-287%20PASS%20%C2%B7%200%20FAIL-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Tests"/></a>&nbsp;
 <a href="#-quality-metrics--qualit%C3%A4tsmetriken"><img src="https://img.shields.io/badge/runtime%20score-90.1%25-F59E0B?style=for-the-badge" alt="Score"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/cache-3%2C288%20strings-8B5CF6?style=for-the-badge" alt="Cache"/></a>&nbsp;
 <a href="#"><img src="https://img.shields.io/badge/watermarks-0-10B981?style=for-the-badge" alt="Watermarks"/></a>&nbsp;
@@ -97,10 +97,10 @@ Das System hat eine interne Capability-Matrix. Du gibst Strings rein, es wählt 
 
 <div align="center">
 
-| 💤 Idle — DB Browser | ▶️ Run — Live Terminal |
-|:---:|:---:|
-| <img src="screenshots/gui-idle.png" alt="SyxBridge Dashboard — Idle" width="460"/> | <img src="screenshots/gui-running.png" alt="SyxBridge Dashboard — Live Run" width="460"/> |
-| **3.288 gecachte Strings** durchsuchen, editieren, Revisionshistorie abrufen | **Live-Prompts, Provider-Status, Progress** — kein Rätselraten mehr |
+| 📊 Dashboard — State-of-the-Art Tabs | 🖥 Terminal & Logs — Live LLM Stream | 🗄 Database Browser — Inline Edit & Revisions |
+|:---:|:---:|:---:|
+| <img src="screenshots/gui-dashboard-idle.jpg" alt="SyxBridge Dashboard — Idle" width="300"/> | <img src="screenshots/gui-terminal-running.jpg" alt="SyxBridge Dashboard — Live Run" width="300"/> | <img src="screenshots/gui-database-browser.jpg" alt="SyxBridge Database Browser" width="300"/> |
+| **Das neue 3-Tab Layout:** Dashboard mit Live-Aktivität, Backup-Verwaltung und FCM-Modell-Rankings | **Echtzeit-Log-Terminal:** Zeigt farbcodierte Pipeline-Schritte, Fehler und direkten LLM-Request/Response Stream | **Integrierter SQLite-Browser:** Durchsuche und editiere Übersetzungen direkt im UI, inklusive vollständiger Revisionshistorie |
 
 </div>
 
@@ -185,7 +185,7 @@ start.bat
 | Übersetzte Strings im Cache | **3.288** | 🟢 |
 | Watermarks / LLM-Artefakte | **0** | 🟢 |
 | Runtime Score | **90.1%** | 🟢 |
-| Test-Suite | **119 PASS · 0 FAIL** | 🟢 |
+| Test-Suite | **287 PASS · 0 FAIL** | 🟢 |
 | Plattform | **Windows** *(Linux experimentell)* | 🟡 |
 
 </div>
@@ -247,6 +247,31 @@ timeline
 ---
 
 ## 📋 Release Notes
+
+<details>
+<summary><b>🟣 v0.25.0-alpha -- 2026-07-02</b> · "Das Enterprise-Rebuild: Ein brandneues Dashboard, 14 Sprachen und 391 grüne Tests"</summary>
+<br/>
+
+*Eigentlich sollte es nur ein kleines Update werden. Am Ende haben wir das komplette GUI-Layout auf ein 3-Tab-System umgestellt, ein i18n-System für 14 Sprachen gebaut, die Datenbank-Persistenz in DAOs zerlegt und 166 neue E2E-Tests geschrieben.*
+
+**Die wichtigsten Neuerungen:**
+- **GUI-Rebuild (3-Tab-Layout):** Modernes 3-Band-Layout (Dashboard, Terminal, Database-Browser) mit Slide-in Settings von rechts und interaktivem Onboarding-Modal.
+- **i18n-Sprachsystem:** Vollständig lokalisierbare Oberfläche für 14 Sprachen über `data-i18n` DOM-Scanning.
+- **ML-7 Multi-Language E2E-Tests:** 166 neue Test-Assertions (7 Suiten × 5 Sprachen) zur Absicherung der Übersetzungsstrukturen.
+- **API-Kosten-Optimierung:** Neue Übersetzungen überspringen den QA-Audit, wenn sie fehlerfrei sind; Deep-Polish läuft nur noch bei expliziter Anforderung.
+- **DB-Persistenz-Verteilung:** Ausgliederung von 3 separaten Domain-DAOs (`mod-tracker-db`, `run-metrics-db`, `admin-db`) via Dependency Injection.
+- **PROPER-NOUN Pluginisierung:** Verschiebung der 200+ Einträge umfassenden Eigennamen-Ausschlussliste direkt in das spielspezifische SongsOfSyx-Plugin.
+- **Hardening & Bugfixes:** Behebung von 5 Provider-Routing-Bugs, ZWSP-Injektions-Crashes (libGDX Glyph-Atlas), `__OVERWRITE: true` Crash-Loop und 98.7% ESLint-Bereinigung.
+
+| Metrik | v0.23 | v0.25.0-alpha |
+|:---|:---:|:---:|
+| Provider | 11 | **11** |
+| UI-Sprachen | 1 | **14** |
+| Test-Assertions | 119 | **287** |
+| ESLint Warnings | ~100 | **96** (0 Errors) |
+| DB-DAO-Module | 1 | **3** |
+
+</details>
 
 <details>
 <summary><b>🟣 v0.23.0 -- 2026-06-25</b> · "Ich hab die README aufgeraeumt und dabei festgestellt dass ich 30.000 Zeilen Code geschrieben habe"</summary>
@@ -467,7 +492,7 @@ start.bat
 | Cached strings | **3,288** | 🟢 |
 | Watermarks / LLM artifacts | **0** | 🟢 |
 | Runtime Score | **90.1%** | 🟢 |
-| Test suite | **119 PASS · 0 FAIL** | 🟢 |
+| Test suite | **287 PASS · 0 FAIL** | 🟢 |
 | Platform | **Windows** *(Linux experimental)* | 🟡 |
 
 </div>
@@ -529,6 +554,31 @@ timeline
 ---
 
 ## 📋 Release Notes
+
+<details>
+<summary><b>🟣 v0.25.0-alpha -- 2026-07-02</b> · "The Enterprise Rebuild: Brand New Dashboard, 14 Languages, and 287 Passing Tests"</summary>
+<br/>
+
+*We started out with small tweaks. We ended up rebuilding the entire GUI into a clean 3-tab app, implementing dynamic i18n support for 14 languages, decoupling DB persistence into dedicated domain DAOs, and adding 166 multi-language E2E test assertions.*
+
+**Highlights:**
+- **GUI Rebuild (3-Tab Layout):** Clean 3-band interface (Dashboard, Terminal & Logs, Database Browser) with an animated slide-in settings panel and an interactive onboarding flow.
+- **i18n Localization Engine:** Dynamic translation support for 14 UI languages using structured JSON locales and automatic DOM localization.
+- **ML-7 Multi-Language E2E Suite:** 166 new E2E test assertions validating translation workflows across 5 target languages (FR, ES, PL, RU, ZH).
+- **API Cost Optimization:** Clean translations skip the QA audit pass to save token budgets; Deep-Polish database repairs are now strictly on-demand.
+- **Decoupled DB Persistence:** Replaced monolithic queries with 3 domain DAOs (`mod-tracker-db`, `run-metrics-db`, `admin-db`) utilizing Dependency Injection.
+- **PROPER-NOUN Pluginization:** Relocated the 200+ entry common English noun denylist into game-specific plugins.
+- **Hardening & Stability:** Fixed 5 routing bugs (PREF-IGNORE), ZWSP injection issues (libGDX crash risk), the `__OVERWRITE` crash loop, and accomplished a 98.7% ESLint warning cleanup.
+
+| Metric | v0.23 | v0.25.0-alpha |
+|:---|:---:|:---:|
+| Providers | 11 | **11** |
+| UI Languages | 1 | **14** |
+| Test Assertions | 119 | **287** |
+| ESLint Warnings | ~100 | **96** (0 Errors) |
+| DB DAO Modules | 1 | **3** |
+
+</details>
 
 <details>
 <summary><b>🟣 v0.23.0 -- 2026-06-25</b> · "Cleaned up the README and realized I wrote 30,000 lines of code"</summary>
