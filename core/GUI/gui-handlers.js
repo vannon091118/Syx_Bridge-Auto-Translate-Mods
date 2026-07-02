@@ -276,8 +276,14 @@ function registerGuiHandlers(ctx) {
     try {
       const { provider, key, index = 0 } = data || {};
       if (!provider || !key) return callback({ ok: false, detail: 'Fehlende Parameter' });
-      const result = await configRuntime.checkCloudKey(provider, key, index);
-      callback(result);
+      // BUGFIX: Ollama ist ein lokaler Provider — checkLocalProvider statt checkCloudKey
+      if (provider === 'ollama') {
+        const result = await configRuntime.checkLocalProvider('ollama');
+        callback(result);
+      } else {
+        const result = await configRuntime.checkCloudKey(provider, key, index);
+        callback(result);
+      }
     } catch (e) {
       callback({ ok: false, detail: e.message });
     }

@@ -234,7 +234,6 @@ function renderKeySections() {
     { id: 'groq',       label: 'Groq Cloud',  hint: 'Kostenlos mit Account',    keys: currentConfig.GROQ_KEYS || [] },
     { id: 'gemini',     label: 'Google Gemini', hint: 'Gemini API Key',          keys: currentConfig.GEMINI_KEYS || [] },
     { id: 'nvidia',     label: 'NVIDIA NIM', hint: 'nvapi-... Key von build.nvidia.com', keys: currentConfig.NVIDIA_KEYS || [] },
-    { id: 'ollama',     label: 'Ollama (optional Key)', hint: 'Nur wenn Ollama Auth aktiviert', keys: currentConfig.OLLAMA_KEYS || [] },
     { id: 'openai',     label: 'OpenAI (GPT)', hint: 'platform.openai.com — GPT-4o, GPT-4o-mini, etc.', keys: currentConfig.OPENAI_KEYS || [] },
     { id: 'custom_api', label: 'Custom API (OpenAI-kompatibel)', hint: 'Eigener Endpoint — LM Studio, vLLM, text-generation-webui, etc.', keys: currentConfig.CUSTOM_API_KEYS || [] }
   ];
@@ -271,6 +270,7 @@ function _addKeyRow(providerId) {
   div.style.cssText = 'display:flex; gap:10px; margin-bottom:5px;';
   div.innerHTML = '<input type="text" class="key-name" value="Key ' + (rowCount + 1) + '" placeholder="Name" style="flex:1;">' +
     '<input type="text" class="key-val" value="" placeholder="API Key — z.B. sk-or-v1-..." style="flex:6; min-width:280px;">' +
+    '<button onclick="checkSingleKey(\'' + providerId + '\', this)" style="padding: 5px 8px; background: #1a3a1a; border:1px solid var(--success); color:var(--success); flex:none; width:auto; margin:0; font-size:0.6rem;">TEST</button>' +
     '<button onclick="this.parentElement.remove()" style="padding: 5px 10px; background: #c0392b; flex:none;">X</button>';
   list.appendChild(div);
 }
@@ -291,7 +291,6 @@ function _saveKeysFromModal() {
   currentConfig.GROQ_KEYS       = getKeys('groq');
   currentConfig.OPENROUTER_KEYS = getKeys('openrouter');
   currentConfig.NVIDIA_KEYS     = getKeys('nvidia');
-  currentConfig.OLLAMA_KEYS     = getKeys('ollama');
   currentConfig.OPENAI_KEYS     = getKeys('openai');
   currentConfig.CUSTOM_API_KEYS = getKeys('custom_api');
   saveConfig(true);

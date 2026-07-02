@@ -4921,5 +4921,33 @@
         "file": "core/commit-layer/commit_lore/writing_rules.json"
       }
     ]
+  },
+  {
+    "p_id": "p117",
+    "id": "plot-2026-07-02T08:08:46",
+    "timestamp": "2026-07-02 08:08:46",
+    "summary": "Provider-Auto-Detect: ensurePrimaryModel prueft Key vor Auto-Discovery. Ollama-Key-Modal bereinigt. Ollama-Key-Test implementiert.",
+    "narrator": "Devin",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c112j69n6a1p56",
+    "ref_to": "plot-2026-07-02T07:01:08",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/GUI/gui-handlers.js"
+      },
+      {
+        "file": "core/GUI/public/modules/ui-data.js"
+      },
+      {
+        "file": "core/Translation/config/config-runtime.js"
+      },
+      {
+        "file": "core/archive/docs/PREFLIGHT_LATEST.md"
+      }
+    ]
   }
 ]

@@ -1,5 +1,24 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 08:07:23] Provider-Auto-Detect: ensurePrimaryModel prueft Key vor Auto-Discovery. Ollama-Key-Modal bereinigt. Ollama-Key-Test implementiert.
+**Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c112j69n6a1p56`
+- 5 Datei(en) geändert.
+
+### [2026-07-02 08:30:00] Provider-Auto-Detect, Ollama-Key-Modal bereinigt, Ollama-Key-Test implementiert. 3 Routing/UI-Bugs gefixt.
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- 4 Datei(en) geändert.
+
+### [2026-07-02] Provider-Auto-Detect + Ollama-Key-Modal + Ollama-Key-Test — 3 Bugs gefixt
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- **BUG-1 (KRITISCH): Run ohne OpenRouter spuckte nur Errors.** `ensurePrimaryModel()` in config-runtime.js: Default `PRIMARY_PROVIDER='openrouter'` führte dazu dass fetchOpenRouterModels() über öffentliche API Modelle fand, `EFFECTIVE_PRIMARY_MODEL='openrouter/free'` setzte und early-returned. Zur Laufzeit: `hasAccess('openrouter')` = false (kein Key) → alle 3 Rollen (translate/audit/polish) scheiterten mit kaskadierenden Errors. Fix: Access-Check VOR Auto-Discovery. Kein Key → direkt auf Fallback-Chain umschalten (nvidia→groq→gemini→openai→openrouter→ollama).
+- **BUG-2: Ollama Keys 2x eintragbar.** Ollama war im Key-Modal UND im Settings-Panel (Cloud-URL). Fix: Ollama-Sektion aus Key-Modal entfernt (Cloud-URL bleibt im Settings). TEST-Button zu neu hinzugefügten Key-Zeilen ergänzt (addKeyRow hatte keinen).
+- **BUG-3: Ollama-Key-Test fehlte.** `checkCloudKey()` und `testApiKey()` hatten keinen 'ollama'-Fall → TEST-Button gab "Unbekannter Provider" zurück. Fix: Ollama-Fall in beide Methoden + GUI-Handler (check-api-key → checkLocalProvider für ollama).
+- **config-runtime.js:** ensurePrimaryModel() Access-Guard, checkCloudKey() ollama-Fall, testApiKey() ollama-Fall
+- **ui-data.js:** Ollama aus Key-Modal entfernt, addKeyRow() TEST-Button, OLLAMA_KEYS nicht mehr aus Modal überschrieben
+- **gui-handlers.js:** check-api-key handler routet ollama auf checkLocalProvider()
+- **Verifikation:** Syntax 3/3 OK | Code-Review approved ✅
+- 4 Datei(en) geaendert.
+
 ### [2026-07-02 07:01:08] Doku-Audit 9 BROKEN 1 RISK: AGENTS Plugin-Schicht 16 auf 18, GUI-Server 667 auf 187 plus 403, Plugin-Boundary 84 auf 92, MASTER_DOC korrigiert, FCM bereinigt, writing_rules body_text_format Prosa-Regel hinzugefuegt, Root Archive sync. Syntax OK.
 **Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c111j79n4a5p56`
 - 7 Datei(en) geändert.
