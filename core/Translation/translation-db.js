@@ -258,9 +258,9 @@ function createTranslationDb(options) {
       return;
     }
     const sourceHash = typeof entry === 'string' ? '' : getEntryHash(entry);
-    const provider = meta.provider || '';
-    const flagReason = meta.flagReason || '';
-    const flagged = flagReason ? 1 : 0;
+    let provider = meta.provider || '';
+    let flagReason = meta.flagReason || '';
+    let flagged = flagReason ? 1 : 0;
     // QUAL-OFFENSIVE Fix #2: native_runtime hat IMMER quality_score = 94.
     // Die Konstante NATIVE_RUNTIME_QUALITY (oben) ist Single Source of Truth.
     // Vorher: scoreTranslationQuality() überschrieb den Wert dynamisch.

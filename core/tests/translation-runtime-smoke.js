@@ -238,7 +238,6 @@ async function step2(dbRun, dbGet, dbAll) {
     getModelForProvider,
     getGeminiModelName,
     dbGet,
-    dbGet,
     dbAll,
     dbRun,
     isAborting: () => false,

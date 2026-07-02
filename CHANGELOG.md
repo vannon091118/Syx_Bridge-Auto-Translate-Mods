@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 06:47:46] Nachtraegliche Code-Fixes: translation-db const zu let, db_snapshot CLI-Nesting, eslint Jest Globals, check_consistency SHA256, smoke-test dbGet entfernt. Syntax OK.
+**Narrator:** Null | **Model:** mimo-v2.5-pro | **Composite:** `c110j30n11a4p39`
+- 5 Datei(en) geändert.
+
 ### [2026-07-02 06:42:04] DOKU-Sync: Provider-Zahl 10 auf 9, KNOWN_BUGS BU-026 BU-030 behoben, DONE-Index erweitert
 **Narrator:** Basher | **Model:** mimo-v2.5-pro | **Composite:** `c109j25n2a2p13`
 - 6 Datei(en) geändert.

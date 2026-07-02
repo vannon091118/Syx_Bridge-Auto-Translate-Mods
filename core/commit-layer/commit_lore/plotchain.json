@@ -4859,5 +4859,33 @@
         "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
       }
     ]
+  },
+  {
+    "p_id": "p115",
+    "id": "plot-2026-07-02T06:47:46",
+    "timestamp": "2026-07-02 06:47:46",
+    "summary": "Nachtraegliche Code-Fixes: translation-db const zu let, db_snapshot CLI-Nesting, eslint Jest Globals, check_consistency SHA256, smoke-test dbGet entfernt. Syntax OK.",
+    "narrator": "Null",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c110j30n11a4p39",
+    "ref_to": "plot-2026-07-02T06:44:12",
+    "prev_narrator": "Basher",
+    "data_changes": [
+      {
+        "file": "core/DB/db_snapshot.js"
+      },
+      {
+        "file": "core/Translation/translation-db.js"
+      },
+      {
+        "file": "core/eslint.config.mjs"
+      },
+      {
+        "file": "core/scripts/check_consistency.js"
+      },
+      {
+        "file": "core/tests/translation-runtime-smoke.js"
+      }
+    ]
   }
 ]
