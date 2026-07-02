@@ -4753,5 +4753,30 @@
         "file": "core/tests/translation-runtime-smoke.js"
       }
     ]
+  },
+  {
+    "p_id": "p111",
+    "id": "plot-2026-07-02T06:01:01",
+    "timestamp": "2026-07-02 06:01:01",
+    "summary": "LIVE-1 Dry Run Fix: dotenv-Laden in live1_dryrun.js, PLAYER2-Bereinigung in .env, 21 von 21 PASS",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c106j35n4a2p24",
+    "ref_to": "plot-2026-07-02T05:48:32",
+    "prev_narrator": "Squizzle",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/live1_dryrun.js"
+      },
+      {
+        "file": "core/archive/docs/PREFLIGHT_LATEST.md"
+      }
+    ]
   }
 ]

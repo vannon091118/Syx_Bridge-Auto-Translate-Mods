@@ -1,5 +1,16 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 06:01:01] LIVE-1 Dry Run Fix: dotenv-Laden in live1_dryrun.js, PLAYER2-Bereinigung in .env, 21 von 21 PASS
+**Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c106j35n4a2p24`
+- 4 Datei(en) geändert.
+
+### [2026-07-02 07:55:00] LIVE-1 Dry Run Fix: dotenv-Laden + PLAYER2-Bereinigung, 21/21 PASS
+**Narrator:** Buffy | **Model:** mimo-v2.5-pro | **Composite:** pending
+- live1_dryrun.js: dotenv-Laden hinzugefuegt (API-Key-Check war gebrochen)
+- .env: Stale PLAYER2_KEY, PLAYER2_URL, PLAYER2_ENABLED entfernt
+- PREFLIGHT_LATEST.md: Aktualisiert auf 21/21 PASS
+- 3 Datei(en) geaendert.
+
 ### [2026-07-02 05:48:32] Player2-Provider vollstaendig entfernt (16 Dateien)
 **Narrator:** Squizzle | **Model:** mimo-v2.5-pro | **Composite:** `c105j29n5a2p79`
 - 21 Datei(en) geändert.

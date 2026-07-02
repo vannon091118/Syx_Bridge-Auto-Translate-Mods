@@ -7,6 +7,7 @@
 
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env'), quiet: true });
 const { createPreflight } = require('../DB/preflight');
 const dbManager = require('../DB/db');
 // DB-Persistenz-Verteilung (v0.24): Domain-DAOs statt direktem db.js-Import
