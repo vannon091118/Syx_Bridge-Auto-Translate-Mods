@@ -913,6 +913,15 @@
       "narrator": "Vannon",
       "model_id": "mimo-v2.5-pro",
       "date": "2026-07-02 06:01:01"
+    },
+    {
+      "seq": 107,
+      "hash": "9fd524d",
+      "composite": "c107j12n6a4p92",
+      "mood": "erschöpft",
+      "narrator": "Devin",
+      "model_id": "mimo-v2.5-pro",
+      "date": "2026-07-02 06:30:42"
     }
   ]
 }

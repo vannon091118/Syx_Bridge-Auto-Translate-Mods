@@ -4778,5 +4778,30 @@
         "file": "core/archive/docs/PREFLIGHT_LATEST.md"
       }
     ]
+  },
+  {
+    "p_id": "p112",
+    "id": "plot-2026-07-02T06:30:42",
+    "timestamp": "2026-07-02 06:30:42",
+    "summary": "Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert",
+    "narrator": "Devin",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c107j12n6a4p92",
+    "ref_to": "plot-2026-07-02T06:01:01",
+    "prev_narrator": "Vannon",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/extractor.js"
+      },
+      {
+        "file": "core/Translation/plugins/SongsOfSyxPlugin.js"
+      }
+    ]
   }
 ]

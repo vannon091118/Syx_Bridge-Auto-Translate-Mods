@@ -66,6 +66,15 @@ const PROPER_NOUN_DENYLIST = new Set([
   'plains', 'hills', 'swamp', 'marsh', 'tundra', 'volcano',
   'cave', 'cavern', 'dungeon', 'fortress', 'castle', 'tower',
   'bridge', 'gate', 'wall', 'walls', 'moat', 'trench',
+
+  // ── SoS Traits & PROS/CONS Labels (Hebel 3: isProperNoun False-Positive Fix) ──
+  // Single-word traits that appear in PROS/CONS arrays and ARMY_NAMES values.
+  // These pass isProperNoun() because they start uppercase, are single words,
+  // and lack English suffixes. They are NOT proper nouns — they are adjectives
+  // and common nouns that must be translated.
+  'hardy', 'nocturnal', 'diurnal', 'agile', 'docile', 'comely',
+  'fecund', 'beastly', 'deft', 'hale', 'wily', 'sly',
+  'nimble', 'robust', 'stout', 'hearty', 'lanky', 'gaunt',
   // ── Animals & Creatures ──
   'animal', 'beast', 'creature', 'monster', 'dragon', 'wolf',
   'bear', 'deer', 'boar', 'horse', 'cow', 'sheep', 'pig',

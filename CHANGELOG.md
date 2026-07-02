@@ -1,5 +1,15 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 06:30:42] Selektive INFO-Block-Extraktion: DESC_LONG PROS CONS jetzt uebersetzbar, isProperNoun Denylist erweitert
+**Narrator:** Devin | **Model:** mimo-v2.5-pro | **Composite:** `c107j12n6a4p92`
+- 4 Datei(en) geändert.
+
+### [2026-07-02] Selektive INFO-Block-Extraktion: DESC_LONG, PROS, CONS jetzt uebersetzbar + isProperNoun Denylist erweitert
+**Narrator:** TBD | **Model:** mimo-v2.5-pro | **Composite:** pending
+- extractor.js: INFO-Block-Extraktion von Blanket-Skip auf selektiven Allowlist-Modus umgestellt. DESC_LONG, PROS und CONS werden jetzt extrahiert waehrend NAME, DESC, VERSION und andere Engine-Metadaten geschuetzt bleiben. Prefix-Scanning fuer bare Array-Strings (PROS/CONS). INFO_TRANSLATABLE Set outside loop. key-Variablen-Placement korrigiert.
+- SongsOfSyxPlugin.js: 19 SoS-Trait-Worte zur PROPER_NOUN_DENYLIST hinzugefuegt (hardy, nocturnal, diurnal, agile, docile, comely, fecund, beastly, deft, hale, wily, sly, nimble, robust, stout, hearty, lanky, gaunt). isProperNoun() False-Positive-Fix fuer PROS/CONS/ARMY_NAMES Werte.
+- 2 Datei(en) geaendert.
+
 ### [2026-07-02 06:01:01] LIVE-1 Dry Run Fix: dotenv-Laden in live1_dryrun.js, PLAYER2-Bereinigung in .env, 21 von 21 PASS
 **Narrator:** Vannon | **Model:** mimo-v2.5-pro | **Composite:** `c106j35n4a2p24`
 - 4 Datei(en) geändert.
