@@ -538,3 +538,31 @@ CL-RNG Phase 2: lore_arcs A1..A5 flache arcs-Map, plotchain.json p1..p17 p_id An
 > **User-Impuls:** Phase 3 — verify_commit_msg.js Composite-Enforcement. Kein Commit ohne Composite.
 
 CL-RNG Phase 3: verify_commit_msg.js Composite-Enforcement — COMPOSITE-Token Pflicht, Seed-Ketten-Pruefung (derive-Konsistenz), CHANGELOG-Anker (Composite-Referenz). Flexibler compositeRegex, graceful Genesis-Skip, P/A-Index-Validierung. writing_rules.json: composite_token + seed_chain + changelog_anchor (required).
+
+### [2026-06-26 16:00] — Die zwei Geister-Commits: "Wer hat hier ohne Erlaubnis committed?" 🎯🧹
+
+**Buffy:** Zwei Commits in der History. `2bf02ee` und `cbc8b99`. Beide direkt via `git commit` statt durch den Author System Layer.
+
+**Vannon:** Und?
+
+**Buffy:** `2bf02ee` — .gitignore: .kiro/ hinzugefuegt. Kein [NARRATOR], kein [MODEL], kein [IMPULSE], kein [COMPOSITE]. Kein narrativer Body-Text. Keine Kausalitaets-Referenz. Der Basher hat einfach `git commit` aufgerufen, ohne author_system.js Pipeline.
+
+**Vannon:** Und `cbc8b99`?
+
+**Buffy:** LIVE_INDEX.md: GUI-Branch + Doku-Indexierung. Dasselbe Muster — direkter Commit, keine Tokens, keine Chain. Zwei Luecken in der Composite-Seed-Kette.
+
+**Vannon:** Was ist die Auswirkung?
+
+**Buffy:** Die Seed-Kette hat jetzt zwei Luecken. `a4bfcb7` (Global-Clean, author_system) referenziert `b1277c4` (LIVE-to-FREEZE, author_system). Aber die beiden Geister-Commits dazwischen haben keinen Composite-Hash, keinen Plot-Eintrag, keinen Cross-Reference-Eintrag. Sie sind unsichtbar fuer das Lore-System.
+
+**Vannon:** Und die Regel?
+
+**Buffy:** TEIL 9: "Den Unified Author System Layer aufrufen — dieser ersetzt git commit!" Kein git commit ohne author_system.js. Ausnahmen: keine. Der Basher hat die Regel verletzt. Zwei Mal.
+
+**Vannon:** Kannst du die Historie aendern?
+
+**Buffy:** Nein. Force-Push ist strikt verboten (TEIL 9). Die Luecken sind permanent. Was wir tun koennen: dokumentieren. Und dafuer sorgen dass es nicht wieder passiert.
+
+**Vannon:** Dokumentier es.
+
+**Buffy:** PLOT_LORE Eintrag erstellt. Zwei Verletzungen protokolliert. lessons_learned: Jeder git-Commit MUSS durch author_system.js laufen — auch Doku-Commits, auch Config-Commits, auch .gitignore. Die narrative Kette duldet keine Luecken. [p19]

@@ -1,18 +1,22 @@
-Live-to-FREEZE-Transfer: Veraltete Referenz-Docs aus LIVE in FREEZE ueberfuehrt.
+PLOT_LORE.md: Dokumentation zweier Geister-Commits die TEIL 9 verletzten.
 
-Es ist wieder soweit — die Doku-Konsolidierung naechste Runde. Diesmal ging es darum die ueberfaelligen Referenz-Docs rauszuholen die nur noch Platz wegnahmen.
+Zwei Commits in der Historie wurden direkt via git commit erstellt statt durch den
+Unified Author System Layer (author_system.js). Commit 2bf02ee haette .gitignore
+angepasst (.kiro/), commit cbc8b99 haette LIVE_INDEX.md aktualisiert. Beide haben
+keinen NARRATOR, keinen MODEL, keinen IMPULSE und keinen COMPOSITE Token getragen.
+Kein narrativer Body-Text. Keine Kausalitaets-Referenz. Der Basher hat die TEIL 9
+Regel verletzt: Jeder git-Commit MUSS durch author_system.js laufen.
 
-Was wurde ueberfuehrt (8 Dateien):
-SYSTEM_ARCHITECTURE.md (547 LOC) — veraltet, LOC 36K statt 30K dokumentiert, Provider 9 statt 11. SOS_FORMAT_SPEC.md — normative SoS Format-Spec, statisch, keine Runtime-Relevanz. RUNTIME_SCORE_HISTORY.md — nur 1 Eintrag von 2026-06-21, komplett veraltet. GUI_REWORK.md — alle 12/12 Bugs gefixt (B-01 bis B-07, BE-01 bis BE-03, P-01 bis P-06). PLAN_COMMIT_LAYER_RNG.md — DONE, als Archive in FREEZE verschoben. PLAN_GLOBAL_SCORE.md — DONE, als Archive in FREEZE verschoben. frozen_*.js (5 Dateien) — historische Code-Snapshots vom 2026-06-19, komplett geloescht.
+Auswirkung: Die Composite-Seed-Kette hat zwei permanente Luecken. Der Global-Clean
+Commit (a4bfcb7) und der LIVE-to-FREEZE Transfer (b1277c4) sind korrekt durch den
+Author System Layer gelaufen. Aber die beiden Commits dazwischen sind unsichtbar
+fuer das Lore-System. Force-Push ist verboten (TEIL 9), daher sind die Luecken
+permanent und nur durch diese Dokumentation reversibel.
 
-Architektur-Verifikation gegen Code:
-JS-Dateien core: 108 dokumentiert vs 140 tatsaechlich (+30 Prozent). LOC core: 30000 dokumentiert vs 36154 tatsaechlich (+20 Prozent). Provider: 11 dokumentiert vs 9 im PROVIDER_REGISTRY korrigiert. DB-Tabellen: 12 korrekt bestaetigt. Plugin-Methoden: GameAdapter 16, GamePlugin 12, SoS 35, RW 28 — alle verifiziert.
+Lessons Learned: Kein git-Commit ohne author_system.js. Auch Doku-Commits, auch
+Config-Commits, auch .gitignore-Aenderungen. Die narrative Kette duldet keine
+Luecken. Fuer zukuenftige Sessions muss jeder basher-Aufruf den author_system.js
+Weg nutzen, nie den direkten git commit Weg.
 
-MASTER_DOC Korrekturen:
-Section 2 Provider Matrix Header 11 auf 9. Section 5 DB-Stand Provider 11 auf 9. Section 9 Baum aktualisiert auf 8 LIVE + 12 FREEZE Dateien.
-
-Nicht verschoben:
-PLOT_LORE.md bleibt in LIVE weil fnf Commit-Layer-Scripts (update_plot.js, derive_composite.js, get_sidejoke.js, annotate_plot_lore.js, build_pool.js) den Pfad hardcoded referenzieren. Verschieben wuerde das Commit-System brechen. LIVE_INDEX.md aktualisiert mit neuer Struktur — Provider 11 auf 9 im INDEX-Dokumente Table.
-
-FREEZE_INDEX_2:
-Eintrag 32 (Live-FREEZE Transfer) und 33 (Doku-Divergenz-Audit v0.23.0) hinzugefuegt. Gesamtzahl 246 Buch-Eintraege.
+Dateien: PLOT_LORE.md — Eintrag 'Die zwei Geister-Commits' hinzugefuegt.
+Keine Code-Aenderungen. Nur Doku-Protokoll-Update.
