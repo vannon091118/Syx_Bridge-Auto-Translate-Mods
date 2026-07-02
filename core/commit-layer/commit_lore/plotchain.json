@@ -4887,5 +4887,39 @@
         "file": "core/tests/translation-runtime-smoke.js"
       }
     ]
+  },
+  {
+    "p_id": "p116",
+    "id": "plot-2026-07-02T07:01:08",
+    "timestamp": "2026-07-02 07:01:08",
+    "summary": "Doku-Audit 9 BROKEN 1 RISK: AGENTS Plugin-Schicht 16 auf 18, GUI-Server 667 auf 187 plus 403, Plugin-Boundary 84 auf 92, MASTER_DOC korrigiert, FCM bereinigt, writing_rules body_text_format Prosa-Regel hinzugefuegt, Root Archive sync. Syntax OK.",
+    "narrator": "Vannon",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c111j79n4a5p56",
+    "ref_to": "plot-2026-07-02T06:47:46",
+    "prev_narrator": "Null",
+    "data_changes": [
+      {
+        "file": "AGENTS.md"
+      },
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/GUI/INDEX.md"
+      },
+      {
+        "file": "core/Translation/INDEX.md"
+      },
+      {
+        "file": "core/archive/docs/AGENTS.md"
+      },
+      {
+        "file": "core/archive/docs/MASTER_DOC.md"
+      },
+      {
+        "file": "core/commit-layer/commit_lore/writing_rules.json"
+      }
+    ]
   }
 ]

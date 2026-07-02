@@ -86,7 +86,7 @@
 | Zeile | Funktion | Beschreibung |
 |-------|----------|--------------|
 | 14 | `ENV_PATH` | .env Pfad-Konstante |
-| 17-19 | `OLLAMA_DEFAULT_URL`, `PLAYER2_DEFAULT_URL`, `FCM_DEFAULT_URL` | Provider-URL-Konstanten |
+| 17-19 | `OLLAMA_DEFAULT_URL`, `OPENAI_DEFAULT_URL`, `CUSTOM_API_DEFAULT_URL` | Provider-URL-Konstanten |
 | 23 | `firstDefined(...values)` | Erster definierter Wert |
 | 30 | `parseEnvFlag(value, defaultValue)` | Env-Boolean parsen |
 | 39 | `parseDryRunFlag(value)` | Dry-Run-Flag parsen |
@@ -163,11 +163,11 @@
 | 195 | `fetchGeminiModels()` | Gemini → Thin-Wrapper auf _fetchModels (keyInUrl, preFilter+mapFn) |
 | 206 | `fetchGroqModels()` | Groq → Thin-Wrapper auf _fetchModels (bearer, fallback) |
 | 213 | `fetchOllamaModels()` | Ollama → Thin-Wrapper auf _fetchModels (no auth, responseField: models) |
-| 219 | `fetchPlayer2Models()` | Player2 → Thin-Wrapper auf _fetchModels (no auth) |
+| — | *(fetchPlayer2Models entfernt v0.25.0-alpha)* | Player2-Provider vollstaendig entfernt |
 | 225 | `fetchOpenAIModels()` | OpenAI → Thin-Wrapper auf _fetchModels (bearer, filterFn: ft: exclusion) |
 | 233 | `fetchCustomApiModels()` | CustomAPI → Thin-Wrapper auf _fetchModels (bearer-optional) |
 | 240 | `fetchNvidiaModels()` | NVIDIA → Partielle Delegation an _fetchModels + side effect (setNvidiaFreeModels) |
-| 255 | `fetchFcmModelRankings()` | FCM Rankings (Dual-Strategy, unverändert) |
+| — | *(fetchFcmModelRankings entfernt v0.25.0-alpha)* | FCM komplett entfernt (22 Dateien) |
 | 290 | `fetchOpenRouterModels(freeOnly)` | OpenRouter Modell-Liste (unverändert, Pricing-Filter) |
 | 315 | `checkCloudKey(provider, key, index)` | Cloud-Key-Validierung |
 | 387 | `checkLocalProvider(provider)` | Lokaler Provider-Check |
@@ -185,7 +185,7 @@
 - [CL:0.19.05b] Key-Cooldown, JSON-Retry
 - [CL:0.19.1-alpha] persistSingleEnvVar, P5 Sprachauswahl
 - [CL:0.19.6-fcm] fetchNvidiaModels, fetchFcmModelRankings, checkCloudKey
-- [CL:0.19.7] FCM_URL+NVIDIA_KEYS Init, ensurePrimaryModel, fetchFcmModelRankings
+- [CL:0.19.7] NVIDIA_KEYS Init, ensurePrimaryModel (FCM entfernt v0.25.0-alpha)
 - [CL:0.19.7-nmt] NMT_LOCAL_ENABLED
 - [CL:0.19.7-chain] flaggedForReview
 - [CL:0.20.0-alpha.1] H6 Metadata delegiert

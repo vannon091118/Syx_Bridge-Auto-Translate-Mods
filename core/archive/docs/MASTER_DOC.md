@@ -68,10 +68,10 @@ Scan → Extract → Translate → Audit → Polish → Export
 
 | Ebene | Datei | LOC | Methoden | Status |
 |-------|-------|-----|----------|--------|
-| 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 16 | Abstraktes Base-Interface |
-| 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 12 | Format-Hooks mit Defaults |
-| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~377 | 35 | ✅ Voll integriert |
-| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~221 | 28 (11 fertig) | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
+| 1 — Adapter | `adapters/GameAdapter.js` | ~150 | 18 | Abstraktes Base-Interface |
+| 2 — Plugin | `plugins/GamePlugin.js` | ~165 | 13 | Format-Hooks mit Defaults |
+| 3 — SoS | `plugins/SongsOfSyxPlugin.js` | ~573 | 36 | ✅ Voll integriert |
+| 3 — RimWorld | `plugins/RimWorldPlugin.js` | ~229 | 15 Stubs | 🟡 STUB — Format-Hooks fertig, Adapter fehlt |
 | — | `plugin-registry.js` | ~30 | 1 Factory | ✅ `createPlugin(gameName)` |
 
 **Ebene 1 — `GameAdapter`:** Plattform-Operationen (Launcher-Pfade, Mod-Scanning, Dateitypen).
@@ -101,7 +101,7 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 1. Neue Klasse `extends GamePlugin` — Format-Hooks implementieren
 2. In `plugin-registry.js` registrieren
 3. Adapter-Hooks implementieren (scanMod, getLauncherSettingsPath, ...)
-4. Testen via `plugin-boundary-contract.js` (76+ dynamische Interface-Checks)
+4. Testen via `plugin-boundary-contract.js` (92 dynamische Interface-Checks)
 
 ---
 
@@ -112,7 +112,7 @@ Zwei kritische Methoden wurden von validator.js/text-core.js ins Plugin delegier
 > **better-sqlite3 aktiv** — 12 Tabellen (user-Daten).
 > Frühere DB-Resets: Snapshot 19 (1.508 → Reset), Doku-Clean (100 → Test), Fresh Reset (4.390 → 0).
 > **Runtime Score:** 90.1% (gewichteter Durchschnitt über 8 Personas, Stand v0.22 — seit Reset nicht neu berechnet).
-> **Tests (2026-07-02):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 86/86 ✅ | E2E Native Mode 35/35 ✅ | **ML-7 Multi-Lang 166/166 ✅**
+> **Tests (2026-07-02):** Syntax 104/104 ✅ | ESLint ✅ | Plugin-Boundary 92/92 ✅ | E2E Native Mode 35/35 ✅ | **ML-7 Multi-Lang 166/166 ✅**
 
 ---
 
