@@ -283,6 +283,30 @@ class SongsOfSyxPlugin extends GamePlugin {
     return translatable.has(fileType);
   }
 
+  // ── Game-specific Defaults ──────────────────────────────────────────
+
+  /**
+   * Songs of Syx: Mods are stored in %APPDATA%/songsofsyx/mods (Windows)
+   * or ~/.local/share/songsofsyx/mods (Linux/macOS).
+   * Used by index.js, export_stage2.js, live1_dryrun.js as default GAME_MOD_ROOT.
+   */
+  getDefaultModRoot() {
+    return process.platform === 'win32'
+      ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
+      : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
+  }
+
+  /**
+   * Songs of Syx Steam Workshop content directory (AppID 1162750).
+   * Used by reset_now.js, workshop_export.js for Workshop-related operations.
+   */
+  getWorkshopContentPath() {
+    const workshopBase = process.platform === 'win32'
+      ? path.join('C:', 'Program Files (x86)', 'Steam', 'steamapps', 'workshop', 'content', '1162750')
+      : path.join(os.homedir(), '.local', 'share', 'Steam', 'steamapps', 'workshop', 'content', '1162750');
+    return process.env.MOD_PATH || process.env.MOD_ROOT || workshopBase;
+  }
+
   async scanMod(modDir) {
     const fs = require('fs').promises;
     if (path.basename(modDir).startsWith('.backup_')) return null;

@@ -27,12 +27,12 @@
 const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
-const os = require('os');
 
 const dbManager = require('../DB/db');
 const { createModTrackerDb } = require('../DB/mod-tracker-db');
 const { restoreBackup } = require('./backup-utils');
-const { parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('../Translation/sos-runtime');
+const { parseSoSConfig, stringifySoSConfig } = require('../Translation/sos-runtime');
+const { createPlugin, DEFAULT_GAME } = require('../Translation/plugin-registry');
 
 // ── Config resolution (mirror core/index.js behavior) ────────────────────
 const envPath = path.join(__dirname, '..', '.env');
@@ -40,13 +40,12 @@ if (fs.existsSync(envPath)) {
   require('dotenv').config({ path: envPath, quiet: true });
 }
 
-const DEFAULT_GAME_MOD_ROOT = process.platform === 'win32'
-  ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
-  : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
+const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
 
 const CONFIG = {
-  MOD_ROOT: process.env.MOD_PATH || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750',
-  GAME_MOD_ROOT: process.env.OUTPUT_PATH || DEFAULT_GAME_MOD_ROOT,
+  MOD_ROOT: process.env.MOD_PATH || process.env.MOD_ROOT || plugin.getWorkshopContentPath(),
+  GAME_MOD_ROOT: process.env.OUTPUT_PATH || process.env.GAME_MOD_ROOT || plugin.getDefaultModRoot(),
+  SETTINGS_PATH: plugin.getLauncherSettingsPath(),
   PATCH_ROOT: path.join(__dirname, '..', 'patches'),
   BACKUP_ROOT: path.join(__dirname, '..', 'backups'),
   TARGET_LANG: process.env.TARGET_LANG || 'German'
@@ -147,18 +146,18 @@ async function cleanLocalDirs() {
 
 // ── Step 4: Clean LauncherSettings.txt (remove _TARGET_LANG + BridgeCore) ─
 async function cleanLauncherSettings() {
-  if (!fs.existsSync(SETTINGS_PATH)) {
-    console.log(`[INFO] SETTINGS_PATH nicht vorhanden: ${SETTINGS_PATH}`);
+  if (!fs.existsSync(CONFIG.SETTINGS_PATH)) {
+    console.log(`[INFO] SETTINGS_PATH nicht vorhanden: ${CONFIG.SETTINGS_PATH}`);
     return 0;
   }
-  const content = await fsp.readFile(SETTINGS_PATH, 'utf-8');
+  const content = await fsp.readFile(CONFIG.SETTINGS_PATH, 'utf-8');
   const { mods } = parseSoSConfig(content);
   const cleanMods = mods.filter(m => !m.endsWith(`_${CONFIG.TARGET_LANG}`) && m !== 'BridgeCore');
   if (cleanMods.length === mods.length) {
     console.log('[INFO] LauncherSettings.txt ist bereits sauber.');
     return 0;
   }
-  await fsp.writeFile(SETTINGS_PATH, stringifySoSConfig(content, cleanMods), 'utf-8');
+  await fsp.writeFile(CONFIG.SETTINGS_PATH, stringifySoSConfig(content, cleanMods), 'utf-8');
   const removedCount = mods.length - cleanMods.length;
   console.log(`[INFO] LauncherSettings.txt: ${removedCount} Mod(s) entfernt (${mods.length} -> ${cleanMods.length}).`);
   return removedCount;
@@ -182,7 +181,7 @@ async function main() {
   console.log(`  PATCH_ROOT:     ${CONFIG.PATCH_ROOT}`);
   console.log(`  BACKUP_ROOT:    ${CONFIG.BACKUP_ROOT}`);
   console.log(`  TARGET_LANG:    ${CONFIG.TARGET_LANG}`);
-  console.log(`  SETTINGS_PATH:  ${SETTINGS_PATH}`);
+  console.log(`  SETTINGS_PATH:  ${CONFIG.SETTINGS_PATH}`);
   console.log('');
 
   console.log('[STEP 1/5] Backups → Workshop restoren...');

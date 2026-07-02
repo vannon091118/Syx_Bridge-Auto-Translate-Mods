@@ -114,14 +114,13 @@ function envFirst(...names) {
 }
 
 const os = require('os');
-const DEFAULT_GAME_MOD_ROOT = process.platform === 'win32'
-  ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
-  : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
+// Game-specific default: delegated to plugin.getDefaultModRoot()
+// (no hardcoded game paths in engine code — P3 Modularisierung)
+const DEFAULT_GAME_MOD_ROOT = activePlugin.getDefaultModRoot();
 
 // Configuration
 let CONFIG = {
-  GAME: envFirst('GAME') || DEFAULT_GAME,
-  MOD_ROOT: envFirst('MOD_PATH', 'MOD_ROOT') || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750',
+  GAME: envFirst('GAME') || DEFAULT_GAME,    MOD_ROOT: envFirst('MOD_PATH', 'MOD_ROOT') || activePlugin.getWorkshopContentPath(),  // Steam Workshop AppID — platform constant, not game-specific
   GAME_MOD_ROOT: envFirst('OUTPUT_PATH', 'GAME_MOD_ROOT') || DEFAULT_GAME_MOD_ROOT,
   PATCH_ROOT: path.join(__dirname, 'patches'),
   BACKUP_ROOT: path.join(__dirname, 'backups'),
@@ -535,8 +534,8 @@ async function shouldSkipFile(filePath, outPath, options = {}) {
 
   const row = await dbGet('SELECT mtime_ms, hash, processed_at FROM processed_files WHERE source_path = ? AND target_lang = ?', [filePath, CONFIG.TARGET_LANG]);
     
-  if (row && row.hash === currentHash) return true;
-  if (row && Number(row.mtime_ms) === Math.floor(stat.mtimeMs)) return true;
+  if (row && row.hash === currentHash) return true;  // File content unchanged — skip
+  // mtime_ms check removed: hash is sufficient and more reliable (mtime can be reset by copy/mount)
 
   return false; 
 }

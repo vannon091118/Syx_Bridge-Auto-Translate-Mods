@@ -12,6 +12,7 @@ const dbManager = require('../DB/db');
 // DB-Persistenz-Verteilung (v0.24): Domain-DAOs statt direktem db.js-Import
 const { createRunMetricsDb } = require('../DB/run-metrics-db');
 const { createAdminDb } = require('../DB/admin-db');
+const { createPlugin, DEFAULT_GAME } = require('./plugin-registry');
 
 let pass = 0, fail = 0;
 function check(name, ok, detail) {
@@ -128,9 +129,10 @@ async function run() {
 
   // ── 5. Output Path Check ──────────────────────────────
   console.log('\n📁 Output Paths\n');
+  const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
   const paths = {
     MOD_ROOT: process.env.MOD_PATH || process.env.MOD_ROOT || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750',
-    GAME_MOD_ROOT: process.env.OUTPUT_PATH || process.env.GAME_MOD_ROOT || path.join(process.env.APPDATA || '', 'songsofsyx', 'mods'),
+    GAME_MOD_ROOT: process.env.OUTPUT_PATH || process.env.GAME_MOD_ROOT || plugin.getDefaultModRoot(),
     PATCH_ROOT: path.join(__dirname, '..', 'patches'),
     BACKUP_ROOT: path.join(__dirname, '..', 'backups'),
   };

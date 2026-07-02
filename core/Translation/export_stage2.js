@@ -25,12 +25,6 @@ const TARGET_LANG = process.argv.includes('--target')
 const MOD_ROOT = process.env.MOD_PATH || process.env.MOD_ROOT
   || 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1162750';
 
-const os = require('os');
-const DEFAULT_GAME_MOD_ROOT = process.platform === 'win32'
-  ? path.join(process.env.APPDATA || '', 'songsofsyx', 'mods')
-  : path.join(os.homedir(), '.local', 'share', 'songsofsyx', 'mods');
-const GAME_MOD_ROOT = process.env.OUTPUT_PATH || process.env.GAME_MOD_ROOT || DEFAULT_GAME_MOD_ROOT;
-
 const PATCH_ROOT = path.join(__dirname, '..', 'patches');
 const BACKUP_ROOT = path.join(__dirname, '..', 'backups');
 const DB_PATH = path.join(__dirname, '..', 'translations.db');
@@ -47,6 +41,10 @@ const { validateAndPrepareContent } = require('./exporter');
 const { createPlugin, DEFAULT_GAME } = require('./plugin-registry');
 const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
 const { getActiveMods, syncLauncherSettings, parseSoSConfig, stringifySoSConfig, SETTINGS_PATH } = require('./sos-runtime');
+
+// Game-specific default: delegated to plugin.getDefaultModRoot()
+// (no hardcoded game paths in engine code — P3 Modularisierung)
+const GAME_MOD_ROOT = process.env.OUTPUT_PATH || process.env.GAME_MOD_ROOT || plugin.getDefaultModRoot();
 
 let dbRW;  // lazy-init DB-Write-Connection für processed_files (nur bei !DRY_RUN)
 

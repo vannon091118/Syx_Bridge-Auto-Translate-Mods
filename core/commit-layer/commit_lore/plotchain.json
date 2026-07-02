@@ -4625,5 +4625,57 @@
         "file": "core/archive/docs/plans/PLAN_GLOBAL_SCORE.md"
       }
     ]
+  },
+  {
+    "p_id": "p109",
+    "id": "plot-2026-07-02T05:12:32",
+    "timestamp": "2026-07-02 05:12:32",
+    "summary": "Modularisierung REQ 1-8: 6 Verstoesse behoben, 11 Dateien",
+    "narrator": "Flux",
+    "model_id": "mimo-v2.5-pro",
+    "composite": "c104j97n13a2p37",
+    "ref_to": "plot-2026-07-02T04:36:34",
+    "prev_narrator": "Argos",
+    "data_changes": [
+      {
+        "file": "CHANGELOG.md"
+      },
+      {
+        "file": "core/DB/admin-db.js"
+      },
+      {
+        "file": "core/GUI/gui-handlers.js"
+      },
+      {
+        "file": "core/GUI/reset_now.js"
+      },
+      {
+        "file": "core/GUI/workshop_export.js"
+      },
+      {
+        "file": "core/Translation/adapters/GameAdapter.js"
+      },
+      {
+        "file": "core/Translation/export_stage2.js"
+      },
+      {
+        "file": "core/Translation/live1_dryrun.js"
+      },
+      {
+        "file": "core/Translation/plugins/RimWorldPlugin.js"
+      },
+      {
+        "file": "core/Translation/plugins/SongsOfSyxPlugin.js"
+      },
+      {
+        "file": "core/Translation/runtime-ops.js"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/scripts/register_phase2.js"
+      }
+    ]
   }
 ]

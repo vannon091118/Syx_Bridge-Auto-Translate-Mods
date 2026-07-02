@@ -232,7 +232,7 @@ function createRuntimeOps(options) {
     // Workshop-Original. Das verhindert Race Conditions und beschädigte Dateien.
     const stagingPath = path.join(config.PATCH_ROOT, modFolderName);
     
-    // Syx-Mod Structure: VXX/assets/text/[LANG]/
+    // Game mod structure: versioned assets with language-specific subdirectories.
 
     if (!dryRun) {
       await fsp.mkdir(config.PATCH_ROOT, { recursive: true });
@@ -410,10 +410,10 @@ function createRuntimeOps(options) {
       // Übersetzte Dateien werden vom Patch-Ordner ins Original-Workshop-Mod
       // kopiert — inklusive _Info.txt (enthält jetzt übersetzte DESC/NAME).
       //
-      // BUGFIX (INPLACE): Songs of Syx lädt Mods NICHT aus dem Steam-Workshop-
-      // Ordner, sondern aus %APPDATA%/songsofsyx/mods/. Deshalb müssen die
-      // übersetzten Dateien ZUSÄTZLICH nach GAME_MOD_ROOT kopiert werden, damit
-      // das Spiel die Übersetzungen ohne manuellen "Sync"-Klick findet.
+      // BUGFIX (INPLACE): Some games load mods from a local AppData directory
+      // instead of the Steam Workshop folder. Translated files must therefore
+      // be copied ADDITIONALLY to GAME_MOD_ROOT so the game finds them without
+      // a manual "Sync" action.
       if (config.NATIVE_MODE) {
         const stagingEntries = await collectTextFiles(stagingPath, stagingPath);
 

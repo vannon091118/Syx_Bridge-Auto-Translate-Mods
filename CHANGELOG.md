@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 05:08:23] Modularisierung REQ 1-8: 11 Dateien, 6 Verstoesse behoben
+**Narrator:** Flux | **Model:** mimo-v2.5-pro | **Composite:** `c104j97n13a2p37`
+- 12 Datei(en) geändert.
+
 ### [2026-07-02 04:34:55] DOKU-Konsolidierung 34: frozen_*.js geloescht, Provider 11->9, Baum korrigiert, Buch-Eintraege 246
 **Narrator:** Argos | **Model:** mimo-v2.5-pro | **Composite:** `c103j46n7a4p46`
 - 12 Datei(en) geändert.

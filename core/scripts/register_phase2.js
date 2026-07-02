@@ -4,11 +4,10 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { createPlugin, DEFAULT_GAME } = require('../Translation/plugin-registry');
 
-const SETTINGS_PATH = path.join(
-  process.env.APPDATA || path.join(require('os').homedir(), 'AppData', 'Roaming'),
-  'songsofsyx', 'settings', 'LauncherSettings.txt'
-);
+const plugin = createPlugin(process.env.GAME || DEFAULT_GAME);
+const SETTINGS_PATH = plugin.getLauncherSettingsPath();
 
 const PHASE2_IDS = [
   '2918830792', // Vargen Race
