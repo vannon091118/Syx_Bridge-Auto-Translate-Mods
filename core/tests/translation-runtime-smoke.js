@@ -246,7 +246,7 @@ async function step2(dbRun, dbGet, dbAll) {
     getGrammarContext,
     getModelForProvider,
     getGeminiModelName,
-    _dbGet: dbGet,
+    dbGet,
     dbGet,
     dbAll,
     dbRun,

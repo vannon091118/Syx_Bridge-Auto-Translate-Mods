@@ -1,5 +1,9 @@
 # 📋 SyxBridge — Changelog
 
+### [2026-07-02 00:39:08] Bug-Triage Sprint BT-1: BU-004 reclassified BEHOBEN (File-Mutex exists), BU-022 fixed (_dbGet→dbGet rename 5 files), BU-019 reclassified TEILWEISE, KNOWN_BUGS_REPORT.md updated
+**Narrator:** Devin | **Model:** deepseek-v4-pro | **Composite:** `c83j29n6a1p39`
+- 7 Datei(en) geändert.
+
 ### [2026-07-02 00:27:09] Update HANDSHAKE.md for session transition
 **Narrator:** Thinker | **Model:** Gemini 3.5 Flash | **Composite:** `c82j3n3a1p73`
 - 1 Datei(en) geändert.

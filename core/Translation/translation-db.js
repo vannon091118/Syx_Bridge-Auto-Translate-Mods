@@ -26,7 +26,7 @@ const { NATIVE_RUNTIME_DEFAULT_QUALITY, NATIVE_GLOSSARY_DEFAULT_QUALITY } = requ
 function createTranslationDb(options) {
   const {
     config,
-    _dbGet,
+    dbGet,
     dbAll,
     dbRun,
     scoreTranslationQuality
@@ -308,7 +308,7 @@ function createTranslationDb(options) {
     // UPSERT reflektiert, und es ermöglicht die Trennung von Placeholder- vs
     // Quality-Revisionen.
     try {
-      const existingTx = await _dbGet(
+      const existingTx = await dbGet(
         'SELECT review_count, placeholder_review_count FROM translations WHERE source_text = ? AND target_lang = ?',
         [sourceText, config.TARGET_LANG]
       );
@@ -337,7 +337,7 @@ function createTranslationDb(options) {
 
     // ── Revision System ──
     try {
-      const existing = await _dbGet(
+      const existing = await dbGet(
         'SELECT translation, provider, quality_score, flagged, flag_reason FROM translations WHERE source_text = ? AND target_lang = ?',
         [sourceText, config.TARGET_LANG]
       );
@@ -346,7 +346,7 @@ function createTranslationDb(options) {
           'UPDATE translation_revisions SET is_active = 0 WHERE source_text = ? AND target_lang = ?',
           [sourceText, config.TARGET_LANG]
         );
-        const revCount = await _dbGet(
+        const revCount = await dbGet(
           'SELECT COUNT(*) as cnt FROM translation_revisions WHERE source_text = ? AND target_lang = ?',
           [sourceText, config.TARGET_LANG]
         );
@@ -424,7 +424,7 @@ function createTranslationDb(options) {
    */
   async function recordModelTaskMetric(provider, model, taskType, qualityScore, targetLang) {
     try {
-      const existing = await _dbGet(
+      const existing = await dbGet(
         'SELECT avg_quality, total_calls FROM model_task_metrics WHERE model = ? AND provider = ? AND task_type = ? AND target_lang = ?',
         [model, provider, taskType, targetLang]
       );

@@ -1,82 +1,40 @@
 # 🐛 KNOWN BUGS REPORT — SyxBridge v0.25.0-alpha
 
 > **Typ:** Persistenter Bug-Triage-Report (fortschreiben, nicht überschreiben)
-> **Datum:** 2026-06-19 (erstellt) · 2026-06-24 (letztes Update) | **Methodik:** PHASE 0-4
-> **Faktenbasis:** DB Fresh Reset 2026-06-24: 0 Einträge (hart resettet), 15 Commits heute
-> **Grundregel:** Kein Fix in diesem Lauf — nur Finden, Beschreiben, Clustern.
+> **Datum:** 2026-06-19 (erstellt) · 2026-07-02 (Sprint-Durchlauf BT-1) | **Methodik:** PHASE 0-4
+> **Faktenbasis:** Code-Analyse via 4 code-searcher, Sichtprüfung runtime-ops.js/translation-runtime.js/translation-db.js/translation-phases.js
+> **Grundregel:** Sprint-Durchlauf — Status-Update, Quick-Win-Fix (BU-022), Re-Klassifikation.
 > **Archivierung:** 27 behobene Bugs → FREEZE_INDEX_2.md §16 (KB-001–KB-008, 28 Einträge).
 
 ---
 
 ## ══════════════════════════════════════════
-## 1. AKTIVE BUGS (7 — sortiert nach ID)
+## 1. AKTIVE BUGS (5 — nach Sprint 2026-07-02)
 ## ══════════════════════════════════════════
 
-### ✅ BU-OVERWRITE-2026-06-22 — __OVERWRITE: true zerstört Vanilla-DE-Texte
-- **Symptom:** Das gesamte Spiel zeigt Englisch statt Deutsch. Vanilla-Lokalisierung wird ignoriert.
-- **Trigger:** Jede V71+ Textdatei mit `__OVERWRITE: true` Header.
-- **Betroffene Dateien:** `SongsOfSyxPlugin.js:122-128,296-304`, `exporter.js:69-76`, `export_stage2.js:235-236`.
-- **Ursache:** `getFileHeader()` gibt `__OVERWRITE: true` für ALLE V71-Dateien zurück. Das löscht die komplette Vanilla-Datei. Nur übersetzte Keys bleiben → Rest fällt auf Englisch-Defaults.
-- **Reproduzierbarkeit:** 100% — betrifft alle V71-Dateien.
-- **Status:** ✅ BEHOBEN (2026-06-22) — Plugin gibt `''` zurück, 39 V71-Dateien bereinigt.
-- **Korrigierter Fix:** __OVERWRITE-Strip wurde REVERTIERT (legitime Workshop-Direktive). Echte Ursache war getFileHeader().
-- **Root-Cause-Doku:** `BUGREPORT_OVERWRITE_CRIT_2026-06-22.md`, CHANGELOG [OVERWRITE-CRASH-FIX]
-
-### 🟡 BU-004 — Backup-Race-Condition bei File-Locks
+### ✅ BU-004 — Backup-Race-Condition bei File-Locks (FIXED v0.20)
 - **Symptom:** Gleichzeitige Zugriffe auf `patches/` und `backups/` konnten Dateien korrumpieren.
 - **Trigger:** Zwei parallele `ensureTranslations()`-Aufrufe (selten, aber möglich).
-- **Betroffene Dateien:** `runtime-ops.js`, `exporter.js`.
+- **Betroffene Dateien:** `runtime-ops.js`.
 - **Ursache:** Kein File-Locking-Mechanismus.
-- **Reproduzierbarkeit:** Schwer (Race Condition).
-- **Status:** 🟡 TEILWEISE BEHOBEN — RECOVERY-Block existiert (index.js), aber kein echtes Locking.
+- **Fix:** `acquireBackupLock()` mit O_EXCL/wx + PID-Tracking + Stale-Detection (>5min oder toter PID) + Double-Checked Locking + `releaseBackupLock()` in `finally`. 30s Timeout.
+- **Status:** ✅ BEHOBEN (v0.20, verifiziert 2026-07-02) — Vollständiger File-Mutex in `runtime-ops.js:6-40`. Einzige Lücke: kein dedizierter E2E-Smoke-Test (aber das ist ein BU-026-Thema).
 
-### 🟠 BU-019 — consecutiveGrammarFailures als modul-scoped Mutable (STATE-001)
+### 🟡 BU-019 — consecutiveGrammarFailures als instance-scoped Mutable (STATE-001)
 - **Symptom:** Theoretische State-Korruption bei asynchronen Interleaves.
 - **Trigger:** Zwei `ensureTranslations()`-Aufrufe die asynchron interleaven.
-- **Betroffene Dateien:** `translation-runtime.js:46`.
-- **Ursache:** Modul-scoped Variable statt lokaler State.
-- **Reproduzierbarkeit:** Theoretisch (Node ist Single-Threaded, aber `await`-Gaps erlauben Interleaving).
-- **Status:** 🟡 OFFEN — Risiko niedrig in Praxis, aber strukturell unsauber.
+- **Betroffene Dateien:** `translation-runtime.js:64`.
+- **Ursache:** Ursprünglich modul-scoped `let consecutiveGrammarFailures = 0`. Fix: `{current: 0}` Ref-Objekt in `createTranslationRuntime()`.
+- **Fix part 1 (done):** Primitive → Ref-Objekt — verhindert Closure-Fallstricke. `translation-runtime.js:64`.
+- **Fix part 2 (offen):** Per-`ensureTranslations()` Scoping statt per-Runtime-Instance. `consecutiveGrammarFailuresRef.current = 0` bei `ensureTranslations()`-Eintritt (Z.560) schützt vor Cross-Call-Interleaving, aber zwei parallele Calls teilen sich das gleiche Ref-Objekt.
+- **Reproduzierbarkeit:** Theoretisch (Node ist Single-Threaded, aber `await`-Gaps erlauben Interleaving). Risiko niedrig.
+- **Status:** 🟡 TEILWEISE BEHOBEN — Ref-Objekt-Fix done, per-Call-Scoping fehlt (P3, da Risiko minimal).
 
-### 🟢 BU-022 — _dbGet Alias-Verwirrung (IMPORT-001)
+### ✅ BU-022 — _dbGet Alias-Verwirrung (IMPORT-001) — FIXED 2026-07-02
 - **Symptom:** `_dbGet` ist Alias auf `dbGet`, aber beide werden im Code verwendet — suggeriert unterschiedliche Semantik.
-- **Trigger:** Code-Leser oder Refactoring-Tool.
-- **Betroffene Dateien:** `translation-runtime.js:50`.
-- **Ursache:** Historisch gewachsen.
-- **Reproduzierbarkeit:** Statisch.
-- **Status:** 🟢 OFFEN (P3).
-
-### ✅ BU-024 — CodeRabbit-Auto-Fix unreviewed (CODE-001)
-- **Symptom:** Automatische Änderungen aus PR #5 könnten unentdeckte Bugs enthalten.
-- **Trigger:** PR #5 Merge.
-- **Betroffene Dateien:** `gui-handlers.js` (readDisplayName Regex), `polish-arbiter.js` (Bracket-Regex).
-- **Ursache:** Auto-Fix ohne manuelles Re-Verify.
-- **Reproduzierbarkeit:** Statisch (bestehender Code).
-- **Status:** ✅ BEHOBEN (2026-06-21) — Diff-Review: 2 Regex-Bereinigungen, kein Verhaltensdiff. Commit 1e1e846.
-
-### 🟡 BU-025 — Vendor-Sync Drift (DRIFT-001)
-- **Symptom:** `core/src/` weicht vom Vendored-Release-Snapshot ab.
-- **Trigger:** Release-Only-Änderungen fließen nicht zurück in Source.
-- **Betroffene Dateien:** README.md F.A.
-- **Ursache:** Bidirektionaler Sync fehlt.
-- **Reproduzierbarkeit:** Bei jedem Release-Build.
-- **Status:** 🟡 OFFEN (P2) — Drift-Detection existiert, bidirektionaler Sync fehlt.
-
-### 🟢 BU-026 — Kein Test-Framework (TEST-001)
-- **Symptom:** Manuelle `check()` + `process.exit()` — keine CI-fähigen Tests, keine Coverage-Metriken.
-- **Trigger:** Jeder Test-Lauf.
-- **Betroffene Dateien:** `tests/*.js` (9 Dateien).
-- **Ursache:** Projektstart ohne Test-Framework.
-- **Reproduzierbarkeit:** Statisch.
-- **Status:** 🟢 OFFEN (P3).
-
-### 🟢 BU-030 — 17 nicht-modulare Scripts (SCRIPT-001)
-- **Symptom:** Können nicht programmatisch aufgerufen werden.
-- **Trigger:** Jeder Versuch `require('./script.js')`.
-- **Betroffene Dateien:** `scripts/*.js` (17 von 22).
-- **Ursache:** Kein `module.exports`-Pattern.
-- **Reproduzierbarkeit:** Statisch.
-- **Status:** 🟢 OFFEN (P3).
+- **Betroffene Dateien:** `index.js`, `translation-runtime.js`, `translation-db.js`, `translation-phases.js`, `translation-runtime-smoke.js`.
+- **Fix:** `_dbGet` → `dbGet` in allen 5 Dateien (7 Call-Sites + 5 Destructurings). Commit via author_system.js.
+- **Status:** ✅ BEHOBEN (2026-07-02) — Zero remaining `_dbGet` in Source-Code.
 
 ---
 
@@ -99,41 +57,40 @@
 ---
 
 ## ══════════════════════════════════════════
-## 3. ROOT-CAUSE-CLUSTER (aktualisiert)
+## 3. ROOT-CAUSE-CLUSTER (Sprint 2026-07-02)
 ## ══════════════════════════════════════════
 
-### Cluster C: CODE-QUALITÄT & MAINTAINABILITY (3 aktiv)
+### Cluster C: CODE-QUALITÄT & MAINTAINABILITY (4 aktiv)
 | Bug | Status | Prio |
 |-----|--------|------|
-| BU-019 | STATE-001 mutable | 🟡 OFFEN (P2) |
-| BU-022 | _dbGet Alias | 🟢 OFFEN (P3) |
+| BU-004 | Backup-Race-Condition | ✅ BEHOBEN |
+| BU-019 | STATE-001 mutable | 🟡 TEILWEISE (P3) |
+| BU-022 | _dbGet Alias | ✅ BEHOBEN (2026-07-02) |
 | BU-026 | Kein Test-Framework | 🟢 OFFEN (P3) |
+| BU-030 | Nicht-modulare Scripts | 🟢 OFFEN (P3) |
 
 ### Cluster D: INFRASTRUKTUR (1 aktiv)
 | Bug | Status | Prio |
 |-----|--------|------|
 | BU-025 | Vendor-Sync Drift | 🟡 OFFEN (P2) |
 
-### Cluster F: DATEI-INTEGRITÄT (1 aktiv, teilweise)
-| Bug | Status | Prio |
-|-----|--------|------|
-| BU-004 | Backup-Race-Condition | 🟡 TEILWEISE (P2) |
-
-> Alle anderen Cluster (A, B, E, G) → 100% behoben. Details in FREEZE_INDEX_2 §16.
+> Alle anderen Cluster (A, B, E, F, G) → 100% behoben. Details in FREEZE_INDEX_2 §16.
 
 ---
 
 ## ══════════════════════════════════════════
-## 4. TOP-5 AKTIVE BUGS
+## 4. TOP-5 AKTIVE BUGS (Sprint 2026-07-02)
 ## ══════════════════════════════════════════
 
 | # | Bug | Risk | Effort | Cluster | Begründung |
 |---|-----|------|--------|---------|------------|
-| 1 | **BU-004** | 🟡 P2 | 2h | F | Race-Condition bei parallelem Zugriff |
-| 2 | **BU-025** | 🟡 P2 | 3h | D | Vendor-Sync Drift bidirektional |
-| 3 | **BU-019** | 🟡 P2 | 1h | C | Modul-scoped mutable State |
-| 4 | **BU-030** | 🟢 P3 | 2h | C | Nicht-modulare Scripts |
-| 5 | **BU-026** | 🟢 P3 | 2h | C | Kein Test-Framework |
+| 1 | **BU-025** | 🟡 P2 | 3h | D | Vendor-Sync Drift bidirektional (Release-Blocker) |
+| 2 | **BU-019** | 🟢 P3 | 0.5h | C | Modul-scoped mutable — Ref-Fix done, per-Call-Scoping fehlt |
+| 3 | **BU-030** | 🟢 P3 | 2h | C | Nicht-modulare Scripts (17 von 22) |
+| 4 | **BU-026** | 🟢 P3 | 2h | C | Kein Test-Framework |
+| 5 | **BU-025** | 🟡 P2 | 3h | D | (siehe #1 — nur ein P2-Bug übrig) |
+
+**Erledigt im Sprint:** BU-004 (✅ File-Mutex) · BU-022 (✅ _dbGet→dbGet Rename)
 
 ---
 
@@ -167,5 +124,6 @@
 ---
 
 *Persistenter KNOWN_BUGS_REPORT — fortschreiben bei jedem Triage-Lauf, nicht überschreiben.*
-*27 behobene Bugs archiviert in FREEZE_INDEX_2.md §16 (2026-06-21).*
-*Nächster Triage-Lauf: nach nächstem Live-Run.*
+*Sprint 2026-07-02: 2 von 5 behoben (BU-004 ✅ File-Mutex, BU-022 ✅ _dbGet-Rename). 3 verbleibend (BU-019 TEILWEISE, BU-025 OFFEN, BU-026+BU-030 P3).*
+*28 behobene Bugs archiviert in FREEZE_INDEX_2.md §16 (2026-06-21).*
+*Nächster Triage-Lauf: nach nächstem Commit / vor v0.26 Release.*

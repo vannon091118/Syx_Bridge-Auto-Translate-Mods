@@ -889,7 +889,6 @@ async function main() {
     getModelForProvider, 
     getGeminiModelName, 
     dbGet,
-    _dbGet: dbGet,
     dbAll, 
     dbRun,
     beginTransaction,

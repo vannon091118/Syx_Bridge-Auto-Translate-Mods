@@ -40,7 +40,7 @@ function createTranslationRuntime(options) {
     getGrammarContext,
     getModelForProvider,
     getGeminiModelName,
-    _dbGet,
+    dbGet,
     dbAll,
     dbRun,
     beginTransaction,
@@ -102,7 +102,7 @@ function createTranslationRuntime(options) {
 
   const db = createTranslationDb({
     config,
-    _dbGet,
+    dbGet,
     dbAll,
     dbRun,
     scoreTranslationQuality: quality.scoreTranslationQuality
@@ -640,7 +640,7 @@ function createTranslationRuntime(options) {
     rollbackTransaction,
     dbAll,
     dbRun,
-    _dbGet,
+    dbGet,
     getBatchProfile,
     consecutiveGrammarFailuresRef,
     _recoveryDoneRef

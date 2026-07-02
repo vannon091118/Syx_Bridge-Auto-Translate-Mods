@@ -3902,5 +3902,39 @@
         "file": "screenshots/gui-terminal-running.jpg"
       }
     ]
+  },
+  {
+    "p_id": "p88",
+    "id": "plot-2026-07-02T00:39:08",
+    "timestamp": "2026-07-02 00:39:08",
+    "summary": "Bug-Triage Sprint BT-1: BU-004 reclassified BEHOBEN (File-Mutex exists), BU-022 fixed (_dbGet→dbGet rename 5 files), BU-019 reclassified TEILWEISE, KNOWN_BUGS_REPORT.md updated",
+    "narrator": "Devin",
+    "model_id": "deepseek-v4-pro",
+    "composite": "c83j29n6a1p39",
+    "ref_to": "plot-2026-07-02T00:29:50",
+    "prev_narrator": "Thinker",
+    "data_changes": [
+      {
+        "file": "core/.body_text.txt"
+      },
+      {
+        "file": "core/Translation/translation-db.js"
+      },
+      {
+        "file": "core/Translation/translation-phases.js"
+      },
+      {
+        "file": "core/Translation/translation-runtime.js"
+      },
+      {
+        "file": "core/archive/docs/KNOWN_BUGS_REPORT.md"
+      },
+      {
+        "file": "core/index.js"
+      },
+      {
+        "file": "core/tests/translation-runtime-smoke.js"
+      }
+    ]
   }
 ]

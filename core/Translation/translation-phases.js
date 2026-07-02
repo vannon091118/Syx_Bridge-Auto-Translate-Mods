@@ -49,7 +49,7 @@ function createTranslationPhases(deps) {
     rollbackTransaction,
     dbAll,
     dbRun,
-    _dbGet,
+    dbGet,
     getBatchProfile,
     consecutiveGrammarFailuresRef,
     _recoveryDoneRef
@@ -539,7 +539,7 @@ function createTranslationPhases(deps) {
     }
 
     try {
-      const deepPolishCount = await _dbGet(
+      const deepPolishCount = await dbGet(
         'SELECT COUNT(*) as cnt FROM translations WHERE target_lang = ? AND requires_deep_polish = 1 AND polish_status = ?',
         [config.TARGET_LANG, 'pending']
       );
